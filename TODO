@@ -1,0 +1,18 @@
+In no particular order 
+
+	Exceptions in o2buffer
+	Exceptions in dvbuffer
+
+	More helper functions for diskbuffer
+	JPEG saving
+	Prevent JPEG loader from trashing the next one in the stream
+
+	Mpeg buffer
+	Colourspace buffer
+	General owned image buffer from which one would derive diskbuffer, etc
+	Templated v4l2buffer
+	Working v4l2buffer for 2.6
+
+	wls_c?
+
+	Ethan's algorithms stuff

@@ -1,0 +1,99 @@
+#include "cvd/image_io.h"
+#include "cvd/internal/disk_image.h"
+#include "pnm_src/pnm_grok.h"
+#include "pnm_src/jpeg.h"
+#include <sstream>
+
+using namespace CVD;
+using namespace std;
+
+Exceptions::Image_IO::ImageSizeMismatch::ImageSizeMismatch(const ImageRef& src, const ImageRef& dest)
+{
+	ostringstream o;
+	o << 
+"Image load: Size mismatch when loading an image (size " << src << ") in to a non\
+resizable image (size " << dest << ").";
+
+	what = o.str();
+}
+
+Exceptions::Image_IO::MalformedImage::MalformedImage(const string& why)
+{
+	what = "Image input: " + why;
+}
+
+Exceptions::Image_IO::UnsupportedImageType::UnsupportedImageType()
+{
+	what = "Image input: Unsuppported image type.";
+}
+
+namespace CVD
+{
+namespace Image_IO
+{
+
+long image_base::elements_per_line() const
+{
+	if(m_is_rgb)
+		return xs * 3;
+	else
+		return xs;
+}
+
+long image_base::x_size() const
+{
+	return xs;
+}
+
+long image_base::y_size() const
+{
+	return ys;
+}
+
+bool image_base::is_2_byte() const
+{
+	return m_is_2_byte;
+}
+
+bool image_base::is_rgb() const
+{
+	return m_is_rgb;
+}
+
+image_in::~image_in(){}
+image_out::~image_out(){}
+
+
+image_out* image_factory::out(std::ostream& o, long xsize, long ysize, ImageType::ImageType t, bool try_rgb, bool try_2byte, const std::string& c)
+{
+	switch(t)
+	{
+		case ImageType::PNM:
+			return new CVD::PNM::pnm_out(o, xsize, ysize, try_rgb, try_2byte, c);
+			break;
+		
+		case ImageType::JPEG:
+			break;
+	}
+}
+
+image_in* image_factory::in(std::istream& i)
+{
+	unsigned char c = i.get();
+	i.putback(c);
+
+	if(c == 'P')
+		return new CVD::PNM::pnm_in(i);
+	else if(c == 0xff)
+		return new CVD::PNM::jpeg_in(i);
+	else
+		throw Exceptions::Image_IO::UnsupportedImageType();
+
+}
+
+
+}
+}
+
+
+
