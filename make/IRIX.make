@@ -31,7 +31,7 @@ options+=O2Buffer
 
 options_IRIX=O2Buffer
 
-TESTLIB=-L$(X11_L) -lX11 -lGL -ldmedia -lvl -ljpeg
+TESTLIB=-ldmedia -lvl
 
 OBJS_IRIX=cvd_src/IRIX/O2buffer.o cvd_src/IRIX/sgi-video.o
 TEST_IRIX=test/o2buffer.test

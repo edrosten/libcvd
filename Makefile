@@ -63,7 +63,7 @@ include make/x11.make
 #Images
 images=
 
-include make/libjpeg.make
+#include make/libjpeg.make
 
 
 #List of all possible options
@@ -74,8 +74,8 @@ OFLAGS=$(OFLAGS_$(OPTIMIZE))
 DFLAGS=$(DFLAGS_$(DEBUG))
 PFLAGS=$(PFLAGS_$(PROFILE))
 
-CXX_FLAGS=$(CXXFLAGS) -I. -I $(NUMERICS) $(INCLUDE)  $(DFLAGS) $(OFLAGS) $(WFLAGS) $(MISCFLAGS) -D$(UNAME) $(PFLAGS)
-CXX_FLAGS_no_opt=$(CXXFLAGS) -I. -I $(NUMERICS) $(INCLUDE)  $(DFLAGS) $(WFLAGS) $(MISCFLAGS) -D$(UNAME) $(PFLAGS)
+CXX_FLAGS=$(CXXFLAGS) -I. -I $(NUMERICS) -I$(X11_I) $(INCLUDE)  $(DFLAGS) $(OFLAGS) $(WFLAGS) $(MISCFLAGS) $(PFLAGS)
+CXX_FLAGS_no_opt=$(CXXFLAGS) -I. -I $(NUMERICS) -I$(X11_I)  $(INCLUDE)  $(DFLAGS) $(WFLAGS) $(MISCFLAGS) $(PFLAGS)
 
 
 ################################################################################
@@ -130,6 +130,7 @@ LIBMIN=$(LIBMAJ).$(MINOR_VER)
 
 libcvd.a: configuration $(OBJS)
 	$(AR) libcvd.a $(OBJS)
+	ranlib libcvd.a
 
 libcvd.so: libcvd.a
 	echo ********** ERROR! **********************
@@ -178,7 +179,7 @@ cvd/version.h:
 	echo "#endif" >>cvd/version.h
 
 cvd/internal/avaliable_images.hh:
-	echo $(images) | awk -vRS='[[:space:]]' '{a=toupper($$1);print "#define CVD_IMAGE_HAS_"a" "a","}' > cvd/internal/avaliable_images.hh
+	echo $(images) | awk -vRS='[[:space:]]' '$0{a=toupper($$1);print "#define CVD_IMAGE_HAS_"a" "a","}' > cvd/internal/avaliable_images.hh
 
 
 configuration: cvd/arch.h cvd/internal/avaliable_images.hh
@@ -193,8 +194,7 @@ configuration: cvd/arch.h cvd/internal/avaliable_images.hh
 	$(echo) "has_i686=$(has_i686)\n" >> configuration
 	$(echo) "Options: $(options)\n" >> configuration
 	$(echo) -n "Missing options for $(UNAME): " >> configuration
-	echo $(options_libs) $(options_$(UNAME)) $(options) | awk -vRS=\  '{a[$$1]++}END{for(i in a)if(a[i]==1)printf(i" "); print""}' >> configuration
-
+	echo $(options_libs) $(options_$(UNAME)) $(options) | awk 'BEGIN{RS=" "}{a[$$1]++}END{for(i in a)if(a[i]==1)printf(i" "); print""}' >> configuration
 
 progs: libcvd.a $(PROGS)
 
