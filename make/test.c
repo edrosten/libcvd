@@ -19,7 +19,7 @@
 #include <ffmpeg/avformat.h>
 #endif
 
-#ifdef test_libtiff
+#ifdef test_tiff
 #include <tiffio.h>
 #endif
 
@@ -34,4 +34,10 @@ int main()
    	av_read_frame(&ctx, &packet);
 #endif
 	
+	#ifdef test_tiff
+		TIFF* tiff;
+		uint32* a;
+		TIFFReadRGBAImageOriented(tiff, 0, 0, a, 0);
+	#endif
+
 }
