@@ -1,13 +1,13 @@
 #include <cvd/exceptions.h>
 #include <cvd/diskbuffer2.h>
+#include <cvd/deinterlacebuffer.h>
 
-#include <string>
-#include <sstream>
 
-using namespace CVD::Exceptions;
 using namespace std;
+using namespace CVD:: Exceptions:: DeinterlaceBuffer;
 
-DeinterlaceBuffer::OddNumberOfLines::OddNumberOfLines()
+
+OddNumberOfLines::OddNumberOfLines()
 {
 	what = "VideoFrame passed to DeinterlaceBuffer has an odd number of lines!";
 }
