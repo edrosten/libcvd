@@ -58,10 +58,12 @@ template<class T> void loadsave(string fin)
 	fout=make_output_file_name<T>(fin, "jpg");
 	cout << "Writing: " << fout << endl << endl;
 
-	//Save it	
-	o.open(fout.c_str());
-	img_save(im, o, ImageType::JPEG);
-	o.close();
+	//Save it
+	#ifdef CVD_IMAGE_HAS_JPEG
+		o.open(fout.c_str());
+		img_save(im, o, ImageType::JPEG);
+		o.close();
+	#endif
 }
 
 template<class T> void loadsave_safe(const char*n)

@@ -1,7 +1,12 @@
 #include "cvd/image_io.h"
 #include "cvd/internal/disk_image.h"
+#include "cvd/internal/avaliable_images.hh"
 #include "pnm_src/pnm_grok.h"
-#include "pnm_src/jpeg.h"
+
+#ifdef CVD_IMAGE_HAS_JPEG
+	#include "pnm_src/jpeg.h"
+#endif
+
 #include <sstream>
 
 using namespace CVD;
@@ -80,10 +85,12 @@ image_out* image_factory::out(std::ostream& o, long xsize, long ysize, ImageType
 		case ImageType::PNM:
 			return new CVD::PNM::pnm_out(o, xsize, ysize, try_rgb, try_2byte, c);
 			break;
-		
-		case ImageType::JPEG:
-			return new CVD::PNM::jpeg_out(o, xsize, ysize, try_rgb, try_2byte, c);
-			break;
+
+		#ifdef CVD_IMAGE_HAS_JPEG
+			case ImageType::JPEG:
+				return new CVD::PNM::jpeg_out(o, xsize, ysize, try_rgb, try_2byte, c);
+				break;
+		#endif
 
 		default:
 			throw Exceptions::Image_IO::UnsupportedImageType();
@@ -102,8 +109,10 @@ image_in* image_factory::in(std::istream& i)
 
 	if(c == 'P')
 		return new CVD::PNM::pnm_in(i);
-	else if(c == 0xff)
-		return new CVD::PNM::jpeg_in(i);
+	#ifdef CVD_IMAGE_HAS_JPEG
+		else if(c == 0xff)
+			return new CVD::PNM::jpeg_in(i);
+	#endif
 	else
 		throw Exceptions::Image_IO::UnsupportedImageType();
 

@@ -1,5 +1,5 @@
 #!/bin/sh
 
-gmake -s configuration
+make -s configuration
 
 cat configuration

@@ -59,8 +59,14 @@ endif
 # Configure library specific stuff
 #
 include make/x11.make
-options += jpeg
 
+#Images
+images=
+
+include make/libjpeg.make
+
+
+#List of all possible options
 options_libs=videodisplay jpeg
 
 
@@ -90,7 +96,7 @@ CVD_OBJS=	cvd_src/se3.o 								\
 			pnm_src/pnm_grok.o							\
 
 #Optional library support
-OBJS_OPT_LIBS=pnm_src/jpeg.o $(x11_objs)
+OBJS_OPT_LIBS=$(jpeg_objs) $(x11_objs)
 
 #Arch specific object files
 OBJS_arch=$(yuv411_objs)
@@ -146,8 +152,9 @@ test:testprogs
 	echo "**** Converting to 8 bit (so xv will work for us...)"
 	ls testout/*.pnm | sed -e's!testout/\(.*\)!pnmdepth 255 "&" > "testout/foo/\1"!' | sh
 	echo "**** Check if images are OK:"
-	echo "**** Warning: some versions od pnmdepth break on 16 bit files!"
-	xv testout/foo/*
+	echo "**** Warning: some versions of pnmdepth break on 16 bit files!"
+	mv testout/*.jpg testout/foo/
+	xv testout/*
 
 	echo "**** TESTING video i/o: press a key to exit"
 	#test/videoprog.test
@@ -170,7 +177,11 @@ cvd/version.h:
 	echo "  #define CVD_MINOR_VERSION $(MINOR_VER)" >> cvd/version.h
 	echo "#endif" >>cvd/version.h
 
-configuration: cvd/arch.h
+cvd/internal/avaliable_images.hh:
+	echo $(images) | awk -vRS='[[:space:]]' '{a=toupper($$1);print "#define CVD_IMAGE_HAS_"a" "a","}' > cvd/internal/avaliable_images.hh
+
+
+configuration: cvd/arch.h cvd/internal/avaliable_images.hh
 	$(echo) "CVD version $(MAJOR_VER).$(MINOR_VER)\n" > configuration
 	$(echo) "Platform: $(UNAME)" >> configuration
 	$(echo) "Compiler: $(CXX)"   >> configuration
@@ -213,13 +224,14 @@ progs/img_play_deinterlace: libcvd.a progs/img_play_deinterlace.o
 	
 progs/img_play_bw: libcvd.a  progs/img_play_bw.o
 	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd $(TESTLIB)
+
 clean: 
 	rm -f libcvd.a
 	rm -f libcvd.s*
 	find . -name '*.o' | xargs rm -f
 	find . -name '*.test' | xargs rm -f
 	find . -name '*.util' | xargs rm -f
-	rm -f cvd/arch.h cvd/version.h
+	rm -f cvd/arch.h cvd/version.h cvd/internal/avaliable_images.hh
 	find . -name 'ii_files' | xargs rm -rf
 	rm -rf testout tmp *.tmp
 	rm -f configuration

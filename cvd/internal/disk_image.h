@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 
+#include <cvd/internal/avaliable_images.hh>
+
 namespace CVD
 {	
 	namespace ImageType
@@ -11,7 +13,7 @@ namespace CVD
 		enum ImageType
 		{
 			PNM,
-			JPEG,
+			CVD_IMAGE_HAS_JPEG 
 		};
 	}
 

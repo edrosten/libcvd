@@ -10,6 +10,7 @@
 #endif
 
 #ifdef test_jpeg
+#include <stdio.h>
 #include <jpeglib.h>
 #endif
 
