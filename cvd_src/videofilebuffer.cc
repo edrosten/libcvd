@@ -195,7 +195,9 @@ bool VideoFileBuffer::read_next_frame()
 			if(packet.pts >= 0)
 				frame_time = packet.pts / static_cast<double>(AV_TIME_BASE);
 			else // sometimes this is reported incorrectly, so guess
+			{
 				frame_time = frame_time + 1.0 / frames_per_second();
+			}
 			
 			// Decode video frame
 			int got_picture;
@@ -323,7 +325,7 @@ inline void VideoFileBuffer::seek_to(double t)
 		// REOPENED FILE OK
 		// Now read frames until we get to the time we want
 		
-		int frames = static_cast<int>((t / frames_per_second() + 0.5));
+		int frames = static_cast<int>((t * frames_per_second() + 0.5));
 		for(int i = 0; i < frames; i++)
 		{
 			read_next_frame();

@@ -52,7 +52,7 @@ namespace CVD
 			virtual void on_end_of_buffer(VideoBufferFlags::OnEndOfBuffer behaviour) 
 				{end_of_buffer_behaviour = behaviour;};
 		
-			double frames_per_second() {return pCodecContext->frame_rate_base / static_cast<double>(pCodecContext->frame_rate);};
+			double frames_per_second() {return pCodecContext->frame_rate / static_cast<double>(pCodecContext->frame_rate_base);};
 			std::string file_name() {return pFormatContext->filename;}
 			std::string codec_name() {return pCodecContext->codec_name;}
 		
