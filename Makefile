@@ -19,9 +19,9 @@ EXEC_PREFIX=$(HOME)/usr/arch/$(UNAME)
 
 
 #Options: 0 | full
-OPTIMIZE=0
+OPTIMIZE=full
 #Options: 0 | 1 
-DEBUG=1
+DEBUG=0
 
 MAJOR_VER=0
 MINOR_VER=6
@@ -80,6 +80,7 @@ CVD_OBJS=	cvd_src/se3.o 								\
 			cvd_src/brezenham.o							\
 			cvd_src/globlist.o							\
 			cvd_src/diskbuffer2.o						\
+			cvd_src/deinterlacebuffer.o					\
 			cvd_src/exceptions.o						\
 			cvd_src/image_io.o							\
  			pnm_src/instantiations.o					\
@@ -98,7 +99,7 @@ OBJS=$(CVD_OBJS) $(OBJS_$(UNAME)) $(OBJS_arch) $(OBJS_OPT_LIBS)
 #
 # Programs to be installed
 #
-PROGS=progs/se3_exp progs/se3_ln  progs/se3_pre_mul progs/se3_post_mul progs/img_play progs/img_play_bw progs/img_stream_play progs/se3_inv
+PROGS=progs/se3_exp progs/se3_ln  progs/se3_pre_mul progs/se3_post_mul progs/img_play progs/img_play_bw progs/img_stream_play progs/se3_inv progs/img_play_deinterlace
 
 ################################################################################
 #
@@ -202,6 +203,9 @@ progs/img_stream_play: libcvd.a progs/img_stream_play.o
 	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd  $(TESTLIB)
 
 progs/img_play: libcvd.a progs/img_play.o
+	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd  $(TESTLIB)
+
+progs/img_play_deinterlace: libcvd.a progs/img_play_deinterlace.o
 	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd  $(TESTLIB)
 	
 progs/img_play_bw: libcvd.a  progs/img_play_bw.o
