@@ -63,7 +63,7 @@ include make/x11.make
 #Images
 images=
 
-#include make/libjpeg.make
+include make/libjpeg.make
 
 
 #List of all possible options
