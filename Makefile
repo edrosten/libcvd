@@ -27,8 +27,7 @@ PROFILE=0
 
 MAJOR_VER=0
 MINOR_VER=6
-
-
+MINOR_MINOR_VER=0
 
 ################################################################################
 #
@@ -108,7 +107,7 @@ OBJS=$(CVD_OBJS) $(OBJS_$(UNAME)) $(OBJS_arch) $(OBJS_OPT_LIBS)
 #
 # Programs to be installed
 #
-PROGS=progs/se3_exp progs/se3_ln  progs/se3_pre_mul progs/se3_post_mul progs/img_play progs/img_play_bw progs/img_stream_play progs/se3_inv progs/img_play_deinterlace
+PROGS=progs/se3_exp progs/se3_ln  progs/se3_pre_mul progs/se3_post_mul progs/img_play progs/img_play_bw progs/se3_inv progs/img_play_deinterlace
 
 ################################################################################
 #
@@ -126,6 +125,7 @@ TEST= $(TEST_all) $(TEST_$(UNAME))
 
 LIBMAJ=libcvd.so.$(MAJOR_VER)
 LIBMIN=$(LIBMAJ).$(MINOR_VER)
+LIBMMIN=$(LIBMAJ).$(MINOR_VER).$(MINOR_MINOR_VER)
 
 
 libcvd.a: configuration $(OBJS)
@@ -133,16 +133,12 @@ libcvd.a: configuration $(OBJS)
 	ranlib libcvd.a
 
 libcvd.so: libcvd.a
-	echo ********** ERROR! **********************
-	echo *ERROR* this breaks exceptions!!!!!!!!
-	foofoofoof
-	ld -shared -soname $@ -o $(LIBMIN) -lc $(OBJS)
+	$(CC) -shared -o $(LIBMMIN) -lc $(OBJS) $(TESTLIB)
 	#strip $(LIBMIN)
-	rm -f $(LIBMAJ)
+	rm -f $(LIBMAJ) libcvd.so $(LIBMIN)
+	ln -s $(LIBMMIN) $(LIBMIN)
 	ln -s $(LIBMIN) $(LIBMAJ)
-	rm -f libcvd.so
-	ln -s $(LIBMIN) libcvd.so
-	echo ********** ERROR! **********************
+	ln -s $(LIBMAJ) libcvd.so
 
 
 testprogs:$(TEST)
@@ -163,9 +159,10 @@ test:testprogs
 	echo "**** All OK"
 
 
-install: libcvd.a $(PROGS)
+install: libcvd.a libcvd.so $(PROGS)
 	cp -r cvd $(PREFIX)/include/
 	cp libcvd.a $(EXEC_PREFIX)/lib/
+	cp libcvd.so* $(EXEC_PREFIX)/lib/
 	cp $(PROGS) $(EXEC_PREFIX)/bin/
 
 cvd/arch.h: util/make_pnm_arch_h.util
@@ -213,8 +210,8 @@ progs/se3_pre_mul: libcvd.a progs/se3_pre_mul.o
 progs/se3_post_mul: libcvd.a progs/se3_post_mul.o
 	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd
 
-progs/img_stream_play: libcvd.a progs/img_stream_play.o
-	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd  $(TESTLIB)
+#progs/img_stream_play: libcvd.a progs/img_stream_play.o
+	#$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd  $(TESTLIB)
 
 progs/img_play: libcvd.a progs/img_play.o
 	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd  $(TESTLIB)
@@ -227,7 +224,7 @@ progs/img_play_bw: libcvd.a  progs/img_play_bw.o
 
 clean: 
 	rm -f libcvd.a
-	rm -f libcvd.s*
+	rm -f libcvd.so*
 	find . -name '*.o' | xargs rm -f
 	find . -name '*.test' | xargs rm -f
 	find . -name '*.util' | xargs rm -f
