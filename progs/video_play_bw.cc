@@ -22,14 +22,14 @@ int main(int argc, char* argv[])
 {
 	try
 	{
-		VideoFileBuffer<Rgb<byte> > buffer(argv[1]);	
+		VideoFileBuffer<byte> buffer(argv[1]);	
 		buffer.on_end_of_buffer(VideoBufferFlags::UnsetPending);
 		
 		VideoDisplay display(0, 0, buffer.size().x, buffer.size().y);
 		
 		while(buffer.frame_pending())
 		{
-			VideoFrame<Rgb<byte> >* frame = buffer.get_frame();
+			VideoFrame<byte>* frame = buffer.get_frame();
 			glDrawPixels(*frame);
 			buffer.put_frame(frame);
 		}
