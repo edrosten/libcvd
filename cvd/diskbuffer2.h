@@ -7,6 +7,7 @@
 #include <errno.h>
 
 #include <cvd/videobuffer.h>
+#include <cvd/videobufferflags.h>
 #include <cvd/diskbuffer2_frame.h>
 #include <cvd/image_io.h>
 
@@ -26,7 +27,7 @@ namespace CVD
 			struct BadFile: public All { BadFile(const std::string&, int); };
 			struct BadImage: public All { BadImage(const std::string& file, const std::string& error); };
 			struct EndOfBuffer: public All { EndOfBuffer(); };
-			struct BadSeek: public All { BadSeek(unsigned long long int t); };
+			struct BadSeek: public All { BadSeek(double t); };
 		}
 	}
 
@@ -41,11 +42,9 @@ namespace CVD
 			virtual void put_frame(VideoFrame<T>* f);
 			virtual bool frame_pending()
 				{return frame_ready;}
-			virtual void seek_to(unsigned long long int t);
+			virtual void seek_to(double t);
 		
-			enum OnEndOfBuffer{RepeatLastFrame, UnsetPending, Loop};
-
-			virtual void on_end_of_buffer(OnEndOfBuffer behaviour) 
+			virtual void on_end_of_buffer(VideoBufferFlags::OnEndOfBuffer behaviour) 
 				{end_of_buffer_behaviour = behaviour;};
 		
 		private:
@@ -55,7 +54,7 @@ namespace CVD
 			double	 time_per_frame;
 			bool frame_ready;
 			std::vector<std::string> file_names;
-			OnEndOfBuffer end_of_buffer_behaviour;
+			VideoBufferFlags::OnEndOfBuffer end_of_buffer_behaviour;
 	};
 
 	//
@@ -63,7 +62,7 @@ namespace CVD
 	//
 	template<typename T>
 	inline DiskBuffer2<T>::DiskBuffer2(const std::vector<std::string>& names, double fps) :
-		end_of_buffer_behaviour(RepeatLastFrame)
+		end_of_buffer_behaviour(VideoBufferFlags::RepeatLastFrame)
 	{
 		start_time = 0;
 
@@ -133,15 +132,15 @@ namespace CVD
 		{
 			switch(end_of_buffer_behaviour)
 			{
-				case RepeatLastFrame:
+				case VideoBufferFlags::RepeatLastFrame:
 					next_frame = file_names.size()-1;
 					break;
 				
-				case UnsetPending:
+				case VideoBufferFlags::UnsetPending:
 					frame_ready = false;
 				   break;
 				
-				case Loop:
+				case VideoBufferFlags::Loop:
 					next_frame = 0;
 					break;
 			}
@@ -165,11 +164,11 @@ namespace CVD
 	// SEEK TO
 	//
 	template<typename T>
-	inline void DiskBuffer2<T>::seek_to(unsigned long long int t)
+	inline void DiskBuffer2<T>::seek_to(double t)
 	{
 		// t is in ms, but work in seconds
 		// round the answer to the nearest whole frame
-	   int frameno = static_cast<int>((t*0.001 - start_time) / time_per_frame + 0.5);
+	   int frameno = static_cast<int>((t - start_time) / time_per_frame + 0.5);
 		if(frameno < 0 || static_cast<unsigned int>(frameno) > (file_names.size() - 1))
 			throw Exceptions::DiskBuffer2::BadSeek(t);
 		next_frame = frameno;
