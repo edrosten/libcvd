@@ -1,0 +1,5 @@
+#!/bin/sh
+
+gmake -s configuration
+
+cat configuration
