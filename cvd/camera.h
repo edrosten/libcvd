@@ -189,6 +189,8 @@ Vector<Camera::Linear::num_parameters> Camera::Linear::get_parameter_derivs(cons
   result[1] = my_last_camframe[1] * direction[1];
   result[2] = direction[0];
   result[3] = direction[1];
+
+  return result;
 }
 
 void Camera::Linear::update(const Vector<num_parameters>& updates){

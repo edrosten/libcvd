@@ -1,8 +1,8 @@
 echo=/bin/echo -e
 
-CXX=g++
-LD=g++
-CC=gcc
+CXX=g++-3
+LD=g++-3
+CC=gcc-3
 
 
 KERNEL_MAJOR=$(shell uname -r | awk -F'[.-]' '{print $$1}')
