@@ -114,7 +114,7 @@ namespace CVD{namespace Pixel
 		{
 			static void conv(const From& fr, To& to, const BasicConversion& c)
 			{
-				c.convert_pixel(Component<From>::get(fr, 1), to);
+				c.convert_pixel(Component<From>::get(fr, 0), to);
 			}
 		};
 		
