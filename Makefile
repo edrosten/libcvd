@@ -22,6 +22,8 @@ EXEC_PREFIX=$(HOME)/usr/arch/$(UNAME)
 OPTIMIZE=full
 #Options: 0 | 1 
 DEBUG=0
+#Profile
+PROFILE=0
 
 MAJOR_VER=0
 MINOR_VER=6
@@ -64,9 +66,10 @@ options_libs=videodisplay jpeg
 
 OFLAGS=$(OFLAGS_$(OPTIMIZE))
 DFLAGS=$(DFLAGS_$(DEBUG))
+PFLAGS=$(PFLAGS_$(PROFILE))
 
-CXX_FLAGS=$(CXXFLAGS) -I. -I $(NUMERICS) $(INCLUDE)  $(DFLAGS) $(OFLAGS) $(WFLAGS) $(MISCFLAGS) -D$(UNAME)
-CXX_FLAGS_no_opt=$(CXXFLAGS) -I. -I $(NUMERICS) $(INCLUDE)  $(DFLAGS) $(WFLAGS) $(MISCFLAGS) -D$(UNAME)
+CXX_FLAGS=$(CXXFLAGS) -I. -I $(NUMERICS) $(INCLUDE)  $(DFLAGS) $(OFLAGS) $(WFLAGS) $(MISCFLAGS) -D$(UNAME) $(PFLAGS)
+CXX_FLAGS_no_opt=$(CXXFLAGS) -I. -I $(NUMERICS) $(INCLUDE)  $(DFLAGS) $(WFLAGS) $(MISCFLAGS) -D$(UNAME) $(PFLAGS)
 
 
 ################################################################################
