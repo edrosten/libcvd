@@ -20,9 +20,9 @@ EXEC_PREFIX=$(HOME)/usr/arch/$(UNAME)
 
 
 #Options: 0 | full
-OPTIMIZE=0
+OPTIMIZE=1
 #Options: 0 | 1 
-DEBUG=1
+DEBUG=0
 #Profile
 PROFILE=0
 
