@@ -43,7 +43,8 @@ namespace CVD
 				{return frame_ready;}
 			virtual void seek_to(unsigned long long int t);
 		
-		   enum OnEndOfBuffer{RepeatLastFrame, UnsetPending, Loop};
+			enum OnEndOfBuffer{RepeatLastFrame, UnsetPending, Loop};
+
 			virtual void on_end_of_buffer(OnEndOfBuffer behaviour) 
 				{end_of_buffer_behaviour = behaviour;};
 		
@@ -62,12 +63,9 @@ namespace CVD
 	//
 	template<typename T>
 	inline DiskBuffer2<T>::DiskBuffer2(const std::vector<std::string>& names, double fps) :
-		end_of_buffer_behaviour(UnsetPending)
+		end_of_buffer_behaviour(RepeatLastFrame)
 	{
-		//
-		//struct timeval tv;
-		//gettimeofday(&tv, 0);
-		start_time = 0;//tv.tv_sec + 1e-6*tv.tv_usec;
+		start_time = 0;
 
 		next_frame=0;
 		
