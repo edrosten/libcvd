@@ -5,10 +5,11 @@ UNAME=$(shell uname)
 # External library locations
 #
 
-NUMERICS=$(HOME)/code/TooN
+NUMERICS=../TooN
 X11_I=/usr/X11R6/include
 X11_L=/usr/X11R6/lib
-
+OTHER_I=$(HOME)/usr/local/include
+OTHER_L=$(HOME)/usr/local/lib
 
 
 FORCE_GCC=0
@@ -64,17 +65,18 @@ images=
 
 include make/libjpeg.make
 
+include make/libffmpeg.make
 
 #List of all possible options
-options_libs=videodisplay jpeg
+options_libs=videodisplay jpeg ffmpeg
 
 
 OFLAGS=$(OFLAGS_$(OPTIMIZE))
 DFLAGS=$(DFLAGS_$(DEBUG))
 PFLAGS=$(PFLAGS_$(PROFILE))
 
-CXX_FLAGS=$(CXXFLAGS) -I. -I $(NUMERICS) -I$(X11_I) $(INCLUDE)  $(DFLAGS) $(OFLAGS) $(WFLAGS) $(MISCFLAGS) $(PFLAGS)
-CXX_FLAGS_no_opt=$(CXXFLAGS) -I. -I $(NUMERICS) -I$(X11_I)  $(INCLUDE)  $(DFLAGS) $(WFLAGS) $(MISCFLAGS) $(PFLAGS)
+CXX_FLAGS=$(CXXFLAGS) -I. -I$(OTHER_I) -I $(NUMERICS) -I$(X11_I) $(INCLUDE)  $(DFLAGS) $(OFLAGS) $(WFLAGS) $(MISCFLAGS) $(PFLAGS)
+CXX_FLAGS_no_opt=$(CXXFLAGS) -I. -I$(OTHER_I) -I $(NUMERICS) -I$(X11_I)  $(INCLUDE)  $(DFLAGS) $(WFLAGS) $(MISCFLAGS) $(PFLAGS)
 
 
 ################################################################################
@@ -95,7 +97,7 @@ CVD_OBJS=	cvd_src/se3.o 								\
 			pnm_src/pnm_grok.o							\
 
 #Optional library support
-OBJS_OPT_LIBS=$(jpeg_objs) $(x11_objs)
+OBJS_OPT_LIBS=$(jpeg_objs) $(ffmpeg_objs) $(x11_objs)
 
 #Arch specific object files
 OBJS_arch=$(yuv411_objs)
@@ -107,7 +109,7 @@ OBJS=$(CVD_OBJS) $(OBJS_$(UNAME)) $(OBJS_arch) $(OBJS_OPT_LIBS)
 #
 # Programs to be installed
 #
-PROGS=progs/se3_exp progs/se3_ln  progs/se3_pre_mul progs/se3_post_mul progs/img_play progs/img_play_bw progs/se3_inv progs/img_play_deinterlace
+PROGS=progs/se3_exp progs/se3_ln  progs/se3_pre_mul progs/se3_post_mul progs/img_play progs/img_play_bw progs/se3_inv progs/img_play_deinterlace progs/video_play
 
 ################################################################################
 #
@@ -222,6 +224,9 @@ progs/img_play_deinterlace: libcvd.a progs/img_play_deinterlace.o
 progs/img_play_bw: libcvd.a  progs/img_play_bw.o
 	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd $(TESTLIB)
 
+progs/video_play: libcvd.a  progs/video_play.o
+	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd $(TESTLIB)
+
 clean: 
 	rm -f libcvd.a
 	rm -f libcvd.so*
@@ -261,5 +266,4 @@ clean:
 
 #These have asm in them. Do not optimize.
 %.o :  %.C $(HEADERS)
-	$(CXX) -o $@ -c $(CXX_FLAGS_no_opt) $< 
-
+	$(CXX) -o $@ -c $(CXX_FLAGS_no_opt) $<
