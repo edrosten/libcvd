@@ -37,7 +37,7 @@ int main()
 	#ifdef test_tiff
 		TIFF* tiff;
 		uint32* a;
-		TIFFReadRGBAImageOriented(tiff, 0, 0, a, 0);
+		TIFFReadRGBAImageOriented(tiff, 0, 0, a, 0, 0);
 	#endif
 
 }
