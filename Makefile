@@ -21,6 +21,8 @@ has_i686=$(shell uname -m | grep -q i686 && echo 1)
 
 ifeq ($(UNAME),Linux)
 	CXX=g++
+	LD=g++
+	CC=g++
 
 
 	KERNEL_MAJOR=$(shell uname -r | awk -F'[.-]' '{print $$1}')
@@ -130,7 +132,7 @@ HEADERS=cvd/arch.h cvd/version.h
 ################################################################################
 #
 # Test programs
-PROGS=progs/se3_exp progs/se3_ln  progs/se3_pre_mul progs/se3_post_mul
+PROGS=progs/se3_exp progs/se3_ln  progs/se3_pre_mul progs/se3_post_mul progs/img_play progs/img_play_bw
 
 TEST_all= test/test_images.test 
 TEST_Linux= test/v4l2buffer.test
@@ -209,18 +211,22 @@ configuration: cvd/arch.h
 progs: libcvd.a $(PROGS)
 
 progs/se3_exp: progs/se3_exp.o
-	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd
+	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd 
 
 progs/se3_ln: progs/se3_ln.o
-	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd
+	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd 
 
 progs/se3_pre_mul: progs/se3_pre_mul.o
-	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd
+	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd 
 
 progs/se3_post_mul: progs/se3_post_mul.o
 	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd
 
+progs/img_play: progs/img_play.o
+	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd  $(TESTLIB)
 	
+progs/img_play_bw: progs/img_play_bw.o
+	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd $(TESTLIB)
 clean: 
 	rm -f libcvd.a
 	rm -f libcvd.s*
