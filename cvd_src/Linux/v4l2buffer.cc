@@ -59,18 +59,19 @@ void ErrorInfo(int e)
 #endif
 
 #ifdef USE_24
-V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block)
+V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block, int bufs)
 {
 	device = devname;
 	my_frame_rate=0;
 	my_block_method=block;
 	i_am_using_fields=fields;
+	num_buffers = bufs;
 
 
 	// Open the device.
 	m_nVideoFileDesc=open(devname,O_RDONLY);
 
-	if(m_nVideoFileDesc == 0)
+	if(m_nVideoFileDesc == -1)
 		throw Exceptions::V4L2Buffer::DeviceOpen(devname);
 	 
 	// Get device capabilites::
@@ -137,8 +138,8 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 	};
 
 
-	 m_sv4l2Buffer = new(struct v4l2_buffer)[3];
-	 m_pvVideoBuffer = new void*[3];
+	 m_sv4l2Buffer = new(struct v4l2_buffer)[num_buffers];
+	 m_pvVideoBuffer = new void*[num_buffers];
 	// ****************************************************************
 
 	if(ioctl(m_nVideoFileDesc, VIDIOC_S_FMT, &sv4l2Format))
@@ -159,7 +160,7 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 
 	// Set up the streaming buffer request
 	struct v4l2_requestbuffers sv4l2RequestBuffers;
-	sv4l2RequestBuffers.count=3;
+	sv4l2RequestBuffers.count=num_buffers;
 	sv4l2RequestBuffers.type=V4L2_BUF_TYPE_CAPTURE; //|V4L2_BUF_ATTR_DEVICEMEM;
 	cerr<<"  V4L2Buffer: Request buffer of count "<<sv4l2RequestBuffers.count<<" and type "<<sv4l2RequestBuffers.type<<".."<<endl;
 	if(ioctl(m_nVideoFileDesc,VIDIOC_REQBUFS,&sv4l2RequestBuffers))
@@ -167,7 +168,7 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 	cerr<<"  V4L2Buffer: Granted buffer of count "<<sv4l2RequestBuffers.count<<" and type "<<sv4l2RequestBuffers.type<<".."<<endl;
 
 	// Set up the streaming buffers, and mmap them
-	for(int ii=0;ii<V4L2BUFFERS;ii++) 
+	for(int ii=0;ii<num_buffers;ii++) 
 	{
 		m_sv4l2Buffer[ii].index=ii;
 		m_sv4l2Buffer[ii].type=sv4l2RequestBuffers.type;  
@@ -191,17 +192,17 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 #else
 
 
-V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block)
+V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block, int bufs)
 {
-	int mnNumBuffers = 3;
 	my_frame_rate=0;
 	my_block_method=block;
 	i_am_using_fields=fields;
+	num_buffers = bufs;
 
 	// Open the device.
 	m_nVideoFileDesc=open(devname,O_RDWR);
 
-	if(m_nVideoFileDesc == 0)
+	if(m_nVideoFileDesc == -1)
 		throw Exceptions::V4L2Buffer::DeviceOpen(devname);
 
 	// Get device capabilites::
@@ -261,21 +262,21 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 
 	// Set up the streaming buffer request
 	struct v4l2_requestbuffers sv4l2RequestBuffers;
-	sv4l2RequestBuffers.count=mnNumBuffers;
+	sv4l2RequestBuffers.count=num_buffers;
 	sv4l2RequestBuffers.type=V4L2_BUF_TYPE_VIDEO_CAPTURE; //|V4L2_BUF_ATTR_DEVICEMEM;
 	sv4l2RequestBuffers.memory=V4L2_MEMORY_MMAP;
 
 	if(0!=ioctl(m_nVideoFileDesc,VIDIOC_REQBUFS,&sv4l2RequestBuffers))
 		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Request capture buffers");
 
-	mnNumBuffers = sv4l2RequestBuffers.count;
+	num_buffers = sv4l2RequestBuffers.count;
   
-	m_sv4l2Buffer = new(struct v4l2_buffer)[mnNumBuffers];
-	m_pvVideoBuffer = new void*[mnNumBuffers];
+	m_sv4l2Buffer = new(struct v4l2_buffer)[num_buffers];
+	m_pvVideoBuffer = new void*[num_buffers];
 
 
   // Set up the streaming buffers, and mmap them
-	for(int ii=0;ii<mnNumBuffers;ii++) 
+	for(int ii=0;ii<num_buffers;ii++) 
     {
 		m_sv4l2Buffer[ii].index=ii;
 		m_sv4l2Buffer[ii].type=sv4l2RequestBuffers.type;  
