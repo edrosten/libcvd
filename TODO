@@ -20,7 +20,6 @@ In no particular order
 	Redo configuration, so it is only done once
 
 	Move frames_per_second() in to video buffer base class
-	make size() non virtual
 
 	move EndOfBufferBehaviour in to LocalVideoBuffer base class
 
@@ -36,6 +35,7 @@ Done
 	Prevent JPEG loader from trashing the next one in the stream
 	Auto configuration
 	JPEG saving
-	MPEG buffer
 	Get .so to work with exceptions
+	MPEG buffer
 	General owned image buffer from which one would derive diskbuffer, etc
+	Templated MPEG buffer

@@ -109,7 +109,7 @@ OBJS=$(CVD_OBJS) $(OBJS_$(UNAME)) $(OBJS_arch) $(OBJS_OPT_LIBS)
 #
 # Programs to be installed
 #
-PROGS=progs/se3_exp progs/se3_ln  progs/se3_pre_mul progs/se3_post_mul progs/img_play progs/img_play_bw progs/se3_inv progs/img_play_deinterlace progs/video_play
+PROGS=progs/se3_exp progs/se3_ln  progs/se3_pre_mul progs/se3_post_mul progs/img_play progs/img_play_bw progs/se3_inv progs/img_play_deinterlace progs/video_play progs/video_play_bw
 
 ################################################################################
 #
@@ -225,6 +225,9 @@ progs/img_play_bw: libcvd.a  progs/img_play_bw.o
 	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd $(TESTLIB)
 
 progs/video_play: libcvd.a  progs/video_play.o
+	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd $(TESTLIB)
+
+progs/video_play_bw: libcvd.a  progs/video_play_bw.o
 	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd $(TESTLIB)
 
 clean: 
