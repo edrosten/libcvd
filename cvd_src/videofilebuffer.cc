@@ -269,8 +269,19 @@ VideoFileFrame<byte>* RawVideoFileBuffer::get_frame()
 		switch(end_of_buffer_behaviour)
 		{
 			case VideoBufferFlags::RepeatLastFrame:
-				// Just do nothing--last frame will still be there
-				// FIXME: trashing the frame will make get_frame() return a trashed frame
+				// next_frame is empty because there isn't one, so 
+				// I'll copy the one that I'm about to return so that
+				// I can return it next time as well
+				if(is_rgb)
+				{
+					Image<Rgb<byte> > tmp = reinterpret_cast<Image<Rgb<byte> >&>(next_frame);
+					tmp.copy_from(reinterpret_cast<VideoFileFrame<Rgb<byte> >&>(*vf));
+					next_frame = (reinterpret_cast<Image<byte>&>(tmp));
+				}
+				else
+				{
+					next_frame.copy_from(*vf);
+				}
 				break;
 			
 			case VideoBufferFlags::UnsetPending:
