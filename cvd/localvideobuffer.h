@@ -1,0 +1,24 @@
+#ifndef CVD_VIDEOBUFFER_LOCAL_H
+#define CVD_VIDEOBUFFER_LOCAL_H
+
+#include <cvd/localvideoframe.h>
+#include <cvd/videobuffer.h>
+#include <cvd/exceptions.h>
+
+namespace CVD {
+
+template <class T> class LocalVideoBuffer: public  CVD::VideoBuffer<T>
+{
+	public:
+		virtual ~LocalVideoBuffer(){}
+
+		virtual ImageRef size()=0;
+		virtual LocalVideoFrame<T>* get_frame()=0;     	// blocks until frame ready
+		virtual void put_frame(VideoFrame<T>* f)=0;  	// user is finished using f
+		virtual bool frame_pending()=0;             	// checks to see if frame ready
+		virtual void seek_to(double t)					// in seconds
+		{}
+};
+}
+
+#endif
