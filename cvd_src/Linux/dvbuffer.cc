@@ -1,7 +1,7 @@
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.1 $$Name:  $
+**   $Revision: 1.1.1.1 $$Name:  $
 **       $Date: 2005/01/26 16:17:45 $
 **   Copyright: LGPL $Author: er258 $
 ** Description:
@@ -12,8 +12,8 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
-**  Revision 1.1  2005/01/26 16:17:45  er258
-**  Initial revision
+**  Revision 1.1.1.1  2005/01/26 16:17:45  er258
+**  Entering in to CVS
 **
 **  Revision 1.1.1.1  2005/01/25 18:59:22  er258
 **  Entering libCVD in to CVS
