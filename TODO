@@ -5,10 +5,8 @@ In no particular order
 
 	More helper functions for diskbuffer
 
-	Mpeg buffer
 	Colourspace buffer
 	mplayerbuffer
-	General owned image buffer from which one would derive diskbuffer, etc
 	Templated v4l2buffer
 
 	wls_c?
@@ -19,12 +17,25 @@ In no particular order
 	
 	More image libraries.
 
-	Get .so to work with exceptions
-
 	Redo configuration, so it is only done once
+
+	Move frames_per_second() in to video buffer base class
+	make size() non virtual
+
+	move EndOfBufferBehaviour in to LocalVideoBuffer base class
+
+	There is a FIXME in videofilebuffer.cc to be fixed
+
+	Make imagestreambuffer
+
+	Put dynamic_cast<> type checking in all put_frame()s in all VideoBuffer s
+	
 
 Done
 	Working v4l2buffer for 2.6
 	Prevent JPEG loader from trashing the next one in the stream
 	Auto configuration
 	JPEG saving
+	MPEG buffer
+	Get .so to work with exceptions
+	General owned image buffer from which one would derive diskbuffer, etc
