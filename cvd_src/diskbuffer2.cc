@@ -33,7 +33,7 @@ DiskBuffer2::EndOfBuffer::EndOfBuffer()
 	what="DiskBuffer2 has reached the end of its list of files";
 }
 
-DiskBuffer2::BadSeek::BadSeek(unsigned long long int t)
+DiskBuffer2::BadSeek::BadSeek(double t)
 {
 	ostringstream ss;
 	ss << "DiskBuffer2: Seek to time " << t << "mS failed. No such time in the buffer";
