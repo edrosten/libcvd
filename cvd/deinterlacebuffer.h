@@ -38,7 +38,7 @@ class DeinterlaceBuffer : public VideoBuffer<T>
       void put_frame(CVD::VideoFrame<T>* f);
       virtual bool frame_pending()
 			{return m_vidbuf.frame_pending();}
-      virtual void seek_to(unsigned long long int t)
+      virtual void seek_to(double t)
 			{return m_vidbuf.seek_to(t);}
 	
       

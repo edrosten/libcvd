@@ -123,7 +123,7 @@ template<class T> class DVBuffer2: public VideoBuffer<T>, public DC::RawDCVideo
 			return RawDCVideo::frame_pending();
 		}
 	
-		virtual void seek_to(unsigned long long){}
+		virtual void seek_to(double){}
 };
 
 typedef DVBuffer2<byte> DVBuffer;
