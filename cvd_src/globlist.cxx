@@ -1,10 +1,16 @@
 #include "cvd/diskbuffer2.h"
 #include <glob.h>
+#include <string>
+#include <vector>
 
 using namespace std;
 using namespace CVD;
 
-vector<string> CVD::globlist(string gl)
+//
+// GLOBLIST
+// Makes a list of files matching a pattern
+//
+vector<string> CVD::globlist(const string& gl)
 {
 	vector<string> ret;
 
@@ -20,4 +26,3 @@ vector<string> CVD::globlist(string gl)
 
 	return ret;
 }
-
