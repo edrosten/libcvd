@@ -40,7 +40,7 @@ namespace CVD
 {
 namespace Image_IO
 {
-
+/*
 long image_base::elements_per_line() const
 {
 	if(m_is_rgb)
@@ -68,7 +68,7 @@ bool image_base::is_rgb() const
 {
 	return m_is_rgb;
 }
-
+*/
 image_in::~image_in(){}
 image_out::~image_out(){}
 

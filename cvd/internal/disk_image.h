@@ -21,11 +21,11 @@ namespace CVD
 		class image_base
 		{
 			public:
-				bool is_2_byte()const;
-				bool is_rgb() const;
-				long  x_size() const; 
-				long  y_size() const;
-				long  elements_per_line() const;
+				bool is_2_byte()const {return m_is_2_byte;}
+				bool is_rgb() const {return m_is_rgb;}
+				long  x_size() const {return xs;}
+				long  y_size() const {return ys;}
+				long  elements_per_line() const {return xs * (m_is_rgb?3:1);}
 				
 			protected:
 				long	xs, ys;
