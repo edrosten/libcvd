@@ -228,7 +228,7 @@ progs/img_stream_play: libcvd.a progs/img_stream_play.o
 progs/img_play: libcvd.a progs/img_play.o
 	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd  $(TESTLIB)
 	
-progs/img_play_bw: libcvd.a progs/img_play_bw.o
+progs/img_play_bw: libcvd.a  progs/img_play_bw.o
 	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd $(TESTLIB)
 clean: 
 	rm -f libcvd.a
