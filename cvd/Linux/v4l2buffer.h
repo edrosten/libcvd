@@ -18,6 +18,12 @@ enum V4L2BufferBlockMethod{
   V4L2BBMchew
 };
 
+/*
+enum V4L2BufferFrameOrder{
+  MostRecent,
+  InOrder,
+};*/
+
 namespace Exceptions
 {
 	namespace V4L2Buffer
@@ -34,7 +40,7 @@ namespace Exceptions
 class V4L2Buffer : public VideoBuffer<unsigned char> 
 {
 	public:
-		V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block);
+		V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block, int numbufs=V4L2BUFFERS);
 		~V4L2Buffer();
 
 		virtual ImageRef size() 
@@ -56,11 +62,11 @@ class V4L2Buffer : public VideoBuffer<unsigned char>
 		std::string device;
 		int my_dropped_frames;
 		int my_prev_frame_no;
+		int num_buffers;
 		bool i_am_using_fields;
 		float my_frame_rate;
 		ImageRef my_image_size;
 		V4L2BufferBlockMethod my_block_method;
-
 		struct v4l2_buffer* m_sv4l2Buffer;
 		void** m_pvVideoBuffer;
 		int m_nVideoFileDesc;
