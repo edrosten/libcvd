@@ -16,8 +16,12 @@ In no particular order
 	Ethan's algorithms stuff
 
 	Memory leak occurs if an exception is thrown in v4l2buffer after the new in the constructor
+	
+	More image libraries.
 
+	Get .so to work with exceptions
 
 Done
 	Working v4l2buffer for 2.6
 	Prevent JPEG loader from trashing the next one in the stream
+	Auto configuration
