@@ -18,6 +18,11 @@ namespace CVD
 				UnsupportedImageType();
 			};
 
+			struct EofBeforeImage: public All
+			{
+				EofBeforeImage();
+			};
+
 			struct MalformedImage: public All
 			{
 				MalformedImage(const std::string &);
