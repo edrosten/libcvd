@@ -31,13 +31,21 @@ double cvd_timer::get_time()
   return (temp-startTime)/1000000.0;
 }
 
-// Conv from units of nanosecs (specifically for v4l2)
-
+// Conv from units of nanosecs (specifically for v4l2 : kernel 2.4
 double cvd_timer::conv_ntime(signed long long time)
 {
   time=time/1000;  // now in us
 
   return (time-startTime)/1000000.0;
+}
+
+// Conv from units of nanosecs (specifically for v4l2 : kernel 2.6
+// Let the overloading mecnanism sort out the difference in the 
+// headers from 2.4 hee, hee, hee
+double cvd_timer::conv_ntime(const struct timeval& tv)
+{
+	double time = tv.tv_sec + tv.tv_usec*1e-6;
+	return time-startTime / 1e6;
 }
 
 cvd_timer timer;

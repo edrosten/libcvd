@@ -23,7 +23,7 @@ namespace Exceptions
 	namespace V4L2Buffer
 	{
 		struct All: public CVD::Exceptions::VideoBuffer::All{};
-		struct DeviceOpen: public All {DeviceOpen(std::string dev, const char* err);};
+		struct DeviceOpen: public All {DeviceOpen(std::string dev);};
 		struct DeviceSetup: public All {DeviceSetup(std::string dev, std::string action);};
 		struct PutFrame: public All {PutFrame(std::string dev);};
 		struct GetFrame: public All {GetFrame(std::string dev);};
@@ -61,10 +61,10 @@ class V4L2Buffer : public VideoBuffer<unsigned char>
 		ImageRef my_image_size;
 		V4L2BufferBlockMethod my_block_method;
 
-		struct v4l2_buffer m_sv4l2Buffer[V4L2BUFFERS];
-		void* m_pvVideoBuffer[V4L2BUFFERS];
+		struct v4l2_buffer* m_sv4l2Buffer;
+		void** m_pvVideoBuffer;
 		int m_nVideoFileDesc;
-		struct v4l2_performance m_sv4l2Performance;
+		//struct v4l2_performance m_sv4l2Performance;
 
 		int my_fd;
 
