@@ -20,13 +20,24 @@
 #include <assert.h>
 
 using namespace std;
+using namespace CVD;
+
+CVD::Exceptions::VideoDisplay::InitialisationError::InitialisationError(string w)
+{
+	what="VideoDisplay inintialisation error: " + w;
+}
+
+CVD::Exceptions::VideoDisplay::RuntimeError::RuntimeError(string w)
+{
+	what="VideoDisplay error: " + w;
+}
 
 //namespace CVD {
 int CVD::defAttr[] = {GLX_RGBA,
 		      GLX_RED_SIZE, 3, 
 		      GLX_GREEN_SIZE, 3,
 		      GLX_BLUE_SIZE, 2,
-                      GLX_DOUBLEBUFFER, 0,
+			  GLX_DOUBLEBUFFER, 0,
 		      // GLX_DEPTH_SIZE, 8,
 		      // GLX_STENCIL_SIZE, 8,
 		      0};
@@ -53,32 +64,15 @@ CVD::VideoDisplay::VideoDisplay(double left, double top, double right, double bo
    my_positive_down = bottom > top;
 
 
-  cerr << "creating a video display from ("
-       << left << "," << top << ") to (" << right << "," << bottom
-       << ")" << endl;
-
   my_display = XOpenDisplay(NULL);
-  if (my_display == NULL) {
-    cerr << "Can't connect to display " << getenv("DISPLAY") << endl;
-    exit(0);
-  }
+  if (my_display == NULL)
+  	throw Exceptions::VideoDisplay::InitialisationError(string("Can't connect to display ") + getenv("DISPLAY"));
 
-  // smallest single buffered RGBA visual
-  /*int visualAttr[] = {GLX_RGBA,
-		      GLX_RED_SIZE, 3, 
-		      GLX_GREEN_SIZE, 3,
-		      GLX_BLUE_SIZE, 2,
-                      GLX_DOUBLEBUFFER, 0,
-		      // GLX_DEPTH_SIZE, 8,
-		      // GLX_STENCIL_SIZE, 8,
-		      0};
-*/
+
   // get an appropriate visual
   my_visual = glXChooseVisual(my_display, DefaultScreen(my_display), visualAttr);
-  if (my_visual == NULL) {
-    cerr << "No matching visual on display " << getenv("DISPLAY") << endl;
-    exit(0);
-  }
+  if (my_visual == NULL)
+  	throw Exceptions::VideoDisplay::InitialisationError(string("No matching visual on display ") + getenv("DISPLAY"));
   
   // check I got an rgba visual (32 bit)
   int isRgba;
@@ -86,10 +80,8 @@ CVD::VideoDisplay::VideoDisplay(double left, double top, double right, double bo
   assert(isRgba);
 
   // create a GLX context
-  if ((my_glx_context = glXCreateContext(my_display, my_visual, 0, GL_TRUE)) == NULL){
-    cerr << "Cannot create a context" << endl;
-    exit(0);
-  }
+  if ((my_glx_context = glXCreateContext(my_display, my_visual, 0, GL_TRUE)) == NULL)
+  	throw Exceptions::VideoDisplay::InitialisationError(string("Cannot create GL context on ") + getenv("DISPLAY"));
   
   // create a colormap (it's empty for rgba visuals)
   my_cmap = XCreateColormap(my_display,
@@ -119,10 +111,8 @@ CVD::VideoDisplay::VideoDisplay(double left, double top, double right, double bo
 			    my_visual->visual,
 			    CWBorderPixel | CWColormap | CWEventMask, &swa);
 
-  if (my_window == 0) {   
-    cerr << "Cannot create a window" << endl;
-    exit(0);
-  }
+  if (my_window == 0)
+  	throw Exceptions::VideoDisplay::InitialisationError(string("Cannot create a window on ") + getenv("DISPLAY"));
 
   set_title("Video Display");
 
@@ -139,10 +129,7 @@ CVD::VideoDisplay::VideoDisplay(double left, double top, double right, double bo
 
   // Connect the GLX context to the window
   if (!glXMakeCurrent(my_display, my_window, my_glx_context))
-  {
-     cerr << "Can't make window current to gl context" << endl;
-     exit(0);
-  }
+  	throw Exceptions::VideoDisplay::InitialisationError("Cannot make window current to GL context");
   
   XSelectInput(my_display,
 	       my_window,
@@ -191,15 +178,10 @@ void CVD::VideoDisplay::set_zoom(double left, double top, double right, double b
   glPixelZoom(scale, -scale);
   //glPixelZoom(1,-1);
 
-
-  cerr << "New range is ("
-       << left << "," << top << ") to (" << right << "," << bottom
-       << ")" << endl;
 }
 
 void CVD::VideoDisplay::zoom_in(double cx, double cy, double factor)
 {
-   cerr << "Zooming about (" << cx << "," << cy << ") with a scale of " << factor << endl;
    double width = my_right - my_left;
    double height = my_bottom - my_top;
 
@@ -228,7 +210,6 @@ void CVD::VideoDisplay::set_title(const string& s)
 }
 
 void CVD::VideoDisplay::select_events(long event_mask){
-  cerr << "selecting input with mask " << event_mask << endl;
   XSelectInput(my_display, my_window, event_mask);
   XFlush(my_display);
 }
@@ -249,10 +230,8 @@ int CVD::VideoDisplay::pending()
 void CVD::VideoDisplay::make_current()
 {
    // Connect the GLX context to the window
-   if (!glXMakeCurrent(my_display, my_window, my_glx_context)) {
-      cerr << "Can't make window current to gl context" << endl;
-      exit(0);
-   }
+	if (!glXMakeCurrent(my_display, my_window, my_glx_context))
+		throw Exceptions::VideoDisplay::InitialisationError("Cannot make window current to GL context");
 }
 
 //
