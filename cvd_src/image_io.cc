@@ -78,17 +78,17 @@ image_in::~image_in(){}
 image_out::~image_out(){}
 
 
-image_out* image_factory::out(std::ostream& o, long xsize, long ysize, ImageType::ImageType t, bool try_rgb, bool try_2byte, const std::string& c)
+image_out* image_factory::out(std::ostream& o, long xsize, long ysize, ImageType::ImageType t, int try_channels, bool try_2byte, const std::string& c)
 {
 	switch(t)
 	{
 		case ImageType::PNM:
-			return new CVD::PNM::pnm_out(o, xsize, ysize, try_rgb, try_2byte, c);
+			return new CVD::PNM::pnm_out(o, xsize, ysize, try_channels, try_2byte, c);
 			break;
 
 		#ifdef CVD_IMAGE_HAS_JPEG
 			case ImageType::JPEG:
-				return new CVD::PNM::jpeg_out(o, xsize, ysize, try_rgb, try_2byte, c);
+				return new CVD::PNM::jpeg_out(o, xsize, ysize, try_channels, try_2byte, c);
 				break;
 		#endif
 

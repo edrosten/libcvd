@@ -31,7 +31,7 @@ namespace PNM
 	class jpeg_out: public CVD::Image_IO::image_out
 	{
 		public:
-			jpeg_out(std::ostream&, int  xsize, int ysize, bool rgb, bool use2bytes, const std::string&c="");
+			jpeg_out(std::ostream&, int  xsize, int ysize, int ch, bool use2bytes, const std::string&c="");
 
 			virtual void 	write_raw_pixel_lines(const unsigned char*, unsigned long);
 			virtual void 	write_raw_pixel_lines(const unsigned short*, unsigned long);

@@ -273,9 +273,9 @@ void pnm_in::read_header()
 
 
 	if(type == PGM)
-		m_is_rgb = false;
+		m_channels = 1;
 	else 
-		m_is_rgb = true;
+		m_channels = 3;
 
 	//Read and check image dimensions
 	GET(xs);
@@ -470,15 +470,19 @@ void pnm_in::get_raw_pixel_lines(unsigned short* s, unsigned long nlines)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-pnm_out::pnm_out(std::ostream& out, int xsize, int ysize, bool rgb, bool use2bytes, const std::string& comm)
+pnm_out::pnm_out(std::ostream& out, int xsize, int ysize, int try_channels, bool use2bytes, const std::string& comm)
 :o(out)
 {
 	lines_so_far=0;
 	xs=xsize;
 	ys=ysize;
-	m_is_rgb = rgb;
 
-	if(rgb)
+	if(try_channels < 3)
+		m_channels = 1;
+	else
+		m_channels = 3;
+
+	if(m_channels == 3)
 		type = PPM;
 	else 
 		type = PGM;

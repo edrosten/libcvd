@@ -24,14 +24,16 @@ namespace CVD
 		{
 			public:
 				bool is_2_byte()const {return m_is_2_byte;}
-				bool is_rgb() const {return m_is_rgb;}
+				int channels(){return m_channels;}
+				//bool is_rgb() const {return m_is_rgb;}
 				long  x_size() const {return xs;}
 				long  y_size() const {return ys;}
-				long  elements_per_line() const {return xs * (m_is_rgb?3:1);}
+				long  elements_per_line() const {return xs * m_channels;}
 				
 			protected:
 				long	xs, ys;
-				bool m_is_2_byte, m_is_rgb;
+				bool 	m_is_2_byte;
+				int		m_channels;
 		};
 
 		class image_in : public image_base
@@ -57,7 +59,7 @@ namespace CVD
 			public:
 				static image_in* in(std::istream&);
 				static image_out* out(std::ostream&, long xsize, long ysize, ImageType::ImageType type,
-									 bool try_rgb, bool try_2byte, const std::string& c);
+									 int try_channels, bool try_2byte, const std::string& c);
 		};
 	}
 

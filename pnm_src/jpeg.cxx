@@ -183,10 +183,7 @@ jpeg_in::jpeg_in(istream& in)
 	xs = cinfo.output_width;
 	ys = cinfo.output_height;
 
-	if(cinfo.out_color_components == 3)
-		m_is_rgb = 1;
-	else
-		m_is_rgb = 0;
+	m_channels = cinfo.out_color_components;
 
 	m_is_2_byte = 0;
 }
@@ -280,15 +277,18 @@ struct jpeg_ostream_dest: public jpeg_destination_mgr
 
 
 
-jpeg_out::jpeg_out(std::ostream& out, int xsize, int ysize, bool is_rgb, bool use2bytes, const string& comm)
+jpeg_out::jpeg_out(std::ostream& out, int xsize, int ysize, int try_channels, bool use2bytes, const string& comm)
 :o(out)
 {
 	xs = xsize;
 	ys = ysize;
 	//use2bytes is ignored for jpegs.
 	m_is_2_byte = 0;
-	m_is_rgb = is_rgb;
 
+	if(try_channels < 3)
+		m_channels = 1;
+	else
+		m_channels = 3;
 	
 	//Set up setjmp/lonjmp error handling
 	cinfo.err = jumpy_error_manager(&jerr);
@@ -313,8 +313,8 @@ jpeg_out::jpeg_out(std::ostream& out, int xsize, int ysize, bool is_rgb, bool us
 	//Setup parameters
 	cinfo.image_width = xs;
 	cinfo.image_height = ys;
-	cinfo.input_components = is_rgb ? 3:1;
-	cinfo.in_color_space = is_rgb ? JCS_RGB : JCS_GRAYSCALE;
+	cinfo.input_components = m_channels;
+	cinfo.in_color_space = (m_channels==3) ? JCS_RGB : JCS_GRAYSCALE;
 
 	jpeg_set_defaults(&cinfo);
 	jpeg_set_quality(&cinfo, 95, TRUE);
