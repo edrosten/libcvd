@@ -216,6 +216,9 @@ progs/se3_exp: libcvd.a progs/se3_exp.o
 progs/se3_ln: libcvd.a progs/se3_ln.o
 	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd 
 
+progs/se3_inv: libcvd.a progs/se3_inv.o
+	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd 
+
 progs/se3_pre_mul: libcvd.a progs/se3_pre_mul.o
 	$(CXX) $^ -o $@ $(OFLAGS) -L. -lcvd 
 
