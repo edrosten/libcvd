@@ -132,7 +132,7 @@ HEADERS=cvd/arch.h cvd/version.h
 ################################################################################
 #
 # Test programs
-PROGS=progs/se3_exp progs/se3_ln  progs/se3_pre_mul progs/se3_post_mul progs/img_play progs/img_play_bw progs/img_stream_play
+PROGS=progs/se3_exp progs/se3_ln  progs/se3_pre_mul progs/se3_post_mul progs/img_play progs/img_play_bw progs/img_stream_play progs/se3_inv
 
 TEST_all= test/test_images.test 
 TEST_Linux= test/v4l2buffer.test
