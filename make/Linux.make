@@ -20,6 +20,8 @@ OFLAGS_full=-O3 -march=pentium3 -fexpensive-optimizations
 OFLAGS_2=-O
 DFLAGS_1= -g -ggdb -fno-inline
 DFLAGS_0= -DNDEBUG
+PFLAGS_0=
+PFLAGS_1=-p -pg 
 
 TESTLIB=-L$(X11_L) -lX11 -lGL -ljpeg
 TESTLIB=-L$(X11_L) -lX11 -lGL -ljpeg
