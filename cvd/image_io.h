@@ -33,6 +33,11 @@ namespace CVD
 				ImageSizeMismatch(const ImageRef& src, const ImageRef& dest);
 			};
 
+			struct WriteError: public All
+			{
+				WriteError(const std::string& err);
+			};
+
 
 		}
 	}

@@ -31,6 +31,11 @@ Exceptions::Image_IO::EofBeforeImage::EofBeforeImage()
 {
 	what = "End of file occured before image.";
 }
+
+Exceptions::Image_IO::WriteError::WriteError(const string& s)
+{
+	what = "Error writing " + s;
+}
 namespace CVD
 {
 namespace Image_IO
@@ -77,7 +82,12 @@ image_out* image_factory::out(std::ostream& o, long xsize, long ysize, ImageType
 			break;
 		
 		case ImageType::JPEG:
+			return new CVD::PNM::jpeg_out(o, xsize, ysize, try_rgb, try_2byte, c);
 			break;
+
+		default:
+			throw Exceptions::Image_IO::UnsupportedImageType();
+			return NULL;
 	}
 }
 

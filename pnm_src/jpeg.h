@@ -38,7 +38,8 @@ namespace PNM
 			virtual ~jpeg_out();
 			
 		private:
-
+			struct jpeg_compress_struct cinfo;
+			struct jpeg_error_mgr jerr;
 			std::ostream& 	o;
 	};
 

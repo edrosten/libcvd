@@ -10,7 +10,7 @@ using namespace std;
 using namespace CVD;
 
 
-template<class T> string make_output_file_name(string fin)
+template<class T> string make_output_file_name(string fin, string type)
 {
 	std::string fn;
 
@@ -30,7 +30,7 @@ template<class T> string make_output_file_name(string fin)
 
 	Image<T> im;
 
-	string fout = "testout/" + fn + " .pnm";
+	string fout = "testout/" + fn + "." + type;
 
 	return fout;
 }
@@ -47,12 +47,20 @@ template<class T> void loadsave(string fin)
 	i.close();
 
 
-	string fout=make_output_file_name<T>(fin);
+	string fout=make_output_file_name<T>(fin, "pnm");
 	cout << "Writing: " << fout << endl << endl;
 
 	//Save it	
 	ofstream o(fout.c_str());
 	pnm_save(im, o);
+	o.close();
+
+	fout=make_output_file_name<T>(fin, "jpg");
+	cout << "Writing: " << fout << endl << endl;
+
+	//Save it	
+	o.open(fout.c_str());
+	img_save(im, o, ImageType::JPEG);
 	o.close();
 }
 

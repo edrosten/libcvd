@@ -4,7 +4,6 @@ In no particular order
 	Exceptions in dvbuffer
 
 	More helper functions for diskbuffer
-	JPEG saving
 
 	Mpeg buffer
 	Colourspace buffer
@@ -25,3 +24,4 @@ Done
 	Working v4l2buffer for 2.6
 	Prevent JPEG loader from trashing the next one in the stream
 	Auto configuration
+	JPEG saving

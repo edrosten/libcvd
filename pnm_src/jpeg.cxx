@@ -224,6 +224,149 @@ jpeg_in::~jpeg_in()
 	jpeg_destroy_decompress(&cinfo);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Compression 
+//
+
+struct jpeg_ostream_dest: public jpeg_destination_mgr
+{
+	ostream* o;
+	static const int bufsize=8192;
+	JOCTET buf[bufsize];
+
+	static void create(j_compress_ptr p, ostream* os)
+	{
+		//Allocate memory
+		p->dest = (jpeg_ostream_dest*) (*p->mem->alloc_small)((jpeg_common_struct*)p, JPOOL_PERMANENT, sizeof(jpeg_ostream_dest));
+
+		jpeg_ostream_dest* me = (jpeg_ostream_dest*) p->dest;
+
+		//Set up virtual member functions
+		me->init_destination = s_init_destination;
+		me->empty_output_buffer = s_empty_output_buffer;
+		me->term_destination = s_term_destination;
+
+		//Set up data members
+		me->o = os;
+	}
+
+	static void s_init_destination(j_compress_ptr cinfo)
+	{
+		jpeg_ostream_dest* me = (jpeg_ostream_dest*) cinfo->dest;
+
+		me->next_output_byte = &me->buf[0];
+		me->free_in_buffer = bufsize;
+	}
+
+	static int s_empty_output_buffer(j_compress_ptr cinfo)
+	{
+		jpeg_ostream_dest* me = (jpeg_ostream_dest*) cinfo->dest;
+
+		//Docs say we should do this: 
+		me->o->write((const char*)me->buf, bufsize);
+
+		s_init_destination(cinfo);
+		return 1;
+	}
+
+	static void s_term_destination(j_compress_ptr cinfo)
+	{
+		jpeg_ostream_dest* me = (jpeg_ostream_dest*) cinfo->dest;
+		me->o->write((const char*)me->buf, bufsize-me->free_in_buffer);
+	}
+};
+
+
+
+
+jpeg_out::jpeg_out(std::ostream& out, int xsize, int ysize, bool is_rgb, bool use2bytes, const string& comm)
+:o(out)
+{
+	xs = xsize;
+	ys = ysize;
+	//use2bytes is ignored for jpegs.
+	m_is_2_byte = 0;
+	m_is_rgb = is_rgb;
+
+	
+	//Set up setjmp/lonjmp error handling
+	cinfo.err = jumpy_error_manager(&jerr);
+	jmp_buf env;
+	cinfo.client_data = &env;
+
+	//Catch "exceptions" and throw proper exceptions
+	if(setjmp(env))
+	{
+		//longjmp called
+		char buffer[JMSG_LENGTH_MAX];
+		(cinfo.err->format_message)((jpeg_common_struct*)&cinfo, buffer);
+		throw CVD::Exceptions::Image_IO::WriteError(string("JPEG: ") + buffer);
+	}
+
+	//Create the compression object
+	jpeg_create_compress(&cinfo);
+	
+	//Get the jpeg_ostream_dest class to handle output.
+	jpeg_ostream_dest::create(&cinfo, &o);
+
+	//Setup parameters
+	cinfo.image_width = xs;
+	cinfo.image_height = ys;
+	cinfo.input_components = is_rgb ? 3:1;
+	cinfo.in_color_space = is_rgb ? JCS_RGB : JCS_GRAYSCALE;
+
+	jpeg_set_defaults(&cinfo);
+	jpeg_set_quality(&cinfo, 95, TRUE);
+
+	jpeg_start_compress(&cinfo, TRUE);
+
+	unsigned int commlen = comm.length();
+	
+	//NB: not 65536 Marker looks like:
+	// marker_byte length_high length_low length*bytes
+	// length includes the block header (3 bytes)	
+
+	if(commlen > 65533)
+		commlen = 65533;
+
+	//Written without zero termination, since the length is also written
+	jpeg_write_marker(&cinfo, JPEG_COM, (JOCTET*)comm.c_str(), comm.length());
+}
+
+void jpeg_out::write_raw_pixel_lines(const unsigned short* data, unsigned long nlines)
+{
+	throw CVD::Exceptions::Image_IO::WriteError("JPEG: Internal error: can not write 16bit JPEG.");
+}
+
+void jpeg_out::write_raw_pixel_lines(const unsigned char* data, unsigned long nlines)
+{
+	jmp_buf env;
+	cinfo.client_data = &env;
+	
+	//Catch "exceptions" and throw proper exceptions
+	if(setjmp(env))
+	{
+		//longjmp called
+		char buffer[JMSG_LENGTH_MAX];
+		(cinfo.err->format_message)((jpeg_common_struct*)&cinfo, buffer);
+		throw CVD::Exceptions::Image_IO::MalformedImage(string("JPEG: ") + buffer);
+	}
+
+	const unsigned char** datap = &data;
+	for(unsigned int i=0; i < nlines; i++)	
+	{
+		jpeg_write_scanlines(&cinfo, (JSAMPLE**)datap, 1);
+		data += elements_per_line();
+	}
+}
+
+jpeg_out::~jpeg_out()
+{
+	jpeg_finish_compress(&cinfo);
+	jpeg_destroy_compress(&cinfo);
+}
+
 
 }
 }
