@@ -37,7 +37,7 @@ class VideoFrame : public BasicImage<T>
 	protected:
 		//Can't destruct these. The videobuffer normally has to do
 		//special stuff
-		~VideoFrame()
+		virtual ~VideoFrame()
 		{
 		}
 
