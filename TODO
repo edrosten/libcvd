@@ -11,8 +11,13 @@ In no particular order
 	Colourspace buffer
 	General owned image buffer from which one would derive diskbuffer, etc
 	Templated v4l2buffer
-	Working v4l2buffer for 2.6
 
 	wls_c?
 
 	Ethan's algorithms stuff
+
+	Memory leak occurs if an exception is thrown in v4l2buffer after the new in the constructor
+
+
+Done
+	Working v4l2buffer for 2.6

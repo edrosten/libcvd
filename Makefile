@@ -11,7 +11,7 @@ EXEC_PREFIX=$(HOME)/usr/arch/$(UNAME)
 #Options: [blank] | full
 OPTIMIZE=
 #Options: 0 | 1 0 is broken!
-DEBUG=
+DEBUG=1
 
 MAJOR_VER=0
 MINOR_VER=6
@@ -36,6 +36,7 @@ ifeq ($(UNAME),Linux)
 	DFLAGS_0= -DNDEBUG
 
 	TESTLIB=-L /usr/X11R6/lib -lX11 -lGL -lraw1394 -ldc1394_control -ljpeg
+	TESTLIB=-L /usr/X11R6/lib -lX11 -lGL -ljpeg
 
 	MISCFLAGS=-fPIC -pthread -DKERNEL_MAJOR=$(KERNEL_MAJOR) -DKERNEL_MINOR=$(KERNEL_MINOR) -DKERNEL_RELEASE=$(KERNEL_RELEASE)
 
@@ -101,7 +102,7 @@ PNM_OBJS=  	pnm_src/instantiations.o					\
 			pnm_src/jpeg.o
 
 #OS specific object files
-OBJS_Linux= cvd_src/Linux/dvbuffer.o #cvd_src/Linux/v4l2buffer.o 
+OBJS_Linux= cvd_src/Linux/dvbuffer.o cvd_src/Linux/v4l2buffer.o 
 OBJS_IRIX=cvd_src/IRIX/O2buffer.o cvd_src/IRIX/sgi-video.o
 
 #Arch specific object files
@@ -132,8 +133,8 @@ HEADERS=cvd/arch.h cvd/version.h
 PROGS=progs/se3_exp progs/se3_ln  progs/se3_pre_mul progs/se3_post_mul
 
 TEST_all= test/test_images.test 
-#TEST_Linux= test/dvbuffer_mono.test test/dvbuffer_rgb.test test/dvbuffer_controls.test test/diskbuffer2.test test/rawdcvideo_yuv_to_rgb.test test/rawdcvideo_yuv_to_y.test test/dvbuffer_yuvrgb.test
-#test/v4l2buffer.test
+TEST_Linux= test/v4l2buffer.test
+#TEST_Linux= test/dvbuffer_mono.test test/dvbuffer_rgb.test test/dvbuffer_controls.test test/diskbuffer2.test test/rawdcvideo_yuv_to_rgb.test test/rawdcvideo_yuv_to_y.test test/dvbuffer_yuvrgb.test test/v4l2buffer.test
 TEST_IRIX=test/o2buffer.test
 
 TEST= $(TEST_all) $(TEST_$(UNAME))
