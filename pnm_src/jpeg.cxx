@@ -3,6 +3,7 @@
 #include "cvd/image_io.h"
 using namespace std;
 #include <iostream>
+#include <iomanip>
 #include <setjmp.h>
 
 namespace CVD
@@ -16,7 +17,7 @@ struct jpeg_istream_src: public jpeg_source_mgr
 	istream* i;
 	bool eof;
 	static const int bufsize=8192;
-	JOCTET buf[bufsize];
+	JOCTET buf[bufsize+2];
 
 	//Constructor
 	static void create(j_decompress_ptr p, istream* is)
@@ -50,7 +51,10 @@ struct jpeg_istream_src: public jpeg_source_mgr
 
 	static boolean s_fill_input_buffer(j_decompress_ptr p)
 	{
+
+		int n=0;
 		jpeg_istream_src* me = (jpeg_istream_src*)p->src;
+		me->next_input_byte = me->buf;
 
 		if(me->eof)
 		{
@@ -61,12 +65,47 @@ struct jpeg_istream_src: public jpeg_source_mgr
 			return true;
 		}
 
-		//FIXME fix so that this never reads too many bytes (ie look for EOI marker)
-		//this will allow multiple images to reside in one stream
+		int c;
+		for(n=0; n < bufsize;  n++)
+		{
+			//Get a byte...
+			c = me->i->get();
 			
-		me->i->read((char*)(me->buf), bufsize);
-		me->bytes_in_buffer = me->i->gcount();
-		me->next_input_byte = me->buf;
+
+			//Check for EOF...
+			if(c  == EOF)
+			{
+				me->eof = 1;
+				break;
+			}
+			
+			//Store the byte...
+			me->buf[n] = c;
+			
+			//ooooh! a marker!
+			if(c == 0xff)
+			{
+				c = me->i->get();
+				if(c == EOF)
+				{
+					me->eof = 1;
+					break;
+				}
+
+
+				me->buf[++n] = c;
+
+				if(c == JPEG_EOI)
+				{
+					me->eof = 1;
+					break;
+				}
+			}
+		}
+
+		//me->i->read((char*)(me->buf), bufsize);
+		//me->bytes_in_buffer = me->i->gcount();	
+		me->bytes_in_buffer = n;
 
 		if(me->i->eof())
 			me->eof = 1;
