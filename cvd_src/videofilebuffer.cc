@@ -20,44 +20,47 @@ using namespace Exceptions::VideoFileBuffer;
 
 Exceptions::VideoFileBuffer::FileOpen::FileOpen(const std::string& name, const string& error)
 {
-	what = "VideoFileBuffer: Error opening file \"" + name + "\": " + error;
+	what = "RawVideoFileBuffer: Error opening file \"" + name + "\": " + error;
 }
 
 Exceptions::VideoFileBuffer::BadFrameAlloc::BadFrameAlloc()
 {
-	what = "VideoFileBuffer: Unable to allocate video frame.";
+	what = "RawVideoFileBuffer: Unable to allocate video frame.";
 }
 
 Exceptions::VideoFileBuffer::BadDecode::BadDecode(double t)
 {
 	ostringstream os;
-	os << "VideoFileBuffer: Error decoding video frame at time " << t << ".";
+	os << "RawVideoFileBuffer: Error decoding video frame at time " << t << ".";
 	what = os.str();
 }
 
 Exceptions::VideoFileBuffer::EndOfFile::EndOfFile()
 {
-	what =  "VideoFileBuffer: Tried to read off the end of the file.";
+	what =  "RawVideoFileBuffer: Tried to read off the end of the file.";
 }
 
 Exceptions::VideoFileBuffer::BadSeek::BadSeek(double t)
 {
 	ostringstream ss;
-	ss << "VideoFileBuffer: Seek to time " << t << "s failed.";
+	ss << "RawVideoFileBuffer: Seek to time " << t << "s failed.";
 	what = ss.str();
 }
 
+namespace VFB
+{
 //
 // CONSTRUCTOR
 //
-VideoFileBuffer::VideoFileBuffer(const std::string& file) :
+RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, bool rgbp) :
 	end_of_buffer_behaviour(VideoBufferFlags::RepeatLastFrame),
 	pFormatContext(0),
 	pCodecContext(0),
 	pFrame(0), 
 	pFrameRGB(0),
 	//buffer(0),
-	frame_time(0.0)
+	frame_time(0.0),
+	is_rgb(rgbp)
 {
 	try
 	{
@@ -160,7 +163,7 @@ VideoFileBuffer::VideoFileBuffer(const std::string& file) :
 //
 // DESTRUCTOR
 //
-VideoFileBuffer::~VideoFileBuffer()
+RawVideoFileBuffer::~RawVideoFileBuffer()
 {
     //delete [] buffer;
     av_free(pFrameRGB);
@@ -173,12 +176,22 @@ VideoFileBuffer::~VideoFileBuffer()
 //
 // READ NEXT FRAME
 //
-bool VideoFileBuffer::read_next_frame()
+bool RawVideoFileBuffer::read_next_frame()
 {
-	//Make next_frame point to a new block of data
-	next_frame.resize(my_size);
+	//Make next_frame point to a new block of data, getting the sizes correct.
+	if(is_rgb)
+	{
+		Image<Rgb<byte> > tmp(my_size);
+		next_frame = (reinterpret_cast<Image<byte>&>(tmp));
+	}
+	else
+	{
+		Image<byte> tmp(my_size);
+		next_frame = tmp;
+	}
+
 	//Assign this new memory block 
-	avpicture_fill((AVPicture *)pFrameRGB, reinterpret_cast<uint8_t*>(next_frame.data()), PIX_FMT_RGB24, pCodecContext->width, pCodecContext->height);
+	avpicture_fill((AVPicture *)pFrameRGB, reinterpret_cast<uint8_t*>(next_frame.data()), is_rgb?PIX_FMT_RGB24:PIX_FMT_GRAY8, pCodecContext->width, pCodecContext->height);
 
 
     AVPacket packet;
@@ -218,7 +231,7 @@ bool VideoFileBuffer::read_next_frame()
 			if(got_picture)
 			{
 				// Convert the image from its native format to RGB
-				img_convert((AVPicture *)pFrameRGB, PIX_FMT_RGB24, 
+				img_convert((AVPicture *)pFrameRGB, is_rgb?PIX_FMT_RGB24:PIX_FMT_GRAY8, 
 					(AVPicture*)pFrame, pCodecContext->pix_fmt, 
 					pCodecContext->width, pCodecContext->height);
 				
@@ -240,7 +253,7 @@ bool VideoFileBuffer::read_next_frame()
 //
 // GET FRAME
 //
-inline VideoFileFrame* VideoFileBuffer::get_frame()
+VideoFileFrame<byte>* RawVideoFileBuffer::get_frame()
 {
 
 	if(!frame_pending())
@@ -249,7 +262,7 @@ inline VideoFileFrame* VideoFileBuffer::get_frame()
 // 	Don't use - pCC->frame_number doesn't reset after a seek!
 //  Instead, we ask the packet its time when we decode it
 //	double time = start_time + pCodecContext->frame_number * pCodecContext->frame_rate_base / static_cast<double>(pCodecContext->frame_rate);
-	VideoFileFrame* vf = new VideoFileFrame(frame_time, next_frame);
+	VideoFileFrame<byte>* vf = new VideoFileFrame<byte>(frame_time, next_frame);
 
 	if(!read_next_frame())
 	{
@@ -276,9 +289,9 @@ inline VideoFileFrame* VideoFileBuffer::get_frame()
 //
 // PUT FRAME
 //
-inline void VideoFileBuffer::put_frame(VideoFrame<Rgb<byte> >* f)
+void RawVideoFileBuffer::put_frame(VideoFrame<byte>* f)
 {
-	VideoFileFrame* vff  = dynamic_cast<VideoFileFrame*>(f);
+	VideoFileFrame<byte>* vff  = dynamic_cast<VideoFileFrame<byte> *>(f);
 
 	if(!vff)
 		throw Exceptions::VideoBuffer::BadPutFrame();
@@ -289,7 +302,7 @@ inline void VideoFileBuffer::put_frame(VideoFrame<Rgb<byte> >* f)
 //
 // SEEK TO
 //
-inline void VideoFileBuffer::seek_to(double t)
+void RawVideoFileBuffer::seek_to(double t)
 {
 	if(av_seek_frame(pFormatContext, -1, static_cast<int64_t>(t*AV_TIME_BASE+0.5)) < 0)
 	{
@@ -350,5 +363,5 @@ inline void VideoFileBuffer::seek_to(double t)
 			throw BadSeek(t);
 }
 
-
+}
 } // namespace CVD

@@ -12,19 +12,22 @@ struct AVCodecContext;
 
 namespace CVD
 {
-	class VideoFileBuffer;
-	
-	class VideoFileFrame: public CVD::LocalVideoFrame<CVD::Rgb<CVD::byte> >
+	namespace VFB
 	{
-		friend class VideoFileBuffer;
+		class RawVideoFileBuffer;
+	}
+	
+	template<class C> class VideoFileFrame: public CVD::LocalVideoFrame<C>
+	{
+		friend class VFB::RawVideoFileBuffer;
 
 		protected:
 			~VideoFileFrame()
 			{
 			}
 
-			VideoFileFrame(double time, CVD::Image<CVD::Rgb<CVD::byte> >& local)
-			:LocalVideoFrame<CVD::Rgb<CVD::byte> >(time, local)
+			VideoFileFrame(double time, CVD::Image<C>& local)
+			:LocalVideoFrame<C>(time, local)
 			{
 			}	
 
