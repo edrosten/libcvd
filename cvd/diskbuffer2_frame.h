@@ -11,7 +11,10 @@ namespace CVD
 	template<class T> class DiskBuffer2Frame: public VideoFrame<T>
 	{
 		friend class DiskBuffer2<T>;
-		
+
+		public:		
+			const std::string& name() {return *frame_name;};
+
 		protected:
 			~DiskBuffer2Frame()
 			{
@@ -22,7 +25,8 @@ namespace CVD
 			{
 			}	
 
-		public:
+			
+		private:
 			const std::string *frame_name;
 	};
 }
