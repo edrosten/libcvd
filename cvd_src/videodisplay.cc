@@ -201,6 +201,8 @@ CVD::VideoDisplay::~VideoDisplay()
   
   XUnmapWindow(my_display, my_window);
   XDestroyWindow(my_display, my_window);
+  XFlush(my_display);
+  XCloseDisplay(my_display);
 }
 
 void CVD::VideoDisplay::set_title(const string& s)
