@@ -9,7 +9,7 @@ NUMERICS=$(HOME)/code/TooN
 X11_I=/usr/X11R6/include
 X11_L=/usr/X11R6/lib
 OTHER_I=$(HOME)/usr/local/include
-OTHER_L=$(HOME)/usr/local/lib
+OTHER_L=$(HOME)/usr/local/lib -lefence
 
 
 FORCE_GCC=0
@@ -20,9 +20,9 @@ EXEC_PREFIX=$(HOME)/usr/arch/$(UNAME)
 
 
 #Options: 0 | full
-OPTIMIZE=full
+OPTIMIZE=0
 #Options: 0 | 1 
-DEBUG=0
+DEBUG=1
 #Profile
 PROFILE=0
 
@@ -64,11 +64,11 @@ include make/x11.make
 images=
 
 include make/libjpeg.make
-
+include make/libtiff.make
 include make/libffmpeg.make
 
 #List of all possible options
-options_libs=videodisplay jpeg ffmpeg
+options_libs=videodisplay jpeg ffmpeg tiff
 
 
 OFLAGS=$(OFLAGS_$(OPTIMIZE))
@@ -97,7 +97,7 @@ CVD_OBJS=	cvd_src/se3.o 								\
 			pnm_src/pnm_grok.o							\
 
 #Optional library support
-OBJS_OPT_LIBS=$(jpeg_objs) $(ffmpeg_objs) $(x11_objs)
+OBJS_OPT_LIBS=$(jpeg_objs) $(ffmpeg_objs) $(x11_objs) $(tiff_objs)
 
 #Arch specific object files
 OBJS_arch=$(yuv411_objs)
@@ -179,7 +179,6 @@ cvd/version.h:
 
 cvd/internal/avaliable_images.hh:
 	echo $(images) | awk -vRS='[[:space:]]' '$0{a=toupper($$1);print "#define CVD_IMAGE_HAS_"a" "a","}' > cvd/internal/avaliable_images.hh
-
 
 configuration: cvd/arch.h cvd/internal/avaliable_images.hh
 	$(echo) "CVD version $(MAJOR_VER).$(MINOR_VER)\n" > configuration

@@ -19,6 +19,10 @@
 #include <ffmpeg/avformat.h>
 #endif
 
+#ifdef test_libtiff
+#include <tiffio.h>
+#endif
+
 int main()
 {
 

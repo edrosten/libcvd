@@ -42,6 +42,25 @@ namespace CVD
 				WriteError(const std::string& err);
 			};
 
+			struct UnseekableIstream: public All
+			{
+				UnseekableIstream(const std::string& type);
+			};
+
+			struct ReadTypeMismatch: public All
+			{
+				ReadTypeMismatch(bool read8);
+			};
+			
+			struct InternalLibraryError: public All
+			{
+				InternalLibraryError(const std::string& lib, const std::string err);
+			};
+
+			struct UnsupportedImageSubType: public All
+			{
+				UnsupportedImageSubType(const std::string &, const std::string&);
+			};
 
 		}
 	}

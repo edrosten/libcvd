@@ -7,6 +7,9 @@
 	#include "pnm_src/jpeg.h"
 #endif
 
+#ifdef CVD_IMAGE_HAS_TIFF
+	#include "pnm_src/tiff.h"
+#endif
 #include <sstream>
 
 using namespace CVD;
@@ -34,12 +37,32 @@ Exceptions::Image_IO::UnsupportedImageType::UnsupportedImageType()
 
 Exceptions::Image_IO::EofBeforeImage::EofBeforeImage()
 {
-	what = "End of file occured before image.";
+	what = "Image input: End of file occured before image.";
 }
 
 Exceptions::Image_IO::WriteError::WriteError(const string& s)
 {
 	what = "Error writing " + s;
+}
+
+Exceptions::Image_IO::ReadTypeMismatch::ReadTypeMismatch(const bool read8)
+{
+	what = string("Image input: Attempting to read ") + (read8?"8":"16") + "bit data from " + (read8?"16":"8")  + "bit file (probably an internal error).";
+}
+
+Exceptions::Image_IO::UnseekableIstream::UnseekableIstream(const string& s)
+{
+	what = "Image input: Loading " + s + " images requires seekable istream.";
+}
+
+Exceptions::Image_IO::UnsupportedImageSubType::UnsupportedImageSubType(const string& i, const string& why)
+{
+	what = "Image input: Unsupported subtype of " + i+ " image: " + why;
+}
+
+Exceptions::Image_IO::InternalLibraryError::InternalLibraryError(const std::string& l, const std::string e)
+{
+	what = "Internal error in " + l + " library: " + e;
 }
 namespace CVD
 {
@@ -112,6 +135,10 @@ image_in* image_factory::in(std::istream& i)
 	#ifdef CVD_IMAGE_HAS_JPEG
 		else if(c == 0xff)
 			return new CVD::PNM::jpeg_in(i);
+	#endif
+	#ifdef CVD_IMAGE_HAS_TIFF
+		else if(c == 'I')
+			return new CVD::PNM::tiff_in(i);
 	#endif
 	else
 		throw Exceptions::Image_IO::UnsupportedImageType();
