@@ -27,6 +27,10 @@ Exceptions::Image_IO::UnsupportedImageType::UnsupportedImageType()
 	what = "Image input: Unsuppported image type.";
 }
 
+Exceptions::Image_IO::EofBeforeImage::EofBeforeImage()
+{
+	what = "End of file occured before image.";
+}
 namespace CVD
 {
 namespace Image_IO
@@ -80,6 +84,10 @@ image_out* image_factory::out(std::ostream& o, long xsize, long ysize, ImageType
 image_in* image_factory::in(std::istream& i)
 {
 	unsigned char c = i.get();
+
+	if(i.eof())
+		throw Exceptions::Image_IO::EofBeforeImage();
+
 	i.putback(c);
 
 	if(c == 'P')
