@@ -145,8 +145,15 @@ ImageRef DeinterlaceBuffer<T>::size()
 template <typename T>
 void DeinterlaceBuffer<T>::put_frame(CVD::VideoFrame<T>* frame)
 {
+	if(m_loadnewframe)
+	{
+		// Next time we'll be getting a new real frame, so put back the current real frame
+		m_vidbuf.put_frame(my_realframe);
+	}
+	
+	// And delete the data for my current deinterlaced frame
 	delete[] frame->data();
-   delete dynamic_cast<DeinterlaceFrame<T>*>(frame);
+	delete dynamic_cast<DeinterlaceFrame<T>*>(frame);
 }
 
 } // CVD
