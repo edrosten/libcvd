@@ -14,6 +14,20 @@
 #include <jpeglib.h>
 #endif
 
+#ifdef test_ffmpeg
+#include <ffmpeg/avcodec.h>
+#include <ffmpeg/avformat.h>
+#endif
+
 int main()
 {
+
+#ifdef test_ffmpeg
+// Check for version 0.4.9-pre1 or higher
+// (Since that version introduces this function, which I use)
+    AVPacket packet;
+	AVFormatContext ctx;
+   	av_read_frame(&ctx, &packet);
+#endif
+	
 }
