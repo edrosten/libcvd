@@ -232,7 +232,7 @@ jpeg_in::~jpeg_in()
 struct jpeg_ostream_dest: public jpeg_destination_mgr
 {
 	ostream* o;
-	static const int bufsize=8192;
+	static const int bufsize=262144;
 	JOCTET buf[bufsize];
 
 	static void create(j_compress_ptr p, ostream* os)
@@ -343,6 +343,7 @@ void jpeg_out::write_raw_pixel_lines(const unsigned char* data, unsigned long nl
 {
 	jmp_buf env;
 	cinfo.client_data = &env;
+	long elem = elements_per_line();
 	
 	//Catch "exceptions" and throw proper exceptions
 	if(setjmp(env))
@@ -357,7 +358,7 @@ void jpeg_out::write_raw_pixel_lines(const unsigned char* data, unsigned long nl
 	for(unsigned int i=0; i < nlines; i++)	
 	{
 		jpeg_write_scanlines(&cinfo, (JSAMPLE**)datap, 1);
-		data += elements_per_line();
+		data += elem;
 	}
 }
 
