@@ -5,7 +5,7 @@ UNAME=$(shell uname)
 # External library locations
 #
 
-NUMERICS=../TooN
+NUMERICS=$(HOME)/code/TooN
 X11_I=/usr/X11R6/include
 X11_L=/usr/X11R6/lib
 OTHER_I=$(HOME)/usr/local/include
