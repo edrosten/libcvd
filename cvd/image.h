@@ -19,14 +19,18 @@
 	
 	CLASS HEIRACHY:
 
-	BasicImage		   Access a block of data as an image
+	BasicImage		             Access an arbitraty block of data as an image
 	  | 
-	  +-VideoFrame     }
-	  |   |            } 
-      |   +-V4L2Frame  }
-	  |   +-O2Frame    } Defined in other files
-	  |   :            }
-	  |	  +-etc        }
+	  +-VideoFrame               } Access blocks of data returned from video
+	  |   |                      } capture devices as images. Defined in other
+      |   +-V4L2Frame            } files.
+	  |   +-O2Frame              } 
+	  |   :                  
+	  |	  +-LocalVideoFrame	     } Access blocks of data from local sources 
+	  |       |                  } as video frames. Since the data is local, 
+	  |		  +-DiskBuffer2Frame } these use Image to manage memory. Access
+	  |       :                  } to the private image is allowed
+	  |       +-etc              }
 	  |
 	  +-Image		   Images with memory management.
 
@@ -80,7 +84,11 @@
 	  Image<T> foo; 
 	  	Creates an image of type T, which can be copied, assigned to, and used 
 		in STL containers efficiently.
-		
+	
+
+	  Images behave like pointers. Copying an image is like copying a pointer:
+	  both the source and destination point to the same chunk of data. To 
+	  further the analogy, [] dereferences images.
 
 	MACROS
 	  

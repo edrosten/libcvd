@@ -1,13 +1,13 @@
 
-#ifndef __VIDEOFILEBUFFER_H__
-#define __VIDEOFILEBUFFER_H__
+#ifndef CVD_VIDEOFILEBUFFER_H
+#define CVD_VIDEOFILEBUFFER_H
 
 #include <vector>
 #include <string>
 #include <fstream>
 #include <errno.h>
 
-#include <cvd/videobuffer.h>
+#include <cvd/localvideobuffer.h>
 #include <cvd/videobufferflags.h>
 #include <cvd/videofilebuffer_frame.h>
 #include <cvd/image_io.h>
@@ -33,7 +33,7 @@ namespace CVD
 		}
 	}
 
-	class VideoFileBuffer : public VideoBuffer<CVD::Rgb<CVD::byte> >
+	class VideoFileBuffer : public CVD::LocalVideoBuffer<CVD::Rgb<CVD::byte> >
 	{
 		public:
 			VideoFileBuffer(const std::string& file);
@@ -70,7 +70,8 @@ namespace CVD
 			AVCodecContext* pCodecContext;
 		    AVFrame* pFrame; 
     		AVFrame* pFrameRGB;
-		    CVD::Rgb<CVD::byte>* buffer;
+		    //CVD::Rgb<CVD::byte>* buffer;
+			CVD::Image<CVD::Rgb<CVD::byte> > next_frame;
 			double frame_time;
 	};
 

@@ -1,12 +1,12 @@
-#ifndef DISKBUFFER2_H
-#define DISKBUFFER2_H
+#ifndef CVD_DISKBUFFER2_H
+#define CVD_DISKBUFFER2_H
 
 #include <vector>
 #include <string>
 #include <fstream>
 #include <errno.h>
 
-#include <cvd/videobuffer.h>
+#include <cvd/localvideobuffer.h>
 #include <cvd/videobufferflags.h>
 #include <cvd/diskbuffer2_frame.h>
 #include <cvd/image_io.h>
@@ -31,17 +31,16 @@ namespace CVD
 		}
 	}
 
-	template<typename T> class DiskBuffer2: public VideoBuffer<T>
+	template<typename T> class DiskBuffer2: public CVD::LocalVideoBuffer<T>
 	{
 		public:
 			DiskBuffer2(const std::vector<std::string>& names, double fps);
 
- 			virtual ImageRef size()
-				{return my_size;}
+ 			virtual ImageRef size() {return my_size;}
+			virtual bool frame_pending() {return frame_ready;}
+
 			virtual DiskBuffer2Frame<T>* get_frame();
 			virtual void put_frame(VideoFrame<T>* f);
-			virtual bool frame_pending()
-				{return frame_ready;}
 			virtual void seek_to(double t);
 		
 			virtual void on_end_of_buffer(VideoBufferFlags::OnEndOfBuffer behaviour) 
@@ -107,24 +106,24 @@ namespace CVD
 			throw Exceptions::DiskBuffer2::EndOfBuffer();
 
 		std::ifstream im_file;	
-		
-		T* data = new T[my_size.x * my_size.y];
-						
-		DiskBuffer2Frame<T>* vf=new DiskBuffer2Frame<T>(next_frame * time_per_frame + start_time, data, my_size);
+		Image<T> foo(my_size);
 
 		im_file.open(file_names[next_frame].c_str());
+
 		if(!im_file.good())
 			throw Exceptions::DiskBuffer2::BadFile(file_names[next_frame], errno);
 
 		try{
-			pnm_load(*vf, im_file);
+			//The cast here hides the resize functionality, since we all
+			//frames must be the same size
+			pnm_load(static_cast<BasicImage<T>& >(foo), im_file);
 		}
 		catch(CVD::Exceptions::Image_IO::All err)
 		{
 			throw Exceptions::DiskBuffer2::BadImage(file_names[next_frame], err.what);
 		}
 
-		vf->frame_name = &file_names[next_frame];
+		DiskBuffer2Frame<T>* vf = new DiskBuffer2Frame<T>(next_frame * time_per_frame + start_time, foo, file_names[next_frame]);
 
 		next_frame++;
 		
@@ -155,9 +154,13 @@ namespace CVD
 	template<typename T>
 	inline void DiskBuffer2<T>::put_frame(VideoFrame<T>* f)
 	{
-		//Pop quiz: What if someone put_frame'e the wrong type?
-		delete[] static_cast<DiskBuffer2Frame<T>*>(f)->data();
-		delete static_cast<DiskBuffer2Frame<T>*>(f);
+		//Check that the type is correct...
+		DiskBuffer2Frame<T>* db2f = dynamic_cast<DiskBuffer2Frame<T>*>(f);
+
+		if(db2f == NULL)
+			throw CVD::Exceptions::VideoBuffer::BadPutFrame();
+		else 
+			delete db2f;
 	}
 
 	//
@@ -168,7 +171,7 @@ namespace CVD
 	{
 		// t is in ms, but work in seconds
 		// round the answer to the nearest whole frame
-	   int frameno = static_cast<int>((t - start_time) / time_per_frame + 0.5);
+		int frameno = static_cast<int>((t - start_time) / time_per_frame + 0.5);
 		if(frameno < 0 || static_cast<unsigned int>(frameno) > (file_names.size() - 1))
 			throw Exceptions::DiskBuffer2::BadSeek(t);
 		next_frame = frameno;

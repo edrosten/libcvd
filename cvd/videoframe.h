@@ -1,5 +1,3 @@
-//-*- c++ -*-
-
 //////////////////////////////////////////////////////////////////////
 //                                                                  //
 //   VideoFrame - An image with a timestamp, like from a video      //
@@ -9,8 +7,8 @@
 //                                                                  //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __CVD_VIDEOFRAME_H
-#define __CVD_VIDEOFRAME_H
+#ifndef CVD_VIDEOFRAME_H
+#define CVD_VIDEOFRAME_H
 
 #include <cvd/image.h>
 

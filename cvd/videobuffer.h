@@ -1,7 +1,5 @@
-// *-* c++ *-*
-
-#ifndef __CVD_VIDEOBUFFER_H
-#define __CVD_VIDEOBUFFER_H
+#ifndef CVD_VIDEOBUFFER_H
+#define CVD_VIDEOBUFFER_H
 
 #include <cvd/videoframe.h>
 #include <cvd/exceptions.h>
@@ -27,6 +25,11 @@ namespace Exceptions
 	{
 		struct All: public CVD::Exceptions::All
 		{
+		};
+
+		struct BadPutFrame: public All
+		{
+			BadPutFrame();
 		};
 	}
 }
