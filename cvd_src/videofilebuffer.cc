@@ -56,7 +56,7 @@ VideoFileBuffer::VideoFileBuffer(const std::string& file) :
 	pCodecContext(0),
 	pFrame(0), 
 	pFrameRGB(0),
-	buffer(0),
+	//buffer(0),
 	frame_time(0.0)
 {
 	try
@@ -120,11 +120,12 @@ VideoFileBuffer::VideoFileBuffer(const std::string& file) :
 		// How big is the buffer?
 		//long num_bytes = avpicture_get_size(PIX_FMT_RGB24, pCodecContext->width, pCodecContext->height);
 		my_size = ImageRef(pCodecContext->width, pCodecContext->height);
+
 		// And allocate a contiguous buffer
-		buffer = new CVD::Rgb<CVD::byte>[my_size.x * my_size.y];
-	
+		//buffer = new CVD::Rgb<CVD::byte>[my_size.x * my_size.y];
+
 		// Assign this buffer to image planes in pFrameRGB
-		avpicture_fill((AVPicture *)pFrameRGB, reinterpret_cast<uint8_t*>(buffer), PIX_FMT_RGB24, pCodecContext->width, pCodecContext->height);
+		//avpicture_fill((AVPicture *)pFrameRGB, reinterpret_cast<uint8_t*>(buffer), PIX_FMT_RGB24, pCodecContext->width, pCodecContext->height);
 	
 		// Now read the first frame
 		if(!read_next_frame())
@@ -148,8 +149,8 @@ VideoFileBuffer::VideoFileBuffer(const std::string& file) :
 		if(pFrameRGB != 0)
 			av_free(pFrameRGB);
 		
-		if(buffer != 0)
-			delete[] buffer;
+		//if(buffer != 0)
+		//	delete[] buffer;
 		
 		// Now re-throw
 		throw;
@@ -161,7 +162,7 @@ VideoFileBuffer::VideoFileBuffer(const std::string& file) :
 //
 VideoFileBuffer::~VideoFileBuffer()
 {
-    delete [] buffer;
+    //delete [] buffer;
     av_free(pFrameRGB);
     av_free(pFrame);
     avcodec_close(pCodecContext);
@@ -174,6 +175,12 @@ VideoFileBuffer::~VideoFileBuffer()
 //
 bool VideoFileBuffer::read_next_frame()
 {
+	//Make next_frame point to a new block of data
+	next_frame.resize(my_size);
+	//Assign this new memory block 
+	avpicture_fill((AVPicture *)pFrameRGB, reinterpret_cast<uint8_t*>(next_frame.data()), PIX_FMT_RGB24, pCodecContext->width, pCodecContext->height);
+
+
     AVPacket packet;
 	packet.stream_index = -1;
 	
@@ -235,13 +242,14 @@ bool VideoFileBuffer::read_next_frame()
 //
 inline VideoFileFrame* VideoFileBuffer::get_frame()
 {
+
 	if(!frame_pending())
 		throw EndOfFile();
 
 // 	Don't use - pCC->frame_number doesn't reset after a seek!
 //  Instead, we ask the packet its time when we decode it
 //	double time = start_time + pCodecContext->frame_number * pCodecContext->frame_rate_base / static_cast<double>(pCodecContext->frame_rate);
-	VideoFileFrame* vf = new VideoFileFrame(frame_time, buffer, my_size);
+	VideoFileFrame* vf = new VideoFileFrame(frame_time, next_frame);
 
 	if(!read_next_frame())
 	{
@@ -249,6 +257,7 @@ inline VideoFileFrame* VideoFileBuffer::get_frame()
 		{
 			case VideoBufferFlags::RepeatLastFrame:
 				// Just do nothing--last frame will still be there
+				// FIXME: trashing the frame will make get_frame() return a trashed frame
 				break;
 			
 			case VideoBufferFlags::UnsetPending:
@@ -269,7 +278,12 @@ inline VideoFileFrame* VideoFileBuffer::get_frame()
 //
 inline void VideoFileBuffer::put_frame(VideoFrame<Rgb<byte> >* f)
 {
-	delete dynamic_cast<VideoFileFrame*>(f);
+	VideoFileFrame* vff  = dynamic_cast<VideoFileFrame*>(f);
+
+	if(!vff)
+		throw Exceptions::VideoBuffer::BadPutFrame();
+	else
+		delete vff;
 }
 
 //
