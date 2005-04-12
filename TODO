@@ -19,8 +19,6 @@ In no particular order
 
 	Redo configuration, so it is only done once
 
-	Move frames_per_second() in to video buffer base class
-
 	move EndOfBufferBehaviour in to LocalVideoBuffer base class
 
 	There is a FIXME in videofilebuffer.cc to be fixed
@@ -39,3 +37,4 @@ Done
 	MPEG buffer
 	General owned image buffer from which one would derive diskbuffer, etc
 	Templated MPEG buffer
+	Move frames_per_second() in to video buffer base class
