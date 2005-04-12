@@ -21,6 +21,7 @@ class O2Buffer : public VideoBuffer<Rgb8>
     virtual O2VideoFrame *get_frame ();
     virtual void put_frame (VideoFrame<Rgb8> *f);
     virtual bool frame_pending ();
+	virtual double frame_rate();
 
  private:
     ImageRef m_frameSize;

@@ -44,13 +44,18 @@ namespace CVD
 			virtual void seek_to(double t);
 		
 			virtual void on_end_of_buffer(VideoBufferFlags::OnEndOfBuffer behaviour) 
-				{end_of_buffer_behaviour = behaviour;};
-		
+				{end_of_buffer_behaviour = behaviour;}
+
+			virtual double frame_rate() 
+			{
+				return frames_per_sec;
+			}
+
 		private:
 			ImageRef my_size;
 			int		 next_frame;
 			double   start_time;
-			double	 time_per_frame;
+			double	 time_per_frame, frames_per_sec;
 			bool frame_ready;
 			std::vector<std::string> file_names;
 			VideoBufferFlags::OnEndOfBuffer end_of_buffer_behaviour;
@@ -60,13 +65,13 @@ namespace CVD
 	// CONSTRUCTOR
 	//
 	template<typename T>
-	inline DiskBuffer2<T>::DiskBuffer2(const std::vector<std::string>& names, double fps) :
-		end_of_buffer_behaviour(VideoBufferFlags::RepeatLastFrame)
+	inline DiskBuffer2<T>::DiskBuffer2(const std::vector<std::string>& names, double fps) 
+	:end_of_buffer_behaviour(VideoBufferFlags::RepeatLastFrame)
 	{
-		start_time = 0;
+		frames_per_sec = fps;
 
+		start_time = 0;
 		next_frame=0;
-		
 		time_per_frame = 1/fps;	
 
 		file_names = names;

@@ -166,7 +166,7 @@ namespace CVD
 			
 			// This class additions	
 		
-			double frames_per_second() 
+			double frame_rate() 
 			{
 				return vf.frames_per_second();
 			}

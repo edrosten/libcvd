@@ -53,7 +53,7 @@ class V4L2Buffer : public VideoBuffer<unsigned char>
 		virtual void put_frame(V4L2Frame *f);
 		virtual bool frame_pending();
 
-		virtual float frame_rate() 
+		virtual double frame_rate() 
 		{
 			return my_frame_rate;
 		}
@@ -64,7 +64,7 @@ class V4L2Buffer : public VideoBuffer<unsigned char>
 		int my_prev_frame_no;
 		int num_buffers;
 		bool i_am_using_fields;
-		float my_frame_rate;
+		double my_frame_rate;
 		ImageRef my_image_size;
 		V4L2BufferBlockMethod my_block_method;
 		struct v4l2_buffer* m_sv4l2Buffer;

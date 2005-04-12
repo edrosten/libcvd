@@ -60,4 +60,8 @@ bool CVD::O2Buffer::frame_pending ()
   return (m_pVid->frame_number () > m_currentFrameNumber);
 }
 
+double CVD::O2buffer::frame_rate()
+{
+	return m_pVid->frame_rate();
+}
 

@@ -1,8 +1,8 @@
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.1 $$Name:  $
-**       $Date: 2005/01/26 16:17:45 $
+**   $Revision: 1.2 $$Name:  $
+**       $Date: 2005/04/12 12:50:55 $
 **   Copyright: LGPL $Author: er258 $
 ** Description:
 **
@@ -12,8 +12,11 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
-**  Revision 1.1  2005/01/26 16:17:45  er258
-**  Initial revision
+**  Revision 1.2  2005/04/12 12:50:55  er258
+**  All videobuffers now have a virtual frame_rate()
+**
+**  Revision 1.1.1.1  2005/01/26 16:17:45  er258
+**  Entering in to CVS
 **
 **  Revision 1.1.1.1  2005/01/25 18:59:22  er258
 **  Entering libCVD in to CVS
@@ -64,6 +67,8 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
+#include <math.h>
+
 //#include <videodisplay.h>
 #include "cvd/image.h"
 #include "cvd/Linux/dvbuffer.h"
@@ -71,6 +76,34 @@
 
 using namespace std;
 using namespace CVD;
+
+
+int get_closest_framerate(double fps, double& ret)
+{
+	double fpss[8]={1.875, 1.875, 3.75, 7.5, 15, 30, 60};
+	int    names[]=
+	{
+		FRAMERATE_1_875, 
+		FRAMERATE_1_875, 
+		FRAMERATE_3_75, 
+		FRAMERATE_7_5, 
+		FRAMERATE_15, 
+		FRAMERATE_30, 
+		FRAMERATE_60, 
+	};
+	int i;
+
+	for(i=1; i < 7; i++)
+		if(fps < (fpss[i-1]+fpss[i])/2)
+			break;
+
+
+	ret = fpss[i-1];
+	return names[i-1];
+}
+
+
+
 
 #define MAX_NUM_PORTS 8
 
@@ -307,8 +340,13 @@ void tom_dc1394_dma_release_camera(raw1394handle_t handle, const unsigned char* 
     sleep(1);
   }
 }
- 
-CVD::DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int exposure, int mode, int frame_rate)
+  
+double CVD::DC::RawDCVideo::frame_rate()
+{
+	return true_fps;
+}
+
+CVD::DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int exposure, int mode, double fps)
 {
 
   int channel = camera_no;
@@ -323,6 +361,9 @@ CVD::DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, 
   int numCameras; // local variable
   int *myPort = new int;
   int port=0;
+  int frame_rate;
+
+  frame_rate = get_closest_framerate(fps, true_fps);
 
   my_frame_sequence.resize(num_dma_buffers);
   for(int i=0; i<num_dma_buffers-1; i++){

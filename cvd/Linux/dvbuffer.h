@@ -23,13 +23,13 @@ namespace DC
 	template<> struct cam_type<byte>
 	{
 		static const int mode = MODE_640x480_MONO;
-		static const int fps  = FRAMERATE_30;
+		static const double fps  = 30;
 	};
 	
 	template<> struct cam_type<Rgb<byte> >
 	{
 		static const int mode = MODE_640x480_RGB;
-		static const int fps  = FRAMERATE_15;
+		static const double  fps  = 30;
 	};
 
 	struct raw_frame
@@ -42,7 +42,7 @@ namespace DC
 	class RawDCVideo
 	{
 		public:
-			RawDCVideo(int camera_no, int num_dma_buffers, int bright, int exposure, int mode, int frame_rate);
+			RawDCVideo(int camera_no, int num_dma_buffers, int bright, int exposure, int mode, double frame_rate);
 			~RawDCVideo();
 
 			ImageRef size();
@@ -66,7 +66,9 @@ namespace DC
 			void set_brightness(unsigned int);
 			unsigned int get_brightness();
 
-		
+			double frame_rate();
+
+			
 			raw1394handle_t& handle();
 			nodeid_t&		 node();
 
@@ -87,6 +89,7 @@ namespace DC
 			std::vector<int> my_frame_sequence;
 			int my_next_frame;
 			int my_last_in_sequence;
+			double true_fps;
 	};
 		
 }
@@ -94,13 +97,18 @@ namespace DC
 template<class T> class DVBuffer2: public VideoBuffer<T>, public DC::RawDCVideo
 {
 	public:
-		DVBuffer2(int cam_no, int num_dma_buffers, int bright=-1, int exposure=-1, int fps=DC::cam_type<T>::fps)
+		DVBuffer2(int cam_no, int num_dma_buffers, int bright=-1, int exposure=-1, double fps=DC::cam_type<T>::fps)
 		:RawDCVideo(cam_no, num_dma_buffers, bright, exposure, DC::cam_type<T>::mode, fps)
 		{
 		}
 
 		virtual ~DVBuffer2()
 		{
+		}
+
+		double frame_rate()
+		{
+			return RawDCVideo::frame_rate();
 		}
 
 		virtual ImageRef size()

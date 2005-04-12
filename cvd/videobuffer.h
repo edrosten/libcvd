@@ -15,6 +15,7 @@ template <class T> class VideoBuffer
 		virtual VideoFrame<T>* get_frame()=0;        	// blocks until frame ready
 		virtual void put_frame(VideoFrame<T>* f)=0;  	// user is finished using f
 		virtual bool frame_pending()=0;             	// checks to see if frame ready
+		virtual double frame_rate()=0;
 		virtual void seek_to(double t)					// in seconds
 		{}
 };

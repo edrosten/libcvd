@@ -40,7 +40,10 @@ class DeinterlaceBuffer : public VideoBuffer<T>
 			{return m_vidbuf.frame_pending();}
       virtual void seek_to(double t)
 			{return m_vidbuf.seek_to(t);}
-	
+	  virtual double frame_rate()
+	  {
+	  		return m_vidbuf.frame_rate();
+	  }
       
    private:
 		CVD::VideoFrame<T>* my_realframe;
