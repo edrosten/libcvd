@@ -174,14 +174,14 @@ template<class T> class BasicImage
 			return (my_data[pos.y*my_size.x + pos.x]);
 		}
 		
-		const inline T& operator[](const ImageRef& pos) const 
+		inline const T& operator[](const ImageRef& pos) const 
 		{
 			IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
 			return (my_data[pos.y*my_size.x + pos.x]);
 		}
 
 
-		const inline T* data() const
+		inline const T* data() const
 		{
 			return my_data;
 		}
@@ -251,7 +251,8 @@ template<class T> class Image: public BasicImage<T>
 	public:
 
 		//Allow copy constructing
-		Image(const Image& copy)
+		Image(const Image& copy) :
+			BasicImage<T>(copy)
 		{
 			dup_from(&copy);
 		}
