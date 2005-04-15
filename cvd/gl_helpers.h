@@ -226,6 +226,7 @@ namespace CVD
 
 	template<class C> inline void glDrawPixels(const BasicImage<C>& i)
 	{
+		::glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		::glDrawPixels(i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
 	}
 
