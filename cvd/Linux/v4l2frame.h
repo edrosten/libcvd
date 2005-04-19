@@ -16,12 +16,20 @@
 
 namespace CVD {
 
+/// A frame from a V4L2Buffer
+/// This is an 8-bit greyscale video frame
+/// @ingroup gVideoFrame	
 class V4L2Frame : public VideoFrame<unsigned char>
 {
 	friend class V4L2Buffer;
 
 	private:
-
+		/// (Used internally) Construct a video frame
+		/// @param t The timestamp
+		/// @param size The image size
+		/// @param index The index
+		/// @param data The image data
+		/// @param f The field
 		V4L2Frame(double t, const ImageRef& size, int index, unsigned char *data, int f) 
 		: VideoFrame<unsigned char>(t, data, size),my_index(index),field(f)
 		{
@@ -38,7 +46,8 @@ class V4L2Frame : public VideoFrame<unsigned char>
 	  {}
 
 	public:
-		int field;  // should probably be in videoframe....
+		// should probably be in videoframe....
+		int field;  ///< The field
 
 };
 

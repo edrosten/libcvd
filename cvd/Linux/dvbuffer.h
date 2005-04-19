@@ -94,9 +94,19 @@ namespace DC
 		
 }
 
+/// A video buffer from a Firewire (IEEE 1394) camera.
+/// @param T The pixel type of the frames. Currently only <code><CVD::Rgb<CVD::byte> ></code> 
+/// and <code>CVD::byte></code> are supported.
+/// @ingroup gVideoBuffer
 template<class T> class DVBuffer2: public VideoBuffer<T>, public DC::RawDCVideo
 {
 	public:
+		/// Construct a video buffer
+		/// @param cam_no The camera number
+		/// @param num_dma_buffers The number of DMA buffers to use
+		/// @param bright The brightness correction (default = -1 = automatic)
+		/// @param exposure The exposure correction (default = -1 = automatic)
+		/// @param fps The number of frames per second (default = 30fps)
 		DVBuffer2(int cam_no, int num_dma_buffers, int bright=-1, int exposure=-1, double fps=DC::cam_type<T>::fps)
 		:RawDCVideo(cam_no, num_dma_buffers, bright, exposure, DC::cam_type<T>::mode, fps)
 		{
@@ -131,9 +141,12 @@ template<class T> class DVBuffer2: public VideoBuffer<T>, public DC::RawDCVideo
 			return RawDCVideo::frame_pending();
 		}
 	
-		virtual void seek_to(double){}
+		virtual void seek_to(double t){}
 };
 
+/// An 8-bit greyscale video buffer from a Firewire (IEEE 1394) camera.
+/// Provides frames of type DVFrame.
+/// @ingroup gVideoBuffer
 typedef DVBuffer2<byte> DVBuffer;
 
 }

@@ -10,73 +10,96 @@
 template<class T>
 inline T SAT(T x){return (x<-1.0/3?-1e9:x);}
 
+/// Classes which represent camera calibrations.
+/// @ingroup gVision
 namespace Camera {
 
-  // Linear camera with zero skew
+  /// A linear camera with zero skew
   class Linear {
   public:
-    // The number of parameters in the camera
+    /// The number of parameters in the camera
     static const int num_parameters=4;
-    
-    // load (save) parameters to (from) a stream
-    inline void load(std::istream& is);
-    inline void save(std::ostream& os);
 
-    // project and unproject operations
-    inline Vector<2> linearproject(const Vector<2>& camframe, double scale=1); // fast linear projection for working out what's there
-    inline Vector<2> project(const Vector<2>& camframe); // project from euclidean camera frame to image plane
-    inline Vector<2> unproject(const Vector<2>& imframe); // inverse operation
+	///Load parameters from a stream 
+	///@param is The stream to use
+    inline void load(std::istream& is); 
+	/// Save parameters to a stream 
+	///@param os The stream to use
+    inline void save(std::ostream& os); 
+
+    /// Fast linear projection for working out what's there
+    inline Vector<2> linearproject(const Vector<2>& camframe, double scale=1);
+	/// Project from Euclidean camera frame to image plane
+    inline Vector<2> project(const Vector<2>& camframe); 
+	/// Project from image plane to a Euclidean camera
+    inline Vector<2> unproject(const Vector<2>& imframe); 
     
-    // get the derivative of image frame wrt camera frame at the last computed projection
-    // in the form (d im1/d cam1, d im1/d cam2)
-    //             (d im2/d cam1, d im2/d cam2)
+    /// Get the derivative of image frame wrt camera frame at the last computed projection
+    /// in the form \f$ \begin{bmatrix} \frac{\partial \text{im1}}{\partial \text{cam1}} & \frac{\partial \text{im1}}{\partial \text{cam2}} \\ \frac{\partial \text{im2}}{\partial \text{cam1}} & \frac{\partial \text{im2}}{\partial \text{cam2}} \end{bmatrix} \f$
     inline Matrix<2,2> get_derivative();
 
-    // get the motion of a point with respect to each of the internal camera parameters
+    /// Get the motion of a point with respect to each of the internal camera parameters
     inline Matrix<num_parameters,2> get_parameter_derivs();
 
-    // same but gets component of motion in direction provided
+	/// Get the component of the motion of a point in the direction provided 
+	///	with respect to each of the internal camera parameters
+	/// @param direction The (x,y) direction to use
     inline Vector<num_parameters> get_parameter_derivs(const Vector<2>& direction);
 
-    // update the internal camera parameters
+	/// Update the internal camera parameters by adding the vector given
+	/// @param updates Update vector in the format 
+	/// \f$ \begin{pmatrix}\Delta f_u & \Delta f_v & \Delta u_0 & \Delta v_0 \end{pmatrix} \f$
     inline void update(const Vector<num_parameters>& updates);
 
+	/// Returns the vector of camera parameters in the format
+	/// \f$ \begin{pmatrix}f_u & f_v & u_0 & v_0 \end{pmatrix} \f$
     inline Vector<num_parameters>& get_parameters() {return my_camera_parameters;}
 
   private:
-    Vector<num_parameters> my_camera_parameters; // f_u, f_v, u_0, v_0
+    Vector<num_parameters> my_camera_parameters; 
     Vector<2> my_last_camframe;
   };
 
 
+  /// A camera with zero skew and cubic distortion
   class Cubic {
   public:
-    // The number of parameters in the camera
+    /// The number of parameters in the camera
     static const int num_parameters=5;
     
-    // load (save) parameters to (from) a stream
+	///Load parameters from a stream 
+	///@param is The stream to use
     inline void load(std::istream& is);
+	/// Save parameters to a stream 
+	///@param os The stream to use
     inline void save(std::ostream& os);
 
-    // project and unproject operations
-    inline Vector<2> linearproject(const Vector<2>& camframe, double scale=1); // fast linear projection for working out what's there
-    inline Vector<2> project(const Vector<2>& camframe); // project from euclidean camera frame to image plane
-    inline Vector<2> unproject(const Vector<2>& imframe); // inverse operation
+    /// Fast linear projection for working out what's there
+    inline Vector<2> linearproject(const Vector<2>& camframe, double scale=1); 
+	/// Project from Euclidean camera frame to image plane
+    inline Vector<2> project(const Vector<2>& camframe); 
+	/// Project from image plane to a Euclidean camera
+    inline Vector<2> unproject(const Vector<2>& imframe); 
     
-    // get the derivative of image frame wrt camera frame at the last computed projection
-    // in the form (d im1/d cam1, d im1/d cam2)
-    //             (d im2/d cam1, d im2/d cam2)
+    /// Get the derivative of image frame wrt camera frame at the last computed projection
+    /// in the form \f$ \begin{bmatrix} \frac{\partial \text{im1}}{\partial \text{cam1}} & \frac{\partial \text{im1}}{\partial \text{cam2}} \\ \frac{\partial \text{im2}}{\partial \text{cam1}} & \frac{\partial \text{im2}}{\partial \text{cam2}} \end{bmatrix} \f$
     inline Matrix<2,2> get_derivative();
 
-    // get the motion of a point with respect to each of the internal camera parameters
+    /// Get the motion of a point with respect to each of the internal camera parameters
     inline Matrix<num_parameters,2> get_parameter_derivs();
 
-    // same but gets component of motion in direction provided
+	/// Get the component of the motion of a point in the direction provided 
+	///	with respect to each of the internal camera parameters
+	/// @param direction The (x,y) direction to use
     inline Vector<num_parameters> get_parameter_derivs(const Vector<2>& direction);
 
-    // update the internal camera parameters
+	/// Update the internal camera parameters by adding the vector given
+	/// @param updates Update vector in the format 
+	/// \f$ \begin{pmatrix}\Delta f_u & \Delta f_v & \Delta u_0 & \Delta v_0 & \Delta c\end{pmatrix} \f$
     inline void update(const Vector<num_parameters>& updates);
 
+	/// Returns the vector of camera parameters in the format
+	/// \f$ \begin{pmatrix}f_u & f_v & u_0 & v_0 & c\end{pmatrix} \f$
     inline Vector<num_parameters>& get_parameters() {return my_camera_parameters;}
 
   private:
@@ -85,34 +108,45 @@ namespace Camera {
   };
 
 
+  /// A camera with zero skew and quintic distortion
   class Quintic {
   public:
-    // The number of parameters in the camera
+    /// The number of parameters in the camera
     static const int num_parameters=6;
     
-    // load (save) parameters to (from) a stream
+	///Load parameters from a stream 
+	///@param is The stream to use
     inline void load(std::istream& is);
+	/// Save parameters to a stream 
+	///@param os The stream to use
     inline void save(std::ostream& os);
 
-    // project and unproject operations
-    inline Vector<2> linearproject(const Vector<2>& camframe, double scale=1); // fast linear projection for working out what's there
-    inline Vector<2> project(const Vector<2>& camframe); // project from euclidean camera frame to image plane
-    inline Vector<2> unproject(const Vector<2>& imframe); // inverse operation
+    /// Fast linear projection for working out what's there
+    inline Vector<2> linearproject(const Vector<2>& camframe, double scale=1);
+	/// Project from Euclidean camera frame to image plane
+    inline Vector<2> project(const Vector<2>& camframe); 
+	/// Project from image plane to a Euclidean camera
+    inline Vector<2> unproject(const Vector<2>& imframe);
     
-    // get the derivative of image frame wrt camera frame at the last computed projection
-    // in the form (d im1/d cam1, d im1/d cam2)
-    //             (d im2/d cam1, d im2/d cam2)
+    /// Get the derivative of image frame wrt camera frame at the last computed projection
+    /// in the form \f$ \begin{bmatrix} \frac{\partial \text{im1}}{\partial \text{cam1}} & \frac{\partial \text{im1}}{\partial \text{cam2}} \\ \frac{\partial \text{im2}}{\partial \text{cam1}} & \frac{\partial \text{im2}}{\partial \text{cam2}} \end{bmatrix} \f$
     inline Matrix<2,2> get_derivative();
 
-    // get the motion of a point with respect to each of the internal camera parameters
+    /// Get the motion of a point with respect to each of the internal camera parameters
     inline Matrix<num_parameters,2> get_parameter_derivs();
 
-    // same but gets component of motion in direction provided
+	/// Get the component of the motion of a point in the direction provided 
+	///	with respect to each of the internal camera parameters
+	/// @param direction The (x,y) direction to use
     inline Vector<num_parameters> get_parameter_derivs(const Vector<2>& direction);
 
-    // update the internal camera parameters
+	/// Update the internal camera parameters by adding the vector given
+	/// @param updates Update vector in the format 
+	/// \f$ \begin{pmatrix}\Delta f_u & \Delta f_v & \Delta u_0 & \Delta v_0 & \Delta c & \Delta q\end{pmatrix} \f$
     inline void update(const Vector<num_parameters>& updates);
 
+	/// Returns the vector of camera parameters in the format
+	/// \f$ \begin{pmatrix}f_u & f_v & u_0 & v_0 & c & q\end{pmatrix} \f$
     inline Vector<num_parameters>& get_parameters() {return my_camera_parameters;}
 
   private:
@@ -386,6 +420,5 @@ void Camera::Quintic::update(const Vector<num_parameters>& updates){
   my_camera_parameters[4]+=updates[4];
   my_camera_parameters[5]+=updates[5];
 }
-
 
 #endif

@@ -5,8 +5,11 @@
 
 namespace CVD
 {
-
-	typedef Brezenham Bresenham;
+	/// @ingroup gGraphics
+	/// Alternative (and correct) spelling for this object
+	typedef Brezenham Bresenham; 
+	/// @ingroup gGraphics
+	/// Alternative (and correct) spelling for this object
 	typedef Brezenham8 Bresenham8;
 }
 

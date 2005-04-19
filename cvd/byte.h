@@ -2,7 +2,9 @@
 #define __CVD_BYTE_H
 
 namespace CVD {
-  typedef unsigned char byte;
+	/// An 8-bit datatype
+	/// @ingroup gImage 
+	typedef unsigned char byte; 
 }
 
 #endif

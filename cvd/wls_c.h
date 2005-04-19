@@ -13,6 +13,9 @@
 
 namespace CVD {
 
+/// Performs weighted least squares using Cholesky decomposition and sparse JtJ.
+/// Also stores the sum squares error and can compute the residual.
+/// @ingroup gMaths
 template <int Size>
 class WLS {
 public:

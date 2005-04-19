@@ -6,7 +6,9 @@
 
 namespace CVD
 {
-
+	/// Convert an image co-ordinate into a Vector
+	/// @param ir The ImageRef to convert
+	/// @ingroup gImage
 	inline Vector<2> vec(const ImageRef& ir)
 	{
 		Vector<2> r;
@@ -15,6 +17,9 @@ namespace CVD
 		return r;
 	}
 
+	/// Convert a Vector into an image co-ordinate. Numers are truncated, not rounded
+	/// @param v The Vector to convert
+	/// @ingroup gImage
 	inline ImageRef ir(const Vector<2>& v)
 	{
 		return ImageRef((int)v[0], (int)v[1]);

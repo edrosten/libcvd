@@ -105,7 +105,9 @@
 #include <string.h>
 #include <cvd/image_ref.h>
 
+/// All classes and functions are within the CVD namespace
 namespace CVD {
+
 
 #ifdef IMAGE_DEBUG
 	#define IMAGE_ASSERT(X,Y)  if(!(X)) throw Y()
@@ -145,67 +147,90 @@ namespace ImageUtil
 	}
 }
 
+/// A generic image class to manage a block of data as an image. Provides
+/// basic image access. A BasicImage does not manage its own data, but provides access to an 
+/// arbitrary externally-managed block of data as though it were an image.
+/// @param T The pixel type for this image. Typically either <code>CVD::byte</code> or 
+/// <code>CVD::Rgb<CVD::byte> ></code>, but images could be constructed of any available type.
+/// @ingroup gImage
 template<class T> class BasicImage
 {
 	public:
-
-		BasicImage(T* data, const ImageRef& i)
-		:my_data(data),my_size(i)
+		/// Construct an image from a block of data.
+		/// @param data The image data in horizontal scanline order
+		/// @param size The size of the image
+		BasicImage(T* data, const ImageRef& size)
+		:my_data(data),my_size(size)
 		{
 		}
 
+		/// Copy constructor
+		/// @param copyof The image to copy
 		BasicImage(const BasicImage& copyof)
 		{
 			my_size = copyof.my_size;
 			my_data = copyof.my_data;
 		}
 
-		bool in_image(const ImageRef& r) const
+		/// Is this pixel co-ordinate inside the image?
+		/// @param ir The co-ordinate to test
+		bool in_image(const ImageRef& ir) const
 		{
-			return r.x >=0 && r.y >=0 && r.x < my_size.x && r.y < my_size.y;
+			return ir.x >=0 && ir.y >=0 && ir.x < my_size.x && ir.y < my_size.y;
 		}
 
+		/// The image data is not destroyed when a BasicImage is destroyed.
 		~BasicImage()
 		{}
 
+		/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
+		/// with <code>-D IMAGE_DEBUG</code> 
 		inline T& operator[](const ImageRef& pos)
 		{
 			IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
 			return (my_data[pos.y*my_size.x + pos.x]);
 		}
 		
+		/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
+		/// with <code>-D IMAGE_DEBUG</code> 
 		inline const T& operator[](const ImageRef& pos) const 
 		{
 			IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
 			return (my_data[pos.y*my_size.x + pos.x]);
 		}
 
-
+		/// Returns the raw image data
 		inline const T* data() const
 		{
 			return my_data;
 		}
 		
+		/// Returns the raw image data
 		inline T* data()
 		{
 			return my_data;
 		}
 
+		/// What is the size of this image?
 		inline ImageRef size() const
 		{
 			return my_size;
 		}
 
+		/// What is the total number of pixels in the image (i.e. <code>size().x * size().y</code>).
 		inline int totalsize() const
 		{
 			return my_size.x * my_size.y;
 		}
 
+		/// Set all the pixels in the image to zero. This is a relatively fast operation, using <code>memset</code>.
 		inline void zero() 
 		{
 			memset(my_data, 0, totalsize()*sizeof(T));
 		}
 
+		/// Set all the pixels in the image to a value. This is a relatively fast operation, using <code>memfill</code>.
+		/// @param d The value to write into the image
 		inline void fill(const T d)
 		{
 			ImageUtil::memfill(my_data, totalsize(), d);
@@ -213,11 +238,12 @@ template<class T> class BasicImage
 
 
 	protected:
+		/// The default constructor does nothing
 		BasicImage()
 		{}
 
-		T* my_data;
-		ImageRef my_size;
+		T* my_data;       ///< The raw image data
+		ImageRef my_size; ///< The size of the image
 
 	private:
 		void operator=(const BasicImage&);
@@ -225,32 +251,36 @@ template<class T> class BasicImage
 };
 
 
-//This is the full image, where data is owned by the Image system.
-//These have 12 bytes of imformation locally and implement copy-on-write, so 
-//they can be efficiently passed back from functions, put in vectors, etc.
-//
-//Since the images implement copy on write, each write operation has to be 
-//checked, which could be slow. Image provides a cast to NonConstImage which
-//does not do any checking of this sort on writes, but care must be taken:
-//
-//Since multiple images can point to the same set of data, care has to be taken
-//with references to the image data. For instance if a pointer or NonConstImage
-//is made to refer to the data, and *then* another Image is made to reference
-//the data as well, using the pointer or the NonConstImage for writing will
-//alter *both* images.
-//
-//If this situation is encountered, image1=image2.force_copy(); can be used
-//to force a copy operation, so that image1 and image2 do not reference the 
-//same chunk of data.
-//
-//These manage their own memory, so the last one referencing a blobk of memory
-//will free it.
-
-template<class T> class Image: public BasicImage<T>
+/// A full image which manages its own data.
+/// Images have 12 bytes of information locally and implement copy-on-write, so 
+/// they can be efficiently passed back from functions, put in vectors, etc.
+///	Images behave like pointers. Copying an image is like copying a pointer:
+/// both the source and destination point to the same chunk of data. To 
+/// further the analogy, [] dereferences images.
+///
+///Since the images implement copy on write, each write operation has to be 
+///checked, which could be slow. Image provides a cast to NonConstImage which
+///does not do any checking of this sort on writes, but care must be taken:
+///
+///Since multiple images can point to the same set of data, care has to be taken
+///with references to the image data. For instance if a pointer or NonConstImage
+///is made to refer to the data, and <em>then</em> another Image is made to reference
+///the data as well, using the pointer or the NonConstImage for writing will
+///alter <em>both</em> images.
+///
+///If this situation is encountered, <code>image1=image2.force_copy();</code> can be used
+///to force a copy operation, so that image1 and image2 do not reference the 
+///same chunk of data.
+/// @param T The pixel type for this image. Typically either <code>CVD::byte</code> or 
+/// <code>CVD::Rgb<CVD::byte> ></code>, but images could be constructed of any available type.
+/// @ingroup gImage
+template<class T> 
+class Image: public BasicImage<T>
 {
 	public:
-
-		//Allow copy constructing
+		///Copy constructor. This does not copy the data, it just creates a new
+		///reference to the image data
+		///@param copy The image to copy
 		Image(const Image& copy) :
 			BasicImage<T>(copy)
 		{
@@ -258,6 +288,8 @@ template<class T> class Image: public BasicImage<T>
 		}
 
 
+		///Make a (new) copy of the image, also making a copy of the data
+		///@param copy The image to copy
 		void copy_from(const BasicImage<T>& copy)
 		{
 			Image<T> tmp(copy.size());
@@ -267,6 +299,7 @@ template<class T> class Image: public BasicImage<T>
 			memcpy(my_data, copy.data(), totalsize()*sizeof(T));
 		}
 
+		///Make this image independent of any copies (i.e. force a copy of the image data).
 		void make_unique()
 		{
 			if(*num_copies > 1)
@@ -285,7 +318,9 @@ template<class T> class Image: public BasicImage<T>
 			copy_from(copy);
 		}
 */		
-		//Allow assignment
+		///Assign this image to another one. This does not copy the data, it just creates a new
+		///reference to the image data
+		///@param copyof The image to copy
 		const Image& operator=(const Image& copyof)
 		{
 			remove();
@@ -293,28 +328,31 @@ template<class T> class Image: public BasicImage<T>
 			return *this;
 		}
 		
-		//Basic constructing
+		///Default constructor
 		Image()
 		{
 			dup_from(NULL);
 		}
 
-		Image(const ImageRef& ir)
+		///Create an empty image of a given size.
+		///@param size The size of image to create
+		Image(const ImageRef& size)
 		{
 			num_copies = new int;
 			*num_copies = 1;
-			my_size = ir;
+ 			my_size = size;
 			my_data  = new T[totalsize()];
 		}
 		
-		//Resizing (destroys data)
-		void resize(const ImageRef& ir)
+		///Resize the image (destroying the data). The image is resized even if the new size is the same as the old one.
+		///@param size The new size of the image
+		void resize(const ImageRef& size)
 		{
-			Image<T> new_im(ir);
+			Image<T> new_im(size);
 			*this = new_im;
 		}
 
-		//Destruction
+		///The destructor removes the image data
 		~Image()
 		{
 			remove();
@@ -352,19 +390,6 @@ template<class T> class Image: public BasicImage<T>
 			}
 		}
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 } // end namespace

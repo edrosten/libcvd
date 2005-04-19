@@ -16,8 +16,13 @@ namespace CVD
 	{
 		class RawVideoFileBuffer;
 	}
-	
-	template<class C> class VideoFileFrame: public CVD::LocalVideoFrame<C>
+
+	/// A frame from a VideoFileBuffer.
+	/// @ingroup gVideoFrame	
+	/// @param T The pixel type of the video frames. Currently only <code>CVD::Rgb<CVD::byte> ></code> and 
+	/// <code>CVD::byte></code> are supported.
+	template<class T> 
+	class VideoFileFrame: public CVD::LocalVideoFrame<T>
 	{
 		friend class VFB::RawVideoFileBuffer;
 
@@ -26,8 +31,11 @@ namespace CVD
 			{
 			}
 
-			VideoFileFrame(double time, CVD::Image<C>& local)
-			:LocalVideoFrame<C>(time, local)
+			/// Construct a video frame from an Image and a timestamp
+			/// @param time The timestamp of this frame
+			/// @param local The Image to use for this frame
+			VideoFileFrame(double time, CVD::Image<T>& local)
+			:LocalVideoFrame<T>(time, local)
 			{
 			}	
 

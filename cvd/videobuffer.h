@@ -6,28 +6,45 @@
 
 namespace CVD {
 
-template <class T> class VideoBuffer 
+/// Base class for objects which provide a video stream. A video 
+/// stream is a sequence of video frames (derived from VideoFrame).
+/// @param T The pixel type of the video frames
+/// @ingroup gVideoBuffer
+template <class T> 
+class VideoBuffer 
 {
 	public:
 		virtual ~VideoBuffer(){}
 
+		/// The size of the VideoFrames returned by this buffer
 		virtual ImageRef size()=0;
-		virtual VideoFrame<T>* get_frame()=0;        	// blocks until frame ready
-		virtual void put_frame(VideoFrame<T>* f)=0;  	// user is finished using f
-		virtual bool frame_pending()=0;             	// checks to see if frame ready
+		/// Returns the next frame from the buffer. This function blocks until a frame is ready.
+		virtual VideoFrame<T>* get_frame()=0;        	
+		/// Tell the buffer that you are finished with this frame. Typically the VideoBuffer then destroys the frame.
+		/// \param f The frame that you are finished with.
+		virtual void put_frame(VideoFrame<T>* f)=0;
+		/// Is there a frame waiting in the buffer? This function does not block. 
+		virtual bool frame_pending()=0;
+		/// What is the (expected) frame rate of this video buffer, in frames per second?		
 		virtual double frame_rate()=0;
-		virtual void seek_to(double)					// in seconds
+		/// Go to a particular point in the video buffer (only implemented in buffers of recorded video)
+		/// \param t The frame time in seconds
+		virtual void seek_to(double t)
 		{}
 };
 
 namespace Exceptions
 {
+	/// %Exceptions specific to VideoBuffer
+	/// @ingroup gException
 	namespace VideoBuffer
 	{
+		/// Base class for all VideoBuffer exceptions
 		struct All: public CVD::Exceptions::All
 		{
 		};
 
+		/// The VideoBuffer was unable to successfully complete a VideoBuffer::put_frame() operation
 		struct BadPutFrame: public All
 		{
 			BadPutFrame();

@@ -25,14 +25,25 @@ namespace CVD
 {
 	namespace Exceptions
 	{
+		/// %Exceptions specific to VideoFileBuffer
+		/// @ingroup gException
 		namespace VideoFileBuffer
 		{
+			/// Base class for all VideoFileBuffer exceptions
 			struct All: public CVD::Exceptions::VideoBuffer::All { };
-			struct FileOpen: public All { FileOpen(const std::string& file, const std::string& error); };
+			/// Unable to open the file as a video stream, for various reasons
+			struct FileOpen: public All { FileOpen(const std::string& file, const std::string& error); ///< Construt from filename and error message
+			};
+			/// Unable to open allocate a video frame
 			struct BadFrameAlloc: public All { BadFrameAlloc(); };
-			struct BadDecode: public All { BadDecode(double t); };
+			/// Unable to decode the video frame
+			struct BadDecode: public All { BadDecode(double t); ///< Construt from frame timestamp
+			};
+			/// get_frame() was called when at the end of the buffer
 			struct EndOfFile: public All { EndOfFile(); };
-			struct BadSeek: public All { BadSeek(double t); };
+			/// seek_to() was called for an invalid timestamp
+			struct BadSeek: public All { BadSeek(double t); ///< Construt from timestamp
+			};
 		}
 	}
 
@@ -117,15 +128,27 @@ namespace CVD
 	};
 	}
 
-	template<class C> class VideoFileBuffer : public CVD::LocalVideoBuffer<C>
+	///	A video buffer to play frames from a video file.
+	/// This uses the ffmpeg library (http://ffmpeg.sourceforge.net/) to play
+	/// a wide range of video formats, including MPEG (1, 2 and 4) and AVI (including
+	/// DivX and DV) files. 
+	/// Provides frames of type CVD::VideoFileFrame and throws exceptions of type
+	///  CVD::Exceptions::VideoFileBuffer
+	/// @param T The pixel type of the video frames. Currently only <code>CVD::Rgb<CVD::byte> ></code> and 
+	/// <code>CVD::byte></code> are supported.
+	/// @ingroup gVideoBuffer
+	template<typename T> 
+	class VideoFileBuffer : public CVD::LocalVideoBuffer<T>
 	{
 		private:
 			VFB::RawVideoFileBuffer vf;
 			
 	
 		public:
+			/// Construct a VideoFileBuffer to play this file
+			/// @param file The path to the video file
 			VideoFileBuffer(const std::string& file)
-			:vf(file, VFB::rgb<C>::p)
+			:vf(file, VFB::rgb<T>::p)
 			{
 			}
 
@@ -144,6 +167,8 @@ namespace CVD
 				return vf.frame_pending();
 			}
 
+			/// What should the buffer do when it reaches the end of the list of files?
+			/// @param behaviour The desired behaviour
 			virtual void on_end_of_buffer(VideoBufferFlags::OnEndOfBuffer behaviour) 
 			{
 				vf.on_end_of_buffer(behaviour);
@@ -154,12 +179,12 @@ namespace CVD
 				vf.seek_to(t);
 			}
 
-			virtual VideoFileFrame<C> * get_frame()
+			virtual VideoFileFrame<T> * get_frame()
 			{
-				return reinterpret_cast<VideoFileFrame<C>*>(vf.get_frame());
+				return reinterpret_cast<VideoFileFrame<T>*>(vf.get_frame());
 			}
 
-			virtual void put_frame(VideoFrame<C>* f)
+			virtual void put_frame(VideoFrame<T>* f)
 			{
 				vf.put_frame(reinterpret_cast<VideoFrame<byte>*>(f));
 			}
@@ -171,11 +196,13 @@ namespace CVD
 				return vf.frames_per_second();
 			}
 
+			/// What is the path to the video file?
 			std::string file_name() 
 			{
 				return vf.file_name();
 			}
 
+			/// What codec is being used to decode this video?
 			std::string codec_name() 
 			{
 				return vf.codec_name();
@@ -183,7 +210,6 @@ namespace CVD
 		
 		private:
 	};
-
 }
 
 #endif

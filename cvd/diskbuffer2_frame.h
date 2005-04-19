@@ -8,13 +8,22 @@ namespace CVD
 {
 	template<class T> class DiskBuffer2;
 
-	template<class T> class DiskBuffer2Frame: public CVD::LocalVideoFrame<T>
+	/// A frame from a DiskBuffer2. The frames in a DiskBuffer2 are image files loaded from disk.
+	/// @param T The pixel type of the frames to provide (usually <code>CVD::Rgb<CVD::byte></code> 
+	/// or <code>CVD::byte</code>. If the image files are of a different type, they will be automatically 
+	/// converted (see @link gImageIO Image loading and saving, and format conversion@endlink).
+	/// @ingroup gVideoFrame
+	template<typename T> 
+	class DiskBuffer2Frame : public CVD::LocalVideoFrame<T>
 	{
-		public:		
-			const std::string& name() {return frame_name;};
+			/// Allow DiskBuffer2 to create a DiskBuffer2Frame
 			friend class CVD::DiskBuffer2<T>;
+		public:		
 
-		protected:
+			/// What is the filename for this image?
+			const std::string& name() {return frame_name;};
+
+		private:
 			~DiskBuffer2Frame()
 			{
 			}

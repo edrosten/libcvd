@@ -5,11 +5,11 @@ UNAME=$(shell uname)
 # External library locations
 #
 
-NUMERICS=$(HOME)/code/TooN
+NUMERICS=$(HOME)/Src/TooN
 X11_I=/usr/X11R6/include
 X11_L=/usr/X11R6/lib
 OTHER_I=$(HOME)/usr/local/include
-OTHER_L=$(HOME)/usr/local/lib -lefence
+OTHER_L=$(HOME)/usr/local/lib
 
 
 FORCE_GCC=0
@@ -75,7 +75,7 @@ OFLAGS=$(OFLAGS_$(OPTIMIZE))
 DFLAGS=$(DFLAGS_$(DEBUG))
 PFLAGS=$(PFLAGS_$(PROFILE))
 
-CXX_FLAGS=$(CXXFLAGS) -I. -I$(OTHER_I) -I $(NUMERICS) -I$(X11_I) $(INCLUDE)  $(DFLAGS) $(OFLAGS) $(WFLAGS) $(MISCFLAGS) $(PFLAGS)
+CXX_FLAGS=$(CXXFLAGS) -g -I. -I$(OTHER_I) -I $(NUMERICS) -I$(X11_I) $(INCLUDE)  $(DFLAGS) $(OFLAGS) $(WFLAGS) $(MISCFLAGS) $(PFLAGS)
 CXX_FLAGS_no_opt=$(CXXFLAGS) -I. -I$(OTHER_I) -I $(NUMERICS) -I$(X11_I)  $(INCLUDE)  $(DFLAGS) $(WFLAGS) $(MISCFLAGS) $(PFLAGS)
 
 
@@ -167,6 +167,9 @@ install: libcvd.a libcvd.so $(PROGS)
 	cp libcvd.so* $(EXEC_PREFIX)/lib/
 	cp $(PROGS) $(EXEC_PREFIX)/bin/
 
+docs: 
+	doxygen Doxyfile
+	
 cvd/arch.h: util/make_pnm_arch_h.util
 	util/make_pnm_arch_h.util > cvd/arch.h
 

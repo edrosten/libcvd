@@ -12,39 +12,79 @@
 #include <cvd/image_io.h>
 
 #include <sys/time.h>
-
 namespace CVD
 {
+	//
+	// GLOBLIST
+	/// Make a list of strings from a UNIX-style pattern 
+	/// pathname expansion. Tilde expansion is done, and * ? [] and {} can all be 
+	/// used as normal. The filenames are returned in alphabetical (and numerical) order.
+	/// @param gl The pattern from which to generate the strings
+	/// @relatesalso DiskBuffer2
 	std::vector<std::string> globlist(const std::string& gl);
-	
+
 	namespace Exceptions
 	{
+		/// %Exceptions specific to DiskBuffer2
+		/// @ingroup gException
 		namespace DiskBuffer2
 		{
+			/// Base class for all DiskBuffer2 exceptions
 			struct All: public CVD::Exceptions::VideoBuffer::All { };
+			/// An empty list of filename strings was passed to the buffer
 			struct NoFiles: public All { NoFiles(); };
-			struct BadImageSize: public All { BadImageSize(const std::string&); };
-			struct BadFile: public All { BadFile(const std::string&, int); };
-			struct BadImage: public All { BadImage(const std::string& file, const std::string& error); };
+			/// An error occurred trying to open a file
+			struct BadFile: public All { BadFile(const std::string&, int); ///< Construct from filename and error number
+			}; 
+			/// An error occurred trying to read a file as an image
+			struct BadImage: public All { BadImage(const std::string& file, const std::string& error); ///< Construct from filename and error string 
+			};
+			/// The file loaded was a different size from the first frame
+			struct BadImageSize: public All { BadImageSize(const std::string& file); ///< Construct from filename  string 
+			};
+			/// get_frame() was called when at the end of the buffer
 			struct EndOfBuffer: public All { EndOfBuffer(); };
-			struct BadSeek: public All { BadSeek(double t); };
+			/// seek_to() was called for an invalid timestamp
+			struct BadSeek: public All { BadSeek(double t);///< Construct from invalid timestamp
+			 }; 
+			
 		}
 	}
 
-	template<typename T> class DiskBuffer2: public CVD::LocalVideoBuffer<T>
+	/// Play a series of image files as a video stream. 
+	/// Provides frames of type CVD::DiskBuffer2Frame and throws exceptions of type 
+	/// CVD::Exceptions::DiskBuffer2
+	/// @param T The pixel type of the frames to provide (usually <code>CVD::Rgb<CVD::byte></code> 
+	/// or <code>CVD::byte</code>. If the image files are of a different type, they will be automatically 
+	/// converted (see @link gImageIO Image loading and saving, and format conversion@endlink).
+	/// @ingroup gVideoBuffer
+	template<typename T> 
+	class DiskBuffer2: public CVD::LocalVideoBuffer<T>
 	{
 		public:
-			DiskBuffer2(const std::vector<std::string>& names, double fps);
+			/// Construct a DiskBuffer2 from a vector of filenames. 
+			/// Typically the globlist() helper function is used to provide the filenames
+			/// e.g. <code>DiskBuffer2 buffer(globlist("~/Images/lab*.jpg"), 25);</code>
+			/// @param names The filenames to use (played in the order that they are in the vector) 
+			/// @param fps The frames per second to report for this VideoBuffer
+			/// @param eob What should the buffer do when it reaches the end of the list of files?
+			DiskBuffer2(const std::vector<std::string>& names, double fps, VideoBufferFlags::OnEndOfBuffer eob = VideoBufferFlags::RepeatLastFrame);
 
  			virtual ImageRef size() {return my_size;}
+			
+			/// Is there another frame waiting in the buffer? By default, this always 
+			/// returns true, but if the VideoBufferFlags::OnEndOfBuffer setting is VideoBufferFlags::UnsetPending, this will return
+			/// false after the last frame has been returned by get_frame()
 			virtual bool frame_pending() {return frame_ready;}
 
 			virtual DiskBuffer2Frame<T>* get_frame();
 			virtual void put_frame(VideoFrame<T>* f);
 			virtual void seek_to(double t);
 		
-			virtual void on_end_of_buffer(VideoBufferFlags::OnEndOfBuffer behaviour) 
-				{end_of_buffer_behaviour = behaviour;}
+			/// What should the buffer do when it reaches the end of the list of files?
+			/// @param eob The desired behaviour
+			virtual void on_end_of_buffer(VideoBufferFlags::OnEndOfBuffer eob) 
+				{end_of_buffer_behaviour = eob;}
 
 			virtual double frame_rate() 
 			{
@@ -65,8 +105,8 @@ namespace CVD
 	// CONSTRUCTOR
 	//
 	template<typename T>
-	inline DiskBuffer2<T>::DiskBuffer2(const std::vector<std::string>& names, double fps) 
-	:end_of_buffer_behaviour(VideoBufferFlags::RepeatLastFrame)
+	inline DiskBuffer2<T>::DiskBuffer2(const std::vector<std::string>& names, double fps, VideoBufferFlags::OnEndOfBuffer eob) 
+	:end_of_buffer_behaviour(eob)
 	{
 		frames_per_sec = fps;
 
@@ -182,7 +222,6 @@ namespace CVD
 		next_frame = frameno;
 		frame_ready = true;
 	}
-
 }
 
 

@@ -20,7 +20,16 @@
 
 namespace CVD
 {
-	template<class T> class LocalVideoFrame: public VideoFrame<T>
+	/// A frame from a LocalVideoBuffer, which manages its own data rather than wrapping
+	/// data owned by the system.
+	/// The data is stored internally using Image, and programs which will only ever use 
+	/// LocalVideoBuffers can be optimized by using the 
+	/// image() method. Being Images, these could be deleted sensibly, but it is not currently allowed, 
+	/// to make the interface more consistent.
+	/// @param T The pixel type of the video frames
+	/// @ingroup gVideoFrame
+	template<class T> 
+	class LocalVideoFrame: public VideoFrame<T>
 	{
 		public:		
 			const std::string& name() {return *frame_name;};
@@ -31,13 +40,18 @@ namespace CVD
 			virtual ~LocalVideoFrame()
 			{
 			}
-
-			LocalVideoFrame(double time, CVD::Image<T>& local_image)
-			:VideoFrame<T>(time, local_image.data(), local_image.size()),
-			 im(local_image)
+			
+			/// Construct a video frame from an Image and a timestamp
+			/// @param time The timestamp of this frame
+			/// @param local The Image to use for this frame
+			LocalVideoFrame(double time, CVD::Image<T>& local)
+			:VideoFrame<T>(time, local.data(), local.size()),
+			 im(local)
 			{
 			}	
 
+			/// Returns the image. A LocalVideoFrame can be treated just like any other Image
+			/// (for example it can use optimised copying)
 			const Image<T>& image()
 			{
 				return im;

@@ -8,42 +8,91 @@
 
 namespace CVD
 {
-
 ////////////////
 // DEINTERLACE BUFFER EXCEPTIONS
 //
 namespace Exceptions
 {
+	/// %Exceptions specific to DeinterlaceBuffer.
+	/// @ingroup gException
 	namespace DeinterlaceBuffer
-	{
-		struct All: public CVD::Exceptions::VideoBuffer::All { };
-		struct OddNumberOfLines: public All { OddNumberOfLines(); };
+	{	
+		/// Base class for all DeinterlaceBuffer exceptions
+		struct All: public CVD::Exceptions::VideoBuffer::All { }; 
+		
+		/// The VideoBuffer that is being wrapped does not have an even number of lines (so the odd and even- fields would not be the same size)
+		struct OddNumberOfLines: public All { OddNumberOfLines(); }; 
 	}
 }
+
 
 /////////////////
 // DEINTERLACE BUFFER
 //
+
+/// A decorator class which wraps a VideoBuffer to return fields instead of 
+/// the original frames (see also DeinterlaceFrame). The majority of commands are passed
+/// straight through to the buffer that this class wraps, but get_frame() is 
+/// overloaded to extract fields from the video frames.
+///
+/// Video intended for television use (i.e. from non-progressive scan cameras) tends
+/// to be interlaced. Instead of grabbing the entire frame at one time instant, the 
+/// image is grabbed in two parts (fields), made up of the odd-numbered lines and the 
+/// even-numbered lines respectively (thus giving an effective <em>field-rate</em> of 
+/// twice the video frame-rate. Any fast motion in frame will therefore exhibit serrated
+/// distortion, with alternate lines out of step. 
+///
+/// This class returns individual fields from the video, which are guaranteed to 
+/// represent a single time instant. The VideoFrames returned from this buffer are
+/// therefore half the height of the original image, and so you might want to 
+/// double the y-scale before displaying. 
+///
+/// Provides frames of type CVD::DeinterlaceFrame and throws exceptions of type 
+/// CVD::Exceptions::DeinterlaceBuffer
+/// @param T The pixel type of the original VideoBuffer
+/// @ingroup gVideoBuffer
 template <typename T>
 class DeinterlaceBuffer : public VideoBuffer<T>
 {
 	public:
-		enum Fields{OddOnly, EvenOnly, OddEven, EvenOdd};
+		/// Used to select which fields, and in which order, to extract from the frame
+		enum Fields{
+			OddOnly, ///< Odd fields only
+			EvenOnly, ///< Even fields only
+			OddEven, ///< Both fields, presenting the odd lines from each frame first 
+			EvenOdd ///< Both fields, presenting the even lines from each frame first
+		}; 
 		
-   public:
-      DeinterlaceBuffer(CVD::VideoBuffer<T>& buf, Fields fields = OddEven);
+	public:
+		/// Construct a DeinterlaceBuffer by wrapping it around another VideoBuffer
+		/// @param buf The buffer that will provide the raw frames
+		/// @param fields The fields to 
+   		DeinterlaceBuffer(CVD::VideoBuffer<T>& buf, Fields fields = OddEven);
  
+		/// The size of the VideoFrames returns by this buffer. This will be half the 
+		/// height of the original frames.
 		ImageRef size();
-      CVD::VideoFrame<T>* get_frame();
-      void put_frame(CVD::VideoFrame<T>* f);
-      virtual bool frame_pending()
+		
+		CVD::VideoFrame<T>* get_frame();
+		
+		void put_frame(CVD::VideoFrame<T>* f);
+		
+		virtual bool frame_pending()
 			{return m_vidbuf.frame_pending();}
-      virtual void seek_to(double t)
+			
+		virtual void seek_to(double t)
 			{return m_vidbuf.seek_to(t);}
-	  virtual double frame_rate()
-	  {
-	  		return m_vidbuf.frame_rate();
-	  }
+			
+		/// What is the (expected) frame rate of this video buffer, in frames per second?
+		/// If OddEven or EvenOdd are selected, this will be reported as twice the original 
+		/// buffer's rate.
+		virtual double frame_rate()
+	  	{
+	  		if(m_fields == OddOnly || m_fields == EvenOnly)
+	  			return m_vidbuf.frame_rate();
+			else
+		  		return m_vidbuf.frame_rate() * 2.0;
+		}
       
    private:
 		CVD::VideoFrame<T>* my_realframe;
@@ -87,11 +136,9 @@ VideoFrame<T>* DeinterlaceBuffer<T>::get_frame()
 	// First sort out the time
 	double time = my_realframe->timestamp();
 	
-	// If we're giving the second frame of a pair, make it a fraction of time after the first
-	// What happens if the frame rate is > 10kHz? This should perhaps add on half the frame rate
-	// (if we knew what the frame rate was)
+	// If we're giving the second frame of a pair, make its time half-way to the next frame
 	if(!m_loadnewframe)
-		time += 0.0001; 
+		time += frame_rate(); 
 	
 	T* data = new T[m_size.x * m_size.y];
 	DeinterlaceFrame<T>* frame = new DeinterlaceFrame<T>(time, data, m_size);

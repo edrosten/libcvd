@@ -10,56 +10,69 @@
 
 namespace CVD
 {
+	
 	namespace Exceptions
 	{
+		/// %Exceptions specific to image loading and saving
+		/// @ingroup gException
 		namespace Image_IO
 		{
+			/// Base class for all Image_IO exceptions
 			struct All: public CVD::Exceptions::All
 			{};
 
+			/// This image type is not supported
 			struct UnsupportedImageType: public All
 			{
 				UnsupportedImageType();
 			};
 
+			/// The file ended before the image
 			struct EofBeforeImage: public All
 			{
 				EofBeforeImage();
 			};
 
+			/// The image was incorrect
 			struct MalformedImage: public All
 			{
-				MalformedImage(const std::string &);
+				MalformedImage(const std::string &); ///< Construct from a message string
 			};
 
+			/// The loaded image is not the right size
 			struct ImageSizeMismatch: public All
 			{
-				ImageSizeMismatch(const ImageRef& src, const ImageRef& dest);
+				ImageSizeMismatch(const ImageRef& src, const ImageRef& dest); ///< Construct from the two sizes
 			};
 
+			/// Error writing the image
 			struct WriteError: public All
 			{
-				WriteError(const std::string& err);
+				WriteError(const std::string& err); ///< Construct from a message string
 			};
 
+			/// Cannot seek in this stream
 			struct UnseekableIstream: public All
 			{
-				UnseekableIstream(const std::string& type);
+				UnseekableIstream(const std::string& type); ///< Construct from a message string
 			};
 
+			/// Type mismatch reading the image (image data is either 8- or 16-bit, and it must be the same in the file)
 			struct ReadTypeMismatch: public All
 			{
-				ReadTypeMismatch(bool read8);
+				ReadTypeMismatch(bool read8); ///< Constructor is passed <code>true</code> if it was trying to read 8-bit data
 			};
 			
+			/// An error occurred in one of the helper libraries
 			struct InternalLibraryError: public All
 			{
-				InternalLibraryError(const std::string& lib, const std::string err);
+				InternalLibraryError(const std::string& lib, const std::string err); ///< Construct from the library name and the error string
 			};
 
+			/// This image subtype is not supported
 			struct UnsupportedImageSubType: public All
 			{
-				UnsupportedImageSubType(const std::string &, const std::string&);
+				UnsupportedImageSubType(const std::string &, const std::string&); ///< Construct from a subtype string and an error string
 			};
 
 		}
@@ -71,19 +84,47 @@ namespace CVD
 	// Image loading
 	//
 
+	
+	/// Load an image from a stream. This function resizes the Image as necessary.
+	/// It will also perform image type conversion (e.g. colour to greyscale)
+	/// according the Pixel:::CIE conversion.
+	/// @param I The pixel type of the image
+	/// @param im The Image to receive the loaded image data
+	/// @param i The stream
+	/// @ingroup gImageIO
 	template<class I> void img_load(Image<I>& im, std::istream& i)
 	{
 		img_load(im, i, Pixel::CIE);
 	}
 
+	/// Load an image from a stream into a Basic Image. The function checks that the
+	/// BasicImage is the right size, and if not will throw an Image_IO::ImageSizeMismatch
+	/// exception.
+	/// It will also perform image type conversion (e.g. colour to greyscale)
+	/// according the Pixel:::CIE conversion.
+	/// @param I The pixel type of the image
+	/// @param im The Image to receive the loaded image data
+	/// @param i The stream
+	/// @ingroup gImageIO
 	template<class I> void img_load(BasicImage<I>& im, std::istream& i)
 	{
 		img_load(im, i, Pixel::CIE);
 	}
 
-	template<class PixelType, class Conversion> void img_load(Image<PixelType>&im, std::istream& i, Conversion cv)
+	/// Load an image from a stream. This function resizes the Image as necessary.
+	/// It will also perform image type conversion (e.g. colour to greyscale)
+	/// according to the conversion specified. See Pixel for a list of common
+	/// conversion operations
+	/// @param PixelType The pixel type of the image
+	/// @param Conversion The conversion class to use
+	/// @param im The Image to receive the loaded image data
+	/// @param i The stream
+	/// @param cv The instance of the conversion to use (see Pixel)
+	/// @ingroup gImageIO
+	template<class PixelType, class Conversion> 
+	void img_load(Image<PixelType>&im, std::istream& i, Conversion cv)
 	{
-		//Open an image for reading (put it in an exfeption safe container)
+		//Open an image for reading (put it in an exception-safe container)
 		std::auto_ptr<Image_IO::image_in> in(Image_IO::image_factory::in(i));
 		
 		//Set up the image to be the correct size (and thereby disown any data as well)
@@ -93,7 +134,20 @@ namespace CVD
 		Internal::load_image(*in, im.data(), cv);
 	}
 
-	template<class PixelType, class Conversion> void img_load(BasicImage<PixelType>&im, std::istream& i, Conversion cv)
+	/// Load an image from a stream into a Basic Image. The function checks that the
+	/// BasicImage is the right size, and if not will throw an Image_IO::ImageSizeMismatch
+	/// exception.
+	/// It will also perform image type conversion (e.g. colour to greyscale)
+	/// according to the conversion specified. See Pixel for a list of common
+	/// conversion operations
+	/// @param PixelType The pixel type of the image
+	/// @param Conversion The conversion class to use
+	/// @param im The Image to receive the loaded image data
+	/// @param i The stream
+	/// @param cv The instance of the conversion to use (see Pixel)
+	/// @ingroup gImageIO
+	template<class PixelType, class Conversion> 
+	void img_load(BasicImage<PixelType>&im, std::istream& i, Conversion cv)
 	{
 		//Open an image for reading (put it in an exfeption safe container)
 		std::auto_ptr<Image_IO::image_in> in(Image_IO::image_factory::in(i));
@@ -133,8 +187,18 @@ namespace CVD
 
 
 
-
-	template<class PixelType, class Conversion> void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t, Conversion& cv, int channels, bool use_16bit)
+	/// Save an image to a stream. This function will convert types if necessary.
+	/// @param PixelType The pixel type of the image
+	/// @param Conversion The conversion class to use
+	/// @param im The image to save
+	/// @param o The stream 
+	/// @param t The image file format to use (see ImageType for a list of supported formats)
+	/// @param cv The image instance conversion to use, if necessary (see Pixel for a list of common conversions)
+	/// @param channels dunno
+	/// @param use_16bit dunno
+	/// @ingroup gImageIO
+	template<class PixelType, class Conversion> 
+	void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t, Conversion& cv, int channels, bool use_16bit)
 	{
 		std::string comments;
 		
@@ -147,12 +211,27 @@ namespace CVD
 	}
 
 
+	/// Save an image to a stream. This function will convert types if necessary.
+	/// @param PixelType The pixel type of the image
+	/// @param Conversion The conversion class to use
+	/// @param im The image to save
+	/// @param o The stream 
+	/// @param t The image file format to use (see ImageType for a list of supported formats)
+	/// @param cv The instance of the image conversion to use, if necessary (see Pixel for a list of common conversions)
+	/// @ingroup gImageIO
 	template<class PixelType, class Conversion> void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t, Conversion& cv)
 	{
 		img_save(im, o, t, cv, Pixel::Component<PixelType>::count, Internal::save_default<PixelType>::use_16bit);
 	}
 
 
+	/// Save an image to a stream. This function will convert types if necessary, using
+	/// the Pixel::CIE conversion
+	/// @param PixelType The pixel type of the image
+	/// @param im The image to save
+	/// @param o The stream 
+	/// @param t The image file format to use (see ImageType for a list of supported formats)
+	/// @ingroup gImageIO
 	template<class PixelType> void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t)
 	{
 		img_save(im, o, t, Pixel::CIE);
@@ -166,16 +245,38 @@ namespace CVD
 	// Legacy pnm_* functions
 	//
 
+	/// Save an image to a stream as a PNM. 
+	/// @param PixelType The pixel type of the image
+	/// @param im The image
+	/// @param o The stream
+	/// @deprecated Use img_save() instead, i.e. <code> img_save(im, o, ImageType::PNM);</code>
+	/// @ingroup gImageIO
 	template<class PixelType> void pnm_save(const BasicImage<PixelType>& im, std::ostream& o)
 	{
 		img_save(im, o, ImageType::PNM);
 	}
 
+	/// Load a PNM image from a stream
+	/// @param PixelType The pixel type of the image
+	/// @param im The image
+	/// @param i The stream
+	/// @deprecated Use img_load(BasicImage<I>& im, std::istream& i) instead, 
+	/// i.e. <code>img_load(im, i);</code>. This can handle 
+	/// and automatically detect other file formats as well.
+	/// @ingroup gImageIO
 	template<class PixelType> void pnm_load(BasicImage<PixelType>& im, std::istream& i)
 	{
 		img_load(im, i);
 	}
 
+	/// Load a PNM image from a stream
+	/// @param PixelType The pixel type of the image
+	/// @param im The image
+	/// @param i The stream
+	/// @deprecated Use img_load(Image<I>& im, std::istream& i) instead, 
+	/// i.e. <code>img_load(im, i);</code>. This can handle 
+	/// and automatically detect other file formats as well.
+	/// @ingroup gImageIO
 	template<class PixelType> void pnm_load(Image<PixelType>& im, std::istream& i)
 	{
 		img_load(im, i);
@@ -184,7 +285,6 @@ namespace CVD
 }
 //#include <cvd/internal/pnm/pnm_cvd_image.h>
 //#include <cvd/internal/pnm/cvd_rgb.h>
-
 
 
 #endif
