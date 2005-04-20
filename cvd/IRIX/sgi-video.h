@@ -9,19 +9,26 @@
 #include <cvd/videoframe.h>
 
 
-namespace video_buffer
+namespace CVD
+{
+
+/// Internal O2Buffer helpers
+namespace SGI
 {
 	extern int debug;
 	extern int debug_sgi_events;
 
 	unsigned long long 	current_time();
 	extern const unsigned long long	time_div;
-	class sgi_video
+	
+	/// Internal (non type-safe) class used by O2Buffer to do the actual interfacing with the
+	/// SGI video hardware. 
+	class RawSGIVideo
 	{
 		public:
 			
-			sgi_video(bool=false);
-			~sgi_video();
+			RawSGIVideo(bool=false);
+			~RawSGIVideo();
 
 			void 	start();
 			void 	stop();
@@ -64,4 +71,5 @@ namespace video_buffer
 			
 }
 
+}
 #endif

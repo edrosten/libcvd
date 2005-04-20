@@ -9,7 +9,7 @@ using namespace std;
 CVD::O2Buffer::O2Buffer () :
   m_pFrame (NULL)
 {
-  m_pVid = new video_buffer::sgi_video (1);
+  m_pVid = new SGI::RawSGIVideo(1);
   m_pVid->start ();
   m_currentFrameNumber = 0;
 

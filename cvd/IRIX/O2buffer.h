@@ -11,7 +11,7 @@
 namespace CVD
 {
 
-///	A video buffer to play live video on an SGI O2.
+///	A video buffer to play live video on an %SGI O2.
 /// Provides 32-bit colour frames of type CVD::O2VideoFrame.
 /// @ingroup gVideoBuffer
 class O2Buffer : public VideoBuffer<Rgb8>
@@ -29,7 +29,7 @@ class O2Buffer : public VideoBuffer<Rgb8>
 
  private:
     ImageRef m_frameSize;
-    video_buffer::sgi_video *m_pVid;
+    SGI::RawSGIVideo *m_pVid;
     O2VideoFrame *m_pFrame;
     long m_currentFrameNumber;
 };

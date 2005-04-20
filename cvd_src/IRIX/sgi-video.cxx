@@ -10,7 +10,10 @@
 
 using namespace std;
 
-namespace video_buffer
+namespace CVD
+{
+
+namespace SGI
 {
 	int debug=0;
 	int debug_sgi_events=0;
@@ -57,7 +60,7 @@ void test(bool  t, char* s)
 
 typedef long long copy_t;
 
-sgi_video::sgi_video(bool use_frame)
+RawSGIVideo::RawSGIVideo(bool use_frame)
 {
 	VLControlValue	v;			//A large union of different types.
 	DMparams*		dm_params;
@@ -173,7 +176,7 @@ sgi_video::sgi_video(bool use_frame)
 }
 	
 
-void sgi_video::start()
+void RawSGIVideo::start()
 {
 	int i;
 	VLTransferDescriptor xferdesc;
@@ -193,7 +196,7 @@ void sgi_video::start()
 
 }
 
-void sgi_video::stop()
+void RawSGIVideo::stop()
 {
 	int i;
 
@@ -206,7 +209,7 @@ void sgi_video::stop()
 }
 
 
-sgi_video::~sgi_video()
+RawSGIVideo::~RawSGIVideo()
 {
 	if(locked_buffer != -1)
 		dmBufferFree(buf[locked_buffer]);
@@ -219,45 +222,45 @@ sgi_video::~sgi_video()
 }
 
 
-int sgi_video::x_size() const
+int RawSGIVideo::x_size() const
 {
 	return my_x_size;
 }
 
-int sgi_video::y_size() const
+int RawSGIVideo::y_size() const
 {
 	return my_y_size;
 }
 
-int sgi_video::frame_size() const
+int RawSGIVideo::frame_size() const
 {
 	return my_frame_size;
 }
 
-int sgi_video::frame_number() const
+int RawSGIVideo::frame_number() const
 {
 	return my_frame_number / frame_number_div;
 }
 
-float sgi_video::frame_rate() const
+float RawSGIVideo::frame_rate() const
 {
 	return my_frame_rate;
 }
 
-unsigned char* sgi_video::current_frame() const
+unsigned char* RawSGIVideo::current_frame() const
 {
 	return my_current_frame;
 }
 
 
-unsigned long long  sgi_video::frame_time() const
+unsigned long long  RawSGIVideo::frame_time() const
 {
 	return my_timestamp;
 }
 
 
 
-unsigned char* sgi_video::next_frame()
+unsigned char* RawSGIVideo::next_frame()
 {
 	unsigned char* ret_buff = NULL;
 	VLEvent	event;
@@ -317,6 +320,8 @@ unsigned char* sgi_video::next_frame()
 	}
 
 	return ret_buff;
+}
+
 }
 
 }
