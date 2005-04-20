@@ -94,3 +94,11 @@ Not all features are support on all operating systems (ie. video grabbing).
 
 /// @defgroup gLinAlg Linear Algebra
 /// Classes and functions for common Linear Algebra concepts and operations
+
+/// @defgroup gCPP General C++ and system helper functions
+/// Classes and functions for writing better code
+
+
+/// @namespace CVD
+/// All classes and functions are within the CVD namespace
+

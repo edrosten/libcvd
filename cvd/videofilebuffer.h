@@ -30,26 +30,34 @@ namespace CVD
 		namespace VideoFileBuffer
 		{
 			/// Base class for all VideoFileBuffer exceptions
+			/// @ingroup gException
 			struct All: public CVD::Exceptions::VideoBuffer::All { };
 			/// Unable to open the file as a video stream, for various reasons
+			/// @ingroup gException
 			struct FileOpen: public All { FileOpen(const std::string& file, const std::string& error); ///< Construt from filename and error message
 			};
 			/// Unable to open allocate a video frame
+			/// @ingroup gException
 			struct BadFrameAlloc: public All { BadFrameAlloc(); };
 			/// Unable to decode the video frame
+			/// @ingroup gException
 			struct BadDecode: public All { BadDecode(double t); ///< Construt from frame timestamp
 			};
 			/// get_frame() was called when at the end of the buffer
+			/// @ingroup gException
 			struct EndOfFile: public All { EndOfFile(); };
 			/// seek_to() was called for an invalid timestamp
+			/// @ingroup gException
 			struct BadSeek: public All { BadSeek(double t); ///< Construt from timestamp
 			};
 		}
 	}
 
+	/// Internal VideoFileBuffer helpers
 	namespace VFB
 	{
 
+	#ifndef DOXYGEN_IGNORE_INTERNAL
 	template<class C> struct rgb
 	{
 		static const bool p=Error__type_not_valid___Use_byte_or_rgb_of_byte;
@@ -64,45 +72,61 @@ namespace CVD
 	{	
 		static const bool p=true;
 	};
+	#endif 
 
+	/// Internal (non type-safe) class used by VideoFileBuffer
+	/// This does the real interfacing with the ffmpeg library
 	class RawVideoFileBuffer 
 	{
 		public:
+			/// Construct a video buffer to play this file
+			/// @param file The path to the video file
+			/// @param is_rgb Is RGB data wanted?
 			RawVideoFileBuffer(const std::string& file, bool is_rgb);
 			~RawVideoFileBuffer();
 		
-			// Base class interface
+			/// The size of the VideoFrames returned by this buffer
  			ImageRef size()
 			{
 				return my_size;
 			}
 
+			/// Returns the next frame from the buffer. This function blocks until a frame is ready.
 			VideoFileFrame<byte>* get_frame();
+			/// Tell the buffer that you are finished with this frame.
+			/// \param f The frame that you are finished with.
 			void put_frame(VideoFrame<CVD::byte>* f);
 
+			/// Is there a frame waiting in the buffer? This function does not block. 
 			bool frame_pending()
 			{
 				return frame_ready;
 			}
 
+			/// Go to a particular point in the video buffer (only implemented in buffers of recorded video)
+			/// \param t The frame time in seconds
 			void seek_to(double t);
 			
-			// This class additions	
+			/// What should the buffer do when it reaches the end of the list of files?
+			/// @param behaviour The desired behaviour
 			void on_end_of_buffer(VideoBufferFlags::OnEndOfBuffer behaviour) 
 			{
 				end_of_buffer_behaviour = behaviour;
 			}
 		
+			/// What is the (expected) frame rate of this video buffer, in frames per second?		
 			double frames_per_second() 
 			{
 				return pCodecContext->frame_rate / static_cast<double>(pCodecContext->frame_rate_base);
 			};
 			
+			/// What is the path to the video file?
 			std::string file_name() 
 			{
 				return pFormatContext->filename;
 			}
 			
+			/// What codec is being used to decode this video?
 			std::string codec_name() 
 			{
 				return pCodecContext->codec_name;
@@ -156,7 +180,6 @@ namespace CVD
 			{
 			}
 		
-			// Base class interface
 			virtual ImageRef size()
 			{
 				return vf.size();

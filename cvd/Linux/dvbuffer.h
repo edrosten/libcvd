@@ -11,8 +11,10 @@
 
 namespace CVD {
 
+/// Internal DVBuffer2 helpers
 namespace DC
 {
+	#ifndef DOXYGEN_IGNORE_INTERNAL
 	template<class C> struct cam_type
 	{
 		static const int mode = Error__type_not_valid_for_camera___Use_byte_or_rgb_of_byte;
@@ -38,38 +40,71 @@ namespace DC
 		double timestamp;
 		int buffer;
 	};
+	#endif
 
+	/// Internal (non type-safe) class used by DVBuffer2 to do the actual interfacing with the
+	/// Firewire (IEE 1394) video hardware. A wrapper for the libdc1394 library.
+	/// Use DVBuffer2 if you want 8-bit greyscale or 24-bit colour.
 	class RawDCVideo
 	{
 		public:
+		/// Construct a video buffer
+		/// @param camera_no The camera number
+		/// @param num_dma_buffers The number of DMA buffers to use
+		/// @param bright The brightness correction
+		/// @param exposure The exposure correction
+		/// @param mode The required mode
+		/// @param frame_rate The number of frames per second
 			RawDCVideo(int camera_no, int num_dma_buffers, int bright, int exposure, int mode, double frame_rate);
 			~RawDCVideo();
-
+			
+			/// The size of the VideoFrames returned by this buffer
 			ImageRef size();
+			/// Returns the next frame from the buffer. This function blocks until a frame is ready.
 			VideoFrame<byte>* get_frame();
+			/// Tell the buffer that you are finished with this frame
+			/// \param f The frame that you are finished with.
 			void put_frame(VideoFrame<byte>* f);
+			/// Is there a frame waiting in the buffer? This function does not block. 
 			bool frame_pending();
 
-
-			void set_shutter(unsigned int);
+			/// Set the camera shutter speed
+			/// @param s The requested speed
+			void set_shutter(unsigned int s);
+			/// Get the camera shutter speed
 			unsigned int get_shutter();
 
-			void set_iris(unsigned int);
+			/// Set the camera iris
+			/// @param i The requested iris
+			void set_iris(unsigned int i );
+			/// Get the camera iris
 			unsigned int get_iris();
 
-			void set_gain(unsigned int);
+			/// Set the camera gain
+			/// @param g The requested gain
+			void set_gain(unsigned int g);
+			/// Get the camera iris
 			unsigned int get_gain();
 
-			void set_exposure(unsigned int);
+			/// Set the camera exposure
+			/// @param e The requested exposure
+			void set_exposure(unsigned int e);
+			/// Get the camera iris
 			unsigned int get_exposure();
 
-			void set_brightness(unsigned int);
+			/// Set the camera brightness
+			/// @param b The requested brightness
+			void set_brightness(unsigned int b);
+			/// Get the camera iris
 			unsigned int get_brightness();
 
+			/// Get the camera frame rate
 			double frame_rate();
 
 			
+			/// What is the handle for this device?
 			raw1394handle_t& handle();
+			/// Which node is this device on?
 			nodeid_t&		 node();
 
 		private:

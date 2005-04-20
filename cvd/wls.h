@@ -61,12 +61,12 @@ public:
 	/// @param weight The inverse variance of the measurement (default = 1)
   template<class Accessor>
   inline void add_df(double m, const FixedVector<Size,Accessor>& J, double weight = 1) {
-    Vector<Size> fw = J*weight;
+    Vector<Size> Jw = J*weight;
     for(int i=0; i<Size; i++){
       for(int j=0; j<Size; j++){
-	my_C_inv[i][j]+=J[i]*fw[j];
+	my_C_inv[i][j]+=J[i]*Jw[j];
       }
-      my_vector[i]+=fw[i]*m;
+      my_vector[i]+=Jw[i]*m;
     }
   }
 

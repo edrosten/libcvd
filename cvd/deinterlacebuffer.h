@@ -18,9 +18,11 @@ namespace Exceptions
 	namespace DeinterlaceBuffer
 	{	
 		/// Base class for all DeinterlaceBuffer exceptions
+		/// @ingroup gException
 		struct All: public CVD::Exceptions::VideoBuffer::All { }; 
 		
 		/// The VideoBuffer that is being wrapped does not have an even number of lines (so the odd and even- fields would not be the same size)
+		/// @ingroup gException
 		struct OddNumberOfLines: public All { OddNumberOfLines(); }; 
 	}
 }

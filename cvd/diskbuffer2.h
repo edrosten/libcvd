@@ -30,21 +30,28 @@ namespace CVD
 		namespace DiskBuffer2
 		{
 			/// Base class for all DiskBuffer2 exceptions
+			/// @ingroup gException
 			struct All: public CVD::Exceptions::VideoBuffer::All { };
 			/// An empty list of filename strings was passed to the buffer
+			/// @ingroup gException
 			struct NoFiles: public All { NoFiles(); };
 			/// An error occurred trying to open a file
+			/// @ingroup gException
 			struct BadFile: public All { BadFile(const std::string&, int); ///< Construct from filename and error number
 			}; 
 			/// An error occurred trying to read a file as an image
+			/// @ingroup gException
 			struct BadImage: public All { BadImage(const std::string& file, const std::string& error); ///< Construct from filename and error string 
 			};
 			/// The file loaded was a different size from the first frame
+			/// @ingroup gException
 			struct BadImageSize: public All { BadImageSize(const std::string& file); ///< Construct from filename  string 
 			};
 			/// get_frame() was called when at the end of the buffer
+			/// @ingroup gException
 			struct EndOfBuffer: public All { EndOfBuffer(); };
 			/// seek_to() was called for an invalid timestamp
+			/// @ingroup gException
 			struct BadSeek: public All { BadSeek(double t);///< Construct from invalid timestamp
 			 }; 
 			

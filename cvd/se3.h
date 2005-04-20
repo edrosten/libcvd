@@ -49,18 +49,29 @@ public:
   /// @param rhs The multipier
   SE3 operator *(const SE3& rhs) const;
 
-  /// Returns the i-th generator multiplied by a vector (since that is what you usually want to do)
+  /// Returns the i-th generator multiplied by a vector. 
+  /// The generators of a Lie group are the basis for the space of the Lie algebra.
+  /// For %SE3, the generators are six \f$4\times4\f$ matrices representing
+  /// the six possible (linearised) degrees of freedom. These matrices are usally sparse,
+  /// and are usually obtained to immediately multiply them by a vector, so
+  /// this function provides a fast way of doing this operation.
+  /// @param i The required generator
+  /// @param pos The vector to multuiply by the generator
   static Vector<4> generator_field(int i, Vector<4> pos);
 
   /// Transfer a vector in the Lie Algebra from one
-  /// co-ordinate frame to another such that for a matrix 
-  /// \f$ M \f$, 
-  /// \f$ e^{\text{Adj}(v)} = Me^{v}M^{-1} \f$
+  /// co-ordinate frame to another. This is the operation such that for a matrix 
+  /// \f$ B \f$, 
+  /// \f$ e^{\text{Adj}(v)} = Be^{v}B^{-1} \f$
   /// @param v The Vector to transfer
   template<class Accessor>
   inline void adjoint(FixedVector<6,Accessor>& v)const;
 
-  ///@overload
+  /// Transfer a matrix in the Lie Algebra from one
+  /// co-ordinate frame to another. This is the operation such that for a matrix 
+  /// \f$ B \f$, 
+  /// \f$ e^{\text{Adj}(v)} = Be^{v}B^{-1} \f$
+  /// @param M The Matrix to transfer
   template <class Accessor>
   inline void adjoint(FixedMatrix<6,6,Accessor>& M)const;
 
@@ -80,12 +91,7 @@ private:
 };
 
 
-/// Left-multiply an SE3 by an SO3 
-/// @param lhs The rotation matrix
-/// @param rhs The transformation matrix
-/// @relates SE3
-SE3 operator*(const SO3& lhs, const SE3& rhs);
-
+// Member functions
 
 // transfers a vector in the Lie algebra
 // from one coord frame to another
@@ -97,7 +103,7 @@ inline void SE3::adjoint(FixedVector<6,Accessor>& vect)const{
   vect.template slice<0,3>() += my_translation ^ vect.template slice<3,3>();
 }
 
-// tansfers covectors between frames
+// Transfers covectors between frames
 // (using the transpose of the inverse of the adjoint)
 // so that trinvadjoint(vect1) * adjoint(vect2) = vect1 * vect2
 template<class Accessor>
@@ -127,6 +133,15 @@ inline void SE3::trinvadjoint(FixedMatrix<6,6,Accessor>& M)const{
   }
 }
 
+// Other related functions
+
+
+/// Left-multiply an SE3 by an SO3 
+/// @param lhs The rotation matrix
+/// @param rhs The transformation matrix
+/// @relates SE3
+SE3 operator*(const SO3& lhs, const SE3& rhs);
+
 
 /// Write an SE3 to a stream 
 /// @param os The stream
@@ -152,12 +167,14 @@ inline std::istream& operator>>(std::istream& is, SE3& rhs){
 }
 
 
+
+
 //////////////////
 // operator *   //
 // SE3 * Vector //
 //////////////////
 
-///@internal
+#ifndef DOXYGEN_IGNORE_INTERNAL
 ///Helper function to multiply an SE3 by a Vector
 /// @relates SE3
 template<class VectorType>
@@ -168,6 +185,7 @@ struct SE3VMult {
     ret[3] = rhs[3];
   }
 };
+#endif
 
 /// Right-multiply by a Vector
 /// @param lhs The transformation matrix
@@ -193,6 +211,7 @@ Vector<4> operator*(const SE3& lhs, const DynamicVector<Accessor>& rhs){
 // Vector * SE3 //
 //////////////////
 
+#ifndef DOXYGEN_IGNORE_INTERNAL
 /// @internal
 /// Helper function to multiply a vector by an SE3
 /// @relates SE3
@@ -204,6 +223,7 @@ struct VSE3Mult {
     ret[3] += lhs.template slice<0,3>() * rhs.get_translation();
   }
 };
+#endif
 
 /// Left-multiply by a Vector
 /// @param lhs The vector
@@ -223,8 +243,8 @@ Vector<4> operator*(const FixedVector<4,Accessor>& lhs, const SE3& rhs){
 // SE3 * Matrix //
 //////////////////
 
-/// @internal
-/// Helper function to multipy an SE3 by a matrix
+#ifndef DOXYGEN_IGNORE_INTERNAL
+/// Helper function to multipy an SE3 by a matrix plib
 /// @relates SE3
 template <int RHS, class Accessor>
 struct SE3MMult {
@@ -236,6 +256,7 @@ struct SE3MMult {
     }
   }
 };
+#endif
 
 
 /// Right-multiply by a Matrix
@@ -253,7 +274,7 @@ Matrix<4,RHS> operator*(const SE3& lhs, const FixedMatrix<4,RHS,Accessor>& rhs){
 // Matrix * SE3 //
 //////////////////
 
-/// @internal
+#ifndef DOXYGEN_IGNORE_INTERNAL
 /// Helper function to multipy a matrix by an SE3
 /// @relates SE3
 template <int LHS, class Accessor>
@@ -266,7 +287,7 @@ struct MSE3Mult {
     }
   }
 };
-
+#endif
 
 /// Left-multiply by a Matrix
 /// @param lhs The matrix

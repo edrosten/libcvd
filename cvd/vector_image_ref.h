@@ -17,7 +17,7 @@ namespace CVD
 		return r;
 	}
 
-	/// Convert a Vector into an image co-ordinate. Numers are truncated, not rounded
+	/// Convert a Vector into an image co-ordinate. Numbers are truncated, not rounded
 	/// @param v The Vector to convert
 	/// @ingroup gImage
 	inline ImageRef ir(const Vector<2>& v)

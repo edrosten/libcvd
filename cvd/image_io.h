@@ -18,58 +18,68 @@ namespace CVD
 		namespace Image_IO
 		{
 			/// Base class for all Image_IO exceptions
+			/// @ingroup gException
 			struct All: public CVD::Exceptions::All
 			{};
 
 			/// This image type is not supported
+			/// @ingroup gException
 			struct UnsupportedImageType: public All
 			{
 				UnsupportedImageType();
 			};
 
 			/// The file ended before the image
+			/// @ingroup gException
 			struct EofBeforeImage: public All
 			{
 				EofBeforeImage();
 			};
 
 			/// The image was incorrect
+			/// @ingroup gException
 			struct MalformedImage: public All
 			{
 				MalformedImage(const std::string &); ///< Construct from a message string
 			};
 
 			/// The loaded image is not the right size
+			/// @ingroup gException
 			struct ImageSizeMismatch: public All
 			{
 				ImageSizeMismatch(const ImageRef& src, const ImageRef& dest); ///< Construct from the two sizes
 			};
 
 			/// Error writing the image
+			/// @ingroup gException
 			struct WriteError: public All
 			{
 				WriteError(const std::string& err); ///< Construct from a message string
 			};
 
 			/// Cannot seek in this stream
+			/// @ingroup gException
 			struct UnseekableIstream: public All
 			{
 				UnseekableIstream(const std::string& type); ///< Construct from a message string
 			};
 
 			/// Type mismatch reading the image (image data is either 8- or 16-bit, and it must be the same in the file)
+			/// @ingroup gException
 			struct ReadTypeMismatch: public All
 			{
 				ReadTypeMismatch(bool read8); ///< Constructor is passed <code>true</code> if it was trying to read 8-bit data
 			};
 			
 			/// An error occurred in one of the helper libraries
+			/// @ingroup gException
 			struct InternalLibraryError: public All
 			{
 				InternalLibraryError(const std::string& lib, const std::string err); ///< Construct from the library name and the error string
 			};
 
 			/// This image subtype is not supported
+			/// @ingroup gException
 			struct UnsupportedImageSubType: public All
 			{
 				UnsupportedImageSubType(const std::string &, const std::string&); ///< Construct from a subtype string and an error string
@@ -166,6 +176,7 @@ namespace CVD
 	//
 	// Image saving
 	//
+	#ifndef DOXYGEN_IGNORE_INTERNAL
 	namespace Internal
 	{
 		template<class C, int i> struct save_default_
@@ -183,7 +194,7 @@ namespace CVD
 			static const bool use_16bit = save_default_<C, Pixel::traits<typename Pixel::Component<C>::type>::integral>::use_16bit;
 		};
 	}
-	
+	#endif	
 
 
 
@@ -246,36 +257,34 @@ namespace CVD
 	//
 
 	/// Save an image to a stream as a PNM. 
+	/// @b Deprecated Use img_save() instead, i.e. <code>img_save(im, o, ImageType::PNM);</code>
 	/// @param PixelType The pixel type of the image
 	/// @param im The image
 	/// @param o The stream
-	/// @deprecated Use img_save() instead, i.e. <code> img_save(im, o, ImageType::PNM);</code>
 	/// @ingroup gImageIO
 	template<class PixelType> void pnm_save(const BasicImage<PixelType>& im, std::ostream& o)
 	{
 		img_save(im, o, ImageType::PNM);
 	}
 
-	/// Load a PNM image from a stream
+	/// Load a PNM image from a stream.
+	/// @b Deprecated Use img_load(BasicImage<I>& im, std::istream& i) instead. This can handle 
+	/// and automatically detect other file formats as well.
 	/// @param PixelType The pixel type of the image
 	/// @param im The image
 	/// @param i The stream
-	/// @deprecated Use img_load(BasicImage<I>& im, std::istream& i) instead, 
-	/// i.e. <code>img_load(im, i);</code>. This can handle 
-	/// and automatically detect other file formats as well.
 	/// @ingroup gImageIO
 	template<class PixelType> void pnm_load(BasicImage<PixelType>& im, std::istream& i)
 	{
 		img_load(im, i);
 	}
 
-	/// Load a PNM image from a stream
+	/// Load a PNM image from a stream.
+	/// @b Deprecated Use img_load(Image<I>& im, std::istream& i) instead. This can handle 
+	/// and automatically detect other file formats as well.
 	/// @param PixelType The pixel type of the image
 	/// @param im The image
 	/// @param i The stream
-	/// @deprecated Use img_load(Image<I>& im, std::istream& i) instead, 
-	/// i.e. <code>img_load(im, i);</code>. This can handle 
-	/// and automatically detect other file formats as well.
 	/// @ingroup gImageIO
 	template<class PixelType> void pnm_load(Image<PixelType>& im, std::istream& i)
 	{

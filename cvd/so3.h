@@ -6,14 +6,13 @@
 
 namespace CVD {
 
-/// @ingroup gLinAlg 
-
 /// Class to represent a three-dimensional rotation matrix. Three-dimensional rotation
-/// matrices are members of the Special Orthogonal Lie group SO3. These can be parameterised
-/// three numbers (in the space of the Lie Algebra). In this class, the three parameters are the
-/// finite rotation vector i.e. a three-dimensional vector whose direction is the axis of rotation
+/// matrices are members of the Special Orthogonal Lie group SO3. This group can be parameterised
+/// three numbers (a vector in the space of the Lie Algebra). In this class, the three parameters are the
+/// finite rotation vector, i.e. a three-dimensional vector whose direction is the axis of rotation
 /// and whose length is the angle of rotation in radians. Exponentiating this vector gives the matrix,
 /// and the logarithm of the matrix gives this vector.
+/// @ingroup gLinAlg 
 class SO3 {
 public:
   friend inline std::istream& operator>>(std::istream& is, SO3& rhs);
@@ -24,8 +23,8 @@ public:
   /// Assignment operator
   /// @param rhs The SO3 to copy
   SO3& operator=(const SO3& rhs);
-  /// Assigment operator from a general matrix. If the matrix is not 
-  /// already a valid rotation matrix, coerce().
+  /// Assigment operator from a general matrix. This also calls coerce()
+  /// to make sure that the matrix is a valid rotation matrix.
   /// @param rhs The Matrix to copy
   SO3& operator=(const Matrix<3>& rhs);
   /// Modifies the matrix to make sure it is a valid rotation matrix.
@@ -68,12 +67,19 @@ public:
   /// Returns the SO3 as a Matrix<3>
   const Matrix<3>& get_matrix()const {return my_matrix;}
 
-  /// Returns the i-th generator multiplied by a vector (since that is what you usually want to do)
+  /// Returns the i-th generator multiplied by a vector. 
+  /// The generators of a Lie group are the basis for the space of the Lie algebra.
+  /// For %SO3, the generators are three \f$3\times3\f$ matrices representing
+  /// the three possible (linearised) rotations. These matrices are usally sparse,
+  /// and are usually obtained to immediately multiply them by a vector, so
+  /// this function provides a fast way of doing this operation.
+  /// @param i The required generator
+  /// @param pos The vector to multuiply by the generator
   static Vector<3> generator_field(int i, Vector<3> pos);
 
   /// Transfer a vector in the Lie Algebra from one
   /// co-ordinate frame to another such that for a matrix 
-  /// \f$ M \f$, 
+  /// \f$ M \f$, the adjoint \f$Adj()\f$ obeys
   /// \f$ e^{\text{Adj}(v)} = Me^{v}M^{-1} \f$
   /// @param v The Vector to transfer
   Vector<3> adjoint(Vector<3> v) const ;

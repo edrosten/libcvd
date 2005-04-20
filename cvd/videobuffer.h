@@ -40,11 +40,13 @@ namespace Exceptions
 	namespace VideoBuffer
 	{
 		/// Base class for all VideoBuffer exceptions
+		/// @ingroup gException
 		struct All: public CVD::Exceptions::All
 		{
 		};
 
 		/// The VideoBuffer was unable to successfully complete a VideoBuffer::put_frame() operation
+		/// @ingroup gException
 		struct BadPutFrame: public All
 		{
 			BadPutFrame();

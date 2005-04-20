@@ -6,7 +6,7 @@ namespace CVD {
 /// @ingroup gImage
 
 /// A 32-bit colour.
-/// @deprecated The templated Rgba should be used instead (Rgba<byte> is exactly equivalent).
+/// @b Deprecated The templated Rgba should be used instead (Rgba<byte> is exactly equivalent).
 struct Rgb8
 {
    unsigned char red; ///< The red component

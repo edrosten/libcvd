@@ -32,17 +32,22 @@ namespace Exceptions
 	namespace V4L2Buffer
 	{
 		/// Base class for all V4L2 exceptions
+		/// @ingroup gException
 		struct All: public CVD::Exceptions::VideoBuffer::All{};
 		/// Error opening the device
+		/// @ingroup gException
 		struct DeviceOpen: public All {DeviceOpen(std::string dev); ///< Construct from the device name
 		};
 		/// Error setting up the device
+		/// @ingroup gException
 		struct DeviceSetup: public All {DeviceSetup(std::string dev, std::string action);  ///< Construct from the device string and an error string
 		};
 		/// Error in a put_frame() call
+		/// @ingroup gException
 		struct PutFrame: public All {PutFrame(std::string dev); ///< Construct from the device name
 		};
 		/// Error in a get_frame() call
+		/// @ingroup gException
 		struct GetFrame: public All {GetFrame(std::string dev); ///< Construct from the device name
 		};
 	}

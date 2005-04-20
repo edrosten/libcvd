@@ -12,12 +12,14 @@ namespace CVD
 	namespace Exceptions
 	{
 		/// Base class for all CVD exceptions 
+		/// @ingroup gException
 		struct All
 		{
 			std::string what; ///< The error message
 		};
 
 		/// Out of memory exception
+		/// @ingroup gException
 		struct OutOfMemory: public All
 		{
 			OutOfMemory();	

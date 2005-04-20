@@ -10,10 +10,9 @@ namespace CVD {
 /// Class to implement the Bresenham line-drawing algorithm.
 /// This object does not draw directly into an image, it simply outputs the set
 /// of image co-ordinates that should be visited to draw a line in a certain
-/// direction. Pixels are generated in a 4-connected sense (i.e. a diagonal
-/// step is possible). See 
-/// http://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html for more
-/// details of the algorithm. 
+/// direction. Pixels are generated in a 4-connected sense (i.e. there are 
+/// no diagonal steps--each step is either horizontal or vertical)
+/// details of the algorithm. See also Brezenham8.
 /// @ingroup gGraphics
 class Brezenham {
  public:
@@ -36,10 +35,8 @@ class Brezenham {
 /// Class to implement the Bresenham line-drawing algorithm. 
 /// This object does not draw directly into an image, it simply outputs the set
 /// of image co-ordinates that should be visited to draw a line in a certain
-/// direction. Pixels are generated in a 8-connected sense (i.e. each step is
-/// either horizontal or vertical). See 
-/// http://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html for more
-/// details of the algorithm. 
+/// direction. Pixels are generated in a 8-connected sense (i.e. diagonal steps
+/// are possible). See also Brezenham.
 /// @ingroup gGraphics
 class Brezenham8 {
  public:
@@ -51,6 +48,9 @@ class Brezenham8 {
   ImageRef step();
 
   /// Which compass position most orthogonal to the line's direction?
+  /// At each pixel given by 
+  /// step() you are guaranteed to be able to walk in the direction given
+  /// by sideways and not walk on the line.
   ImageRef sideways() {return my_sideways;}
 
  private:

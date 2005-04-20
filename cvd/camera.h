@@ -15,6 +15,7 @@ inline T SAT(T x){return (x<-1.0/3?-1e9:x);}
 namespace Camera {
 
   /// A linear camera with zero skew
+  /// @ingroup gVision
   class Linear {
   public:
     /// The number of parameters in the camera
@@ -62,6 +63,7 @@ namespace Camera {
 
 
   /// A camera with zero skew and cubic distortion
+  /// @ingroup gVision
   class Cubic {
   public:
     /// The number of parameters in the camera
@@ -109,6 +111,7 @@ namespace Camera {
 
 
   /// A camera with zero skew and quintic distortion
+  /// @ingroup gVision
   class Quintic {
   public:
     /// The number of parameters in the camera

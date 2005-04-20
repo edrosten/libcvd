@@ -105,7 +105,6 @@
 #include <string.h>
 #include <cvd/image_ref.h>
 
-/// All classes and functions are within the CVD namespace
 namespace CVD {
 
 
@@ -115,10 +114,18 @@ namespace CVD {
 	#define IMAGE_ASSERT(X,Y)
 #endif
 
+/// Fatal image errors (used for debugging). These are not included in the
+/// main CVD::Exceptions namespace since they are fatal errors which are 
+/// only thrown if the library is compiled with <code>-D IMAGE_DEBUG</code>.
+/// This compiles in image bounds checking (see CVD::BasicImage::operator[]())
+/// and makes image accesses very slow!
+/// @ingroup gException
 namespace ImageError
 {
+	/// An attempt was made to access a pixel outside the image. Note that this is
+	/// not derived from CVD::Exceptions::All.
+	/// @ingroup gException
 	class AccessOutsideImage{};
-	class NoImage{};
 }
 
 
@@ -148,10 +155,12 @@ namespace ImageUtil
 }
 
 /// A generic image class to manage a block of data as an image. Provides
-/// basic image access. A BasicImage does not manage its own data, but provides access to an 
-/// arbitrary externally-managed block of data as though it were an image.
+/// basic image access such as accessing a particular pixel co-ordinate. 
+/// A BasicImage does not manage its own data, but provides access to an 
+/// arbitrary externally-managed block of data as though it were an image. Use
+/// the derived Image class if you want an image which also has its own data.
 /// @param T The pixel type for this image. Typically either <code>CVD::byte</code> or 
-/// <code>CVD::Rgb<CVD::byte> ></code>, but images could be constructed of any available type.
+/// <code>CVD::Rgb<CVD::byte> ></code> are used, but images could be constructed of any available type.
 /// @ingroup gImage
 template<class T> class BasicImage
 {
@@ -184,7 +193,8 @@ template<class T> class BasicImage
 		{}
 
 		/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
-		/// with <code>-D IMAGE_DEBUG</code> 
+		/// with <code>-D IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is 
+		/// thrown.
 		inline T& operator[](const ImageRef& pos)
 		{
 			IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
@@ -192,7 +202,8 @@ template<class T> class BasicImage
 		}
 		
 		/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
-		/// with <code>-D IMAGE_DEBUG</code> 
+		/// with <code>-D IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is 
+		/// thrown.
 		inline const T& operator[](const ImageRef& pos) const 
 		{
 			IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
@@ -251,28 +262,29 @@ template<class T> class BasicImage
 };
 
 
+// HELP: Is this still relevant? Should this be part of the 
+// Doxygen documnetation? PAS 20/4/05
+//Since the images implement copy on write, each write operation has to be 
+//checked, which could be slow. Image provides a cast to NonConstImage which
+//does not do any checking of this sort on writes, but care must be taken:
+//Since multiple images can point to the same set of data, care has to be taken
+//with references to the image data. For instance if a pointer or NonConstImage
+//is made to refer to the data, and <em>then</em> another Image is made to reference
+//the data as well, using the pointer or the NonConstImage for writing will
+//alter <em>both</em> images.
+//If this situation is encountered, <code>image1=image2.force_copy();</code> can be used
+//to force a copy operation, so that image1 and image2 do not reference the 
+//same chunk of data.
+
+
 /// A full image which manages its own data.
-/// Images have 12 bytes of information locally and implement copy-on-write, so 
-/// they can be efficiently passed back from functions, put in vectors, etc.
-///	Images behave like pointers. Copying an image is like copying a pointer:
-/// both the source and destination point to the same chunk of data. To 
-/// further the analogy, [] dereferences images.
-///
-///Since the images implement copy on write, each write operation has to be 
-///checked, which could be slow. Image provides a cast to NonConstImage which
-///does not do any checking of this sort on writes, but care must be taken:
-///
-///Since multiple images can point to the same set of data, care has to be taken
-///with references to the image data. For instance if a pointer or NonConstImage
-///is made to refer to the data, and <em>then</em> another Image is made to reference
-///the data as well, using the pointer or the NonConstImage for writing will
-///alter <em>both</em> images.
-///
-///If this situation is encountered, <code>image1=image2.force_copy();</code> can be used
-///to force a copy operation, so that image1 and image2 do not reference the 
-///same chunk of data.
+/// Images do reference counting on the data, so multiple images can point
+/// to one block of data. This means that copying an image is like copying a pointer
+/// (so use the same care); to further the analogy, operator[]() dereferences images. 
+/// Copy constructing is quite fast (a 16-byte copy and an increment), so images can be
+/// efficiently passed back in functions or used in containers like std::vector
 /// @param T The pixel type for this image. Typically either <code>CVD::byte</code> or 
-/// <code>CVD::Rgb<CVD::byte> ></code>, but images could be constructed of any available type.
+/// <code>CVD::Rgb<CVD::byte> ></code> are used, but images could be constructed of any available type.
 /// @ingroup gImage
 template<class T> 
 class Image: public BasicImage<T>

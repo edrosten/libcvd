@@ -36,8 +36,6 @@ public:
    T green; ///< The green component
    T blue;  ///< The blue component
    
-   T& colour(int n);
-   
 	/// Assignment operator
 	/// @param c The colour to copy from
 	Rgb<T>& operator=(const Rgb<T>& c)

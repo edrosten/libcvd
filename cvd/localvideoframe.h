@@ -31,9 +31,6 @@ namespace CVD
 	template<class T> 
 	class LocalVideoFrame: public VideoFrame<T>
 	{
-		public:		
-			const std::string& name() {return *frame_name;};
-
 
 		protected:
 

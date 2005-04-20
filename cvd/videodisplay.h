@@ -30,15 +30,18 @@ namespace CVD {
 		namespace VideoDisplay
 		{
 			/// Base class for all CVD::VideoDisplay exceptions
+			/// @ingroup gException
 			struct All: public CVD::Exceptions::All{};
 
 			/// An exception occurred during initialisation
+			/// @ingroup gException
 			struct InitialisationError: public All
 			{
 				InitialisationError(std::string w); ///< Construct from error string
 			};
 
 			/// An exception occurred during run-time
+			/// @ingroup gException
 			struct RuntimeError: public All
 			{
 				RuntimeError(std::string w); ///< Construct from error string
