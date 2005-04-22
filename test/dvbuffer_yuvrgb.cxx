@@ -21,6 +21,11 @@ class cs: public VideoBuffer<Rgb<byte> >, public DC::RawDCVideo
 		virtual ~cs()
 		{
 		}
+		
+		virtual double frame_rate()
+		{
+			return RawDCVideo::frame_rate();
+		}
 
 		virtual ImageRef size()
 		{
