@@ -10,6 +10,7 @@ ifeq ($(FORCE_GCC),1)
 	DFLAGS_0= -DNDEBUG
 
 	MISCFLAGS=-fPIC -pthread 
+	AR=ar crvs
 else
 	CXX=CC
 	INCLUDE=
