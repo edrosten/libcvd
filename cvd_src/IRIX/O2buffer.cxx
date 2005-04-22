@@ -56,11 +56,11 @@ bool CVD::O2Buffer::frame_pending ()
   // the current O2 videoframe's number
 
   // next_frame does all the sgi video work
-  unsigned char * f = m_pVid->next_frame ();
+  m_pVid->next_frame ();
   return (m_pVid->frame_number () > m_currentFrameNumber);
 }
 
-double CVD::O2buffer::frame_rate()
+double CVD::O2Buffer::frame_rate()
 {
 	return m_pVid->frame_rate();
 }
