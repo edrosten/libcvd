@@ -2,7 +2,7 @@
 #include <cvd/image_io.h>
 #include <cvd/gl_helpers.h>
 #include <X11/keysym.h>
-#include <iostream.h>
+#include <iostream>
 
 using namespace CVD;
 using namespace std;
