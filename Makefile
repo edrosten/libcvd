@@ -6,10 +6,10 @@ UNAME=$(shell uname)
 #
 
 NUMERICS=$(HOME)/code/TooN
-X11_I=/tmp/w #/usr/X11R6/include
+X11_I=/usr/X11R6/include
 X11_L=/usr/X11R6/lib
-OTHER_I=/tmp/w #$(HOME)/usr/local/include
-OTHER_L=/tmp/w #$(HOME)/usr/local/lib
+OTHER_I=$(HOME)/usr/local/include
+OTHER_L=$(HOME)/usr/local/lib
 
 
 FORCE_GCC=1
