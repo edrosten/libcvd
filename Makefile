@@ -107,9 +107,20 @@ OBJS=$(CVD_OBJS) $(OBJS_$(UNAME)) $(OBJS_arch) $(OBJS_OPT_LIBS)
 
 ################################################################################
 #
-# Programs to be installed
+# Programs to be installed, with dependencies
 #
-PROGS=progs/se3_exp progs/se3_ln  progs/se3_pre_mul progs/se3_post_mul progs/img_play progs/img_play_bw progs/se3_inv progs/img_play_deinterlace progs/video_play progs/video_play_bw
+D_PROGS=progs/se3_exp                                   \
+		progs/se3_ln                                    \
+		progs/se3_pre_mul                               \
+		progs/se3_post_mul                              \
+		progs/se3_inv                                   \
+		progs/img_play             videodisplay         \
+		progs/img_play_bw          videodisplay         \
+		progs/img_play_deinterlace videodisplay         \
+		progs/video_play           videodisplay  ffmpeg \
+		progs/video_play_bw        videodisplay  ffmpeg \
+
+PROGS=$(shell echo $(options) $(D_PROGS) | awk -f make/prog_dependencies.awk)
 
 ################################################################################
 #
@@ -197,6 +208,8 @@ configuration: cvd/arch.h cvd/internal/avaliable_images.hh
 	$(echo) "Options: $(options)\n" >> configuration
 	$(echo) -n "Missing options for $(UNAME): " >> configuration
 	echo $(options_libs) $(options_$(UNAME)) $(options) | awk 'BEGIN{RS=" "}{a[$$1]++}END{for(i in a)if(a[i]==1)printf(i" "); print""}' >> configuration
+	$(echo) -n "Programs:" >> configuration
+	echo $(PROGS) | sed -e's!progs/!!g' >> configuration
 
 progs: libcvd.a $(PROGS)
 
