@@ -129,6 +129,7 @@ LIBMAJ=libcvd.so.$(MAJOR_VER)
 LIBMIN=$(LIBMAJ).$(MINOR_VER)
 LIBMMIN=$(LIBMAJ).$(MINOR_VER).$(MINOR_MINOR_VER)
 
+all: libcvd.a libcvd.so progs
 
 libcvd.a: configuration $(OBJS)
 	$(AR) libcvd.a $(OBJS)
