@@ -13,7 +13,7 @@
 namespace CVD {
 
     /// A dedicated bayer datatype to configure the V4L1 device to return bayer images.
-    /// Does not work yet and is only supported in Ethan's hacked driver for USB2.0 devices.
+    /// It is probably only supported in Ethan's hacked driver for USB2.0 devices.
     /// @ingroup gVideoBuffer
     struct bayer {
         byte val;
@@ -97,7 +97,7 @@ namespace V4L1
 
     template<> struct cam_type<bayer>
     {
-        static const unsigned int mode = VIDEO_PALETTE_YUV422;
+        static const unsigned int mode = VIDEO_PALETTE_RAW;
     };
 
     template<> struct cam_type<Rgb<byte> >
@@ -174,8 +174,11 @@ namespace V4L1
 };
 
 /// A video buffer from a v4l1 video device.
-/// @param T The pixel type of the frames. Currently only <code><CVD::byte></code> works
-/// which returns 8-bit grey scale. <code><CVD::Rgb<CVD::Byte> ></code> should work to but
+/// @param T The pixel type of the frames. The supported type are <code><CVD::byte></code>
+/// which returns 8-bit grey scale and <code><CVD::bayer></code> which returns an
+/// 8-bit grey scale image containing the raw intensities of the sensor. You have to convert
+/// the returned image to a byte image or something else to use it in a meaningful way.
+/// <code><CVD::Rgb<CVD::byte> ></code> should work to but
 /// crashes with my current driver ?! The pixel type used will automatically configure the
 /// underlying RawV4L1 object to use the right video palette.
 ///
