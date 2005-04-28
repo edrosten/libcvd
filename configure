@@ -4241,7 +4241,7 @@ _ACEOF
 	options="$options videodisplay"
 	have_videodisplay=yes
 
-	LIBS="-lX11 -lgl $LIBS"
+	LIBS="-lX11 -lGL $LIBS"
 	test -n "$x_libraries" && LIBS="-L$x_libraries $LIBS"
 	test -n "$x_includes" && CPPFLAGS="$CPPFLAGS -I$x_includes"
 fi
