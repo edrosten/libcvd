@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include <cvd/internal/avaliable_images.hh>
+#include <cvd/config.h>
 
 namespace CVD
 {	
@@ -13,7 +13,7 @@ namespace CVD
 		enum ImageType
 		{
 			PNM,
-			CVD_IMAGE_HAS_JPEG 
+			CVD_IMAGE_HAS_JPEG  //This is a macro, ending in ,
 		};
 	}
 

@@ -1,7 +1,8 @@
 #include "cvd/image_io.h"
 #include "cvd/internal/disk_image.h"
-#include "cvd/internal/avaliable_images.hh"
 #include "pnm_src/pnm_grok.h"
+
+#include "cvd/config.h"
 
 #ifdef CVD_IMAGE_HAS_JPEG
 	#include "pnm_src/jpeg.h"

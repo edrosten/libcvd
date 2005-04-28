@@ -1,0 +1,196 @@
+# @configure_input@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+arch= @build_cpu@
+
+
+CC = @CC@
+CXX=@CXX@
+RANLIB=@RANLIB@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS = $(CPPFLAGS) @CFLAGS@
+CXXFLAGS = $(CPPFLAGS) @CXXFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+INSTALL = @INSTALL@
+AR=ar
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = .
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+MAKEINFO = @MAKEINFO@
+PACKAGE = @PACKAGE@
+VERSION = @VERSION@
+
+SUBDIRS =
+ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_CLEAN_FILES = 
+DIST_COMMON =  README ChangeLog Makefile.am \
+Makefile.in aclocal.m4 configure configure.ac install-sh missing \
+mkinstalldirs
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = gtar
+GZIP_ENV = --best
+
+################################################################################
+#
+# CVD objects
+#
+
+CVD_OBJS=	cvd_src/se3.o 								\
+			cvd_src/so3.o 								\
+			cvd_src/cvd_timer.o 						\
+			cvd_src/brezenham.o							\
+			cvd_src/globlist.o							\
+			cvd_src/diskbuffer2.o						\
+			cvd_src/deinterlacebuffer.o					\
+			cvd_src/exceptions.o						\
+			cvd_src/image_io.o							\
+			pnm_src/instantiations.o					\
+			pnm_src/pnm_grok.o							\
+
+################################################################################
+#
+# Libraries 
+ifeq (@have_tiff@,yes)
+	CVD_OBJS+=pnm_src/tiff.o	
+endif
+
+ifeq (@have_jpeg@,yes)
+	CVD_OBJS+=pnm_src/jpeg.o	
+endif
+
+ifeq (@have_ffmpeg@,yes)
+	CVD_OBJS+=cvd_src/videofilebuffer.o
+endif
+
+ifeq (@have_videodisplay@,yes)
+	CVD_OBJS+=cvd_src/videodisplay.o
+endif
+
+################################################################################
+#
+# Linux
+
+ifeq (@have_dvbuffer@,yes)
+	CVD_OBJS+=cvd_src/Linux/dvbuffer.o
+endif
+
+ifeq (@have_v4l2buffer@,yes)
+	CVD_OBJS+=cvd_src/Linux/v4l2buffer.o
+endif
+
+ifeq (@have_v4l1buffer@,yes)
+	CVD_OBJS+=cvd_src/Linux/v4l1buffer.o
+endif
+
+################################################################################
+#
+# IRIX
+ifeq (@have_o2buffer@,yes)
+	CVD_OBJS+=cvd_src/IRIX/O2buffer.o
+endif
+
+
+################################################################################
+#
+#Architecture objects
+
+ifeq ($(arch),i686)
+	CVD_OBJS+=cvd_src/i686/yuv411_to_stuff_MMX.o
+else
+	CVD_OBJS+=cvd_src/yuv411_to_stuff.o
+endif
+
+OBJS=$(CVD_OBJS)
+
+
+all: libcvd.a libcvd.so progs
+
+soname=libcvd.so
+soname1=libcvd.so.@major@
+soname2=libcvd.so.@major@.@minor@ 
+
+libcvd.so: $(OBJS)
+	$(CXX) -shared -o $(soname2) $(OBJS) $(LIBS)
+	ln -s $(soname2) $(soname1)
+	ln -s $(soname1) $(soname)
+
+libcvd.a: $(OBJS)
+	$(AR) crvs libcvd.a $(OBJS)
+	$(RANLIB) libcvd.a
+
+
+LDFLAGS=-L. -lcvd
+PROGS=@progs@
+progs: $(PROGS)
+
+
+install:
+	cp -r cvd $(includedir)
+	cp libcvd.* $(libdir)
+	cp $(PROGS) $(bindir)
+
+clean:
+	/bin/rm -f tmp libcvd.a libcvd.so*
+	find . -name '*.o' | xargs rm
+distclean: clean
+	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h 
+
+#.PHONY: all install clean distclean
+
+.SUFFIXES:
+.SUFFIXES: .cxx .o .cc .C
+
+.cc.o:
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+.cxx.o:
+	$(CXX) -I. $(CPPFLAGS)  $(CXXFLAGS) -c $< -o $@
+
+.C.o:
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+

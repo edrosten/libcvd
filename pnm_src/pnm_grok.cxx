@@ -29,9 +29,7 @@ from a logic error in the calling program.
 #include <limits>
 
 #include "pnm_src/pnm_grok.h"
-#include <cvd/version.h>
-
-#include <cvd/arch.h>
+#include <cvd/config.h>
 #include <cvd/image_io.h>
 
 /* Compile time, arch specific parameters
@@ -46,7 +44,7 @@ they're longer than  byte PNMs and short since they fit in to the "short"
 data type).
 */
 
-#ifdef FAST_SHORT_IO
+//#ifdef FAST_SHORT_IO
 	#define LONG_PNM_FAST_LOAD
 
 	#ifdef ARCH_LITTLE_ENDIAN
@@ -54,7 +52,7 @@ data type).
 	#else
 		#define LONG_PNM_FAST_SAVE
 	#endif
-#endif
+//#endif
 
 #define PBM 0
 #define PGM 1

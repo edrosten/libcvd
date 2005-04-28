@@ -1,8 +1,8 @@
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.2 $$Name:  $
-**       $Date: 2005/04/12 12:50:55 $
+**   $Revision: 1.3 $$Name:  $
+**       $Date: 2005/04/28 18:03:53 $
 **   Copyright: LGPL $Author: er258 $
 ** Description:
 **
@@ -12,6 +12,9 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
+**  Revision 1.3  2005/04/28 18:03:53  er258
+**  Changed build system to use autoconf
+**
 **  Revision 1.2  2005/04/12 12:50:55  er258
 **  All videobuffers now have a virtual frame_rate()
 **
@@ -40,11 +43,13 @@
 #include <libdc1394/dc1394_control.h>
 #include <stdlib.h>
 
+#include "cvd/config.h"
 
-#if KERNEL_MAJOR==2 
-	#if KERNEL_MINOR==6
+
+#if CVD_KERNEL_MAJOR==2 
+	#if CVD_KERNEL_MINOR==6
 		#include "cvd_src/Linux/kernel-video1394-2.6.h"
-	#elif KERNEL_MINOR==4
+	#elif CVD_KERNEL_MINOR==4
 		#include "cvd_src/Linux/kernel-video1394-2.4.h"
 	#else
 		#define UNKNOWN_KERNEL

@@ -8,6 +8,7 @@
 
 #include "cvd/Linux/v4l2buffer.h"
 #include "cvd/timer.h"
+#include "cvd/config.h"
 
 #include <sys/types.h>   // included for open()
 #include <sys/stat.h>    // included for open()
@@ -47,11 +48,11 @@ void ErrorInfo(int e)
 }
 
 
-#if KERNEL_MAJOR == 2 && KERNEL_MINOR == 4
+#if CVD_KERNEL_MAJOR == 2 && CVD_KERNEL_MINOR == 4
 	#define USE_24
 	#define K24(X) X
 	#define K26(X) 
-#elif KERNEL_MAJOR == 2 && KERNEL_MINOR == 6
+#elif CVD_KERNEL_MAJOR == 2 && CVD_KERNEL_MINOR == 6
 	#define K26(X) X
 	#define K24(X) 
 #else

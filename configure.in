@@ -1,0 +1,424 @@
+AC_INIT(CVD,0.7)
+AC_COPYRIGHT(Copyright foo)
+
+
+
+
+#Use builtin autoconf checks for all the programs we need.
+AC_PROG_AWK
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_RANLIB
+
+
+#I don't really know what these do, but they seem to work...
+AC_CANONICAL_HOST
+
+AC_CONFIG_HEADERS
+AC_HEADER_STDC
+
+#From hereon, I use the following conventions:
+#a variable, FOO is saves (for the purpose of testing additions to it) in
+#save_FOO
+#
+#The variable `a' is used throughout as a temporary in tests
+
+
+################################################################################
+#
+# Some notes on autoconf
+
+#This if m4ese for a block comment :-)
+changequote(<<,>>)
+m4_if(<<
+
+Quoting characters are [ and ]. There is no way to escape them, except by 
+changing the quote character (see above). This is why I mostly use the 
+shell construct:
+if test foo
+
+as opposed to 
+
+if [ foo ]
+
+
+
+
+
+AC_CHECK_LIB(library, function, success, failure)
+
+Used to check for existence function a library. On success, it sets the
+variable ac_cv_lib_library_function=yes (empty on failure). If the success
+argument is missing of blank, eg:
+
+AC_CHECK_LIB(library, function, [], [beep])
+
+then the -llibrary is added to $LIBS automatically. Testing for the function
+main is an easy way of checking that linking against a library works without
+looking for a specific function.
+
+
+
+
+
+
+AC_SUBST(a, b)
+
+will substiture b for @a@ in a .in file, such as makefile.in
+
+
+
+AC_DEFINE(a, b)
+
+will make a #define a b. AC_DEFINE_UNQUOTED is needed if b is a shell expansion
+
+
+
+
+
+
+>>)
+changequote([,])
+
+
+
+
+
+
+
+
+
+################################################################################
+#
+#  Some of my own M4 macros
+#
+
+################################################################################
+#
+#Check for prerequisites
+#
+
+#Switch testing language to C++
+AC_LANG(C++)
+
+echo 
+echo --------------------------
+echo Checking for prerequsities
+echo --------------------------
+
+
+#Check whether we need -lf2c or -lg2c
+f2c="Missing"
+AC_MSG_CHECKING([for C to fortran library])
+
+save_LIBS="$LIBS"
+
+#The linking testing function AC_LINK_IFELSE uses LIBS in the 
+#linking stage, so we communicate our requirements by using this
+LIBS="$save_LIBS -lf2c"
+AC_LINK_IFELSE([int main(){return 0;}], [f2c=f2c])
+
+LIBS="$save_LIBS -lg2c"
+AC_LINK_IFELSE([int main(){return 0;}], [f2c=g2c])
+
+LIBS="$save_LIBS -l$f2c"
+
+AC_MSG_RESULT($f2c)
+
+if test "$f2c" = Missing 
+then
+	AC_MSG_ERROR(Fortran linking library not found)
+fi
+
+
+#NB, the AC_CHECK_LIB function automatically sets up $LIBS so that it contains
+#the library just checked for. Which is quite handy.
+AC_CHECK_LIB(blas,  dgemm_)
+if test x$ac_cv_lib_blas_dgemm_ != xyes
+then
+	AC_MSG_ERROR(BLAS is required. Get it from www.netlib.org/blas); 
+fi
+
+AC_CHECK_LIB(lapack,  dgesvd_)
+if test x$ac_cv_lib_lapack_dgesvd_ != xyes
+then
+	AC_MSG_ERROR(LAPACK is required. Get it from www.netlib.org/lapack); 
+fi
+
+
+
+#Allow the user to specify the location of TooN
+AC_ARG_WITH(TooN, [ --with-TooN=directory  Specify location for TooN ], [opt_toon_dir=$withval])
+
+if test "$opt_toon_dir" = no
+then
+	AC_MSG_ERROR("TooN is not optional. Use --with-TooN=dir to specify where it can be found.")
+fi
+
+#Yes is not a useful answer. We know the answer is yes.
+if test "$opt_toon_dir" = yes
+then
+	opt_toon_dir=
+fi
+
+#Check for TooN
+AC_MSG_CHECKING([for TooN])
+
+#Check for TooN in a bunch of places
+save_CXXFLAGS="$CXXFLAGS"
+toondir="Missing"
+for dir in  $opt_toon_dir "" "$HOME/code/TooN" "$HOME/Src/TooN" "$HOME/usr/include"
+do
+	a=
+	if test "$dir" = ""
+	then
+		CXXFLAGS="$save_CXXFLAGS"
+	else
+		CXXFLAGS="$save_CXXFLAGS -I$dir"
+	fi
+
+	AC_COMPILE_IFELSE([#include <numerics.h>
+int main(){Vector<2> v;return 0;}], [a=1]) 
+	
+	if test x$a = x1
+	then
+		toondir=$dir
+		break
+	fi
+done
+
+AC_MSG_RESULT($toondir)
+
+if test "$toondir" = Missing
+then
+	AC_MSG_ERROR(TooN is required.)
+fi
+
+
+
+
+cvd_major=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $1}'`
+cvd_minor=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $2}'`
+
+AC_DEFINE_UNQUOTED(CVD_MAJOR_VERSION,$cvd_major)
+AC_SUBST(major, $cvd_major)
+AC_DEFINE_UNQUOTED(CVD_MINOR_VERSION,$cvd_minor)
+AC_SUBST(minor, $cvd_minor)
+
+################################################################################
+#
+#Check for optional libraries
+#
+
+echo
+echo -------------------------------
+echo Checking for optional libraries
+echo -------------------------------
+
+all_options="videodisplay jpeg tiff ffmpeg"
+
+AC_PATH_X
+echo "FIXME! check for OpenGL properly!"
+if test "x$ac_cv_have_x" != x
+then
+	AC_DEFINE(CVD_HAVE_VIDEODISPLAY)
+	options="$options videodisplay"
+	AC_SUBST(have_videodisplay, yes)
+	LIBS="-lX11 -lGL $LIBS"
+	test -n "$x_libraries" && LIBS="-L$x_libraries $LIBS"
+	test -n "$x_includes" && CPPFLAGS="$CPPFLAGS -I$x_includes"
+fi
+
+AC_ARG_WITH(tiff, [  --without-tiff       compile without TIFF support],[if test "$withval" = no; then disable_tiff=yes; else disable_tiff=no; fi])
+if test "$disable_tiff" != yes 
+then
+	AC_CHECK_HEADERS(tiffio.h)
+	AC_CHECK_LIB(tiff, TIFFClientOpen)
+
+	if test "$ac_cv_header_tiffio_h" = yes && test "$ac_cv_lib_tiff_TIFFClientOpen" = yes
+	then
+		AC_DEFINE(CVD_IMAGE_HAVE_TIFF, [TIFF,])
+		AC_SUBST(have_tiff,yes)
+		options="$options tiff"
+	fi
+fi
+
+
+AC_ARG_WITH(jpeg, [  --without-jpeg	  compile without JPEG support],[if test "$withval" = no; then disable_jpeg=yes; else disable_jpeg=no; fi])
+if test "$disable_jpeg" != yes 
+then
+	AC_CHECK_HEADERS(jpeglib.h)
+	AC_CHECK_LIB(jpeg, jpeg_destroy_decompress)
+	if test "$ac_cv_header_jpeglib_h" = yes && test "$ac_cv_lib_jpeg_jpeg_destroy_decompress" = yes
+	then
+		AC_DEFINE(CVD_IMAGE_HAVE_JPEG, [JPEG,])
+		AC_SUBST(have_jpeg,yes)
+		options="$options jpeg"
+	fi
+fi
+
+
+AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support],[if test "$withval" = no; then disable_ffmpeg=yes; else disable_ffmpeg=no; fi])
+if test "$disable_ffmpeg" != yes 
+then
+	a=
+	AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h, [], [break])
+	AC_CHECK_LIB(avcodec, avcodec_open)
+	AC_CHECK_LIB(avformat, av_open_input_file)
+	if test "$ac_cv_lib_avcodec_avcodec_open$ac_cv_lib_avformat_av_open_input_file" = yesyes
+	then
+		AC_DEFINE(CVD_HAVE_FFMPEG)
+		AC_SUBST(have_ffmpeg, yes)
+		options="$options ffmpeg"
+	fi
+fi
+
+
+################################################################################
+#
+# platform specific options
+echo
+echo ---------------------------------------
+echo Checking for platform specific features
+echo ---------------------------------------
+
+AC_C_BIGENDIAN
+
+if test x$ac_cv_c_bigendian = xno
+then
+	AC_DEFINE(CVD_ARCH_LITTLE_ENDIAN)
+else
+	AC_DEFINE(CVD_ARCH_BIG_ENDIAN)
+fi
+
+case "$host" in
+	*linux*)
+		
+		os_options="dvbuffer v4l2buffer v4l1buffer"
+	
+		AC_ARG_WITH(firewire, [  --without-firewire	  compile without firewire (dvbuffer) support],[if test "$withval" = no; then disable_firewire=yes; else disable_firewire=no; fi])
+		if test "$disable_firewire" != yes 
+		then
+			a=
+			AC_CHECK_HEADERS(libraw1394/raw1394.h libdc1394/dc1394_control.h, [], [a=1])
+			AC_CHECK_LIB(raw1394, main,[],[a=1])
+			AC_CHECK_LIB(dc1394_control, main,[],[a=1])
+			
+			if test x$a = x
+			then
+				AC_DEFINE(CVD_HAVE_DVBUFFER)
+				AC_SUBST(have_dvbuffer, yes)
+				options="$options dvbuffer"
+			fi
+		fi
+
+		AC_ARG_WITH(v4l1, [  --without-v4l1	  compile without v4l1 support],[if test "$withval" = no; then disable_v4l1=yes; else disable_v4l1=no; fi])
+		if test "$disable_v4l1" != yes 
+		then
+			a=
+			AC_CHECK_HEADERS(linux/videodev.h, [a=1])
+			if test "$a" = 1
+			then
+				
+				AC_DEFINE(CVD_HAVE_V4L1BUFFER)
+				AC_SUBST(have_v4l1buffer, yes)
+				options="$options v4l1buffer"
+			fi
+		fi
+
+		AC_ARG_WITH(v4l2, [  --without-v4l2	  compile without v4l2 support],[if test "$withval" = no; then disable_v4l2=yes; else disable_v4l2=no; fi])
+		if test "$disable_v4l2" != yes 
+		then
+			a=no
+			AC_LANG(C)
+			AC_MSG_CHECKING(for v4l2)
+			AC_COMPILE_IFELSE([	#include <sys/types.h>
+								#include <linux/types.h>
+								#include <linux/videodev2.h>
+								int main(){return 0;}], [a=yes])
+			
+			AC_LANG(C++)
+			AC_MSG_RESULT($a)
+			if test "$a" = yes
+			then
+				AC_DEFINE(CVD_HAVE_V4L2BUFFER)
+				AC_SUBST(have_v4l2buffer, yes)
+				options="$options v4l2buffer"
+			fi
+		fi
+
+		
+		AC_MSG_CHECKING([kernel major number])
+		kernel_major=[`uname -r | awk -F'[.-]' '{print $1}'`]
+		AC_MSG_RESULT($kernel_major)
+		AC_DEFINE_UNQUOTED(CVD_KERNEL_MAJOR,$kernel_major)
+		
+		AC_MSG_CHECKING([kernel minor number])
+		kernel_minor=[`uname -r | awk -F'[.-]' '{print $2}'`]
+		AC_MSG_RESULT($kernel_minor)
+		AC_DEFINE_UNQUOTED(CVD_KERNEL_MINOR,$kernel_minor)
+
+		
+		AC_MSG_CHECKING([kernel release number])
+		kernel_release=[`uname -r | awk -F'[.-]' '{print $3}'`]
+		AC_MSG_RESULT($kernel_release)
+		AC_DEFINE_UNQUOTED(CVD_KERNEL_RELEASE,$kernel_release)
+	;;
+	*sgi*)
+		os_options = "O2buffer"
+		AC_DEFINE(CVD_HAVE_O2UBFFER)
+		AC_SUBST(have_o2buffer,yes)
+	
+		AC_ARG_WITH(o2buffer, [  --without-o2buffer	  compile without sgi video],[if test "$withval" = no; then disable_o2buffer=yes; else disable_o2buffer=no; fi])
+		if test "$disable_o2buffer" != yes
+		then
+			echo "I hope all SGIs have stuff needed for O2buffer. Disable (--without-o2buffer) if I'm wrong."
+			options="$options O2buffer"
+		fi
+	;;
+esac
+################################################################################
+#
+#
+
+D_PROGS='progs/se3_exp                                  
+		progs/se3_ln                                    
+		progs/se3_pre_mul                               
+		progs/se3_post_mul                              
+		progs/se3_inv                                   
+		progs/img_play             videodisplay         
+		progs/img_play_bw          videodisplay         
+		progs/img_play_deinterlace videodisplay         
+		progs/video_play           videodisplay  ffmpeg 
+		progs/video_play_bw        videodisplay  ffmpeg '
+progs=`echo $options $D_PROGS | awk -f make/prog_dependencies.awk`
+AC_SUBST(progs,$progs)
+
+AC_OUTPUT(Makefile)
+
+
+cat << FOO > cvd/config.h
+#ifndef CVD_CONFIG_H
+#define CVD_CONFIG_H
+`cat confdefs.h | grep CVD_`
+#endif
+FOO
+
+echo 
+echo Options:
+echo $options
+echo
+echo Missing options for $host_os:
+changequote(, )
+echo $options $all_options $os_options |  gawk 'BEGIN{RS=" "}{a[$1]++}END{for(i in a)if(a[i]==1)printf(i" "); print""}'
+changequote([,])
+
+echo
+echo Programs
+echo $progs | sed -e's!progs/!!g'
+echo 
+echo Debug:
+echo LIBS="$LIBS"
+echo CXXFLAGS="$CXXFLAGS"
