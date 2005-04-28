@@ -3,7 +3,7 @@ BEGIN{
 }
 
 NR==1{
-	for(i=2; i <= NF; i++)
+	for(i=1; i <= NF; i++)
 		opts[$i]=1
 	ORS=" "
 	next

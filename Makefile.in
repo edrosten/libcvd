@@ -164,7 +164,7 @@ libcvd.a: $(OBJS)
 	$(RANLIB) libcvd.a
 
 
-LDFLAGS=-L. -lcvd
+LDFLAGS=-I. -L. -lcvd
 PROGS=@progs@
 progs: $(PROGS)
 
