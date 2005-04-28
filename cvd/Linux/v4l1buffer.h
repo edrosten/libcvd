@@ -9,6 +9,7 @@
 #include <cvd/Linux/v4l1frame.h>
 #include <cvd/byte.h>
 #include <cvd/rgb.h>
+#include <cvd/timer.h>
 
 namespace CVD {
 
@@ -16,7 +17,9 @@ namespace CVD {
     /// It is probably only supported in Ethan's hacked driver for USB2.0 devices.
     /// @ingroup gVideoBuffer
     struct bayer {
+        /// contains the actual value which is a byte
         byte val;
+        /// cast operator to allow transparent conversion to a byte image
         operator unsigned char() { return val; }
     };
 
@@ -199,7 +202,7 @@ public:
     }
     virtual VideoFrame<T> * get_frame()
     {
-        return new V4L1Frame<T>(0, (T *)RawV4L1::get_frame(), RawV4L1::get_size());
+        return new V4L1Frame<T>(timer.get_time(), (T *)RawV4L1::get_frame(), RawV4L1::get_size());
     }
     virtual void put_frame(VideoFrame<T>* f)
     {
