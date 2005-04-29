@@ -260,9 +260,15 @@ then
 fi
 
 
-AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support],[if test "$withval" = no; then disable_ffmpeg=yes; else disable_ffmpeg=no; fi])
-if test "$disable_ffmpeg" != yes 
+AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support],[if test "$withval" = no; then use_ffmpeg=no; else use_ffmpeg="$withval"; fi])
+if test "$use_ffmpeg" != no
 then
+	save_LIBS="$LIBS"
+	if test x"$use_ffmpeg" != x
+	then 
+		LIBS="$LIBS -L $use_ffmpeg"
+	fi
+
 	a=
 	AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h, [], [break])
 	AC_CHECK_LIB(avcodec, avcodec_open)
@@ -275,10 +281,13 @@ then
 			AC_DEFINE(CVD_HAVE_FFMPEG)
 			AC_SUBST(have_ffmpeg, yes)
 			options="$options ffmpeg"
+			save_LIBS="$LIBS"
 		else
 			echo "You have FFMPEG, but the version is too old. Version 0.4.9 or newer is required."
 		fi
 	fi
+
+	LIBS="$save_LIBS"
 fi
 
 
@@ -385,9 +394,17 @@ case "$host" in
 		fi
 	;;
 esac
+
 ################################################################################
 #
-#
+# Extra build options
+echo
+echo --------------------------------
+echo Checking for extra build options
+echo --------------------------------
+
+AC_CHECK_PROG(docs, doxygen, docs, no)
+
 
 D_PROGS='progs/se3_exp                                  
 		progs/se3_ln                                    

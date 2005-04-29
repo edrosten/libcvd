@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB build build_cpu build_vendor build_os host host_cpu host_vendor host_os CPP EGREP major minor CXXCPP have_videodisplay have_tiff have_jpeg have_ffmpeg have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer progs LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB build build_cpu build_vendor build_os host host_cpu host_vendor host_os CPP EGREP major minor CXXCPP have_videodisplay have_tiff have_jpeg have_ffmpeg have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer docs progs LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -4813,10 +4813,16 @@ fi
 # Check whether --with-ffmpeg or --without-ffmpeg was given.
 if test "${with_ffmpeg+set}" = set; then
   withval="$with_ffmpeg"
-  if test "$withval" = no; then disable_ffmpeg=yes; else disable_ffmpeg=no; fi
+  if test "$withval" = no; then use_ffmpeg=no; else use_ffmpeg="$withval"; fi
 fi;
-if test "$disable_ffmpeg" != yes
+if test "$use_ffmpeg" != no
 then
+	save_LIBS="$LIBS"
+	if test x"$use_ffmpeg" != x
+	then
+		LIBS="$LIBS -L $use_ffmpeg"
+	fi
+
 	a=
 
 
@@ -5204,10 +5210,13 @@ _ACEOF
 			have_ffmpeg=yes
 
 			options="$options ffmpeg"
+			save_LIBS="$LIBS"
 		else
 			echo "You have FFMPEG, but the version is too old. Version 0.4.9 or newer is required."
 		fi
 	fi
+
+	LIBS="$save_LIBS"
 fi
 
 
@@ -6082,9 +6091,52 @@ fi;
 		fi
 	;;
 esac
+
 ################################################################################
 #
-#
+# Extra build options
+echo
+echo --------------------------------
+echo Checking for extra build options
+echo --------------------------------
+
+# Extract the first word of "doxygen", so it can be a program name with args.
+set dummy doxygen; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_prog_docs+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -n "$docs"; then
+  ac_cv_prog_docs="$docs" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_docs="docs"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_prog_docs" && ac_cv_prog_docs="no"
+fi
+fi
+docs=$ac_cv_prog_docs
+if test -n "$docs"; then
+  echo "$as_me:$LINENO: result: $docs" >&5
+echo "${ECHO_T}$docs" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+
 
 D_PROGS='progs/se3_exp
 		progs/se3_ln
@@ -6774,6 +6826,7 @@ s,@have_dvbuffer@,$have_dvbuffer,;t t
 s,@have_v4l1buffer@,$have_v4l1buffer,;t t
 s,@have_v4l2buffer@,$have_v4l2buffer,;t t
 s,@have_o2buffer@,$have_o2buffer,;t t
+s,@docs@,$docs,;t t
 s,@progs@,$progs,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t

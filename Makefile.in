@@ -172,6 +172,9 @@ $(PROGS):libcvd.so
 progs: $(PROGS)
 
 
+@docs@:
+	doxygen Doxyfile
+
 install:
 	cp -r cvd $(includedir)
 	cp libcvd.* $(libdir)
