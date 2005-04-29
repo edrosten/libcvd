@@ -166,6 +166,9 @@ libcvd.a: $(OBJS)
 
 LDFLAGS=-I. -L. -lcvd
 PROGS=@progs@
+
+$(PROGS):libcvd.so
+
 progs: $(PROGS)
 
 
@@ -176,7 +179,7 @@ install:
 
 clean:
 	/bin/rm -f tmp libcvd.a libcvd.so*
-	find . -name '*.o' | xargs rm
+	find . -name '*.o' | xargs rm -f
 distclean: clean
 	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h 
 
@@ -185,12 +188,14 @@ distclean: clean
 .SUFFIXES:
 .SUFFIXES: .cxx .o .cc .C
 
-.cc.o:
+progs%: libcvd.so
+
+%.o: %.cc
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-.cxx.o:
-	$(CXX) -I. $(CPPFLAGS)  $(CXXFLAGS) -c $< -o $@
+%.o: %.cxx
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-.C.o:
+%.o: %.C
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
