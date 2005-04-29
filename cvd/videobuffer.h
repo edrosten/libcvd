@@ -29,7 +29,7 @@ class VideoBuffer
 		virtual double frame_rate()=0;
 		/// Go to a particular point in the video buffer (only implemented in buffers of recorded video)
 		/// \param t The frame time in seconds
-		virtual void seek_to(double t)
+		virtual void seek_to(double)
 		{}
 };
 

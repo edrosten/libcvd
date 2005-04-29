@@ -22,7 +22,7 @@ class LocalVideoBuffer: public  CVD::VideoBuffer<T>
 		virtual LocalVideoFrame<T>* get_frame()=0;     	// blocks until frame ready
 		virtual void put_frame(VideoFrame<T>* f)=0;  	// user is finished using f
 		virtual bool frame_pending()=0;             	// checks to see if frame ready
-		virtual void seek_to(double t)					// in seconds
+		virtual void seek_to(double)					// in seconds
 		{}
 };
 
