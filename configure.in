@@ -270,9 +270,14 @@ then
 	AC_CHECK_LIB(avformat, av_read_frame) #only in >= 0.4.9
 	if test "$ac_cv_lib_avcodec_avcodec_open$ac_cv_lib_avformat_av_open_input_file" = yesyes
 	then
-		AC_DEFINE(CVD_HAVE_FFMPEG)
-		AC_SUBST(have_ffmpeg, yes)
-		options="$options ffmpeg"
+		if test "$ac_cv_lib_avformat_av_read_frame" = yes
+		then
+			AC_DEFINE(CVD_HAVE_FFMPEG)
+			AC_SUBST(have_ffmpeg, yes)
+			options="$options ffmpeg"
+		else
+			echo "You have FFMPEG, but the version is too old. Version 0.4.9 or newer is required."
+		fi
 	fi
 fi
 
