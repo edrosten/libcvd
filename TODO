@@ -9,7 +9,6 @@ In no particular order
 	mplayerbuffer
 	Templated v4l2buffer
 
-	wls_c?
 
 	Ethan's algorithms stuff
 
@@ -17,7 +16,6 @@ In no particular order
 	
 	More image libraries.
 
-	Redo configuration, so it is only done once
 
 	move EndOfBufferBehaviour in to LocalVideoBuffer base class
 
@@ -38,3 +36,6 @@ Done
 	General owned image buffer from which one would derive diskbuffer, etc
 	Templated MPEG buffer
 	Move frames_per_second() in to video buffer base class
+	wls_c? fixed.
+	Redo configuration, so it is only done once. Autoconf now used.
+	v4l1buffer

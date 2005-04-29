@@ -89,6 +89,7 @@ CVD_OBJS=	cvd_src/se3.o 								\
 			cvd_src/deinterlacebuffer.o					\
 			cvd_src/exceptions.o						\
 			cvd_src/image_io.o							\
+			cvd_src/bayer.o 							\
 			pnm_src/instantiations.o					\
 			pnm_src/pnm_grok.o							\
 
