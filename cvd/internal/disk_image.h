@@ -8,6 +8,8 @@
 
 namespace CVD
 {	
+	// The Doxygen documentation for this is in image_io.h, which has a copy of this
+	// with the macros expanded, which is only included when making documentation.
 	namespace ImageType
 	{
 		enum ImageType

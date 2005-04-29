@@ -94,12 +94,28 @@ namespace CVD
 	// Image loading
 	//
 
+	#ifdef DOXYGEN_INCLUDE_ONLY_FOR_DOCS
+	// This is not the real definition, but this is what it would look like if all
+	// the macros were expanded. The real definition is in internal/disk_image.h
+	/// Contains the enumeration of possible image types
+	namespace ImageType
+	{
+	/// Possible image types
+		enum ImageType
+		{
+			/// PNM image format (PBM, PGM or PPM). This is a raw image format.
+			PNM, 
+			/// JPEG image format. This is a compressed (lossy) image format, but defaults to 95% quality, which has very few compression artefacts. This image type is only present if libjpeg is available.
+			JPEG
+		};
+	}
+	#endif
 	
 	/// Load an image from a stream. This function resizes the Image as necessary.
 	/// It will also perform image type conversion (e.g. colour to greyscale)
 	/// according the Pixel:::CIE conversion.
 	/// @param I The pixel type of the image
-	/// @param im The Image to receive the loaded image data
+	/// @param im The image to receive the loaded image data
 	/// @param i The stream
 	/// @ingroup gImageIO
 	template<class I> void img_load(Image<I>& im, std::istream& i)
@@ -113,7 +129,7 @@ namespace CVD
 	/// It will also perform image type conversion (e.g. colour to greyscale)
 	/// according the Pixel:::CIE conversion.
 	/// @param I The pixel type of the image
-	/// @param im The Image to receive the loaded image data
+	/// @param im The image to receive the loaded image data
 	/// @param i The stream
 	/// @ingroup gImageIO
 	template<class I> void img_load(BasicImage<I>& im, std::istream& i)
@@ -127,7 +143,7 @@ namespace CVD
 	/// conversion operations
 	/// @param PixelType The pixel type of the image
 	/// @param Conversion The conversion class to use
-	/// @param im The Image to receive the loaded image data
+	/// @param im The image to receive the loaded image data
 	/// @param i The stream
 	/// @param cv The instance of the conversion to use (see Pixel)
 	/// @ingroup gImageIO
@@ -152,7 +168,7 @@ namespace CVD
 	/// conversion operations
 	/// @param PixelType The pixel type of the image
 	/// @param Conversion The conversion class to use
-	/// @param im The Image to receive the loaded image data
+	/// @param im The image to receive the loaded image data
 	/// @param i The stream
 	/// @param cv The instance of the conversion to use (see Pixel)
 	/// @ingroup gImageIO
@@ -203,7 +219,7 @@ namespace CVD
 	/// @param Conversion The conversion class to use
 	/// @param im The image to save
 	/// @param o The stream 
-	/// @param t The image file format to use (see ImageType for a list of supported formats)
+	/// @param t The image file format to use (see ImageType::ImageType for a list of supported formats)
 	/// @param cv The image instance conversion to use, if necessary (see Pixel for a list of common conversions)
 	/// @param channels dunno
 	/// @param use_16bit dunno
@@ -227,7 +243,7 @@ namespace CVD
 	/// @param Conversion The conversion class to use
 	/// @param im The image to save
 	/// @param o The stream 
-	/// @param t The image file format to use (see ImageType for a list of supported formats)
+	/// @param t The image file format to use (see ImageType::ImageType for a list of supported formats)
 	/// @param cv The instance of the image conversion to use, if necessary (see Pixel for a list of common conversions)
 	/// @ingroup gImageIO
 	template<class PixelType, class Conversion> void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t, Conversion& cv)
@@ -241,7 +257,7 @@ namespace CVD
 	/// @param PixelType The pixel type of the image
 	/// @param im The image to save
 	/// @param o The stream 
-	/// @param t The image file format to use (see ImageType for a list of supported formats)
+	/// @param t The image file format to use (see ImageType::ImageType for a list of supported formats)
 	/// @ingroup gImageIO
 	template<class PixelType> void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t)
 	{
