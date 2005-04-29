@@ -4,11 +4,11 @@
 
 #include "cvd/config.h"
 
-#ifdef CVD_IMAGE_HAS_JPEG
+#ifdef CVD_IMAGE_HAVE_JPEG
 	#include "pnm_src/jpeg.h"
 #endif
 
-#ifdef CVD_IMAGE_HAS_TIFF
+#ifdef CVD_IMAGE_HAVE_TIFF
 	#include "pnm_src/tiff.h"
 #endif
 #include <sstream>
@@ -133,11 +133,11 @@ image_in* image_factory::in(std::istream& i)
 
 	if(c == 'P')
 		return new CVD::PNM::pnm_in(i);
-	#ifdef CVD_IMAGE_HAS_JPEG
+	#ifdef CVD_IMAGE_HAVE_JPEG
 		else if(c == 0xff)
 			return new CVD::PNM::jpeg_in(i);
 	#endif
-	#ifdef CVD_IMAGE_HAS_TIFF
+	#ifdef CVD_IMAGE_HAVE_TIFF
 		else if(c == 'I')
 			return new CVD::PNM::tiff_in(i);
 	#endif
