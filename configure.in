@@ -267,6 +267,7 @@ then
 	AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h, [], [break])
 	AC_CHECK_LIB(avcodec, avcodec_open)
 	AC_CHECK_LIB(avformat, av_open_input_file)
+	AC_CHECK_LIB(avformat, av_read_frame) #only in >= 0.4.9
 	if test "$ac_cv_lib_avcodec_avcodec_open$ac_cv_lib_avformat_av_open_input_file" = yesyes
 	then
 		AC_DEFINE(CVD_HAVE_FFMPEG)
