@@ -155,6 +155,7 @@ soname1=libcvd.so.@major@
 soname2=libcvd.so.@major@.@minor@ 
 
 libcvd.so: $(OBJS)
+	rm -f libcvd.so*
 	$(CXX) -shared -o $(soname2) $(OBJS) $(LIBS)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
