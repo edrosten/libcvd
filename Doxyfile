@@ -915,7 +915,7 @@ INCLUDE_FILE_PATTERNS  =
 # or name=definition (no spaces). If the definition and the = are 
 # omitted =1 is assumed.
 
-PREDEFINED             = DOXYGEN_IGNORE_INTERNAL
+PREDEFINED             = DOXYGEN_IGNORE_INTERNAL DOXYGEN_INCLUDE_ONLY_FOR_DOCS
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 
