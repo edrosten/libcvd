@@ -10,51 +10,9 @@
 #include <cvd/byte.h>
 #include <cvd/rgb.h>
 #include <cvd/timer.h>
+#include <cvd/colourspaces.h>
 
 namespace CVD {
-
-    /// A dedicated bayer datatype to configure the V4L1 device to return bayer images.
-    /// It is probably only supported in Ethan's hacked driver for USB2.0 devices.
-    /// @ingroup gVideoBuffer
-    struct bayer {
-        /// contains the actual value which is a byte
-        byte val;
-        /// cast operator to allow transparent conversion to a byte image
-        operator unsigned char() { return val; }
-    };
-
-namespace Pixel {
-
-    template<class T> struct traits;
-
-    template<> struct traits<bayer>
-    {
-        typedef int wider_type;
-        static const bool integral = true;
-        static const bool is_signed = false;
-        static const int bits_used = 8;
-        //static const byte max_intensity=(1 << bits_used) - 1;
-        static unsigned char max_intensity() throw() { return (1 << bits_used) - 1; }
-    };
-
-    template<class T> struct Component;
-
-    template<> struct Component<bayer>
-    {
-        typedef byte type;
-        static const unsigned int count = 1;
-
-        static const byte & get(const bayer & pixel, int i)
-        {
-            return pixel.val;
-        }
-
-        static byte & get(bayer & pixel, int i)
-        {
-            return pixel.val;
-        }
-    };
-};
 
 namespace Exceptions
 {

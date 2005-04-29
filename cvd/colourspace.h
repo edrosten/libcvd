@@ -23,14 +23,14 @@ namespace CVD
 		/// @param grey The output data
 		/// @param width The width of the image
 		/// @param height The height of the image
-		void bayer_to_grey(unsigned char* bggr, unsigned char* grey, unsigned int width, unsigned int height);
+		void bayer_to_grey(const unsigned char* bggr, unsigned char* grey, unsigned int width, unsigned int height);
 
 		/// Convert Bayer pattern of the form ??? to rgb444 data
 		/// @param bggr The input data
 		/// @param grey The output data
 		/// @param width The width of the image
 		/// @param height The height of the image
-		void bayer_to_rgb(unsigned char* bggr, unsigned char* rgb, unsigned int width, unsigned int height);
+		void bayer_to_rgb(const unsigned char* bggr, unsigned char* rgb, unsigned int width, unsigned int height);
 
 		
 	}
