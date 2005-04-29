@@ -133,8 +133,9 @@ namespace CVD
 		if(!im.good())
 			throw Exceptions::DiskBuffer2::BadFile(names[0], errno);
 		
-		try{
-			pnm_load(foo, im);
+		try
+		{
+			img_load(foo, im);
 		}
 		catch(Exceptions::Image_IO::All err)
 		{
