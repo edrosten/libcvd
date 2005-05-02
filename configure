@@ -7203,3 +7203,4 @@ echo
 echo Debug:
 echo LIBS="$LIBS"
 echo CXXFLAGS="$CXXFLAGS"
+echo CPPFLAGS="$CPPFLAGS"
