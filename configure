@@ -3381,6 +3381,11 @@ then
 echo "$as_me: Adding /sw to the build path." >&6;}
 	LIBS="$LIBS -L/sw/lib"
 	CPPFLAGS="$CPPFLAGS -I/sw/include"
+	{ echo "$as_me:$LINENO: Adding /usr/X11R6/include to the build path." >&5
+echo "$as_me: Adding /usr/X11R6/include to the build path." >&6;}
+	{ echo "$as_me:$LINENO: Although this seems to be automatic under OSX it only works for X11/*" >&5
+echo "$as_me: Although this seems to be automatic under OSX it only works for X11/*" >&not GL/*;}
+	CPPFLAGS="$CPPFLAGS -I/usr/X11R6/include"
 fi
 
 ################################################################################

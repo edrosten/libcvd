@@ -107,6 +107,9 @@ then
 	AC_MSG_NOTICE(Adding /sw to the build path.)
 	LIBS="$LIBS -L/sw/lib"
 	CPPFLAGS="$CPPFLAGS -I/sw/include"
+	AC_MSG_NOTICE(Adding /usr/X11R6/include to the build path.)
+	AC_MSG_NOTICE(Although this seems to be automatic under OSX it only works for X11/*, not GL/*)
+	CPPFLAGS="$CPPFLAGS -I/usr/X11R6/include"
 fi
 
 ################################################################################
