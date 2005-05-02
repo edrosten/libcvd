@@ -10,6 +10,8 @@
 #include <cvd/rgba.h>
 #include <GL/gl.h>
 #include <cvd/internal/gl_types.h>
+#include <numerics.h>
+
 namespace CVD
 {
 	
