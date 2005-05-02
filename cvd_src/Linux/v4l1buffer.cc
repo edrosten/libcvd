@@ -1,4 +1,3 @@
-#include <cassert>
 #include <sstream>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -94,13 +93,13 @@ RawV4L1::~RawV4L1()
 void RawV4L1::retrieveSettings()
 {
     struct video_window win;
-    int err = ioctl(myDevice, VIDIOCGWIN, &win);
-    assert(err ==0);
+    if(ioctl(myDevice, VIDIOCGWIN, &win) != 0)
+        throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "retrieve videow_window");
     mySize = ImageRef(win.width, win.height);
 
     struct video_picture pic;
-    err = ioctl(myDevice, VIDIOCGPICT, &pic);
-    assert(err==0);
+    if(ioctl(myDevice, VIDIOCGPICT, &pic) != 0)
+        throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "retrieve video_picture");
     myBrightness = pic.brightness/65535.0;
     myWhiteness = pic.whiteness/65535.0;
     mySaturation = pic.colour/65535.0;
@@ -113,16 +112,17 @@ void RawV4L1::retrieveSettings()
 void RawV4L1::commitSettings()
 {
     struct video_window win;
-    int err = ioctl(myDevice, VIDIOCGWIN, &win);
+    if(ioctl(myDevice, VIDIOCGWIN, &win) !=0)
+        throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "get video_window");
     win.x=win.y=0;
     win.width=mySize.x;
     win.height=mySize.y;
-    err = ioctl(myDevice, VIDIOCSWIN, &win);
-    assert( err == 0);
+    if(ioctl(myDevice, VIDIOCSWIN, &win) !=0)
+        throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "set video_window");
 
     struct video_picture pic;
-    err = ioctl(myDevice, VIDIOCGPICT, &pic);
-    assert(err == 0);
+    if(ioctl(myDevice, VIDIOCGPICT, &pic) !=0)
+        throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "get video_picture");
     pic.brightness=(unsigned short)(myBrightness*65535+0.5);
     pic.whiteness=(unsigned short)(myWhiteness*65535+0.5);
     pic.colour=(unsigned short)(mySaturation*65535+0.5);
@@ -130,8 +130,9 @@ void RawV4L1::commitSettings()
     pic.hue=(unsigned short)(myHue*65535+0.5);
     pic.depth=myBpp;
     pic.palette=myPalette;
-    err = ioctl(myDevice, VIDIOCSPICT, &pic);
-    assert( err == 0);
+    if(ioctl(myDevice, VIDIOCSPICT, &pic) !=0)
+        throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "set video_picture");
+
     retrieveSettings();
 }
 
@@ -152,7 +153,8 @@ void RawV4L1::set_saturation(double saturation) { mySaturation = saturation; }
 void RawV4L1::set_palette(unsigned int palette) {
     myPalette = palette;
     myBpp = getPaletteDepth(palette);
-    assert(myBpp != 0);
+    if( myBpp == 0)
+        throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "compute palette depth, unknow palette");
 }
 
 void RawV4L1::captureFrame( unsigned int buffer )
