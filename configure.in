@@ -488,6 +488,11 @@ cat << FOO > cvd/config.h
 #endif
 FOO
 
+
+AC_SUBST(debug_options,$options)
+all_opts="$all_options $os_options"
+AC_SUBST(debug_all_options,"$all_opts")
+
 echo 
 echo Options:
 echo $options
