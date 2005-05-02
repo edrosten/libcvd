@@ -3372,6 +3372,19 @@ all_options="videodisplay jpeg tiff ffmpeg toon lapack"
 
 ################################################################################
 #
+# An OSX specific hack to get at stuff in /sw automatically
+#
+
+if test "$host_vendor" = apple
+then
+	{ echo "$as_me:$LINENO: Adding /sw to the build path." >&5
+echo "$as_me: Adding /sw to the build path." >&6;}
+	LIBS="$LIBS -L/sw/lib"
+	CPPFLAGS="$CPPFLAGS -I/sw/include"
+fi
+
+################################################################################
+#
 #Check for numerics
 #
 
