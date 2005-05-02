@@ -98,7 +98,7 @@ CVD_OBJS=	cvd_src/cvd_timer.o 						\
 ifeq (@have_toon@,yes)
 	CVD_OBJS+=cvd_scr/brezenham.o						\
 			  cvd_src/se3.o								\
-			  cvd_src/so3.o								\
+			  cvd_src/so3.o								
 endif
 
 ifeq (@have_lapack@,yes)
