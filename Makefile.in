@@ -96,7 +96,7 @@ CVD_OBJS=	cvd_src/cvd_timer.o 						\
 # Stuff requiring TooN
 
 ifeq (@have_toon@,yes)
-	CVD_OBJS+=cvd_scr/brezenham.o						\
+	CVD_OBJS+=cvd_src/brezenham.o						\
 			  cvd_src/se3.o								\
 			  cvd_src/so3.o								
 endif
