@@ -87,7 +87,10 @@ changequote([,])
 
 
 
+#Switch testing language to C++
+AC_LANG(C++)
 
+all_options="videodisplay jpeg tiff ffmpeg toon lapack"
 
 
 ################################################################################
@@ -95,7 +98,6 @@ changequote([,])
 #  Some of my own M4 macros
 #
 
-all_options="videodisplay jpeg tiff ffmpeg toon lapack"
 
 ################################################################################
 #
@@ -104,12 +106,10 @@ all_options="videodisplay jpeg tiff ffmpeg toon lapack"
 
 if test "$host_vendor" = apple
 then
-	AC_MSG_NOTICE(Adding /sw to the build path.)
+	CPPFLAGS="$CPPFLAGS -I /sw/include -I/usr/X11R6/include"
 	LIBS="$LIBS -L/sw/lib"
-	CPPFLAGS="$CPPFLAGS -I/sw/include"
-	AC_MSG_NOTICE(Adding /usr/X11R6/include to the build path.)
-	AC_MSG_NOTICE(Although this seems to be automatic under OSX it only works for X11/*, not GL/*)
-	CPPFLAGS="$CPPFLAGS -I/usr/X11R6/include"
+	AC_MSG_NOTICE([Adding /sw to the build path.])
+	AC_MSG_NOTICE([Adding /usr/X11R6/include to the build path.])
 fi
 
 ################################################################################
@@ -117,8 +117,6 @@ fi
 #Check for numerics
 #
 
-#Switch testing language to C++
-AC_LANG(C++)
 
 echo 
 echo -----------------------------
@@ -184,10 +182,41 @@ else
 	AC_SUBST(have_toon,yes)
 fi
 
+##################################################
+#
+# Check for BLAS and LAPACK support
+#
+lapack=no
+
+if test "$toon" = yes && test "$host_vendor" == apple
+then
+	
+	save_LIBS="$LIBS"
+	save_CPPFLAGS="$CPPFLAGS"
+	CPPFLAGS="$CPPFLAGS -framework vecLib"
+	LIBS="$LIBS -framework vecLib"
 
 
+	AC_MSG_CHECKING(vecLib framework)
+	a=0
+	AC_COMPILE_IFELSE([#include <numerics.h>
+#include <SVD.h>
+int main(){Matrix<2> m;SVD<2> svdm(m);return 0;}], [a=1]) 
 
-if test "$toon" = yes && test "$host_vendor" != apple
+	if test x$a	= x1
+	then
+		AC_MSG_RESULT(yes)
+		lapack=yes
+		options="$options lapack"
+	else
+		AC_MSG_RESULT(no)
+		LIBS="$save_LIBS"
+		CPPFLAGS="$save_CPPFLAGS"
+	fi
+fi
+
+
+if test "$toon" = yes && test "$lapack" = no
 then
 
 	#Check whether we need -lf2c or -lg2c
@@ -207,7 +236,6 @@ then
 
 	AC_MSG_RESULT($f2c)
 
-	lapack=no
 
 	if test "$f2c" = Missing 
 	then
@@ -243,30 +271,6 @@ then
 	
 fi
 
-if test "$toon" = yes && test "$host_vendor" == apple
-then
-	
-	save_LIBS="$LIBS"
-	save_CPPFLAGS="$CPPFLAGS"
-	CPPFLAGS="-framework vecLib"
-	LIBS="-framework vecLib"
-
-
-	AC_MSG_CHECKING(vecLib framework)
-	a=0
-	AC_COMPILE_IFELSE([#include <numerics.h>
-#include <SVD.h>
-int main(){Matrix<2> m;SVD<2> svdm(m);return 0;}], [a=1]) 
-
-	if test x$a	= x1
-	then
-		AC_MSG_RESULT(yes)
-	else
-		AC_MSG_RESULT(no)
-		LIBS="$save_LIBS"
-		CPPFLAGS="$save_CPPFLAGS"
-	fi
-fi
 
 
 cvd_major=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $1}'`
