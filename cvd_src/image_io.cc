@@ -19,7 +19,7 @@ using namespace std;
 Exceptions::Image_IO::ImageSizeMismatch::ImageSizeMismatch(const ImageRef& src, const ImageRef& dest)
 {
 	ostringstream o;
-	o << 
+	o <<
 "Image load: Size mismatch when loading an image (size " << src << ") in to a non\
 resizable image (size " << dest << ").";
 
@@ -110,7 +110,7 @@ image_out* image_factory::out(std::ostream& o, long xsize, long ysize, ImageType
 			return new CVD::PNM::pnm_out(o, xsize, ysize, try_channels, try_2byte, c);
 			break;
 
-		#ifdef CVD_IMAGE_HAS_JPEG
+		#ifdef CVD_IMAGE_HAVE_JPEG
 			case ImageType::JPEG:
 				return new CVD::PNM::jpeg_out(o, xsize, ysize, try_channels, try_2byte, c);
 				break;
