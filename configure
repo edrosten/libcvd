@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB build build_cpu build_vendor build_os host host_cpu host_vendor host_os CPP EGREP major minor CXXCPP have_videodisplay have_tiff have_jpeg have_ffmpeg have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer docs progs testprogs LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB build build_cpu build_vendor build_os host host_cpu host_vendor host_os CPP EGREP have_toon have_lapack major minor CXXCPP have_videodisplay have_tiff have_jpeg have_ffmpeg have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer docs progs testprogs LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -3368,9 +3368,11 @@ fi
 #  Some of my own M4 macros
 #
 
+all_options="videodisplay jpeg tiff ffmpeg toon lapack"
+
 ################################################################################
 #
-#Check for prerequisites
+#Check for numerics
 #
 
 #Switch testing language to C++
@@ -3382,23 +3384,132 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 echo
-echo --------------------------
-echo Checking for prerequsities
-echo --------------------------
+echo -----------------------------
+echo Checking for numerics support
+echo -----------------------------
 
 
-#Check whether we need -lf2c or -lg2c
-f2c="Missing"
-echo "$as_me:$LINENO: checking for C to fortran library" >&5
-echo $ECHO_N "checking for C to fortran library... $ECHO_C" >&6
 
-save_LIBS="$LIBS"
 
-#The linking testing function AC_LINK_IFELSE uses LIBS in the
-#linking stage, so we communicate our requirements by using this
-LIBS="$save_LIBS -lf2c"
+###################################################
+#
+#Allow the user to specify the location of TooN
+#
+
+# Check whether --with-TooN or --without-TooN was given.
+if test "${with_TooN+set}" = set; then
+  withval="$with_TooN"
+  opt_toon_dir=$withval
+fi;
+
+if test "$opt_toon_dir" = no
+then
+	{ { echo "$as_me:$LINENO: error: \"TooN is not optional. Use --with-TooN=dir to specify where it can be found.\"" >&5
+echo "$as_me: error: \"TooN is not optional. Use --with-TooN=dir to specify where it can be found.\"" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+#Yes is not a useful answer. We know the answer is yes.
+if test "$opt_toon_dir" = yes
+then
+	opt_toon_dir=
+fi
+
+#Check for TooN
+echo "$as_me:$LINENO: checking for TooN" >&5
+echo $ECHO_N "checking for TooN... $ECHO_C" >&6
+
+#Check for TooN in a bunch of places
+save_CXXFLAGS="$CXXFLAGS"
+toondir="Missing"
+for dir in  $opt_toon_dir "" "$HOME/code/TooN" "$HOME/Src/TooN" "$HOME/usr/include"
+do
+	a=
+	if test "$dir" = ""
+	then
+		CXXFLAGS="$save_CXXFLAGS"
+	else
+		CXXFLAGS="$save_CXXFLAGS -I$dir"
+	fi
+
 
 cat >conftest.$ac_ext <<_ACEOF
+#include <numerics.h>
+int main(){Vector<2> v;return 0;}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  a=1
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+
+	if test x$a = x1
+	then
+		toondir=$dir
+		break
+	fi
+done
+
+echo "$as_me:$LINENO: result: $toondir" >&5
+echo "${ECHO_T}$toondir" >&6
+
+if test "$toondir" = Missing
+then
+	{ echo "$as_me:$LINENO: WARNING: TooN is missing. Numerics support disabled." >&5
+echo "$as_me: WARNING: TooN is missing. Numerics support disabled." >&2;}
+	toon=no
+else
+	options="$options toon"
+	toon=yes
+	cat >>confdefs.h <<\_ACEOF
+#define CVD_HAVE_TOON 1
+_ACEOF
+
+	have_toon=yes
+
+fi
+
+
+
+
+if test "$toon" = yes
+then
+
+	#Check whether we need -lf2c or -lg2c
+	f2c="Missing"
+	echo "$as_me:$LINENO: checking for C to fortran library" >&5
+echo $ECHO_N "checking for C to fortran library... $ECHO_C" >&6
+
+	save_LIBS="$LIBS"
+
+	#The linking testing function AC_LINK_IFELSE uses LIBS in the
+	#linking stage, so we communicate our requirements by using this
+	LIBS="$save_LIBS -lf2c"
+	cat >conftest.$ac_ext <<_ACEOF
 int main(){return 0;}
 _ACEOF
 rm -f conftest.$ac_objext conftest$ac_exeext
@@ -3432,8 +3543,8 @@ fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 
-LIBS="$save_LIBS -lg2c"
-cat >conftest.$ac_ext <<_ACEOF
+	LIBS="$save_LIBS -lg2c"
+	cat >conftest.$ac_ext <<_ACEOF
 int main(){return 0;}
 _ACEOF
 rm -f conftest.$ac_objext conftest$ac_exeext
@@ -3467,21 +3578,21 @@ fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 
-LIBS="$save_LIBS -l$f2c"
 
-echo "$as_me:$LINENO: result: $f2c" >&5
+	echo "$as_me:$LINENO: result: $f2c" >&5
 echo "${ECHO_T}$f2c" >&6
 
-if test "$f2c" = Missing
-then
-	{ { echo "$as_me:$LINENO: error: Fortran linking library not found" >&5
-echo "$as_me: error: Fortran linking library not found" >&2;}
-   { (exit 1); exit 1; }; }
-fi
+	lapack=no
 
+	if test "$f2c" = Missing
+	then
+		{ echo "$as_me:$LINENO: WARNING: libg2c (or libf2c) is missing. I don't know how to link against Fortran." >&5
+echo "$as_me: WARNING: libg2c (or libf2c) is missing. I don't know how to link against Fortran." >&2;}
+	else
+		LIBS="$save_LIBS -l$f2c"
 
-#NB, the AC_CHECK_LIB function automatically sets up $LIBS so that it contains
-#the library just checked for. Which is quite handy.
+		#NB, the AC_CHECK_LIB function automatically sets up $LIBS so that it contains
+		#the library just checked for. Which is quite handy.
 
 echo "$as_me:$LINENO: checking for dgemm_ in -lblas" >&5
 echo $ECHO_N "checking for dgemm_ in -lblas... $ECHO_C" >&6
@@ -3556,13 +3667,11 @@ _ACEOF
 
 fi
 
-if test x$ac_cv_lib_blas_dgemm_ != xyes
-then
-	{ { echo "$as_me:$LINENO: error: BLAS is required. Get it from www.netlib.org/blas" >&5
-echo "$as_me: error: BLAS is required. Get it from www.netlib.org/blas" >&2;}
-   { (exit 1); exit 1; }; };
-fi
-
+		if test x$ac_cv_lib_blas_dgemm_ != xyes
+		then
+			{ echo "$as_me:$LINENO: WARNING: BLAS is missing. Get it from www.netlib.org/blas" >&5
+echo "$as_me: WARNING: BLAS is missing. Get it from www.netlib.org/blas" >&2;};
+		else
 
 echo "$as_me:$LINENO: checking for dgesvd_ in -llapack" >&5
 echo $ECHO_N "checking for dgesvd_ in -llapack... $ECHO_C" >&6
@@ -3637,102 +3746,29 @@ _ACEOF
 
 fi
 
-if test x$ac_cv_lib_lapack_dgesvd_ != xyes
-then
-	{ { echo "$as_me:$LINENO: error: LAPACK is required. Get it from www.netlib.org/lapack" >&5
-echo "$as_me: error: LAPACK is required. Get it from www.netlib.org/lapack" >&2;}
-   { (exit 1); exit 1; }; };
-fi
+			if test x$ac_cv_lib_lapack_dgesvd_ != xyes
+			then
+				{ echo "$as_me:$LINENO: WARNING: LAPACK is missing. Get it from www.netlib.org/lapack" >&5
+echo "$as_me: WARNING: LAPACK is missing. Get it from www.netlib.org/lapack" >&2;};
+			else
+				lapack=yes
+			fi
+		fi
+	fi
 
-
-
-#Allow the user to specify the location of TooN
-
-# Check whether --with-TooN or --without-TooN was given.
-if test "${with_TooN+set}" = set; then
-  withval="$with_TooN"
-  opt_toon_dir=$withval
-fi;
-
-if test "$opt_toon_dir" = no
-then
-	{ { echo "$as_me:$LINENO: error: \"TooN is not optional. Use --with-TooN=dir to specify where it can be found.\"" >&5
-echo "$as_me: error: \"TooN is not optional. Use --with-TooN=dir to specify where it can be found.\"" >&2;}
-   { (exit 1); exit 1; }; }
-fi
-
-#Yes is not a useful answer. We know the answer is yes.
-if test "$opt_toon_dir" = yes
-then
-	opt_toon_dir=
-fi
-
-#Check for TooN
-echo "$as_me:$LINENO: checking for TooN" >&5
-echo $ECHO_N "checking for TooN... $ECHO_C" >&6
-
-#Check for TooN in a bunch of places
-save_CXXFLAGS="$CXXFLAGS"
-toondir="Missing"
-for dir in  $opt_toon_dir "" "$HOME/code/TooN" "$HOME/Src/TooN" "$HOME/usr/include"
-do
-	a=
-	if test "$dir" = ""
+	if test "$lapack" = no
 	then
-		CXXFLAGS="$save_CXXFLAGS"
+		LIBS="$save_LIBS"
 	else
-		CXXFLAGS="$save_CXXFLAGS -I$dir"
-	fi
+		options="$options lapack"
+		have_lapack=yes
 
-	cat >conftest.$ac_ext <<_ACEOF
-#include <numerics.h>
-int main(){Vector<2> v;return 0;}
+		cat >>confdefs.h <<\_ACEOF
+#define CVD_HAVE_LAPACK 1
 _ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_cxx_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  a=1
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
 
-fi
-rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
-
-	if test x$a = x1
-	then
-		toondir=$dir
-		break
 	fi
-done
 
-echo "$as_me:$LINENO: result: $toondir" >&5
-echo "${ECHO_T}$toondir" >&6
-
-if test "$toondir" = Missing
-then
-	{ { echo "$as_me:$LINENO: error: TooN is required." >&5
-echo "$as_me: error: TooN is required." >&2;}
-   { (exit 1); exit 1; }; }
 fi
 
 
@@ -3764,7 +3800,6 @@ echo -------------------------------
 echo Checking for optional libraries
 echo -------------------------------
 
-all_options="videodisplay jpeg tiff ffmpeg"
 
 ac_ext=cc
 ac_cpp='$CXXCPP $CPPFLAGS'
@@ -6832,6 +6867,8 @@ s,@host_vendor@,$host_vendor,;t t
 s,@host_os@,$host_os,;t t
 s,@CPP@,$CPP,;t t
 s,@EGREP@,$EGREP,;t t
+s,@have_toon@,$have_toon,;t t
+s,@have_lapack@,$have_lapack,;t t
 s,@major@,$major,;t t
 s,@minor@,$minor,;t t
 s,@CXXCPP@,$CXXCPP,;t t

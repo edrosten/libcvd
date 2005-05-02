@@ -80,10 +80,7 @@ GZIP_ENV = --best
 # CVD objects
 #
 
-CVD_OBJS=	cvd_src/se3.o 								\
-			cvd_src/so3.o 								\
-			cvd_src/cvd_timer.o 						\
-			cvd_src/brezenham.o							\
+CVD_OBJS=	cvd_src/cvd_timer.o 						\
 			cvd_src/globlist.o							\
 			cvd_src/diskbuffer2.o						\
 			cvd_src/deinterlacebuffer.o					\
@@ -93,6 +90,21 @@ CVD_OBJS=	cvd_src/se3.o 								\
 			cvd_src/colourspace_convert.o 				\
 			pnm_src/instantiations.o					\
 			pnm_src/pnm_grok.o							\
+
+################################################################################
+#
+# Stuff requiring TooN
+
+ifeq(@have_toon@,yes)
+	CVD_OBJS+=cvd_scr/brezenham.o						\
+			  cvd_src/se3.o								\
+			  cvd_src/so3.o								\
+endif
+
+ifeq(@have_lapack@,yes)
+	CVD_OBJS+=
+endif
+
 
 ################################################################################
 #

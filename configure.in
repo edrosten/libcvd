@@ -95,61 +95,28 @@ changequote([,])
 #  Some of my own M4 macros
 #
 
+all_options="videodisplay jpeg tiff ffmpeg toon lapack"
+
 ################################################################################
 #
-#Check for prerequisites
+#Check for numerics
 #
 
 #Switch testing language to C++
 AC_LANG(C++)
 
 echo 
-echo --------------------------
-echo Checking for prerequsities
-echo --------------------------
-
-
-#Check whether we need -lf2c or -lg2c
-f2c="Missing"
-AC_MSG_CHECKING([for C to fortran library])
-
-save_LIBS="$LIBS"
-
-#The linking testing function AC_LINK_IFELSE uses LIBS in the 
-#linking stage, so we communicate our requirements by using this
-LIBS="$save_LIBS -lf2c"
-AC_LINK_IFELSE([int main(){return 0;}], [f2c=f2c])
-
-LIBS="$save_LIBS -lg2c"
-AC_LINK_IFELSE([int main(){return 0;}], [f2c=g2c])
-
-LIBS="$save_LIBS -l$f2c"
-
-AC_MSG_RESULT($f2c)
-
-if test "$f2c" = Missing 
-then
-	AC_MSG_ERROR(Fortran linking library not found)
-fi
-
-
-#NB, the AC_CHECK_LIB function automatically sets up $LIBS so that it contains
-#the library just checked for. Which is quite handy.
-AC_CHECK_LIB(blas,  dgemm_)
-if test x$ac_cv_lib_blas_dgemm_ != xyes
-then
-	AC_MSG_ERROR(BLAS is required. Get it from www.netlib.org/blas); 
-fi
-
-AC_CHECK_LIB(lapack,  dgesvd_)
-if test x$ac_cv_lib_lapack_dgesvd_ != xyes
-then
-	AC_MSG_ERROR(LAPACK is required. Get it from www.netlib.org/lapack); 
-fi
+echo -----------------------------
+echo Checking for numerics support
+echo -----------------------------
 
 
 
+
+###################################################
+#
 #Allow the user to specify the location of TooN
+#
 AC_ARG_WITH(TooN, [ --with-TooN=directory  Specify location for TooN ], [opt_toon_dir=$withval])
 
 if test "$opt_toon_dir" = no
@@ -193,7 +160,72 @@ AC_MSG_RESULT($toondir)
 
 if test "$toondir" = Missing
 then
-	AC_MSG_ERROR(TooN is required.)
+	AC_MSG_WARN(TooN is missing. Numerics support disabled.)
+	toon=no
+else
+	options="$options toon"
+	toon=yes
+	AC_DEFINE(CVD_HAVE_TOON)
+	AC_SUBST(have_toon,yes)
+fi
+
+
+
+
+if test "$toon" = yes
+then
+
+	#Check whether we need -lf2c or -lg2c
+	f2c="Missing"
+	AC_MSG_CHECKING([for C to fortran library])
+
+	save_LIBS="$LIBS"
+
+	#The linking testing function AC_LINK_IFELSE uses LIBS in the 
+	#linking stage, so we communicate our requirements by using this
+	LIBS="$save_LIBS -lf2c"
+	AC_LINK_IFELSE([int main(){return 0;}], [f2c=f2c])
+
+	LIBS="$save_LIBS -lg2c"
+	AC_LINK_IFELSE([int main(){return 0;}], [f2c=g2c])
+
+
+	AC_MSG_RESULT($f2c)
+
+	lapack=no
+
+	if test "$f2c" = Missing 
+	then
+		AC_MSG_WARN(libg2c (or libf2c) is missing. I don't know how to link against Fortran.)
+	else
+		LIBS="$save_LIBS -l$f2c"
+
+		#NB, the AC_CHECK_LIB function automatically sets up $LIBS so that it contains
+		#the library just checked for. Which is quite handy.
+		AC_CHECK_LIB(blas,  dgemm_)
+		if test x$ac_cv_lib_blas_dgemm_ != xyes
+		then
+			AC_MSG_WARN(BLAS is missing. Get it from www.netlib.org/blas); 
+		else
+			AC_CHECK_LIB(lapack,  dgesvd_)
+			if test x$ac_cv_lib_lapack_dgesvd_ != xyes
+			then
+				AC_MSG_WARN(LAPACK is missing. Get it from www.netlib.org/lapack); 
+			else
+				lapack=yes
+			fi
+		fi
+	fi
+
+	if test "$lapack" = no
+	then
+		LIBS="$save_LIBS"
+	else
+		options="$options lapack"
+		AC_SUBST(have_lapack,yes)
+		AC_DEFINE(CVD_HAVE_LAPACK)
+	fi
+	
 fi
 
 
@@ -217,7 +249,6 @@ echo -------------------------------
 echo Checking for optional libraries
 echo -------------------------------
 
-all_options="videodisplay jpeg tiff ffmpeg"
 
 AC_PATH_X
 echo "FIXME! check for OpenGL properly!"

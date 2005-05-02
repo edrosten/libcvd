@@ -8,11 +8,8 @@
 #include <cvd/byte.h>
 #include <cvd/rgb8.h>
 #include <cvd/rgba.h>
-#include <numerics.h>
 #include <GL/gl.h>
-
 #include <cvd/internal/gl_types.h>
-
 namespace CVD
 {
 	
