@@ -3787,7 +3787,10 @@ _ACEOF
 
 	fi
 
-else if test "$toon" = yes && test "$host_vendor" != apple
+fi
+
+if test "$toon" = yes && test "$host_vendor" == apple
+then
 
 	save_LIBS="$LIBS"
 	save_CPPFLAGS="$CPPFLAGS"
@@ -3795,8 +3798,8 @@ else if test "$toon" = yes && test "$host_vendor" != apple
 	LIBS="-framework vecLib"
 
 
-	echo "$as_me:$LINENO: checking \"vecLib framework\"" >&5
-echo $ECHO_N "checking \"vecLib framework\"... $ECHO_C" >&6
+	echo "$as_me:$LINENO: checking vecLib framework" >&5
+echo $ECHO_N "checking vecLib framework... $ECHO_C" >&6
 	a=0
 	cat >conftest.$ac_ext <<_ACEOF
 #include <numerics.h>
@@ -3844,8 +3847,6 @@ echo "${ECHO_T}no" >&6
 		CPPFLAGS="$save_CPPFLAGS"
 	fi
 fi
-
-
 
 
 cvd_major=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $1}'`

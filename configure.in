@@ -241,7 +241,10 @@ then
 		AC_DEFINE(CVD_HAVE_LAPACK)
 	fi
 	
-else if test "$toon" = yes && test "$host_vendor" != apple
+fi
+
+if test "$toon" = yes && test "$host_vendor" == apple
+then
 	
 	save_LIBS="$LIBS"
 	save_CPPFLAGS="$CPPFLAGS"
@@ -249,7 +252,7 @@ else if test "$toon" = yes && test "$host_vendor" != apple
 	LIBS="-framework vecLib"
 
 
-	AC_MSG_CHECKING("vecLib framework")
+	AC_MSG_CHECKING(vecLib framework)
 	a=0
 	AC_COMPILE_IFELSE([#include <numerics.h>
 #include <SVD.h>
@@ -264,8 +267,6 @@ int main(){Matrix<2> m;SVD<2> svdm(m);return 0;}], [a=1])
 		CPPFLAGS="$save_CPPFLAGS"
 	fi
 fi
-
-
 
 
 cvd_major=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $1}'`
