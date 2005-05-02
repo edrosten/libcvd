@@ -110,6 +110,7 @@ then
 	LIBS="$LIBS -L/sw/lib"
 	AC_MSG_NOTICE([Adding /sw to the build path.])
 	AC_MSG_NOTICE([Adding /usr/X11R6/include to the build path.])
+	AC_SUBST(osx_hacks,yes)
 fi
 
 ################################################################################

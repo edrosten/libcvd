@@ -162,15 +162,26 @@ endif
 OBJS=$(CVD_OBJS)
 
 
-all: libcvd.a libcvd.so progs
 
-soname=libcvd.so
-soname1=libcvd.so.@major@
-soname2=libcvd.so.@major@.@minor@ 
+ifeq (@osx_hacks@,yes)
+	soname=libcvd.dylib
+	soname1=libcvd-@major@.dylib
+	soname2=libcvd-@major@.@minor@.dylib
+	shared=-dynamiclib
+else
+	soname=libcvd.so
+	soname1=libcvd.so.@major@
+	soname2=libcvd.so.@major@.@minor@ 
+	shared=-shared
+endif
 
-libcvd.so: $(OBJS)
-	rm -f libcvd.so*
-	$(CXX) -shared -o $(soname2) $(OBJS) $(LIBS)
+sos= $(soname) $(soname1) $(soname2)
+
+all: libcvd.a $(soname) progs
+
+$(soname): $(OBJS)
+	rm -f $(sos)
+	$(CXX) $(shared) -o $(soname2) $(OBJS) $(LIBS)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
@@ -183,8 +194,8 @@ LDFLAGS=-I. -L. -lcvd
 PROGS=@progs@
 TESTPROGS=@testprogs@
 
-$(PROGS):libcvd.so
-$(TESTPROGS):libcvd.so
+$(PROGS):$(soname)
+$(TESTPROGS):$(soname)
 
 testprogs: $(TESTPROGS)
 progs: $(PROGS)
@@ -195,19 +206,22 @@ progs: $(PROGS)
 
 install:
 	cp -r cvd $(includedir)
-	cp libcvd.* $(libdir)
+	cp $(sos) $(libdir)
 	cp $(PROGS) $(bindir)
 
 clean:
-	/bin/rm -f tmp libcvd.a libcvd.so*
+	/bin/rm -f tmp libcvd.a $(sos)
 	find . -name '*.o' | xargs rm -f
+	find progs/ -perm +0100 -type f | xargs rm -f
 distclean: clean
 	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h 
 
 #.PHONY: all install clean distclean
 
-.SUFFIXES:
-.SUFFIXES: .cxx .o .cc .C
+#.SUFFIXES:
+#.SUFFIXES: .cxx .o .cc .C
+
+.PRECIOUS: %.o
 
 %.o: %.cc
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
@@ -217,4 +231,8 @@ distclean: clean
 
 %.o: %.C
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+%: %.o
+	$(CXX) -o $@ $< $(LDFLAGS)
+
 
