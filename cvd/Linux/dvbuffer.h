@@ -5,6 +5,7 @@
 #include <cvd/videobuffer.h>
 #include <cvd/byte.h>
 #include <cvd/rgb.h>
+#include <cvd/colourspaces.h>
 #include <libraw1394/raw1394.h>
 #include <libdc1394/dc1394_control.h>
 #include <vector>
@@ -21,6 +22,11 @@ namespace DC
 		static const int fps  = Error__type_not_valid_for_camera___Use_byte_or_rgb_of_byte;
 	};
 	
+	template<> struct cam_type<yuv411>
+	{
+		static const int mode = MODE_640x480_YUV411;
+		static const double fps  = 30;
+	};
 	
 	template<> struct cam_type<byte>
 	{

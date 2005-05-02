@@ -6,16 +6,14 @@
 
 namespace CVD
 {
-	template<class To, class From> class ColourspaceBuffer;
+	//template<class To, class From> class ColourspaceBuffer;
 
 	/// A frame from a ColourspaceBuffer. Can be treated as a VideoFrame
-	template<typename T> 
+	template<class T> 
 	class ColourspaceFrame : public CVD::LocalVideoFrame<T>
 	{
 		/// Allow ColourspaceBuffer to manage frames.
-		friend template<class From> CVD::ColourspaceBuffer<To, From>;
-
-		protected:
+		public:
 			~ColourspaceFrame()
 			{
 			}

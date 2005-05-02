@@ -1,5 +1,7 @@
 #include <cvd/videodisplay.h>
-#include <cvd/helpers.h>
+#include <cvd/image_io.h>
+#include <cvd/gl_helpers.h>
+
 
 #include <fstream>
 #include <stdio.h>
@@ -26,12 +28,7 @@ int mymain(int argc, char** argv)
 	VideoFrame<pix>*  vf;
 	for(;;)
 	{
-
-		#ifdef HACK
-			HACK
-		#else
-			vf = vbuf->get_frame();
-		#endif
+		vf = vbuf->get_frame();
 
 		while(vd.pending())
 		{
@@ -115,12 +112,9 @@ int mymain(int argc, char** argv)
 			cout << frame_num++ << " " <<flush;
 		}
 	
-		glDrawPixels(vf->size().x, vf->size().y, DATA_TYPE, GL_UNSIGNED_BYTE, vf->data());
+		glDrawPixels(*vf);
 
-		#ifdef HACK
-		#else
-			vbuf->put_frame(vf);
-		#endif
+		vbuf->put_frame(vf);
 	}
 	
 	return 0;

@@ -3,9 +3,10 @@
 #ifndef __CVD_DEINTERLACEBUFFER_H
 #define __CVD_DEINTERLACEBUFFER_H
 
-#include <cvd/videobuffer.h>
+#include <cvd/localvideobuffer.h>
 #include <cvd/image_convert.h>
 #include <cvd/colourspace_convert.h>
+#include <cvd/colourspace_frame.h>
 
 namespace CVD
 {
@@ -33,13 +34,13 @@ namespace CVD
 /// @param From  The pixel type of the original VideoBuffer
 /// @param To  The pixel type to convert in to.
 /// @ingroup gVideoBuffer
-template <class To, class From> class ColourspaceBuffer : public LocalVideoBuffer<To>
+template <class To, class From> class ColourspaceBuffer : public CVD::LocalVideoBuffer<To>
 {
 	public:
 		/// Construct a ColourspaceBuffer by wrapping it around another VideoBuffer
 		/// @param buf The buffer that will provide the raw frames
-   		DeinterlaceBuffer(CVD::VideoBuffer<From>& buf)
-		:m_vidbuf(vidbuf),m_size(vidbuf.size());
+   		ColourspaceBuffer(CVD::VideoBuffer<From>& buf)
+		:m_vidbuf(buf),m_size(buf.size())
 		{
 		}
  
@@ -48,10 +49,6 @@ template <class To, class From> class ColourspaceBuffer : public LocalVideoBuffe
 		{
 			return m_size;	
 		}
-		
-		CVD::VideoFrame<To>* get_frame();
-		
-		void put_frame(CVD::VideoFrame<To>* f);
 		
 		virtual bool frame_pending()
 		{	
@@ -68,19 +65,19 @@ template <class To, class From> class ColourspaceBuffer : public LocalVideoBuffe
 			return m_vidbuf.frame_rate();
 		}
 
-		virtual ColourspaceFrame<To>* get_frame()
+		virtual CVD::ColourspaceFrame<To>* get_frame()
 		{
 			VideoFrame<From>* fr = m_vidbuf.get_frame();
 			Image<To> cv = convert_image<To>(*fr);
 
-			ColourspaceFrame<To>* ret = new ColourspaceFrame<To>(fr->timestame(), cv);
+			ColourspaceFrame<To>* ret = new ColourspaceFrame<To>(fr->timestamp(), cv);
 
 			m_vidbuf.put_frame(fr);
 
 			return ret;
 		}
 
-		virtual void put_frame(VideoFrame<To>* f)
+		virtual void put_frame(CVD::VideoFrame<To>* f)
 		{
 			//Check that the type is correct...
 			ColourspaceFrame<To>* csf = dynamic_cast<ColourspaceFrame<To>*>(f);
@@ -96,6 +93,27 @@ template <class To, class From> class ColourspaceBuffer : public LocalVideoBuffe
 		ImageRef m_size;
 };
 
+
+/// This is just like ColourspaceBuffer, except it deleted the videobuffer on destruction
+template <class To, class From> class ColourspaceBuffer_managed : public ColourspaceBuffer<To, From>
+{
+	public:
+		/// Construct a ColourspaceBuffer by wrapping it around another VideoBuffer
+		/// @param buf The buffer that will provide the raw frames
+   		ColourspaceBuffer_managed(CVD::VideoBuffer<From>* buf)
+		:ColourspaceBuffer<To,From>(*buf),vb(buf)
+		{
+		}
+
+		~ColourspaceBuffer_managed()
+		{
+			delete  vb;
+		}
+
+	private:
+		VideoBuffer<From>* vb;
+
+};
 
 } 
 #endif

@@ -90,6 +90,7 @@ CVD_OBJS=	cvd_src/se3.o 								\
 			cvd_src/exceptions.o						\
 			cvd_src/image_io.o							\
 			cvd_src/bayer.o 							\
+			cvd_src/colourspace_convert.o 				\
 			pnm_src/instantiations.o					\
 			pnm_src/pnm_grok.o							\
 
@@ -168,9 +169,12 @@ libcvd.a: $(OBJS)
 
 LDFLAGS=-I. -L. -lcvd
 PROGS=@progs@
+TESTPROGS=@testprogs@
 
 $(PROGS):libcvd.so
+$(TESTPROGS):libcvd.so
 
+testprogs: $(TESTPROGS)
 progs: $(PROGS)
 
 
@@ -192,8 +196,6 @@ distclean: clean
 
 .SUFFIXES:
 .SUFFIXES: .cxx .o .cc .C
-
-progs%: libcvd.so
 
 %.o: %.cc
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@

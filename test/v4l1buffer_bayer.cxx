@@ -1,13 +1,12 @@
+#include <cvd/colourspacebuffer.h>
 #include <cvd/Linux/v4l1buffer.h>
 
 using namespace CVD;
-
-typedef  bayer pix;
-#define  DATA_TYPE GL_LUMINANCE
+typedef  Rgb<byte> pix;
 
 VideoBuffer<pix>* get_vbuf()
 {
-	return new V4L1Buffer<pix>("/dev/video0");
+	return new ColourspaceBuffer_managed<pix,bayer>(new V4L1Buffer<bayer>("/dev/video0"));
 }
 
 #include "test/videoprog.cxx"

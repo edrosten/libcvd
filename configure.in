@@ -416,8 +416,24 @@ D_PROGS='progs/se3_exp
 		progs/img_play_deinterlace videodisplay         
 		progs/video_play           videodisplay  ffmpeg 
 		progs/video_play_bw        videodisplay  ffmpeg '
-progs=`echo $options $D_PROGS | awk -f make/prog_dependencies.awk`
+progs=`echo $options $D_PROGS | awk -vRS=progs -f make/prog_dependencies.awk`
 AC_SUBST(progs,$progs)
+
+
+T_PROGS='
+test/diskbuffer2					videodisplay
+test/dvbuffer_mono  				videodisplay dvbuffer
+test/dvbuffer_yuvrgb  			videodisplay dvbuffer
+test/test_images       			
+test/v4l1buffer_mono  			videodisplay v4l1buffer
+test/v4l2buffer					videodisplay v4l2buffer
+test/dvbuffer_controls 			videodisplay dvbuffer 
+test/dvbuffer_rgb   				videodisplay dvbuffer
+test/o2buffer        			videodisplay o2buffer
+test/v4l1buffer_bayer 			videodisplay v4l1buffer 
+test/v4l1buffer_rgb  			videodisplay v4l1buffer '
+testprogs=`echo $options $T_PROGS | awk -vRS=test -f make/prog_dependencies.awk`
+AC_SUBST(testprogs,$testprogs)
 
 AC_OUTPUT(Makefile)
 

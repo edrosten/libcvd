@@ -20,3 +20,5 @@ namespace CVD
 		unsigned char val;
 	};
 }
+
+#endif

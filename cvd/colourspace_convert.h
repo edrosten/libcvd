@@ -30,7 +30,7 @@ namespace CVD
 	/// @param npix The number of pixels
 	/// @param out The output data
 	/// @ingroup gImageIO
-	template<> Image<byte> convert_image(const BasicImage<yuv411>& from);
+	template<> Image<Rgb<byte> > convert_image(const BasicImage<yuv411>& from);
 
 
 	/// Convert YUV 411 pixel data to Y only

@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB build build_cpu build_vendor build_os host host_cpu host_vendor host_os CPP EGREP major minor CXXCPP have_videodisplay have_tiff have_jpeg have_ffmpeg have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer docs progs LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB build build_cpu build_vendor build_os host host_cpu host_vendor host_os CPP EGREP major minor CXXCPP have_videodisplay have_tiff have_jpeg have_ffmpeg have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer docs progs testprogs LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -6148,8 +6148,25 @@ D_PROGS='progs/se3_exp
 		progs/img_play_deinterlace videodisplay
 		progs/video_play           videodisplay  ffmpeg
 		progs/video_play_bw        videodisplay  ffmpeg '
-progs=`echo $options $D_PROGS | awk -f make/prog_dependencies.awk`
+progs=`echo $options $D_PROGS | awk -vRS=progs -f make/prog_dependencies.awk`
 progs=$progs
+
+
+
+T_PROGS='
+test/diskbuffer2					videodisplay
+test/dvbuffer_mono  				videodisplay dvbuffer
+test/dvbuffer_yuvrgb  			videodisplay dvbuffer
+test/test_images
+test/v4l1buffer_mono  			videodisplay v4l1buffer
+test/v4l2buffer					videodisplay v4l2buffer
+test/dvbuffer_controls 			videodisplay dvbuffer
+test/dvbuffer_rgb   				videodisplay dvbuffer
+test/o2buffer        			videodisplay o2buffer
+test/v4l1buffer_bayer 			videodisplay v4l1buffer
+test/v4l1buffer_rgb  			videodisplay v4l1buffer '
+testprogs=`echo $options $T_PROGS | awk -vRS=test -f make/prog_dependencies.awk`
+testprogs=$testprogs
 
 
           ac_config_files="$ac_config_files Makefile"
@@ -6828,6 +6845,7 @@ s,@have_v4l2buffer@,$have_v4l2buffer,;t t
 s,@have_o2buffer@,$have_o2buffer,;t t
 s,@docs@,$docs,;t t
 s,@progs@,$progs,;t t
+s,@testprogs@,$testprogs,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF
