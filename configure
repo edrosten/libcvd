@@ -7168,7 +7168,7 @@ echo $options
 echo
 echo Missing options for $host_os:
 
-echo $options $all_options $os_options |  gawk 'BEGIN{RS=" "}{a[$1]++}END{for(i in a)if(a[i]==1)printf(i" "); print""}'
+echo $options $all_options $os_options |  awk 'BEGIN{RS=" "}{a[$1]++}END{for(i in a)if(a[i]==1)printf(i" "); print""}'
 
 
 echo
