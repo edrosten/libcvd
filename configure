@@ -6283,11 +6283,11 @@ fi
 
 
 
-D_PROGS='progs/se3_exp
-		progs/se3_ln
-		progs/se3_pre_mul
-		progs/se3_post_mul
-		progs/se3_inv
+D_PROGS='progs/se3_exp             toon
+		progs/se3_ln               toon
+		progs/se3_pre_mul          toon
+		progs/se3_post_mul         toon
+		progs/se3_inv              toon
 		progs/img_play             videodisplay
 		progs/img_play_bw          videodisplay
 		progs/img_play_deinterlace videodisplay
