@@ -24,7 +24,7 @@ then
 
 	AC_MSG_CHECKING([g++ version])
 	changequote(,)
-	gxx_major_version=`g++ -v 2>&1 | awk -F '[ .]' '/version/{print $3}'`
+	gxx_major_version=`g++ -v 2>&1 | $AWK -F '[ .]' '/version/{print $3}'`
 	changequote([,])
 
 
@@ -343,8 +343,8 @@ fi
 
 
 
-cvd_major=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $1}'`
-cvd_minor=`echo $PACKAGE_VERSION | awk -F'\\\\.' '{print $2}'`
+cvd_major=`echo $PACKAGE_VERSION | $AWK -F'\\\\.' '{print $1}'`
+cvd_minor=`echo $PACKAGE_VERSION | $AWK -F'\\\\.' '{print $2}'`
 
 AC_DEFINE_UNQUOTED(CVD_MAJOR_VERSION,$cvd_major)
 AC_SUBST(major, $cvd_major)
@@ -509,18 +509,18 @@ case "$host" in
 
 		
 		AC_MSG_CHECKING([kernel major number])
-		kernel_major=[`uname -r | awk -F'[.-]' '{print $1}'`]
+		kernel_major=[`uname -r | $AWK -F'[.-]' '{print $1}'`]
 		AC_MSG_RESULT($kernel_major)
 		AC_DEFINE_UNQUOTED(CVD_KERNEL_MAJOR,$kernel_major)
 		
 		AC_MSG_CHECKING([kernel minor number])
-		kernel_minor=[`uname -r | awk -F'[.-]' '{print $2}'`]
+		kernel_minor=[`uname -r | $AWK -F'[.-]' '{print $2}'`]
 		AC_MSG_RESULT($kernel_minor)
 		AC_DEFINE_UNQUOTED(CVD_KERNEL_MINOR,$kernel_minor)
 
 		
 		AC_MSG_CHECKING([kernel release number])
-		kernel_release=[`uname -r | awk -F'[.-]' '{print $3}'`]
+		kernel_release=[`uname -r | $AWK -F'[.-]' '{print $3}'`]
 		AC_MSG_RESULT($kernel_release)
 		AC_DEFINE_UNQUOTED(CVD_KERNEL_RELEASE,$kernel_release)
 	;;
