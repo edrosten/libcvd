@@ -6529,8 +6529,8 @@ echo $ECHO_N "checking for v4l2... $ECHO_C" >&6
 			cat >conftest.$ac_ext <<_ACEOF
 	#include <sys/types.h>
 								#include <linux/types.h>
-								#include <linux/videodev2.h>
-								int main(){return 0;}
+								#include <linux/videodev.h>
+								int main(){V4L2_PIX_FMT_GREY;return 0;}
 _ACEOF
 rm -f conftest.$ac_objext
 if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
