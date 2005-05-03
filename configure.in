@@ -8,6 +8,75 @@ AC_COPYRIGHT(Copyright foo)
 AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_CXX
+
+
+
+
+
+
+###################################################
+#
+# Check for g++ version >= 3
+
+if test x$GXX = xyes
+then
+	good_gcc=0
+
+	AC_MSG_CHECKING([g++ version])
+	changequote(,)
+	gxx_major_version=`g++ -v 2>&1 | awk -F '[ .]' '/version/{print $3}'`
+	changequote([,])
+
+
+	if test "$gxx_major_version" -lt 3
+	then
+		AC_MSG_RESULT([$gxx_major_version (failed)])
+		AC_MSG_CHECKING([for other possibilities for g++ version >= 3])
+		AC_MSG_RESULT([])
+		#Check for some other possible G++s
+		#Uncache che checks
+		unset CXX
+		unset ac_ct_CXX
+		unset ac_cv_prog_ac_ct_CXX 
+		unset ac_cv_prog_cxx_g
+		unset GXX
+		unset ac_cv_cxx_compiler_gnu
+
+		#echo is a dummy target, which will always succeed.
+		#If the c++ compiler is set to echo, then we know that
+		#none of the proper ones worked.
+		AC_PROG_CXX([g++-4 g++-3 echo])
+
+		if test $ac_cv_prog_ac_ct_CXX = echo
+		then
+			AC_MSG_ERROR([g++ version >= 3.0 is required.])
+		fi
+	else
+		AC_MSG_RESULT([$gxx_major_version (ok)])
+	fi
+
+
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_RANLIB
