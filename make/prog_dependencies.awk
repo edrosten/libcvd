@@ -1,13 +1,25 @@
-NR==1{
-	for(i=1; i <= NF; i++)
-		opts[$i]=1
+BEGIN{
+	RS=" "
 	ORS=" "
+	a = -1
+}
+
+$0~stub{
+	print prev
+	prev=$1
 	next
 }
 
-NF{
-	for(i=2; i <= NF; i++)
-		if(!($i in opts))
-			next
-	print RS $1
+!prev{
+	opts[$1]=1
+	next
 }
+
+!($1 in opts){prev=" "}
+
+END{
+	print prev
+}
+
+
+
