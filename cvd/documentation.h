@@ -16,22 +16,26 @@ It is released under the GPL License.
 \subsection Language
 
     - Modern C++ design
+	- Optimized assembly code
     - Extensive use of exceptions
     - OpenGL wrappers 
 
 \subsection Imaging
 
     - Type-safe easy to use images
-    - Loading and saving from a variety of types: jpg, pnm, tiff(soon!!)
+    - Flexible loading and saving from a variety of types: jpg, pnm, tiff(loading only)
     - Image grabbing from video sources:
-          - V4L2 devices
-          - Firewire cameras
-          - SGI O2
-          - avi and mpegs files (all codecs supported by ffmpeg)
-          - list of images
-          - raw image streams(soon!!!) 
-    - Flexible loading and saving of images
-    - Colorspace conversions
+		  - Linux
+		  		- Video for Linux devices
+          		- Video for Linux 2 devices
+         	 	- Firewire cameras
+		  - IRIX
+          		- dmedia video capture
+		  - All platforms
+          		- avi and mpegs files (all codecs supported by ffmpeg)
+          		- list of images
+          		- raw image streams(soon!!!) 
+    - Colorspace conversions on images and video streams
     - Various image processing tools
     - %Camera calibration support: Linear, Cubic and Quintic 
 
@@ -43,12 +47,16 @@ It is released under the GPL License.
 \subsection Portability
 
     - Linux
-    - SGI O2
-    - Mac OS X
+    - IRIX (SGI O2)
     - FreeBSD
+    - Mac OS X
+		- Supports the OS X build environment including
+			- Frameworks
+			- .dylib libraries
+		- Currently does not support gcc 3.3 (20030304) due to possible compiler bug.
     - Cygwin(painful)
-
-Not all features are support on all operating systems (ie. video grabbing). 
+		- Does not properly support the cygwin build environment. Manual intervention is needed.
+	- Probably any other unix with a modern C++ compiler and a reasonably standard build environment (gmake is required)
 
  
 */
