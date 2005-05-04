@@ -308,8 +308,5 @@ namespace CVD
 	}
 
 }
-//#include <cvd/internal/pnm/pnm_cvd_image.h>
-//#include <cvd/internal/pnm/cvd_rgb.h>
-
 
 #endif
