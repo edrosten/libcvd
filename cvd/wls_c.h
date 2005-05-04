@@ -11,7 +11,7 @@
 #pragma warning "This file is deprecated and evil. Please use WLSCHolesky defined in cvd/wls_cholesky.h"
 #endif
 
-#include <cvb/wls_cholesky.h>
+#include <cvd/wls_cholesky.h>
 
 #define WLS WLSCholesky
 
