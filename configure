@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB build build_cpu build_vendor build_os host host_cpu host_vendor host_os CPP EGREP osx_hacks have_toon have_lapack major minor CXXCPP have_videodisplay have_tiff have_jpeg have_ffmpeg have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer docs progs testprogs LIBOBJS LTLIBOBJS debug_options debug_all_options'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX build build_cpu build_vendor build_os host host_cpu host_vendor host_os INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB CPP EGREP osx_hacks have_toon have_lapack major minor CXXCPP have_videodisplay have_tiff have_jpeg have_ffmpeg have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer docs progs testprogs LIBOBJS LTLIBOBJS debug_options debug_all_options'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -863,6 +863,10 @@ if test -n "$ac_init_help"; then
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-debug=flags        compile with debug support
+  --with-profile=flags      compile with profile support
+  --without-optimize           compile without
+  --with-optimize=flags        compile with optimization flags
  --with-TooN=directory  Specify location for TooN
   --with-x                use the X Window System
   --without-tiff       compile without TIFF support
@@ -3079,23 +3083,69 @@ fi
 
 
 
+# Check whether --with-debug or --without-debug was given.
+if test "${with_debug+set}" = set; then
+  withval="$with_debug"
+  debug="$withval"
+else
+  debug=no
+fi;
 
+# Check whether --with-profile or --without-profile was given.
+if test "${with_profile+set}" = set; then
+  withval="$with_profile"
+  profile="$withval"
+else
+  profile=no
+fi;
+CXXFLAGS=
 
+###################################################
+#
+# Deal with profiling and debugging
+#
+#
+if test "$debug" != no || test "$profile" != no
+then
+	if test "$debug" = yes
+	then
+		if test "$ac_cv_cxx_compiler_gnu" = yes
+		then
+			CXXFLAGS="-g -ggdb"
+		elif test "$ac_cv_prog_cxx_g" = yes
+		then
+			CXXFLAGS="-g"
+		else
+			{ echo "$as_me:$LINENO: WARNING: I do not know how to switch on debugging for this compiler" >&5
+echo "$as_me: WARNING: I do not know how to switch on debugging for this compiler" >&2;}
+		fi
+	else
+		CXXFLAGS="$debug"
+	fi
+fi
 
+if test "$profile" != no
+then
+	if test "$profile" = yes
+	then
+		if test "$ac_cv_cxx_compiler_gnu" = yes
+		then
+			CXXFLAGS="$CXXFLAGS -p -pg"
+		else
+			{ echo "$as_me:$LINENO: WARNING: I don't know how to switch on profiling for this compiler" >&5
+echo "$as_me: WARNING: I don't know how to switch on profiling for this compiler" >&2;}
+		fi
+	else
+		CXXFLAGS="$CXXFLAGS $profile"
+	fi
+fi
 
+##################################################
+#
+# Cpu type detection and optimization
+#
 
-
-
-
-
-
-
-
-
-
-
-
-
+#Host detection
 ac_aux_dir=
 for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
   if test -f $ac_dir/install-sh; then
@@ -3120,6 +3170,119 @@ fi
 ac_config_guess="$SHELL $ac_aux_dir/config.guess"
 ac_config_sub="$SHELL $ac_aux_dir/config.sub"
 ac_configure="$SHELL $ac_aux_dir/configure" # This should be Cygnus configure.
+
+# Make sure we can run config.sub.
+$ac_config_sub sun4 >/dev/null 2>&1 ||
+  { { echo "$as_me:$LINENO: error: cannot run $ac_config_sub" >&5
+echo "$as_me: error: cannot run $ac_config_sub" >&2;}
+   { (exit 1); exit 1; }; }
+
+echo "$as_me:$LINENO: checking build system type" >&5
+echo $ECHO_N "checking build system type... $ECHO_C" >&6
+if test "${ac_cv_build+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_cv_build_alias=$build_alias
+test -z "$ac_cv_build_alias" &&
+  ac_cv_build_alias=`$ac_config_guess`
+test -z "$ac_cv_build_alias" &&
+  { { echo "$as_me:$LINENO: error: cannot guess build type; you must specify one" >&5
+echo "$as_me: error: cannot guess build type; you must specify one" >&2;}
+   { (exit 1); exit 1; }; }
+ac_cv_build=`$ac_config_sub $ac_cv_build_alias` ||
+  { { echo "$as_me:$LINENO: error: $ac_config_sub $ac_cv_build_alias failed" >&5
+echo "$as_me: error: $ac_config_sub $ac_cv_build_alias failed" >&2;}
+   { (exit 1); exit 1; }; }
+
+fi
+echo "$as_me:$LINENO: result: $ac_cv_build" >&5
+echo "${ECHO_T}$ac_cv_build" >&6
+build=$ac_cv_build
+build_cpu=`echo $ac_cv_build | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
+build_vendor=`echo $ac_cv_build | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
+build_os=`echo $ac_cv_build | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
+
+
+echo "$as_me:$LINENO: checking host system type" >&5
+echo $ECHO_N "checking host system type... $ECHO_C" >&6
+if test "${ac_cv_host+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_cv_host_alias=$host_alias
+test -z "$ac_cv_host_alias" &&
+  ac_cv_host_alias=$ac_cv_build_alias
+ac_cv_host=`$ac_config_sub $ac_cv_host_alias` ||
+  { { echo "$as_me:$LINENO: error: $ac_config_sub $ac_cv_host_alias failed" >&5
+echo "$as_me: error: $ac_config_sub $ac_cv_host_alias failed" >&2;}
+   { (exit 1); exit 1; }; }
+
+fi
+echo "$as_me:$LINENO: result: $ac_cv_host" >&5
+echo "${ECHO_T}$ac_cv_host" >&6
+host=$ac_cv_host
+host_cpu=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
+host_vendor=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
+host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
+
+
+
+case "$host" in
+	*linux*)
+		echo hello
+		cpu="`awk '
+/Pentium III/			{print "p3";exit}
+/Intel(R) Pentium(R) 4/	{print "p4";exit}
+/Intel(R) Xeon(TM)/		{print "xeon";exit}
+/AMD Opteron(tm)/		{print "opteron";exit}' /proc/cpuinfo`"
+	;;
+esac
+
+
+
+# Check whether --with-optimize or --without-optimize was given.
+if test "${with_optimize+set}" = set; then
+  withval="$with_optimize"
+  optimize=no
+fi;
+
+# Check whether --with-optimize or --without-optimize was given.
+if test "${with_optimize+set}" = set; then
+  withval="$with_optimize"
+  optimize="$withval"
+fi;
+
+if test "$optimize" != no
+then
+	if test "$optimize" != ""
+	then
+		CXXFLAGS="$CXXFLAGS $optimize"
+	elif test "$ac_cv_cxx_compiler_gnu" = yes
+	then
+		echo "$as_me:$LINENO: checking for best optimize flags" >&5
+echo $ECHO_N "checking for best optimize flags... $ECHO_C" >&6
+		cpuopt="`echo $cpu | sed -e'
+s/p3/-march=pentium3/
+s/p4/-march=pentium4/
+s/xeon/-march=pentium4/
+s/opteron/-march=opteron/
+tend
+s/.*//
+:end'
+`"
+		opt="-O3 $cpuopt"
+		echo "$as_me:$LINENO: result: $opt" >&5
+echo "${ECHO_T}$opt" >&6
+		if test "$cpuopt" = ""
+		then
+			{ echo "$as_me:$LINENO: WARNING: I do not know what the best flags are for this processor." >&5
+echo "$as_me: WARNING: I do not know what the best flags are for this processor." >&2;}
+		fi
+		CXXFLAGS="$CXXFLAGS $opt"
+	else
+		{ echo "$as_me:$LINENO: WARNING: I do not know how to switch on optimizing for this compiler" >&5
+echo "$as_me: WARNING: I do not know how to switch on optimizing for this compiler" >&2;}
+	fi
+fi
 
 # Find a good install program.  We prefer a C program (faster),
 # so one script is as good as another.  But avoid the broken or
@@ -3291,61 +3454,6 @@ else
   RANLIB="$ac_cv_prog_RANLIB"
 fi
 
-
-
-#I don't really know what these do, but they seem to work...
-# Make sure we can run config.sub.
-$ac_config_sub sun4 >/dev/null 2>&1 ||
-  { { echo "$as_me:$LINENO: error: cannot run $ac_config_sub" >&5
-echo "$as_me: error: cannot run $ac_config_sub" >&2;}
-   { (exit 1); exit 1; }; }
-
-echo "$as_me:$LINENO: checking build system type" >&5
-echo $ECHO_N "checking build system type... $ECHO_C" >&6
-if test "${ac_cv_build+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_cv_build_alias=$build_alias
-test -z "$ac_cv_build_alias" &&
-  ac_cv_build_alias=`$ac_config_guess`
-test -z "$ac_cv_build_alias" &&
-  { { echo "$as_me:$LINENO: error: cannot guess build type; you must specify one" >&5
-echo "$as_me: error: cannot guess build type; you must specify one" >&2;}
-   { (exit 1); exit 1; }; }
-ac_cv_build=`$ac_config_sub $ac_cv_build_alias` ||
-  { { echo "$as_me:$LINENO: error: $ac_config_sub $ac_cv_build_alias failed" >&5
-echo "$as_me: error: $ac_config_sub $ac_cv_build_alias failed" >&2;}
-   { (exit 1); exit 1; }; }
-
-fi
-echo "$as_me:$LINENO: result: $ac_cv_build" >&5
-echo "${ECHO_T}$ac_cv_build" >&6
-build=$ac_cv_build
-build_cpu=`echo $ac_cv_build | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
-build_vendor=`echo $ac_cv_build | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
-build_os=`echo $ac_cv_build | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
-
-
-echo "$as_me:$LINENO: checking host system type" >&5
-echo $ECHO_N "checking host system type... $ECHO_C" >&6
-if test "${ac_cv_host+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_cv_host_alias=$host_alias
-test -z "$ac_cv_host_alias" &&
-  ac_cv_host_alias=$ac_cv_build_alias
-ac_cv_host=`$ac_config_sub $ac_cv_host_alias` ||
-  { { echo "$as_me:$LINENO: error: $ac_config_sub $ac_cv_host_alias failed" >&5
-echo "$as_me: error: $ac_config_sub $ac_cv_host_alias failed" >&2;}
-   { (exit 1); exit 1; }; }
-
-fi
-echo "$as_me:$LINENO: result: $ac_cv_host" >&5
-echo "${ECHO_T}$ac_cv_host" >&6
-host=$ac_cv_host
-host_cpu=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
-host_vendor=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
-host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
 
 
@@ -7363,12 +7471,6 @@ s,@OBJEXT@,$OBJEXT,;t t
 s,@CXX@,$CXX,;t t
 s,@CXXFLAGS@,$CXXFLAGS,;t t
 s,@ac_ct_CXX@,$ac_ct_CXX,;t t
-s,@INSTALL_PROGRAM@,$INSTALL_PROGRAM,;t t
-s,@INSTALL_SCRIPT@,$INSTALL_SCRIPT,;t t
-s,@INSTALL_DATA@,$INSTALL_DATA,;t t
-s,@LN_S@,$LN_S,;t t
-s,@RANLIB@,$RANLIB,;t t
-s,@ac_ct_RANLIB@,$ac_ct_RANLIB,;t t
 s,@build@,$build,;t t
 s,@build_cpu@,$build_cpu,;t t
 s,@build_vendor@,$build_vendor,;t t
@@ -7377,6 +7479,12 @@ s,@host@,$host,;t t
 s,@host_cpu@,$host_cpu,;t t
 s,@host_vendor@,$host_vendor,;t t
 s,@host_os@,$host_os,;t t
+s,@INSTALL_PROGRAM@,$INSTALL_PROGRAM,;t t
+s,@INSTALL_SCRIPT@,$INSTALL_SCRIPT,;t t
+s,@INSTALL_DATA@,$INSTALL_DATA,;t t
+s,@LN_S@,$LN_S,;t t
+s,@RANLIB@,$RANLIB,;t t
+s,@ac_ct_RANLIB@,$ac_ct_RANLIB,;t t
 s,@CPP@,$CPP,;t t
 s,@EGREP@,$EGREP,;t t
 s,@osx_hacks@,$osx_hacks,;t t

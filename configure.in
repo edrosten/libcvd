@@ -59,31 +59,104 @@ then
 fi
 
 
+AC_ARG_WITH(debug,   [  --with-debug=flags        compile with debug support],[debug="$withval"], [debug=no])
+AC_ARG_WITH(profile, [  --with-profile=flags      compile with profile support],[profile="$withval"], [profile=no])
+CXXFLAGS=
+
+###################################################
+#
+# Deal with profiling and debugging
+#
+#
+if test "$debug" != no || test "$profile" != no
+then
+	if test "$debug" = yes
+	then
+		if test "$ac_cv_cxx_compiler_gnu" = yes
+		then
+			CXXFLAGS="-g -ggdb"
+		elif test "$ac_cv_prog_cxx_g" = yes
+		then
+			CXXFLAGS="-g"
+		else
+			AC_MSG_WARN([I do not know how to switch on debugging for this compiler])
+		fi
+	else
+		CXXFLAGS="$debug"
+	fi
+fi
+
+if test "$profile" != no
+then
+	if test "$profile" = yes
+	then
+		if test "$ac_cv_cxx_compiler_gnu" = yes
+		then
+			CXXFLAGS="$CXXFLAGS -p -pg"
+		else 
+			AC_MSG_WARN([I don't know how to switch on profiling for this compiler])
+		fi
+	else
+		CXXFLAGS="$CXXFLAGS $profile"
+	fi
+fi
+
+##################################################
+#
+# Cpu type detection and optimization
+#
+
+#Host detection
+AC_CANONICAL_HOST
+
+case "$host" in
+	*linux*)
+		cpu="`awk '
+/Pentium III/			{print "p3";exit}
+/Intel(R) Pentium(R) 4/	{print "p4";exit}
+/Intel(R) Xeon(TM)/		{print "xeon";exit}
+/AMD Opteron(tm)/		{print "opteron";exit}' /proc/cpuinfo`"
+	;;
+esac
 
 
+AC_ARG_WITH(optimize,   [  --without-optimize           compile without ],[optimize=no],[])
+AC_ARG_WITH(optimize,   [  --with-optimize=flags        compile with optimization flags],[optimize="$withval"], [])
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+if test "$optimize" != no
+then
+	if test "$optimize" != ""
+	then
+		CXXFLAGS="$CXXFLAGS $optimize"
+	elif test "$ac_cv_cxx_compiler_gnu" = yes
+	then
+		AC_MSG_CHECKING([for best optimize flags])
+		cpuopt="`echo $cpu | sed -e'
+s/p3/-march=pentium3/
+s/p4/-march=pentium4/
+s/xeon/-march=pentium4/
+s/opteron/-march=opteron/
+tend
+s/.*//
+:end'
+`"
+		opt="-O3 $cpuopt"
+		AC_MSG_RESULT([$opt])
+		if test "$cpuopt" = ""
+		then
+			AC_MSG_WARN([I do not know what the best flags are for this processor.])
+		fi
+		CXXFLAGS="$CXXFLAGS $opt"
+	else
+		AC_MSG_WARN([I do not know how to switch on optimizing for this compiler])
+	fi
+fi
 
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_RANLIB
 
 
-#I don't really know what these do, but they seem to work...
-AC_CANONICAL_HOST
 
 AC_CONFIG_HEADERS
 AC_HEADER_STDC
