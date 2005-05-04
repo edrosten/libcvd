@@ -10,10 +10,6 @@
 
 namespace CVD
 {
-/////////////////
-// DEINTERLACE BUFFER
-//
-
 /// A decorator class which wraps a VideoBuffer to perfrom colourspace
 /// conversion on the incoming data. In general, the kernel video buffers
 /// such as dvbuffer and v4l1buffer give access to what the device can provide
@@ -22,19 +18,18 @@ namespace CVD
 ///
 /// Not every possible conversion is available natively through the library,
 /// some conversions have to be performed in several steps. For instance, to 
-/// convert yuv411 to Rgb<float>, the conversion must go via Rgb<byte> since
+/// convert yuv411 to <code>Rgb<float></code>, the conversion must go via 
+/// <code>Rgb<byte></code> since
 /// the conversions from yuv411 are limited.
-
-
-
-/// Provides frames of type CVD::ColourspaceFrame.
+/// 
+/// Provides frames of type <code>CVD::ColourspaceFrame.</code>
 ///
 /// This class throws only generic VideoBuffer exceptions, but the underlying
 /// videobuffer may throw.
 /// @param From  The pixel type of the original VideoBuffer
-/// @param To  The pixel type to convert in to.
+/// @param T  The pixel type to convert in to.
 /// @ingroup gVideoBuffer
-template <class To, class From> class ColourspaceBuffer : public CVD::LocalVideoBuffer<To>
+template <class T, class From> class ColourspaceBuffer : public CVD::LocalVideoBuffer<T>
 {
 	public:
 		/// Construct a ColourspaceBuffer by wrapping it around another VideoBuffer
@@ -65,22 +60,22 @@ template <class To, class From> class ColourspaceBuffer : public CVD::LocalVideo
 			return m_vidbuf.frame_rate();
 		}
 
-		virtual CVD::ColourspaceFrame<To>* get_frame()
+		virtual CVD::ColourspaceFrame<T>* get_frame()
 		{
 			VideoFrame<From>* fr = m_vidbuf.get_frame();
-			Image<To> cv = convert_image<To>(*fr);
+			Image<T> cv = convert_image<T>(*fr);
 
-			ColourspaceFrame<To>* ret = new ColourspaceFrame<To>(fr->timestamp(), cv);
+			ColourspaceFrame<T>* ret = new ColourspaceFrame<T>(fr->timestamp(), cv);
 
 			m_vidbuf.put_frame(fr);
 
 			return ret;
 		}
 
-		virtual void put_frame(CVD::VideoFrame<To>* f)
+		virtual void put_frame(CVD::VideoFrame<T>* f)
 		{
 			//Check that the type is correct...
-			ColourspaceFrame<To>* csf = dynamic_cast<ColourspaceFrame<To>*>(f);
+			ColourspaceFrame<T>* csf = dynamic_cast<ColourspaceFrame<T>*>(f);
 
 			if(csf == NULL)
 				throw CVD::Exceptions::VideoBuffer::BadPutFrame();
@@ -95,13 +90,13 @@ template <class To, class From> class ColourspaceBuffer : public CVD::LocalVideo
 
 
 /// This is just like ColourspaceBuffer, except it deleted the videobuffer on destruction
-template <class To, class From> class ColourspaceBuffer_managed : public ColourspaceBuffer<To, From>
+template <class T, class From> class ColourspaceBuffer_managed : public ColourspaceBuffer<T, From>
 {
 	public:
 		/// Construct a ColourspaceBuffer by wrapping it around another VideoBuffer
 		/// @param buf The buffer that will provide the raw frames
    		ColourspaceBuffer_managed(CVD::VideoBuffer<From>* buf)
-		:ColourspaceBuffer<To,From>(*buf),vb(buf)
+		:ColourspaceBuffer<T,From>(*buf),vb(buf)
 		{
 		}
 
