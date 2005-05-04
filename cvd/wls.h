@@ -19,6 +19,8 @@ class WLS {
 public:
 	/// Default constructor
   WLS(){clear();}
+  /// Construct using a given regularisation prior
+  WLS(double prior){clear(prior);}
 
 	/// Resets the measurements and covariance to zero
   void clear(){
