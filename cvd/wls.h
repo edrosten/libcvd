@@ -22,9 +22,11 @@ public:
   /// Construct using a given regularisation prior
   WLS(double prior){clear(prior);}
 
-	/// Resets the measurements and covariance to zero
-  void clear(){
-    Identity(my_C_inv,0);
+  /// Clear all the measurements and apply a constant regularisation term. 
+  /// Equates to a prior that says all the parameters are zero with \f$\sigma^2 = \frac{1}{\text{val}}\f$.
+  /// @param prior The strength of the prior
+  void clear(double prior=0){
+    Identity(my_C_inv,prior);
     for(int i=0; i<Size; i++){
       my_vector[i]=0;
     }
