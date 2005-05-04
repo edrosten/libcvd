@@ -55,6 +55,19 @@ public:
     }
   }
   
+  /// Applies a constant regularisation term about a non-zero postion
+  /// Equates to a prior that says the parameters are equal to pos with \f$\sigma^2 = \frac{1}{\text{val}}\f$.
+  /// @param val The strength of the prior
+  /// @param pos The position
+  template<class Accessor>
+  void add_prior(double val, const FixedVector<Size,Accessor>& pos){
+    for(int i=0; i<Size; i++){
+      my_C_inv(i,i)+=val;
+    }
+    my_vector+=pos*val;
+    my_err+=val*(pos*pos);
+  }
+
 	/// Applies a regularisation term with a different strength for each parameter value. 
 	/// Equates to a prior that says all the parameters are zero with \f$\sigma_i^2 = \frac{1}{\text{v}_i}\f$.
 	/// @param v The vector of priors
