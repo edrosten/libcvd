@@ -3228,7 +3228,6 @@ host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
 case "$host" in
 	*linux*)
-		echo hello
 		cpu="`awk '
 /Pentium III/			{print "p3";exit}
 /Intel(R) Pentium(R) 4/	{print "p4";exit}
