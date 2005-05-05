@@ -863,6 +863,7 @@ if test -n "$ac_init_help"; then
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --without-debug           compile without debug support
   --with-debug=flags        compile with debug support
   --with-profile=flags      compile with profile support
   --without-optimize           compile without
@@ -3086,9 +3087,13 @@ fi
 # Check whether --with-debug or --without-debug was given.
 if test "${with_debug+set}" = set; then
   withval="$with_debug"
-  debug="$withval"
-else
   debug=no
+fi;
+
+# Check whether --with-debug or --without-debug was given.
+if test "${with_debug+set}" = set; then
+  withval="$with_debug"
+  debug="$withval"
 fi;
 
 # Check whether --with-profile or --without-profile was given.
@@ -3098,7 +3103,6 @@ if test "${with_profile+set}" = set; then
 else
   profile=no
 fi;
-CXXFLAGS=
 
 ###################################################
 #
@@ -3107,21 +3111,19 @@ CXXFLAGS=
 #
 if test "$debug" != no || test "$profile" != no
 then
-	if test "$debug" = yes
+	if test "$debug" == ""
 	then
 		if test "$ac_cv_cxx_compiler_gnu" = yes
 		then
 			CXXFLAGS="-g -ggdb"
-		elif test "$ac_cv_prog_cxx_g" = yes
-		then
-			CXXFLAGS="-g"
-		else
-			{ echo "$as_me:$LINENO: WARNING: I do not know how to switch on debugging for this compiler" >&5
-echo "$as_me: WARNING: I do not know how to switch on debugging for this compiler" >&2;}
 		fi
 	else
 		CXXFLAGS="$debug"
 	fi
+elif test "$debug" = no
+then
+	#Remove debugging
+	CXXFLAGS=
 fi
 
 if test "$profile" != no
@@ -3230,9 +3232,9 @@ case "$host" in
 	*linux*)
 		cpu="`awk '
 /Pentium III/			{print "p3";exit}
-/Intel(R) Pentium(R) 4/	{print "p4";exit}
-/Intel(R) Xeon(TM)/		{print "xeon";exit}
-/AMD Opteron(tm)/		{print "opteron";exit}' /proc/cpuinfo`"
+/Intel\(R\) Pentium\(R\) 4/	{print "p4";exit}
+/Intel\(R\) Xeon\(TM\)/		{print "xeon";exit}
+/AMD Opteron\(tm\)/		{print "opteron";exit}' /proc/cpuinfo`"
 	;;
 esac
 

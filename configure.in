@@ -59,9 +59,9 @@ then
 fi
 
 
-AC_ARG_WITH(debug,   [  --with-debug=flags        compile with debug support],[debug="$withval"], [debug=no])
+AC_ARG_WITH(debug,   [  --without-debug           compile without debug support],[debug=no], [])
+AC_ARG_WITH(debug,   [  --with-debug=flags        compile with debug support],[debug="$withval"], [])
 AC_ARG_WITH(profile, [  --with-profile=flags      compile with profile support],[profile="$withval"], [profile=no])
-CXXFLAGS=
 
 ###################################################
 #
@@ -70,20 +70,19 @@ CXXFLAGS=
 #
 if test "$debug" != no || test "$profile" != no
 then
-	if test "$debug" = yes
+	if test "$debug" == ""
 	then
 		if test "$ac_cv_cxx_compiler_gnu" = yes
 		then
 			CXXFLAGS="-g -ggdb"
-		elif test "$ac_cv_prog_cxx_g" = yes
-		then
-			CXXFLAGS="-g"
-		else
-			AC_MSG_WARN([I do not know how to switch on debugging for this compiler])
 		fi
 	else
 		CXXFLAGS="$debug"
 	fi
+elif test "$debug" = no
+then
+	#Remove debugging
+	CXXFLAGS=
 fi
 
 if test "$profile" != no
@@ -113,9 +112,9 @@ case "$host" in
 	*linux*)
 		cpu="`awk '
 /Pentium III/			{print "p3";exit}
-/Intel(R) Pentium(R) 4/	{print "p4";exit}
-/Intel(R) Xeon(TM)/		{print "xeon";exit}
-/AMD Opteron(tm)/		{print "opteron";exit}' /proc/cpuinfo`"
+/Intel\(R\) Pentium\(R\) 4/	{print "p4";exit}
+/Intel\(R\) Xeon\(TM\)/		{print "xeon";exit}
+/AMD Opteron\(tm\)/		{print "opteron";exit}' /proc/cpuinfo`"
 	;;
 esac
 
