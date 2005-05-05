@@ -450,7 +450,7 @@ AC_ARG_WITH(tiff, [  --without-tiff       compile without TIFF support],[if test
 if test "$disable_tiff" != yes 
 then
 	AC_CHECK_HEADERS(tiffio.h)
-	AC_CHECK_LIB(tiff, TIFFClientOpen)
+	AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented)
 
 	if test "$ac_cv_header_tiffio_h" = yes && test "$ac_cv_lib_tiff_TIFFClientOpen" = yes
 	then
