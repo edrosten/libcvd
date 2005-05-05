@@ -37,7 +37,7 @@ namespace DC
 	template<> struct cam_type<Rgb<byte> >
 	{
 		static const int mode = MODE_640x480_RGB;
-		static const double  fps  = 30;
+		static const double  fps  = 15;
 	};
 
 	struct raw_frame
