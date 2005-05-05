@@ -78,7 +78,7 @@ public:
 
 	/// Logical not-equals operator. Returns true unless each component is the same.
 	/// @param c Rgba to compare with
-		bool operator!=(const Rgb<T>& c) const
+	bool operator!=(const Rgba<T>& c) const
       {return red != c.red || green != c.green || blue != c.blue || alpha != c.alpha;}
 
 //   T to_grey() const {return 0.3*red + 0.6*green + 0.1*blue;}
