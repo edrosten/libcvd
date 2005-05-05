@@ -5205,7 +5205,7 @@ _ACEOF
 fi
 
 
-	if test "$ac_cv_header_tiffio_h" = yes && test "$ac_cv_lib_tiff_TIFFClientOpen" = yes
+	if test "$ac_cv_header_tiffio_h" = yes && test "$ac_cv_lib_tiff_TIFFReadRGBAImageOriented" = yes
 	then
 		cat >>confdefs.h <<\_ACEOF
 #define CVD_IMAGE_HAVE_TIFF TIFF,

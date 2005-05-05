@@ -452,7 +452,7 @@ then
 	AC_CHECK_HEADERS(tiffio.h)
 	AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented)
 
-	if test "$ac_cv_header_tiffio_h" = yes && test "$ac_cv_lib_tiff_TIFFClientOpen" = yes
+	if test "$ac_cv_header_tiffio_h" = yes && test "$ac_cv_lib_tiff_TIFFReadRGBAImageOriented" = yes
 	then
 		AC_DEFINE(CVD_IMAGE_HAVE_TIFF, [TIFF,])
 		AC_SUBST(have_tiff,yes)
