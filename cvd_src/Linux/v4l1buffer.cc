@@ -1,6 +1,7 @@
 #include <sstream>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 
