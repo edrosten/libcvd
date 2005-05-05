@@ -1,8 +1,8 @@
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.3 $$Name:  $
-**       $Date: 2005/04/28 18:03:53 $
+**   $Revision: 1.4 $$Name:  $
+**       $Date: 2005/05/05 18:48:21 $
 **   Copyright: LGPL $Author: er258 $
 ** Description:
 **
@@ -12,6 +12,11 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
+**  Revision 1.4  2005/05/05 18:48:21  er258
+**  Removed dependence on GPL'd kernel code. kernel-video1394.h is a rewrite
+**  from scratch of the internal kernel headers needed for firewire digital
+**  cameras.
+**
 **  Revision 1.3  2005/04/28 18:03:53  er258
 **  Changed build system to use autoconf
 **
@@ -46,17 +51,7 @@
 #include "cvd/config.h"
 
 
-#if CVD_KERNEL_MAJOR==2 
-	#if CVD_KERNEL_MINOR==6
-		#include "cvd_src/Linux/kernel-video1394-2.6.h"
-	#elif CVD_KERNEL_MINOR==4
-		#include "cvd_src/Linux/kernel-video1394-2.4.h"
-	#else
-		#define UNKNOWN_KERNEL
-	#endif
-#else 
-	#define UNKNOWN_KERNEL
-#endif
+#include "cvd_src/Linux/kernel-video1394.h"
 
 
 #ifdef UNKNOWN_KERNEL
@@ -512,8 +507,8 @@ CVD::DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, 
   }
 
   // dma setup
-  struct video1394_mmap vmmap;
-  struct video1394_wait vwait;
+  struct cvd_video1394_mmap vmmap;
+  struct cvd_video1394_wait vwait;
   
   if ( (my_fd = open(dma_device_file,O_RDONLY)) < 0 ) {
     cerr << "unable to open video1394 device " << dma_device_file << endl;
@@ -522,50 +517,50 @@ CVD::DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, 
     exit(1);
   }
 
-  vmmap.sync_tag= 1;
-  vmmap.nb_buffers= num_dma_buffers;
-  vmmap.flags= VIDEO1394_SYNC_FRAMES;
-  vmmap.buf_size= camera_quadlets_per_frame * 4; //number of bytes needed
-  vmmap.channel= channel;
+  vmmap.syncronization_tag= 1;
+  vmmap.num_buffers= num_dma_buffers;
+  vmmap.capture_flags= SYNC_FRAMES;
+  vmmap.buffer_size= camera_quadlets_per_frame * 4; //number of bytes needed
+  vmmap.channel_number= channel;
 
   /* tell the video1394 system that we want to listen to the given channel */
-  if (ioctl(my_fd, VIDEO1394_LISTEN_CHANNEL, &vmmap) < 0) {
-    cerr << "VIDEO1394_LISTEN_CHANNEL ioctl failed!" << endl;
+  if (ioctl(my_fd, LISTEN_CHANNEL, &vmmap) < 0) {
+    cerr << "LISTEN_CHANNEL ioctl failed!" << endl;
     tom_dc1394_dma_release_camera(my_handle,my_ring_buffer, my_frame_size*my_num_buffers, my_fd);
     raw1394_destroy_handle(my_handle);
     exit(1);
   }
   
-  my_frame_size= vmmap.buf_size;
-  my_num_buffers= vmmap.nb_buffers;
-  vwait.channel= channel;
+  my_frame_size= vmmap.buffer_size;
+  my_num_buffers= vmmap.num_buffers;
+  vwait.channel_number= channel;
   
   /* QUEUE the buffers */
-  for (unsigned int i= 0; i < vmmap.nb_buffers; i++) {
+  for (unsigned int i= 0; i < vmmap.num_buffers; i++) {
     vwait.buffer= i;
     
-    if (ioctl(my_fd,VIDEO1394_LISTEN_QUEUE_BUFFER,&vwait) < 0) {
-      cerr << "VIDEO1394_LISTEN_QUEUE_BUFFER ioctl failed!" << endl;
-      ioctl(my_fd, VIDEO1394_UNLISTEN_CHANNEL, &(vwait.channel));
+    if (ioctl(my_fd,LISTEN_QUEUE_BUFFER,&vwait) < 0) {
+      cerr << "LISTEN_QUEUE_BUFFER ioctl failed!" << endl;
+      ioctl(my_fd, UNLISTEN_CHANNEL, &(vwait.channel_number));
       tom_dc1394_dma_release_camera(my_handle,my_ring_buffer, my_frame_size*my_num_buffers, my_fd);
       raw1394_destroy_handle(my_handle);
       exit(1);
     }  
   }
     
-  my_ring_buffer= (unsigned char*) mmap(0, vmmap.nb_buffers * vmmap.buf_size,
+  my_ring_buffer= (unsigned char*) mmap(0, vmmap.num_buffers * vmmap.buffer_size,
 					PROT_READ,MAP_SHARED, my_fd, 0);
 
   // make sure the ring buffer was allocated
   if (my_ring_buffer == (unsigned char*)(-1)) {
     cerr << "mmap failed!" << endl;
-    ioctl(my_fd, VIDEO1394_UNLISTEN_CHANNEL, &vmmap.channel);
+    ioctl(my_fd, UNLISTEN_CHANNEL, &vmmap.channel_number);
     tom_dc1394_dma_release_camera(my_handle,my_ring_buffer, my_frame_size*my_num_buffers, my_fd);
     raw1394_destroy_handle(my_handle);
     exit(1);
   }
 
-  // camera_dma_buffer_size= vmmap.buf_size * vmmap.nb_buffers;
+  // camera_dma_buffer_size= vmmap.buffer_size * vmmap.num_buffers;
 
   // set trigger mode
   if( dc1394_set_trigger_mode(my_handle, my_node, TRIGGER_MODE_0)
@@ -608,9 +603,9 @@ CVD::DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, 
 }
 
 VideoFrame<byte>* CVD::DC::RawDCVideo::get_frame(){
-  struct video1394_wait vwait;
+  struct cvd_video1394_wait vwait;
 
-  vwait.channel = my_channel;
+  vwait.channel_number = my_channel;
 
   // check that there actually is a free slot!
   if(my_next_frame==-1){
@@ -621,8 +616,8 @@ VideoFrame<byte>* CVD::DC::RawDCVideo::get_frame(){
   // get the first frame
   vwait.buffer = my_next_frame;
   
-  if (int retval=ioctl(my_fd, VIDEO1394_LISTEN_WAIT_BUFFER, &vwait) != 0) {
-    cerr << " VIDEO1394_LISTEN_WAIT_BUFFER ioctl failed with value" << retval << endl;
+  if (int retval=ioctl(my_fd, LISTEN_WAIT_BUFFER, &vwait) != 0) {
+    cerr << " LISTEN_WAIT_BUFFER ioctl failed with value" << retval << endl;
   }
 
   // find the most recent frame
@@ -635,14 +630,14 @@ VideoFrame<byte>* CVD::DC::RawDCVideo::get_frame(){
     }
 
     vwait.buffer = next_frame;
-    if (ioctl(my_fd, VIDEO1394_LISTEN_POLL_BUFFER, &vwait) != 0) {
+    if (ioctl(my_fd, LISTEN_POLL_BUFFER, &vwait) != 0) {
       break;
     }
     
 
     vwait.buffer = my_next_frame;
-    if (ioctl(my_fd, VIDEO1394_LISTEN_QUEUE_BUFFER, &vwait) < 0) {
-      cerr << " VIDEO1394_LISTEN_QUEUE_BUFFER failed" << endl;
+    if (ioctl(my_fd, LISTEN_QUEUE_BUFFER, &vwait) < 0) {
+      cerr << " LISTEN_QUEUE_BUFFER failed" << endl;
     }
     my_frame_sequence[my_last_in_sequence]=my_next_frame;
     my_frame_sequence[my_next_frame]=-1;
@@ -650,7 +645,7 @@ VideoFrame<byte>* CVD::DC::RawDCVideo::get_frame(){
     my_next_frame = next_frame;    
   }
   
-  DVFrame* frame = new DVFrame(my_size, vwait.filltime, my_next_frame,
+  DVFrame* frame = new DVFrame(my_size, vwait.time, my_next_frame,
 			       my_ring_buffer + my_next_frame * my_frame_size );
 
   my_next_frame = my_frame_sequence[my_next_frame];
@@ -661,14 +656,14 @@ VideoFrame<byte>* CVD::DC::RawDCVideo::get_frame(){
 void CVD::DC::RawDCVideo::put_frame(VideoFrame<byte>* f){
   DVFrame* frame = (DVFrame*) f;
 
-  struct video1394_wait vwait;
+  struct cvd_video1394_wait vwait;
 
 
   // requeue the last buffer
-  vwait.channel = my_channel;
+  vwait.channel_number = my_channel;
   vwait.buffer = frame->my_buffer;
-  if (ioctl(my_fd, VIDEO1394_LISTEN_QUEUE_BUFFER, &vwait) < 0) {
-    cerr << " VIDEO1394_LISTEN_QUEUE_BUFFER failed to queue buffer " << vwait.buffer << endl;
+  if (ioctl(my_fd, LISTEN_QUEUE_BUFFER, &vwait) < 0) {
+    cerr << " LISTEN_QUEUE_BUFFER failed to queue buffer " << vwait.buffer << endl;
   }
   my_frame_sequence[my_last_in_sequence] = frame->my_buffer;
   my_frame_sequence[frame->my_buffer]=-1;
