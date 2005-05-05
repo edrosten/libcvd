@@ -51,8 +51,7 @@ class VideoFrame : public BasicImage<T>
 		{
 		}
 
-	private:
-	  double my_timestamp;  ///< No of seconds since boot of this frame
+		double my_timestamp;  ///< No of seconds since boot of this frame
 };
 
 }

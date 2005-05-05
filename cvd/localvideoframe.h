@@ -24,15 +24,14 @@ namespace CVD
 	/// data owned by the system.
 	/// The data is stored internally using Image, and programs which will only ever use 
 	/// LocalVideoBuffers can be optimized by using the 
-	/// image() method. Being Images, these could be deleted sensibly, but it is not currently allowed, 
-	/// to make the interface more consistent.
+	/// image() method. Being Images, these can be deleted sensibly.
 	/// @param T The pixel type of the video frames
 	/// @ingroup gVideoFrame
 	template<class T> 
 	class LocalVideoFrame: public VideoFrame<T>
 	{
 
-		protected:
+		public:
 
 			virtual ~LocalVideoFrame()
 			{
@@ -49,12 +48,20 @@ namespace CVD
 
 			/// Returns the image. A LocalVideoFrame can be treated just like any other Image
 			/// (for example it can use optimised copying)
-			const Image<T>& image()
+		        Image<T>& image()
+			{
+				return im;
+			}
+		        const Image<T>& image() const
 			{
 				return im;
 			}
 
-			
+			double& timestamp() 
+			  {
+			    return my_timestamp;
+			  }
+
 		private:
 			CVD::Image<T>		  im;
 	};
