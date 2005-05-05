@@ -126,7 +126,7 @@ if test "$optimize" != no
 then
 	if test "$optimize" != ""
 	then
-		CXXFLAGS="$CXXFLAGS $optimize"
+		OFLAGS="$optimize"
 	elif test "$ac_cv_cxx_compiler_gnu" = yes
 	then
 		AC_MSG_CHECKING([for best optimize flags])
@@ -145,11 +145,13 @@ s/.*//
 		then
 			AC_MSG_WARN([I do not know what the best flags are for this processor.])
 		fi
-		CXXFLAGS="$CXXFLAGS $opt"
+		OFLAGS="$opt"
 	else
 		AC_MSG_WARN([I do not know how to switch on optimizing for this compiler])
 	fi
 fi
+
+AC_SUBST(OFLAGS,[$OFLAGS])
 
 AC_PROG_INSTALL
 AC_PROG_LN_S

@@ -27,6 +27,7 @@ RANLIB=@RANLIB@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = $(CPPFLAGS) @CFLAGS@
 CXXFLAGS = $(CPPFLAGS) @CXXFLAGS@
+OFLAGS=@OFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 INSTALL = @INSTALL@
@@ -224,10 +225,10 @@ distclean: clean
 .PRECIOUS: %.o
 
 %.o: %.cc
-	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -I. $(OFLAGS)  $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 %.o: %.cxx
-	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -I. $(OFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 %.o: %.C
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
