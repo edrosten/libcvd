@@ -333,8 +333,12 @@ void RawVideoFileBuffer::put_frame(VideoFrame<byte>* f)
 // SEEK TO
 //
 void RawVideoFileBuffer::seek_to(double t)
-{
+{	
+	#if LIBAVFORMAT_BUILD >= 4623
+	if(av_seek_frame(pFormatContext, -1, static_cast<int64_t>(t*AV_TIME_BASE+0.5), AVSEEK_FLAG_ANY) < 0)
+	#else
 	if(av_seek_frame(pFormatContext, -1, static_cast<int64_t>(t*AV_TIME_BASE+0.5)) < 0)
+	#endif
 	{
 		cerr << "av_seek_frame not supported by this codec: performing (slow) manual seek" << endl;
 		
