@@ -15,13 +15,14 @@
 
 	You should have received a copy of the GNU Lesser General Public
 	License along with this library; if not, write to the Free Software
-	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+	Foundation, Inc., 
+    51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.5 $$Name:  $
-**       $Date: 2005/05/05 19:22:19 $
+**   $Revision: 1.6 $$Name:  $
+**       $Date: 2005/05/09 11:55:00 $
 **   Copyright: LGPL $Author: er258 $
 ** Description:
 **
@@ -31,6 +32,9 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
+**  Revision 1.6  2005/05/09 11:55:00  er258
+**  Put in correct address for the FSF
+**
 **  Revision 1.5  2005/05/05 19:22:19  er258
 **  Added LGPL license boilerplate to the start of each source and header file.
 **
