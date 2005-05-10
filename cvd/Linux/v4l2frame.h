@@ -50,8 +50,8 @@ class V4L2Frame : public VideoFrame<unsigned char>
 		/// @param index The index
 		/// @param data The image data
 		/// @param f The field
-		V4L2Frame(double t, const ImageRef& size, int index, unsigned char *data, int f) 
-		: VideoFrame<unsigned char>(t, data, size),my_index(index),field(f)
+		V4L2Frame(double t, const ImageRef& size, int index, unsigned char *data, VideoFrameFlags::FieldType f) 
+		: VideoFrame<unsigned char>(t, data, size, f),my_index(index)
 		{
 		}
 		
@@ -66,8 +66,6 @@ class V4L2Frame : public VideoFrame<unsigned char>
 	  {}
 
 	public:
-		// should probably be in videoframe....
-		int field;  ///< The field
 
 };
 

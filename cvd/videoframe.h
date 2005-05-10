@@ -34,6 +34,18 @@
 
 namespace CVD {
 
+  namespace VideoFrameFlags 
+    {
+      /// Fields etc
+      enum FieldType{
+	Top,
+	Bottom,
+	Both,
+	Progressive,
+	Unknown
+      };
+    }      
+
 /// A frame from a VideoBuffer.
 /// @param T The pixel type of the video frames
 /// @ingroup gVideoFrame
@@ -46,8 +58,8 @@ class VideoFrame : public BasicImage<T>
 		/// @param t The time (in seconds) of this frame
 		/// @param data The image data for this frame
 		/// @param size The size of this video frame
-		VideoFrame(double t, T* data, const ImageRef& size) 
-		:BasicImage<T>(data, size),my_timestamp(t)
+		VideoFrame(double t, T* data, const ImageRef& size, VideoFrameFlags::FieldType f=VideoFrameFlags::Unknown) 
+		  :BasicImage<T>(data, size),my_timestamp(t),my_field(f)
 		{
 		}
 
@@ -55,8 +67,8 @@ class VideoFrame : public BasicImage<T>
 		/// @param t The time (in seconds) of this frame
 		/// @param im The image data for this frame. BasicImages do not manage their own
 		/// memory, so this must be managed externally
-		VideoFrame(double t, const BasicImage<T>& im)
-		:BasicImage<T>(im),my_timestamp(t)
+		VideoFrame(double t, const BasicImage<T>& im, VideoFrameFlags::FieldType f=VideoFrameFlags::Unknown) 
+		  :BasicImage<T>(im),my_timestamp(t),my_field(f)
 		{
 		}
 
@@ -65,12 +77,20 @@ class VideoFrame : public BasicImage<T>
 		{
 			return my_timestamp;
 		}
+
+		/// What is the time (since boot) of this frame?
+		VideoFrameFlags::FieldType field() const
+		{
+			return my_field;
+		}
+
 	protected:
 		/// We don't usually <code>delete</code> video frames. Some special destruction is usually needed.
 		virtual ~VideoFrame()
 		{
 		}
 
+		VideoFrameFlags::FieldType my_field;  /// Type of field in this frame
 		double my_timestamp;  ///< No of seconds since boot of this frame
 };
 

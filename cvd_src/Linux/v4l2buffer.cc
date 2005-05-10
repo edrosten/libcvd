@@ -404,8 +404,31 @@ V4L2Frame* V4L2Buffer::get_frame(){
   }
 
   // Create a new frame with the data
-  K24(frame=new V4L2Frame(timer.conv_ntime(buffer.timestamp),my_image_size,buffer.index,(unsigned char *)m_pvVideoBuffer[buffer.index], buffer.flags&V4L2_BUF_FLAG_BOTFIELD);)
-  K26(frame=new V4L2Frame(timer.conv_ntime(buffer.timestamp),my_image_size,buffer.index,(unsigned char *)m_pvVideoBuffer[buffer.index], buffer.flags == V4L2_FIELD_BOTTOM);)
+  VideoFrameFlags::FieldType field;
+
+  K24(if(buffer.flags&V4L2_BUF_FLAG_BOTFIELD!=0) field=VideoFrameFlags::Bottom;
+      else if(buffer.flags&V4L2_BUF_FLAG_TOPFIELD!=0) field=VideoFrameFlags::Top; 
+      else field=VideoFrameFlags::Both;)
+  K26(switch(buffer.flags) {
+      case V4L2_FIELD_NONE:
+        field=VideoFrameFlags::Progressive;
+        break;
+      case V4L2_FIELD_TOP:
+        field=VideoFrameFlags::Top;
+	break;
+      case V4L2_FIELD_BOTTOM:
+        field=VideoFrameFlags::Bottom;
+	break;
+      case V4L2_FIELD_INTERLACED:
+        field=VideoFrameFlags::Both;
+	break;
+      default:
+        field=VideoFrameFlags::Unknown;
+	break;
+    }
+  )
+
+  frame=new V4L2Frame(timer.conv_ntime(buffer.timestamp),my_image_size,buffer.index,(unsigned char *)m_pvVideoBuffer[buffer.index], field);
 
   frame->m_buf = new struct v4l2_buffer;
   *(frame->m_buf) = buffer;

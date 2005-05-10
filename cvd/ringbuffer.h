@@ -31,6 +31,11 @@ class RingBuffer {
     my_start=0;
   }
 
+  RingBuffer(int size, const T &t){
+    my_buffer.resize(size,t);
+    my_start=0;
+  }
+
   ~RingBuffer(){}
 
 
