@@ -1344,6 +1344,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+orig_CXXFLAGS="$CXXFLAGS"
 
 #Use builtin autoconf checks for all the programs we need.
 for ac_prog in gawk mawk nawk awk
@@ -2676,7 +2677,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-
 ###################################################
 #
 # Check for g++ version >= 3
@@ -3115,15 +3115,15 @@ then
 	then
 		if test "$ac_cv_cxx_compiler_gnu" = yes
 		then
-			CXXFLAGS="-g -ggdb"
+			CXXFLAGS="$CXXFLAGS -ggdb"
 		fi
 	else
-		CXXFLAGS="$debug"
+		CXXFLAGS="$CXXFLAGS $debug"
 	fi
 elif test "$debug" = no
 then
 	#Remove debugging
-	CXXFLAGS=
+	CXXFLAGS="$orig_CXXFLAGS"
 fi
 
 if test "$profile" != no
