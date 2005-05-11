@@ -293,7 +293,7 @@ AC_MSG_CHECKING([for TooN])
 #Check for TooN in a bunch of places
 save_CXXFLAGS="$CXXFLAGS"
 toondir="Missing"
-for dir in  $opt_toon_dir "" "$HOME/code/TooN" "$HOME/Src/TooN" "$HOME/usr/include"
+for dir in  $opt_toon_dir "" "$HOME/code/TooN" "$HOME/Src/TooN" "$HOME/usr/include" "../TooN"
 do
 	a=
 	if test "$dir" = ""

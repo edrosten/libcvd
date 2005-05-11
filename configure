@@ -3981,7 +3981,7 @@ echo $ECHO_N "checking for TooN... $ECHO_C" >&6
 #Check for TooN in a bunch of places
 save_CXXFLAGS="$CXXFLAGS"
 toondir="Missing"
-for dir in  $opt_toon_dir "" "$HOME/code/TooN" "$HOME/Src/TooN" "$HOME/usr/include"
+for dir in  $opt_toon_dir "" "$HOME/code/TooN" "$HOME/Src/TooN" "$HOME/usr/include" "../TooN"
 do
 	a=
 	if test "$dir" = ""
