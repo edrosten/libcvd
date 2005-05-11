@@ -59,7 +59,7 @@ class VideoFrame : public BasicImage<T>
 		/// @param data The image data for this frame
 		/// @param size The size of this video frame
 		VideoFrame(double t, T* data, const ImageRef& size, VideoFrameFlags::FieldType f=VideoFrameFlags::Unknown) 
-		  :BasicImage<T>(data, size),my_timestamp(t),my_field(f)
+		  :BasicImage<T>(data, size),my_field(f),my_timestamp(t)
 		{
 		}
 
@@ -68,7 +68,7 @@ class VideoFrame : public BasicImage<T>
 		/// @param im The image data for this frame. BasicImages do not manage their own
 		/// memory, so this must be managed externally
 		VideoFrame(double t, const BasicImage<T>& im, VideoFrameFlags::FieldType f=VideoFrameFlags::Unknown) 
-		  :BasicImage<T>(im),my_timestamp(t),my_field(f)
+		  :BasicImage<T>(im),my_field(f),my_timestamp(t)
 		{
 		}
 
