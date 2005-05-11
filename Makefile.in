@@ -29,7 +29,7 @@ CFLAGS = $(CPPFLAGS) @CFLAGS@
 CXXFLAGS = $(CPPFLAGS) @CXXFLAGS@
 OFLAGS=@OFLAGS@
 LDFLAGS = @LDFLAGS@
-LIBS = @LIBS@ -lm
+LIBS = @LIBS@ -lm @LDFLAGS@
 INSTALL = @INSTALL@
 AR=ar
 
@@ -216,11 +216,6 @@ clean:
 	find progs/ -perm +0100 -type f | xargs rm -f
 distclean: clean
 	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h 
-
-#.PHONY: all install clean distclean
-
-#.SUFFIXES:
-#.SUFFIXES: .cxx .o .cc .C
 
 .PRECIOUS: %.o
 
