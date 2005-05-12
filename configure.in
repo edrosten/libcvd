@@ -109,12 +109,35 @@ fi
 AC_CANONICAL_HOST
 
 case "$host" in
-	*linux*)
+	i?86*linux*)
 		cpu="`awk '
 /Pentium III/			{print "p3";exit}
 /Intel\(R\) Pentium\(R\) 4/	{print "p4";exit}
+/Intel\(R\) Pentium\(R\) M/	{print "pM";exit}
 /Intel\(R\) Xeon\(TM\)/		{print "xeon";exit}
 /AMD Opteron\(tm\)/		{print "opteron";exit}' /proc/cpuinfo`"
+
+		#Check for instructions
+		AC_MSG_CHECKING([for MMX, SSE])
+		if grep -q sse /proc/cpuinfo
+		then
+			AC_MSG_RESULT(yes)
+			AC_SUBST(have_sse,yes)
+			AC_DEFINE(CVD_HAVE_SSE)
+		else
+			AC_MSG_RESULT(no)
+		fi
+
+		AC_MSG_CHECKING([for SSE2])
+		if grep -q sse2 /proc/cpuinfo
+		then
+			AC_MSG_RESULT(yes)
+			AC_SUBST(have_sse2,yes)
+			AC_DEFINE(CVD_HAVE_SSE2)
+		else
+			AC_MSG_RESULT(no)
+		fi
+	
 	;;
 esac
 
@@ -134,6 +157,7 @@ then
 s/p3/-march=pentium3/
 s/p4/-march=pentium4/
 s/xeon/-march=pentium4/
+s/pM/-march=pentium4/
 s/opteron/-march=opteron/
 tend
 s/.*//
