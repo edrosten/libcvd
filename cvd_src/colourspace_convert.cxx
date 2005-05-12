@@ -21,9 +21,9 @@
 #include "cvd/image_convert_fwd.h"
 #include "cvd/colourspaces.h"
 #include "cvd/colourspace.h"
+#include "cvd/colourspace_convert.h"
 #include "cvd/byte.h"
 #include "cvd/rgb.h"
-
 
 
 namespace CVD
@@ -71,6 +71,20 @@ namespace CVD
 		                         reinterpret_cast<unsigned char*>(ret.data()));
 
 		return ret;
+	}
+
+	template<> std::pair<Image<byte>,Image<Rgb<byte> > > convert_image(const BasicImage<yuv411>& from)
+	{
+		Image<byte> rety(from.size());
+		Image<Rgb<byte> > retc(from.size());
+
+		ColourSpace::yuv411_to_rgb_y(reinterpret_cast<const unsigned char*>(from.data()),
+									 from.totalsize(),
+									 reinterpret_cast<unsigned char*>(retc.data()),
+									 reinterpret_cast<unsigned char*>(rety.data()));
+
+		return std::pair<Image<byte>,Image<Rgb<byte> > >(rety, retc);
+
 	}
 
 }
