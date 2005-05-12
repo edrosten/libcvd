@@ -59,4 +59,11 @@ namespace CVD
 	/// @param out The output data
 	/// @ingroup gImageIO
 	template<> Image<byte> convert_image(const BasicImage<yuv411>& from);
+
+	/// Convert YUV 411 pixel data to both Y and RGB
+	/// @param yuv411 The input data
+	/// @param npix The number of pixels
+	/// @param out The output data
+	/// @ingroup gImageIO
+	template<> std::pair<Image<byte>,Image<Rgb<byte> > > convert_image(const BasicImage<yuv411>& from);
 }

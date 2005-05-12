@@ -74,7 +74,7 @@ namespace CVD
 	/// Convert an image from one type to another using the default conversion (Pixel::CIE).
 	/// This converts Rgb to greyscale using the usual (0.299, 0.587, 0.114) weightings
 	/// and maps [0,1] floating point numbers onto the maximum ranges of integer datatypes and
-	/// vice-versa.
+	/// vice-versa. 
 	/// @param D The destination image pixel type
 	/// @param C The source image pixel type
 	/// @param from The image to convert
@@ -85,6 +85,26 @@ namespace CVD
 		return convert_image<D>(from, Pixel::CIE);
 	}
 
+	template<class D> Image<D> 
+	convert_image(const BasicImage<D>& from)
+	{
+		Image<D> ret;
+		ret.copy_from(from);
+		return ret;
+	}
+
+	template<class D, class E, class F> std::pair<Image<D>, Image<E> >convert_image(const BasicImage<F>& from)
+	{
+		Image<D> r1;
+		Image<E> r2;
+
+		r1 = convert_image<D>(from);
+		r2 = convert_image<E>(from);
+		
+		return std::pair<Image<D>, Image<E> >(r1, r2);
+	}
+
+	
 }
 
 #endif

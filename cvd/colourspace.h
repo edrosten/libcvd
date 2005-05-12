@@ -36,6 +36,12 @@ namespace CVD
 		/// @param npix The number of pixels
 		/// @param out The output data
 		void yuv411_to_y(const unsigned char* yuv411, int npix, unsigned char* out);
+		/// Convert YUV 411 pixel data to Y and RGB
+		/// @param yuv411 The input data
+		/// @param npix The number of pixels
+		/// @param outc colour output data
+		/// @param outy luma output data
+		void yuv411_to_rgb_y(const unsigned char* yuv411, int npix, unsigned char* outc, unsigned char* outy);
 
 		
 		/// Convert Bayer pattern of the form ??? to greyscale data
