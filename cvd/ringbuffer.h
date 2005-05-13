@@ -34,7 +34,7 @@ namespace CVD
 /// [n] respectively), as well as advancing the current element slot by calling advance()
 /// @param T The data type held by the buffer
 /// @ingroup gCPP
-template <tupename T>
+template <typename T>
 class RingBuffer {
  public:
   /// Constructor.
