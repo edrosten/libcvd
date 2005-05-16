@@ -207,7 +207,9 @@ progs: $(PROGS)
 
 install: progs $(soname) libcvd.a
 	cp -r cvd $(includedir)
-	cp $(sos) $(libdir)
+	cp $(soname2) $(libdir)
+	ln -fs  $(libdir)/$(soname2) $(libdir)/$(soname1)
+	ln -fs  $(libdir)/$(soname1) $(libdir)/$(soname)
 	cp $(PROGS) $(bindir)
 
 clean:
