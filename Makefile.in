@@ -205,7 +205,7 @@ progs: $(PROGS)
 @docs@:
 	doxygen Doxyfile
 
-install:
+install: progs $(soname) libcvd.a
 	cp -r cvd $(includedir)
 	cp $(sos) $(libdir)
 	cp $(PROGS) $(bindir)
