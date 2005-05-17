@@ -90,7 +90,7 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 
 
 	// Open the device.
-	m_nVideoFileDesc=open(devname,O_RDONLY);
+	m_nVideoFileDesc=open(devname,O_RDONLY|O_NONBLOCK);
 
 	if(m_nVideoFileDesc == -1)
 		throw Exceptions::V4L2Buffer::DeviceOpen(devname);
@@ -221,7 +221,7 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 	num_buffers = bufs;
 
 	// Open the device.
-	m_nVideoFileDesc=open(devname,O_RDWR);
+	m_nVideoFileDesc=open(devname,O_RDWR|O_NONBLOCK);
 
 	if(m_nVideoFileDesc == -1)
 		throw Exceptions::V4L2Buffer::DeviceOpen(devname);
