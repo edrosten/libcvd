@@ -12,8 +12,6 @@ AC_PROG_CXX
 
 
 
-
-
 ###################################################
 #
 # Check for g++ version >= 3
@@ -74,10 +72,10 @@ then
 	then
 		if test "$ac_cv_cxx_compiler_gnu" = yes
 		then
-			CXXFLAGS="$CXXFLAGS -ggdb"
+			CXXFLAGS="$orig_CXXFLAGS -g -ggdb"
 		fi
 	else
-		CXXFLAGS="$CXXFLAGS $debug"
+		CXXFLAGS="$orig_CXXFLAGS $debug"
 	fi
 elif test "$debug" = no
 then
@@ -315,16 +313,16 @@ fi
 AC_MSG_CHECKING([for TooN])
 
 #Check for TooN in a bunch of places
-save_CXXFLAGS="$CXXFLAGS"
+save_CPPFLAGS="$CPPPLAGS"
 toondir="Missing"
 for dir in  $opt_toon_dir "" "$HOME/code/TooN" "$HOME/Src/TooN" "$HOME/usr/include" "../TooN"
 do
 	a=
 	if test "$dir" = ""
 	then
-		CXXFLAGS="$save_CXXFLAGS"
+		CPPFLAGS="$save_CPPPLAGS"
 	else
-		CXXFLAGS="$save_CXXFLAGS -I$dir"
+		CPPFLAGS="$save_CPPPLAGS -I$dir"
 	fi
 
 	AC_COMPILE_IFELSE([#include <numerics.h>
@@ -646,6 +644,13 @@ echo --------------------------------
 
 AC_CHECK_PROG(docs, doxygen, docs, no)
 
+if test "$cpu" == ""
+then
+	cpu=generic
+fi
+
+AC_SUBST(cpu,$cpu)
+
 
 D_PROGS='progs/se3_exp             toon
 		progs/se3_ln               toon                 
@@ -710,3 +715,4 @@ echo Debug:
 echo LIBS="$LIBS"
 echo CXXFLAGS="$CXXFLAGS"
 echo CPPFLAGS="$CPPFLAGS"
+echo OFLAGS="$OFLAGS"
