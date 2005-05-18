@@ -80,7 +80,7 @@ void ErrorInfo(int e)
 #endif
 
 #ifdef USE_24
-V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block, int bufs)
+V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block, int input, int bufs)
 {
 	device = devname;
 	my_frame_rate=0;
@@ -175,7 +175,7 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 
 	// Select video input
 	struct v4l2_input sv4l2Input;
-	sv4l2Input.index=1;  // This is the composite input
+	sv4l2Input.index=input; 
 	if(ioctl(m_nVideoFileDesc, VIDIOC_S_INPUT, &sv4l2Input))
 		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Select composite input");
 
@@ -213,7 +213,7 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 #else
 
 
-V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block, int bufs)
+V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block, int input, int bufs)
 {
 	my_frame_rate=0;
 	my_block_method=block;
@@ -235,22 +235,23 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 	cout << "  V4L2Buffer: Device name:"<< sv4l2Capability.card <<endl;
 	cout << "  V4L2Buffer: (If that was garbled then you've not go the right modules loaded.) "<<endl;
   
+	// Select video input
+	struct v4l2_input sv4l2Input;
+	sv4l2Input.index=input;  // This is the composite input
+	if(ioctl(m_nVideoFileDesc, VIDIOC_S_INPUT, &sv4l2Input))
+		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Select composite input");  
 
-	// New for Sept 2003: Get that notch filter back in action
-	// query some controls.... 
+	// and PAL
+	v4l2_std_id stdId=V4L2_STD_PAL;
+	if(ioctl(m_nVideoFileDesc, VIDIOC_S_STD, &stdId ))
+		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Set PAL");
 
-
-
-	// Change a few of the card's settings to our liking:
-	struct v4l2_control sv4l2Control;
-	  
 	// Get / Set capture format.
 	struct v4l2_format sv4l2Format;
 	sv4l2Format.type=V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
 	if(ioctl(m_nVideoFileDesc, VIDIOC_G_FMT, &sv4l2Format))
 		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Get capture format");
-
 
 	// ******************************************* CAPTURE FORMAT******
 	sv4l2Format.fmt.pix.width=768;                                  //*
@@ -275,11 +276,6 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 	my_image_size.x=sv4l2Format.fmt.pix.width;
 	my_image_size.y=sv4l2Format.fmt.pix.height;
 
-	// Select video input
-	struct v4l2_input sv4l2Input;
-	sv4l2Input.index=1;  // This is the composite input
-	if(ioctl(m_nVideoFileDesc, VIDIOC_S_INPUT, &sv4l2Input))
-		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Select composite input");
 
 	// Set up the streaming buffer request
 	struct v4l2_requestbuffers sv4l2RequestBuffers;
@@ -377,9 +373,11 @@ V4L2Frame* V4L2Buffer::get_frame(){
   fd_set fdsetRead;
   fd_set fdsetOther;
   struct v4l2_buffer buffer;
+  struct v4l2_buffer buffer2;
   V4L2Frame *frame;
  
   buffer.type=m_sv4l2Buffer[0].type;
+  buffer2.type=m_sv4l2Buffer[0].type;
  
   // Block until one is ready and dequeue
   switch (my_block_method) {
@@ -398,7 +396,13 @@ V4L2Frame* V4L2Buffer::get_frame(){
     }
     break;
   case V4L2BBMchew:
-    while(ioctl(m_nVideoFileDesc,VIDIOC_DQBUF,&buffer)) {
+    // wait for a new one
+    while(ioctl(m_nVideoFileDesc,VIDIOC_DQBUF,&buffer)) {      
+    }
+    // check for a newer one 
+    while(!ioctl(m_nVideoFileDesc,VIDIOC_DQBUF,&buffer2)) {
+      ioctl(m_nVideoFileDesc,VIDIOC_QBUF,&buffer);
+      buffer=buffer2;
     }
     break;
   }

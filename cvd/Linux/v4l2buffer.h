@@ -85,8 +85,9 @@ class V4L2Buffer : public VideoBuffer<unsigned char>
 		/// @param devname The device name
 		/// @param fields
 		/// @param block Which buffer block method to use
+		/// @param input Which card input?
 		/// @param numbufs How many buffers?
-		V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block, int numbufs=V4L2BUFFERS);
+		V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block, int input=1, int numbufs=V4L2BUFFERS);
 		~V4L2Buffer();
 
 		virtual ImageRef size() 
