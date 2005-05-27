@@ -357,7 +357,7 @@ do
 		CPPFLAGS="$save_CPPLAGS -I$dir"
 	fi
 
-	AC_COMPILE_IFELSE([#include <ToonN/numerics.h>
+	AC_COMPILE_IFELSE([#include <TooN/TooN.h>
 int main(){TooN::Vector<2> v;return 0;}], [a=1]) 
 
 	AC_COMPILE_IFELSE([#include <numerics.h>

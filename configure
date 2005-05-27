@@ -4097,7 +4097,7 @@ do
 	fi
 
 	cat >conftest.$ac_ext <<_ACEOF
-#include <ToonN/numerics.h>
+#include <TooN/TooN.h>
 int main(){TooN::Vector<2> v;return 0;}
 _ACEOF
 rm -f conftest.$ac_objext

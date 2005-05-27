@@ -30,7 +30,10 @@
 #include <cvd/rgba.h>
 #include <GL/gl.h>
 #include <cvd/internal/gl_types.h>
+
+#ifdef CVD_HAVE_TOON
 #include <TooN/TooN.h>
+#endif
 
 namespace CVD
 {
@@ -43,6 +46,7 @@ namespace CVD
 		glVertex2i(i.x, i.y);
 	}
 
+	#ifdef CVD_HAVE_TOON
 	/// Specify the (x,y) co-ordinates of a vertex
 	/// @param v The vertex location
 	///@ingroup gGL
@@ -87,6 +91,7 @@ namespace CVD
 	{
 		glColor4d(v[0], v[1], v[2], v[3]);
 	}
+	#endif
 
 	/// Set the new colour to the red, green, blue components given
 	/// (where 0 represents zero intensity and 255 full intensity)
