@@ -22,7 +22,7 @@
 #ifndef __SO3_H
 #define __SO3_H
 
-#include <numerics.h>
+#include <TooN/TooN.h>
 
 namespace CVD {
 
@@ -46,7 +46,7 @@ public:
   /// Assigment operator from a general matrix. This also calls coerce()
   /// to make sure that the matrix is a valid rotation matrix.
   /// @param rhs The Matrix to copy
-  SO3& operator=(const Matrix<3>& rhs);
+  SO3& operator=(const TooN::Matrix<3>& rhs);
   /// Modifies the matrix to make sure it is a valid rotation matrix.
   void coerce();
 
@@ -54,7 +54,7 @@ public:
   /// See the Detailed Description for details of this vector.
   /// @param vect The Vector to exponentiate
   template<class Accessor>
-  inline static SO3 exp(const FixedVector<3,Accessor>& vect) {return exp(vect.get_data_ptr());}
+  inline static SO3 exp(const TooN::FixedVector<3,Accessor>& vect) {return exp(vect.get_data_ptr());}
   /// Exponentiate a vector in the Lie algebra to generate a new SO3.
   /// See the Detailed Description for details of this vector.
   /// @param vect The three doubles to exponentiate
@@ -63,7 +63,7 @@ public:
 
   /// Take the logarithm of the matrix, generating the corresponding vector in the Lie Algebra.
   /// See the Detailed Description for details of this vector.
-  Vector<3> ln() const;
+  TooN::Vector<3> ln() const;
 
   /// Member access. Access is row major i.e. <code>[4]</code> will give the 2,1 element.
   double operator[](int i){return my_matrix[i/3][i%3];}
@@ -85,7 +85,7 @@ public:
   }
 
   /// Returns the SO3 as a Matrix<3>
-  const Matrix<3>& get_matrix()const {return my_matrix;}
+  const TooN::Matrix<3>& get_matrix()const {return my_matrix;}
 
   /// Returns the i-th generator multiplied by a vector. 
   /// The generators of a Lie group are the basis for the space of the Lie algebra.
@@ -95,17 +95,17 @@ public:
   /// this function provides a fast way of doing this operation.
   /// @param i The required generator
   /// @param pos The vector to multuiply by the generator
-  static Vector<3> generator_field(int i, Vector<3> pos);
+  static TooN::Vector<3> generator_field(int i, TooN::Vector<3> pos);
 
   /// Transfer a vector in the Lie Algebra from one
   /// co-ordinate frame to another such that for a matrix 
   /// \f$ M \f$, the adjoint \f$Adj()\f$ obeys
   /// \f$ e^{\text{Adj}(v)} = Me^{v}M^{-1} \f$
   /// @param v The Vector to transfer
-  Vector<3> adjoint(Vector<3> v) const ;
+  TooN::Vector<3> adjoint(TooN::Vector<3> v) const ;
 
  private:
-  Matrix<3> my_matrix;
+  TooN::Matrix<3> my_matrix;
 };
 
 /// Write an SO3 to a stream 
@@ -131,7 +131,7 @@ inline std::istream& operator>>(std::istream& is, SO3& rhs){
 /// @param rhs The vector
 /// @relates SO3
 template<class Accessor>
-Vector<3> operator*(const SO3& lhs, const DynamicVector<Accessor>& rhs){
+TooN::Vector<3> operator*(const SO3& lhs, const TooN::DynamicVector<Accessor>& rhs){
   //FIXME: check size
   return lhs.get_matrix() * rhs;
 }
@@ -139,7 +139,7 @@ Vector<3> operator*(const SO3& lhs, const DynamicVector<Accessor>& rhs){
 ///@overload
 /// @relates SO3
 template<class Accessor>
-Vector<3> operator*(const SO3& lhs, const FixedVector<3,Accessor>& rhs){
+TooN::Vector<3> operator*(const SO3& lhs, const TooN::FixedVector<3,Accessor>& rhs){
   return lhs.get_matrix() * rhs;
 }
 
@@ -150,7 +150,7 @@ Vector<3> operator*(const SO3& lhs, const FixedVector<3,Accessor>& rhs){
 /// @param rhs The rotation matrix
 /// @relates SO3
 template<class Accessor>
-Vector<3> operator*(const DynamicVector<Accessor>& lhs, const SO3& rhs){
+TooN::Vector<3> operator*(const TooN::DynamicVector<Accessor>& lhs, const SO3& rhs){
   //FIXME: check size
   return lhs * rhs.get_matrix();
 }
@@ -158,7 +158,7 @@ Vector<3> operator*(const DynamicVector<Accessor>& lhs, const SO3& rhs){
 ///@overload
 /// @relates SO3
 template<class Accessor>
-Vector<3> operator*(const FixedVector<3,Accessor>& lhs, const SO3& rhs){
+TooN::Vector<3> operator*(const TooN::FixedVector<3,Accessor>& lhs, const SO3& rhs){
   return lhs * rhs.get_matrix();
 }
 
@@ -167,14 +167,14 @@ Vector<3> operator*(const FixedVector<3,Accessor>& lhs, const SO3& rhs){
 /// @param rhs The right-hand rotation matrix
 /// @relates SO3
 template <int LHS, class Accessor>
-Matrix<LHS,3> operator*(const FixedMatrix<LHS,3,Accessor>& lhs, const SO3& rhs){
+TooN::Matrix<LHS,3> operator*(const TooN::FixedMatrix<LHS,3,Accessor>& lhs, const SO3& rhs){
   return lhs * rhs.get_matrix();
 }
 
 ///@overload
 /// @relates SO3
 template <int RHS, class Accessor>
-Matrix<3,RHS> operator*(const SO3& lhs, const FixedMatrix<3,RHS,Accessor>& rhs){
+TooN::Matrix<3,RHS> operator*(const SO3& lhs, const TooN::FixedMatrix<3,RHS,Accessor>& rhs){
   return lhs.get_matrix() * rhs;
 }
 

@@ -21,7 +21,7 @@
 #ifndef __BREZENHAM_H
 #define __BREZENHAM_H
 
-#include <numerics.h>
+#include <TooN/TooN.h>
 #include <cvd/image_ref.h>
 
 namespace CVD {
@@ -38,7 +38,7 @@ class Brezenham {
  public:
  /// Construct a line-drawing object
  /// @param dir The (x,y) direction of the line
-  Brezenham(Vector<2> dir);
+  Brezenham(TooN::Vector<2> dir);
 
   /// Returns the next image co-ordinate along the line
   ImageRef step();
@@ -62,7 +62,7 @@ class Brezenham8 {
  public:
   /// Construct a line-drawing object
   /// @param dir The (x,y) direction of the line
-  Brezenham8(Vector<2> dir);
+  Brezenham8(TooN::Vector<2> dir);
 
   /// Returns the next image co-ordinate along the line
   ImageRef step();

@@ -21,6 +21,8 @@
 #include <cvd/brezenham.h>
 #include <math.h>
 
+using namespace TooN;
+
 namespace CVD {
 
 Brezenham::Brezenham(Vector<2> dir){

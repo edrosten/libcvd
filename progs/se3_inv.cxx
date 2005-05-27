@@ -23,6 +23,7 @@
 
 using namespace CVD;
 using namespace std;
+using namespace TooN;
 
 int main()
 {

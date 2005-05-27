@@ -20,10 +20,11 @@
 */
 #include "cvd/se3.h"
 #include "cvd/so3.h"
-#include <numhelpers.h>
 
 #include <iostream>
 #include <math.h>
+
+using namespace TooN;
 
 namespace CVD {
 

@@ -30,7 +30,7 @@
 #include <cvd/rgba.h>
 #include <GL/gl.h>
 #include <cvd/internal/gl_types.h>
-#include <numerics.h>
+#include <TooN/TooN.h>
 
 namespace CVD
 {
@@ -46,7 +46,7 @@ namespace CVD
 	/// Specify the (x,y) co-ordinates of a vertex
 	/// @param v The vertex location
 	///@ingroup gGL
-	inline void glVertex(const Vector<2>& v)
+	inline void glVertex(const TooN::Vector<2>& v)
 	{
 		glVertex2d(v[0], v[1]);
 	}
@@ -54,7 +54,7 @@ namespace CVD
 	/// Specify the (x,y,z) co-ordinates of a vertex
 	/// @param v The vertex location
 	///@ingroup gGL
-	inline void glVertex(const Vector<3>& v)
+	inline void glVertex(const TooN::Vector<3>& v)
 	{
 		glVertex3d(v[0], v[1], v[2]);
 	}
@@ -62,7 +62,7 @@ namespace CVD
 	/// Specify the (x,y,z,w) co-ordinates of a vertex
 	/// @param v The vertex location
 	///@ingroup gGL
-	inline void glVertex(const Vector<4>& v)
+	inline void glVertex(const TooN::Vector<4>& v)
 	{
 		glVertex4d(v[0], v[1], v[2], v[3]);
 	}
@@ -74,7 +74,7 @@ namespace CVD
 	/// (where 0.0 represents zero intensity and 1.0 full intensity)
 	/// @param v The new colour
 	///@ingroup gGL
-	inline void glColor(const Vector<3>& v)
+	inline void glColor(const TooN::Vector<3>& v)
 	{
 		glColor3d(v[0], v[1], v[2]);
 	}
@@ -83,7 +83,7 @@ namespace CVD
 	/// (where 0.0 represents zero intensity and 1.0 full intensity)
 	/// @param v The new colour
 	///@ingroup gGL
-	inline void glColor(const Vector<4>& v)
+	inline void glColor(const TooN::Vector<4>& v)
 	{
 		glColor4d(v[0], v[1], v[2], v[3]);
 	}

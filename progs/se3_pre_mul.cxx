@@ -24,7 +24,7 @@
 
 using namespace std;
 using namespace CVD;
-
+using namespace TooN;
 
 
 int main(int argc, char** argv)
