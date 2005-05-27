@@ -11,6 +11,8 @@ AC_PROG_CC
 AC_PROG_CXX
 
 
+#Switch testing language to C++
+AC_LANG(C++)
 
 ###################################################
 #
@@ -106,22 +108,38 @@ fi
 #Host detection
 AC_CANONICAL_HOST
 
+#Custom host CPU detection
 case "$host" in
 	i?86*linux*)
 		cpu="`awk '
-/Pentium III/			{print "p3";exit}
-/Intel\(R\) Pentium\(R\) 4/	{print "p4";exit}
-/Intel\(R\) Pentium\(R\) M/	{print "pM";exit}
-/Intel\(R\) Xeon\(TM\)/		{print "xeon";exit}
-/AMD Opteron\(tm\)/		{print "opteron";exit}' /proc/cpuinfo`"
+/Pentium III/						{print "p3";exit}
+/Intel\(R\) Pentium\(R\) 4/			{print "p4";exit}
+/Intel\(R\) Pentium\(R\) M/			{print "pM";exit}
+/Intel\(R\) Xeon\(TM\)/				{print "xeon";exit}
+/AMD Athlon\(tm\)/					{print "athlon";exit}
+/AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
 
 		#Check for instructions
+		#Currently, we're mostly interested in what AMD call mmxext
+		#(which are part of SSE). They include pshufw, movntq and prefetchnta
 		AC_MSG_CHECKING([for MMX, SSE])
 		if grep -q sse /proc/cpuinfo
 		then
 			AC_MSG_RESULT(yes)
 			AC_SUBST(have_sse,yes)
+			AC_SUBST(have_mmxext,yes)
 			AC_DEFINE(CVD_HAVE_SSE)
+			AC_DEFINE(CVD_HAVE_MMXEXT)
+		else
+			AC_MSG_RESULT(no)
+		fi
+		
+		AC_MSG_CHECKING([for MMX, MMXEXT])
+		if grep -q mmxext /proc/cpuinfo
+		then
+			AC_MSG_RESULT(yes)
+			AC_SUBST(have_mmxext,yes)
+			AC_DEFINE(CVD_HAVE_MMXEXT)
 		else
 			AC_MSG_RESULT(no)
 		fi
@@ -139,6 +157,11 @@ case "$host" in
 	;;
 esac
 
+if test "$cpu" == ""
+then
+	cpu=Unknown
+fi
+
 
 AC_ARG_WITH(optimize,   [  --without-optimize           compile without ],[optimize=no],[])
 AC_ARG_WITH(optimize,   [  --with-optimize=flags        compile with optimization flags],[optimize="$withval"], [])
@@ -151,18 +174,35 @@ then
 	elif test "$ac_cv_cxx_compiler_gnu" = yes
 	then
 		AC_MSG_CHECKING([for best optimize flags])
-		cpuopt="`echo $cpu | sed -e'
-s/p3/-march=pentium3/
-s/p4/-march=pentium4/
-s/xeon/-march=pentium4/
-s/pM/-march=pentium4/
-s/opteron/-march=opteron/
-tend
-s/.*//
-:end'
-`"
+		AC_MSG_RESULT([])
+		
+		#Find possible lest of compiler flags
+		#FIXME, only GCC is currently supported
+		cpuoptlist="`$AWK '/^'$cpu'/{$1=""; print}' make/march_flags`"
+		
+		#Test list in order to find the best compiler option
+		save_CXXFLAGS="$CXXFLAGS"
+		for i in $cpuoptlist
+		do
+			i="-march=$i"
+			AC_MSG_CHECKING([$CXX supports $i]) 
+			
+			CXXFLAGS="$save_CXXFLAGS $i" 
+			AC_COMPILE_IFELSE([int main(){}], [a=1], [a=0])
+
+			if test $a = 1
+			then
+				AC_MSG_RESULT([yes])
+				cpuopt=$i
+				break
+			else
+				AC_MSG_RESULT([no])
+			fi
+		done
+		CXXFLAGS="$save_CXXFLAGS"
+		
+		
 		opt="-O3 $cpuopt"
-		AC_MSG_RESULT([$opt])
 		if test "$cpuopt" = ""
 		then
 			AC_MSG_WARN([I do not know what the best flags are for this processor.])
@@ -247,14 +287,6 @@ will make a #define a b. AC_DEFINE_UNQUOTED is needed if b is a shell expansion
 >>)
 changequote([,])
 
-
-
-
-
-
-#Switch testing language to C++
-AC_LANG(C++)
-
 all_options="videodisplay jpeg tiff ffmpeg toon lapack"
 
 
@@ -313,20 +345,23 @@ fi
 AC_MSG_CHECKING([for TooN])
 
 #Check for TooN in a bunch of places
-save_CPPFLAGS="$CPPPLAGS"
+save_CPPFLAGS="$CPPLAGS"
 toondir="Missing"
-for dir in  $opt_toon_dir "" "$HOME/code/TooN" "$HOME/Src/TooN" "$HOME/usr/include" "../TooN"
+for dir in  $opt_toon_dir "" "$HOME/code/TooN" "$HOME/Src/TooN" "$HOME/usr/include" "../TooN" ".."
 do
 	a=
 	if test "$dir" = ""
 	then
-		CPPFLAGS="$save_CPPPLAGS"
+		CPPFLAGS="$save_CPPLAGS"
 	else
-		CPPFLAGS="$save_CPPPLAGS -I$dir"
+		CPPFLAGS="$save_CPPLAGS -I$dir"
 	fi
 
+	AC_COMPILE_IFELSE([#include <ToonN/numerics.h>
+int main(){TooN::Vector<2> v;return 0;}], [a=1]) 
+
 	AC_COMPILE_IFELSE([#include <numerics.h>
-int main(){Vector<2> v;return 0;}], [a=1]) 
+int main(){Vector<2> v;return 0;}], [old_toon="$old_toon $dir"]) 
 	
 	if test x$a = x1
 	then
@@ -340,6 +375,10 @@ AC_MSG_RESULT($toondir)
 if test "$toondir" = Missing
 then
 	AC_MSG_WARN(TooN is missing. Numerics support disabled.)
+	if test "$old_toon" != ""
+	then
+	AC_MSG_WARN(You have old versions of TooN installed in $old_toon. These are too old for libCVD.)
+	fi
 	toon=no
 else
 	options="$options toon"

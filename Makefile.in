@@ -154,7 +154,7 @@ endif
 #
 #Architecture objects
 
-ifeq (@have_sse@,yes)
+ifeq (@have_mmxext@,yes)
 	CVD_OBJS+=cvd_src/i686/yuv411_to_stuff_MMX.o
 else
 	CVD_OBJS+=cvd_src/yuv411_to_stuff.o
