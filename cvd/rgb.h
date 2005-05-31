@@ -32,7 +32,9 @@
 
 #include <iostream>
 
-#include <byte.h>
+#include <cvd/byte.h>
+
+#include <cvd/internal/is_pod.h>
 
 namespace CVD {
 
@@ -116,6 +118,13 @@ inline std::ostream& operator <<(std::ostream& os, const Rgb<byte>& x)
 	     << static_cast<int>(x.green) << ","
 	     << static_cast<int>(x.blue) << ")";
 }
+
+#ifndef DOXYGEN_IGNORE_INTERNAL
+template<class C> struct Internal::is_POD<Rgb<C> >
+{
+		static const bool is_pod = is_POD<C>::is_pod;
+};
+#endif
 
 
 } // end namespace
