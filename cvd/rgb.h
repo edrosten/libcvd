@@ -32,7 +32,7 @@
 
 #include <iostream>
 
-#include "byte.h"
+#include <byte.h>
 
 namespace CVD {
 
