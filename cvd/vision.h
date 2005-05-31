@@ -65,8 +65,8 @@ namespace Internal {
 void byte_to_float_gradient(const unsigned char* gray, const float (*grad)[2], int width, int height);
 void byte_to_double_gradient(const unsigned char* gray, const double (*grad)[2], int width, int height);
 void halfsample(const unsigned char* in, unsigned char* out, int width, int height);
-void convolveSeparable(float (*I)[4], int w, int h, float* kernel, int k);
 void convolve_float4(float (*I)[4], int w, int h, float* kernel, int k);
+void convolve_float(float *I, int w, int h, float* kernel, int k);
 //void box_convolve_float4(float (*I)[4], int w, int h, int hwin, float factor);
 // void float_second_moment(const float (*grad)[2], int size, float* Gx, float* Gy, float* Gxy);
 #endif
@@ -113,6 +113,12 @@ T scaleKernel(const std::vector<S>& k, std::vector<T>& scaled, T maxval)
     return sum;
 }
 
+/// convolves an image with a separable kernel described by a vector and a
+/// normalization factor (such as returned by gaussianKernel). The convolution
+/// is implemented in place and will change the argument image. On platforms
+/// supporting the extended MMX instruction set, optimized implementations
+/// are used for some types.
+/// @ingroup gVision
 template <class T, class K> void convolveSeparable(Image<T>& I, const std::vector<K>& kernel, K divisor)
 {
     typedef typename Pixel::traits<T>::wider_type sum_type;
@@ -164,6 +170,14 @@ static inline void convolveSeparable(Image<float[4]>& I, const std::vector<float
     for (unsigned int i=0; i<sk.size(); i++)
     sk[i] /= divisor;
     Internal::convolve_float4(I.data(), I.size().x, I.size().y, &sk[0], (int)sk.size());
+}
+
+static inline void convolveSeparable(Image<float>& I, const std::vector<float>& kernel, float divisor)
+{
+    std::vector<float> sk = kernel;
+    for (unsigned int i=0; i<sk.size(); i++)
+    sk[i] /= divisor;
+    Internal::convolve_float(I.data(), I.size().x, I.size().y, &sk[0], (int)sk.size());
 }
 #endif
 
