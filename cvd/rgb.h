@@ -34,7 +34,7 @@
 
 #include <cvd/byte.h>
 
-#include <cvd/internal/is_pod.h>
+//#include <cvd/internal/is_pod.h>
 
 namespace CVD {
 
