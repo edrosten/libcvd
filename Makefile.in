@@ -65,7 +65,7 @@ VERSION = @VERSION@
 SUBDIRS =
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_CLEAN_FILES = 
+CONFIG_CLEAN_FILES =
 DIST_COMMON =  README ChangeLog Makefile.am \
 Makefile.in aclocal.m4 configure configure.ac install-sh missing \
 mkinstalldirs
@@ -89,6 +89,7 @@ CVD_OBJS=	cvd_src/cvd_timer.o 						\
 			cvd_src/image_io.o							\
 			cvd_src/bayer.o 							\
 			cvd_src/colourspace_convert.o 				\
+			cvd_src/vision.o \
 			pnm_src/instantiations.o					\
 			pnm_src/pnm_grok.o							\
 
@@ -99,7 +100,7 @@ CVD_OBJS=	cvd_src/cvd_timer.o 						\
 ifeq (@have_toon@,yes)
 	CVD_OBJS+=cvd_src/brezenham.o						\
 			  cvd_src/se3.o								\
-			  cvd_src/so3.o								
+			  cvd_src/so3.o
 endif
 
 ifeq (@have_lapack@,yes)
@@ -109,13 +110,13 @@ endif
 
 ################################################################################
 #
-# Libraries 
+# Libraries
 ifeq (@have_tiff@,yes)
-	CVD_OBJS+=pnm_src/tiff.o	
+	CVD_OBJS+=pnm_src/tiff.o
 endif
 
 ifeq (@have_jpeg@,yes)
-	CVD_OBJS+=pnm_src/jpeg.o	
+	CVD_OBJS+=pnm_src/jpeg.o
 endif
 
 ifeq (@have_ffmpeg@,yes)
@@ -155,7 +156,12 @@ endif
 #Architecture objects
 
 ifeq (@have_mmxext@,yes)
-	CVD_OBJS+=cvd_src/i686/yuv411_to_stuff_MMX.o
+	CVD_OBJS+=cvd_src/i686/yuv411_to_stuff_MMX.o  \
+			cvd_src/i686/byte_to_double_gradient.o \
+			cvd_src/i686/byte_to_float_gradient.o \
+			cvd_src/i686/convolve_float.o \
+			cvd_src/i686/convolve_float4.o  \
+			cvd_src/i686/halfsample.o
 else
 	CVD_OBJS+=cvd_src/yuv411_to_stuff.o
 endif
@@ -172,7 +178,7 @@ ifeq (@osx_hacks@,yes)
 else
 	soname=libcvd.so
 	soname1=libcvd.so.@major@
-	soname2=libcvd.so.@major@.@minor@ 
+	soname2=libcvd.so.@major@.@minor@
 	shared=-shared
 endif
 
@@ -217,7 +223,7 @@ clean:
 	find . -name '*.o' | xargs rm -f
 	find progs/ -perm +0100 -type f | xargs rm -f
 distclean: clean
-	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h 
+	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h
 
 .PRECIOUS: %.o
 
