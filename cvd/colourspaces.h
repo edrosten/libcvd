@@ -21,6 +21,8 @@
 #ifndef CVD_COLOURSPACES_H
 #define CVD_COLOURSPACES_H
 
+#include <cvd/internal/is_pod.h>
+
 namespace CVD
 {
 
@@ -39,6 +41,20 @@ namespace CVD
 	{
 		unsigned char val;
 	};
+
+	#ifndef DOXYGEN_IGNORE_INTERNAL
+	namespace Internal
+	{
+		template<> struct is_POD<bayer>
+		{
+			static const bool is_pod = 1;
+		};
+		template<> struct is_POD<yuv411>
+		{
+			static const bool is_pod = 1;
+		};
+	}
+	#endif
 }
 
 #endif

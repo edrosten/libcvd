@@ -27,14 +27,14 @@
 //  derived from IPRS_* developed by Tom Drummond                       //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#ifndef __RGB_H
-#define __RGB_H
+#ifndef CVD_RGB_H
+#define CVD_RGB_H
 
 #include <iostream>
 
 #include <cvd/byte.h>
 
-//#include <cvd/internal/is_pod.h>
+#include <cvd/internal/is_pod.h>
 
 namespace CVD {
 
@@ -120,10 +120,13 @@ inline std::ostream& operator <<(std::ostream& os, const Rgb<byte>& x)
 }
 
 #ifndef DOXYGEN_IGNORE_INTERNAL
-template<class C> struct Internal::is_POD<Rgb<C> >
+namespace Internal
 {
-		static const bool is_pod = is_POD<C>::is_pod;
-};
+	template<class C> struct is_POD<Rgb<C> >
+	{
+			static const bool is_pod = is_POD<C>::is_pod;
+	};
+}
 #endif
 
 
