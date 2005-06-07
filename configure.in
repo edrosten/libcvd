@@ -108,6 +108,7 @@ fi
 #Host detection
 AC_CANONICAL_HOST
 
+
 #Custom host CPU detection
 case "$host" in
 	*86*linux*)
@@ -118,44 +119,55 @@ case "$host" in
 /Intel\(R\) Xeon\(TM\)/				{print "xeon";exit}
 /AMD Athlon\(tm\)/					{print "athlon";exit}
 /AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
-
-		#Check for instructions
-		#Currently, we're mostly interested in what AMD call mmxext
-		#(which are part of SSE). They include pshufw, movntq and prefetchnta
-		AC_MSG_CHECKING([for MMX, SSE])
-		if grep -q sse /proc/cpuinfo
-		then
-			AC_MSG_RESULT(yes)
-			AC_SUBST(have_sse,yes)
-			AC_SUBST(have_mmxext,yes)
-			AC_DEFINE(CVD_HAVE_SSE)
-			AC_DEFINE(CVD_HAVE_MMXEXT)
-		else
-			AC_MSG_RESULT(no)
-		fi
-		
-		AC_MSG_CHECKING([for MMX, MMXEXT])
-		if grep -q mmxext /proc/cpuinfo
-		then
-			AC_MSG_RESULT(yes)
-			AC_SUBST(have_mmxext,yes)
-			AC_DEFINE(CVD_HAVE_MMXEXT)
-		else
-			AC_MSG_RESULT(no)
-		fi
-
-		AC_MSG_CHECKING([for SSE2])
-		if grep -q sse2 /proc/cpuinfo
-		then
-			AC_MSG_RESULT(yes)
-			AC_SUBST(have_sse2,yes)
-			AC_DEFINE(CVD_HAVE_SSE2)
-		else
-			AC_MSG_RESULT(no)
-		fi
-	
 	;;
 esac
+
+
+AC_ARG_WITH(simd, [  --without-simd       disable SIMD code])
+
+if test "$with_simd" != "no"
+then
+	case "$host" in
+		*86*linux*)
+
+			#Check for SIMD instructions
+			#Currently, we're mostly interested in what AMD call mmxext
+			#(which are part of SSE). They include pshufw, movntq and prefetchnta
+			AC_MSG_CHECKING([for MMX, SSE])
+			if grep -q sse /proc/cpuinfo
+			then
+				AC_MSG_RESULT(yes)
+				AC_SUBST(have_sse,yes)
+				AC_SUBST(have_mmxext,yes)
+				AC_DEFINE(CVD_HAVE_SSE)
+				AC_DEFINE(CVD_HAVE_MMXEXT)
+			else
+				AC_MSG_RESULT(no)
+			fi
+			
+			AC_MSG_CHECKING([for MMX, MMXEXT])
+			if grep -q mmxext /proc/cpuinfo
+			then
+				AC_MSG_RESULT(yes)
+				AC_SUBST(have_mmxext,yes)
+				AC_DEFINE(CVD_HAVE_MMXEXT)
+			else
+				AC_MSG_RESULT(no)
+			fi
+
+			AC_MSG_CHECKING([for SSE2])
+			if grep -q sse2 /proc/cpuinfo
+			then
+				AC_MSG_RESULT(yes)
+				AC_SUBST(have_sse2,yes)
+				AC_DEFINE(CVD_HAVE_SSE2)
+			else
+				AC_MSG_RESULT(no)
+			fi
+		
+		;;
+	esac
+fi
 
 if test "$cpu" == ""
 then
@@ -328,7 +340,7 @@ echo -----------------------------
 #
 #Allow the user to specify the location of TooN
 #
-AC_ARG_WITH(TooN, [ --with-TooN=directory  Specify location for TooN ], [opt_toon_dir=$withval])
+AC_ARG_WITH(TooN, [  --with-TooN=directory  Specify location for TooN ], [opt_toon_dir=$withval])
 
 if test "$opt_toon_dir" = no
 then

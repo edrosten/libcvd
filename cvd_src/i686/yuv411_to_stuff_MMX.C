@@ -26,6 +26,7 @@ namespace CVD
 namespace ColourSpace
 {
 
+
 void yuv411_to_rgb_y(const unsigned char* in, int size, unsigned char* out, unsigned char *lum_out)
 {
 	//Time: 5.0ms memcpy on number of luma pixels only takes 1.5 ms
@@ -42,9 +43,9 @@ void yuv411_to_rgb_y(const unsigned char* in, int size, unsigned char* out, unsi
 		//Load out and in
 		"mov		%0, %%edi		\n\t"
 		"mov		%1, %%esi		\n\t"
-		"pushl		%%ebx			\n\t" //save ebx. For some reason, the compiler won't do this
-		"pushl		%%ebp			\n\t" //save the stack base
-		"pushl		%[end]			\n\t"
+		"push		%%ebx			\n\t" //save ebx. For some reason, the compiler won't do this
+		"push		%%ebp			\n\t" //save the stack base
+		"push		%[end]			\n\t"
 		"mov		%[luma], %%ebp	\n\t"
 
 ".Lfoo:								\n\t"
@@ -286,8 +287,8 @@ void yuv411_to_rgb(const unsigned  char* in, int size, unsigned char* out)
 		//Load out and in
 		"mov		%0, %%edi		\n\t"
 		"mov		%1, %%esi		\n\t"
-		"pushl		%%ebx			\n\t" //save ebx. For some reason, the compiler won't do this
-		"pushl		%%ebp			\n\t" //save the stack base
+		"push		%%ebx			\n\t" //save ebx. For some reason, the compiler won't do this
+		"push		%%ebp			\n\t" //save the stack base
 		"mov		%2, %%ebp		\n\t"
 
 ".Lyuv411dec:						\n\t"
@@ -502,8 +503,8 @@ void yuv411_to_y(const unsigned char* in, int size, unsigned char* out)
 
 	size /=16;
 	__asm__ __volatile__(
-		"pushl	%%ebx			\n\t"
-		"pushl	%%ebp			\n\t"
+		"push	%%ebx			\n\t"
+		"push	%%ebp			\n\t"
 		"mov %0, %%edi			\n\t"
 		"mov %1, %%esi			\n\t"
 		"mov %2, %%ebp			\n\t"

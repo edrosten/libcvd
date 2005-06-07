@@ -862,9 +862,10 @@ Optional Packages:
   --without-debug           compile without debug support
   --with-debug=flags        compile with debug support
   --with-profile=flags      compile with profile support
+  --without-simd       disable SIMD code
   --without-optimize           compile without
   --with-optimize=flags        compile with optimization flags
- --with-TooN=directory  Specify location for TooN
+  --with-TooN=directory  Specify location for TooN
   --with-x                use the X Window System
   --without-tiff       compile without TIFF support
   --without-jpeg	  compile without JPEG support
@@ -3228,6 +3229,7 @@ host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
 
 
+
 #Custom host CPU detection
 case "$host" in
 	*86*linux*)
@@ -3238,69 +3240,85 @@ case "$host" in
 /Intel\(R\) Xeon\(TM\)/				{print "xeon";exit}
 /AMD Athlon\(tm\)/					{print "athlon";exit}
 /AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
+	;;
+esac
 
-		#Check for instructions
-		#Currently, we're mostly interested in what AMD call mmxext
-		#(which are part of SSE). They include pshufw, movntq and prefetchnta
-		echo "$as_me:$LINENO: checking for MMX, SSE" >&5
+
+
+# Check whether --with-simd or --without-simd was given.
+if test "${with_simd+set}" = set; then
+  withval="$with_simd"
+
+fi;
+
+if test "$with_simd" != "no"
+then
+	case "$host" in
+		*86*linux*)
+
+			#Check for SIMD instructions
+			#Currently, we're mostly interested in what AMD call mmxext
+			#(which are part of SSE). They include pshufw, movntq and prefetchnta
+			echo "$as_me:$LINENO: checking for MMX, SSE" >&5
 echo $ECHO_N "checking for MMX, SSE... $ECHO_C" >&6
-		if grep -q sse /proc/cpuinfo
-		then
-			echo "$as_me:$LINENO: result: yes" >&5
+			if grep -q sse /proc/cpuinfo
+			then
+				echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
-			have_sse=yes
+				have_sse=yes
 
-			have_mmxext=yes
+				have_mmxext=yes
 
-			cat >>confdefs.h <<\_ACEOF
+				cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_SSE 1
 _ACEOF
 
-			cat >>confdefs.h <<\_ACEOF
+				cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_MMXEXT 1
 _ACEOF
 
-		else
-			echo "$as_me:$LINENO: result: no" >&5
+			else
+				echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
-		fi
+			fi
 
-		echo "$as_me:$LINENO: checking for MMX, MMXEXT" >&5
+			echo "$as_me:$LINENO: checking for MMX, MMXEXT" >&5
 echo $ECHO_N "checking for MMX, MMXEXT... $ECHO_C" >&6
-		if grep -q mmxext /proc/cpuinfo
-		then
-			echo "$as_me:$LINENO: result: yes" >&5
+			if grep -q mmxext /proc/cpuinfo
+			then
+				echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
-			have_mmxext=yes
+				have_mmxext=yes
 
-			cat >>confdefs.h <<\_ACEOF
+				cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_MMXEXT 1
 _ACEOF
 
-		else
-			echo "$as_me:$LINENO: result: no" >&5
+			else
+				echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
-		fi
+			fi
 
-		echo "$as_me:$LINENO: checking for SSE2" >&5
+			echo "$as_me:$LINENO: checking for SSE2" >&5
 echo $ECHO_N "checking for SSE2... $ECHO_C" >&6
-		if grep -q sse2 /proc/cpuinfo
-		then
-			echo "$as_me:$LINENO: result: yes" >&5
+			if grep -q sse2 /proc/cpuinfo
+			then
+				echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
-			have_sse2=yes
+				have_sse2=yes
 
-			cat >>confdefs.h <<\_ACEOF
+				cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_SSE2 1
 _ACEOF
 
-		else
-			echo "$as_me:$LINENO: result: no" >&5
+			else
+				echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
-		fi
+			fi
 
-	;;
-esac
+		;;
+	esac
+fi
 
 if test "$cpu" == ""
 then
