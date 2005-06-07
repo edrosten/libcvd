@@ -21,7 +21,7 @@
 #ifndef CVD_COLOURSPACES_H
 #define CVD_COLOURSPACES_H
 
-#include <cvd/internal/is_pod.h>
+//#include <cvd/internal/is_pod.h>
 
 namespace CVD
 {
@@ -41,7 +41,7 @@ namespace CVD
 	{
 		unsigned char val;
 	};
-
+/*
 	#ifndef DOXYGEN_IGNORE_INTERNAL
 	namespace Internal
 	{
@@ -55,6 +55,7 @@ namespace CVD
 		};
 	}
 	#endif
+*/
 }
 
 #endif

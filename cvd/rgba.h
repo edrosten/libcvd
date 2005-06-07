@@ -22,7 +22,7 @@
 #define CVD_RGBA_H
 
 #include <iostream>
-#include <cvd/internal/is_pod.h>
+//#include <cvd/internal/is_pod.h>
 
 namespace CVD {
 
@@ -104,7 +104,7 @@ inline std::ostream& operator <<(std::ostream& os, const Rgba<unsigned char>& x)
              << static_cast<unsigned int>(x.alpha) << ")";
 }
 
-#ifndef DOXYGEN_IGNORE_INTERNAL
+/*#ifndef DOXYGEN_IGNORE_INTERNAL
 namespace Internal
 {
 	template<class C> struct is_POD<Rgba<C> >
@@ -113,7 +113,7 @@ namespace Internal
 	};
 }
 #endif
-
+*/
 
 
 } // end namespace 
