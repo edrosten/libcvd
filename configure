@@ -3230,7 +3230,7 @@ host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
 #Custom host CPU detection
 case "$host" in
-	i?86*linux*)
+	*86*linux*)
 		cpu="`awk '
 /Pentium III/						{print "p3";exit}
 /Intel\(R\) Pentium\(R\) 4/			{print "p4";exit}
