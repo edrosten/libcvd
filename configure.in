@@ -54,9 +54,8 @@ then
 	else
 		AC_MSG_RESULT([$gxx_major_version (ok)])
 	fi
-
-
 fi
+
 
 
 AC_ARG_WITH(debug,   [  --without-debug           compile without debug support],[debug=no], [])
@@ -98,6 +97,16 @@ then
 	else
 		CXXFLAGS="$CXXFLAGS $profile"
 	fi
+fi
+
+################################################################################
+#
+# Make pisition independent code
+#
+
+if test x$GXX = xyes
+then
+	CXXFLAGS="$CXXFLAGS -fPIC"
 fi
 
 ##################################################

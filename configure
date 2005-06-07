@@ -3079,9 +3079,8 @@ echo "$as_me: error: g++ version >= 3.0 is required." >&2;}
 		echo "$as_me:$LINENO: result: $gxx_major_version (ok)" >&5
 echo "${ECHO_T}$gxx_major_version (ok)" >&6
 	fi
-
-
 fi
+
 
 
 
@@ -3141,6 +3140,16 @@ echo "$as_me: WARNING: I don't know how to switch on profiling for this compiler
 	else
 		CXXFLAGS="$CXXFLAGS $profile"
 	fi
+fi
+
+################################################################################
+#
+# Make pisition independent code
+#
+
+if test x$GXX = xyes
+then
+	CXXFLAGS="$CXXFLAGS -fPIC"
 fi
 
 ##################################################
