@@ -49,36 +49,36 @@ namespace Camera {
     inline void save(std::ostream& os); 
 
     /// Fast linear projection for working out what's there
-    inline Vector<2> linearproject(const Vector<2>& camframe, double scale=1);
+    inline TooN::Vector<2> linearproject(const TooN::Vector<2>& camframe, double scale=1);
 	/// Project from Euclidean camera frame to image plane
-    inline Vector<2> project(const Vector<2>& camframe); 
+    inline TooN::Vector<2> project(const TooN::Vector<2>& camframe); 
 	/// Project from image plane to a Euclidean camera
-    inline Vector<2> unproject(const Vector<2>& imframe); 
+    inline TooN::Vector<2> unproject(const TooN::Vector<2>& imframe); 
     
     /// Get the derivative of image frame wrt camera frame at the last computed projection
     /// in the form \f$ \begin{bmatrix} \frac{\partial \text{im1}}{\partial \text{cam1}} & \frac{\partial \text{im1}}{\partial \text{cam2}} \\ \frac{\partial \text{im2}}{\partial \text{cam1}} & \frac{\partial \text{im2}}{\partial \text{cam2}} \end{bmatrix} \f$
-    inline Matrix<2,2> get_derivative();
+    inline TooN::Matrix<2,2> get_derivative();
 
     /// Get the motion of a point with respect to each of the internal camera parameters
-    inline Matrix<num_parameters,2> get_parameter_derivs();
+    inline TooN::Matrix<num_parameters,2> get_parameter_derivs();
 
 	/// Get the component of the motion of a point in the direction provided 
 	///	with respect to each of the internal camera parameters
 	/// @param direction The (x,y) direction to use
-    inline Vector<num_parameters> get_parameter_derivs(const Vector<2>& direction);
+    inline TooN::Vector<num_parameters> get_parameter_derivs(const TooN::Vector<2>& direction);
 
 	/// Update the internal camera parameters by adding the vector given
 	/// @param updates Update vector in the format 
 	/// \f$ \begin{pmatrix}\Delta f_u & \Delta f_v & \Delta u_0 & \Delta v_0 \end{pmatrix} \f$
-    inline void update(const Vector<num_parameters>& updates);
+    inline void update(const TooN::Vector<num_parameters>& updates);
 
 	/// Returns the vector of camera parameters in the format
 	/// \f$ \begin{pmatrix}f_u & f_v & u_0 & v_0 \end{pmatrix} \f$
-    inline Vector<num_parameters>& get_parameters() {return my_camera_parameters;}
+    inline TooN::Vector<num_parameters>& get_parameters() {return my_camera_parameters;}
 
   private:
-    Vector<num_parameters> my_camera_parameters; 
-    Vector<2> my_last_camframe;
+    TooN::Vector<num_parameters> my_camera_parameters; 
+    TooN::Vector<2> my_last_camframe;
   };
 
 
@@ -97,36 +97,36 @@ namespace Camera {
     inline void save(std::ostream& os);
 
     /// Fast linear projection for working out what's there
-    inline Vector<2> linearproject(const Vector<2>& camframe, double scale=1); 
+    inline TooN::Vector<2> linearproject(const TooN::Vector<2>& camframe, double scale=1); 
 	/// Project from Euclidean camera frame to image plane
-    inline Vector<2> project(const Vector<2>& camframe); 
+    inline TooN::Vector<2> project(const TooN::Vector<2>& camframe); 
 	/// Project from image plane to a Euclidean camera
-    inline Vector<2> unproject(const Vector<2>& imframe); 
+    inline TooN::Vector<2> unproject(const TooN::Vector<2>& imframe); 
     
     /// Get the derivative of image frame wrt camera frame at the last computed projection
     /// in the form \f$ \begin{bmatrix} \frac{\partial \text{im1}}{\partial \text{cam1}} & \frac{\partial \text{im1}}{\partial \text{cam2}} \\ \frac{\partial \text{im2}}{\partial \text{cam1}} & \frac{\partial \text{im2}}{\partial \text{cam2}} \end{bmatrix} \f$
-    inline Matrix<2,2> get_derivative();
+    inline TooN::Matrix<2,2> get_derivative();
 
     /// Get the motion of a point with respect to each of the internal camera parameters
-    inline Matrix<num_parameters,2> get_parameter_derivs();
+    inline TooN::Matrix<num_parameters,2> get_parameter_derivs();
 
 	/// Get the component of the motion of a point in the direction provided 
 	///	with respect to each of the internal camera parameters
 	/// @param direction The (x,y) direction to use
-    inline Vector<num_parameters> get_parameter_derivs(const Vector<2>& direction);
+    inline TooN::Vector<num_parameters> get_parameter_derivs(const TooN::Vector<2>& direction);
 
 	/// Update the internal camera parameters by adding the vector given
 	/// @param updates Update vector in the format 
 	/// \f$ \begin{pmatrix}\Delta f_u & \Delta f_v & \Delta u_0 & \Delta v_0 & \Delta c\end{pmatrix} \f$
-    inline void update(const Vector<num_parameters>& updates);
+    inline void update(const TooN::Vector<num_parameters>& updates);
 
 	/// Returns the vector of camera parameters in the format
 	/// \f$ \begin{pmatrix}f_u & f_v & u_0 & v_0 & c\end{pmatrix} \f$
-    inline Vector<num_parameters>& get_parameters() {return my_camera_parameters;}
+    inline TooN::Vector<num_parameters>& get_parameters() {return my_camera_parameters;}
 
   private:
-    Vector<num_parameters> my_camera_parameters; // f_u, f_v, u_0, v_0
-    Vector<2> my_last_camframe;
+    TooN::Vector<num_parameters> my_camera_parameters; // f_u, f_v, u_0, v_0
+    TooN::Vector<2> my_last_camframe;
   };
 
 
@@ -145,36 +145,36 @@ namespace Camera {
     inline void save(std::ostream& os);
 
     /// Fast linear projection for working out what's there
-    inline Vector<2> linearproject(const Vector<2>& camframe, double scale=1);
+    inline TooN::Vector<2> linearproject(const TooN::Vector<2>& camframe, double scale=1);
 	/// Project from Euclidean camera frame to image plane
-    inline Vector<2> project(const Vector<2>& camframe); 
+    inline TooN::Vector<2> project(const TooN::Vector<2>& camframe); 
 	/// Project from image plane to a Euclidean camera
-    inline Vector<2> unproject(const Vector<2>& imframe);
+    inline TooN::Vector<2> unproject(const TooN::Vector<2>& imframe);
     
     /// Get the derivative of image frame wrt camera frame at the last computed projection
     /// in the form \f$ \begin{bmatrix} \frac{\partial \text{im1}}{\partial \text{cam1}} & \frac{\partial \text{im1}}{\partial \text{cam2}} \\ \frac{\partial \text{im2}}{\partial \text{cam1}} & \frac{\partial \text{im2}}{\partial \text{cam2}} \end{bmatrix} \f$
-    inline Matrix<2,2> get_derivative();
+    inline TooN::Matrix<2,2> get_derivative();
 
     /// Get the motion of a point with respect to each of the internal camera parameters
-    inline Matrix<num_parameters,2> get_parameter_derivs();
+    inline TooN::Matrix<num_parameters,2> get_parameter_derivs();
 
 	/// Get the component of the motion of a point in the direction provided 
 	///	with respect to each of the internal camera parameters
 	/// @param direction The (x,y) direction to use
-    inline Vector<num_parameters> get_parameter_derivs(const Vector<2>& direction);
+    inline TooN::Vector<num_parameters> get_parameter_derivs(const TooN::Vector<2>& direction);
 
 	/// Update the internal camera parameters by adding the vector given
 	/// @param updates Update vector in the format 
 	/// \f$ \begin{pmatrix}\Delta f_u & \Delta f_v & \Delta u_0 & \Delta v_0 & \Delta c & \Delta q\end{pmatrix} \f$
-    inline void update(const Vector<num_parameters>& updates);
+    inline void update(const TooN::Vector<num_parameters>& updates);
 
 	/// Returns the vector of camera parameters in the format
 	/// \f$ \begin{pmatrix}f_u & f_v & u_0 & v_0 & c & q\end{pmatrix} \f$
-    inline Vector<num_parameters>& get_parameters() {return my_camera_parameters;}
+    inline TooN::Vector<num_parameters>& get_parameters() {return my_camera_parameters;}
 
   private:
-    Vector<num_parameters> my_camera_parameters; // f_u, f_v, u_0, v_0
-    Vector<2> my_last_camframe;
+    TooN::Vector<num_parameters> my_camera_parameters; // f_u, f_v, u_0, v_0
+    TooN::Vector<2> my_last_camframe;
 
 	inline double sat(double x)
 	{
@@ -204,31 +204,31 @@ void Camera::Linear::save(std::ostream& os){
   os << my_camera_parameters;
 }
 
-inline Vector<2> Camera::Linear::linearproject(const Vector<2>& camframe, double scale){
-  return Vector<2>(scale * diagmult(camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
+inline TooN::Vector<2> Camera::Linear::linearproject(const TooN::Vector<2>& camframe, double scale){
+  return TooN::Vector<2>(scale * diagmult(camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
 }
 
-inline Vector<2> Camera::Linear::project(const Vector<2>& camframe){
+inline TooN::Vector<2> Camera::Linear::project(const TooN::Vector<2>& camframe){
   my_last_camframe = camframe;
-  return Vector<2>(diagmult(camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
+  return TooN::Vector<2>(diagmult(camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
 }
 
-inline Vector<2> Camera::Linear::unproject(const Vector<2>& imframe){
+inline TooN::Vector<2> Camera::Linear::unproject(const TooN::Vector<2>& imframe){
   my_last_camframe[0] = (imframe[0]-my_camera_parameters[2])/my_camera_parameters[0];
   my_last_camframe[1] = (imframe[1]-my_camera_parameters[3])/my_camera_parameters[1];
   return my_last_camframe;
 }
 
-Matrix<2,2> Camera::Linear::get_derivative(){
-  Matrix<2,2> result;
+TooN::Matrix<2,2> Camera::Linear::get_derivative(){
+  TooN::Matrix<2,2> result;
   result(0,0) = my_camera_parameters[0];
   result(1,1) = my_camera_parameters[1];
   result(0,1) = result(1,0) = 0;
   return result;
 }
 
-Matrix<Camera::Linear::num_parameters,2> Camera::Linear::get_parameter_derivs(){
-  Matrix<num_parameters,2> result;
+TooN::Matrix<Camera::Linear::num_parameters,2> Camera::Linear::get_parameter_derivs(){
+  TooN::Matrix<num_parameters,2> result;
   result(0,0) = my_last_camframe[0];
   result(0,1) = 0;
   result(1,0) = 0;
@@ -240,8 +240,8 @@ Matrix<Camera::Linear::num_parameters,2> Camera::Linear::get_parameter_derivs(){
   return result;
 }
 
-Vector<Camera::Linear::num_parameters> Camera::Linear::get_parameter_derivs(const Vector<2>& direction){
-  Vector<num_parameters> result;
+TooN::Vector<Camera::Linear::num_parameters> Camera::Linear::get_parameter_derivs(const TooN::Vector<2>& direction){
+  TooN::Vector<num_parameters> result;
   result[0] = my_last_camframe[0] * direction[0];
   result[1] = my_last_camframe[1] * direction[1];
   result[2] = direction[0];
@@ -250,7 +250,7 @@ Vector<Camera::Linear::num_parameters> Camera::Linear::get_parameter_derivs(cons
   return result;
 }
 
-void Camera::Linear::update(const Vector<num_parameters>& updates){
+void Camera::Linear::update(const TooN::Vector<num_parameters>& updates){
   my_camera_parameters+=updates;
 }
 
@@ -267,18 +267,18 @@ void Camera::Cubic::save(std::ostream& os){
   os << my_camera_parameters;
 }
 
-inline Vector<2> Camera::Cubic::linearproject(const Vector<2>& camframe, double scale){
-  return Vector<2>(scale * diagmult(camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
+inline TooN::Vector<2> Camera::Cubic::linearproject(const TooN::Vector<2>& camframe, double scale){
+  return TooN::Vector<2>(scale * diagmult(camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
 }
 
-inline Vector<2> Camera::Cubic::project(const Vector<2>& camframe){
+inline TooN::Vector<2> Camera::Cubic::project(const TooN::Vector<2>& camframe){
   my_last_camframe = camframe;
-  Vector<2> mod_camframe = camframe * (1+SAT(my_camera_parameters[4]*(camframe*camframe)));
-  return Vector<2>(diagmult(mod_camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
+  TooN::Vector<2> mod_camframe = camframe * (1+SAT(my_camera_parameters[4]*(camframe*camframe)));
+  return TooN::Vector<2>(diagmult(mod_camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
 }
 
-inline Vector<2> Camera::Cubic::unproject(const Vector<2>& imframe){
-  Vector<2> mod_camframe;
+inline TooN::Vector<2> Camera::Cubic::unproject(const TooN::Vector<2>& imframe){
+  TooN::Vector<2> mod_camframe;
   mod_camframe[0] = (imframe[0]-my_camera_parameters[2])/my_camera_parameters[0];
   mod_camframe[1] = (imframe[1]-my_camera_parameters[3])/my_camera_parameters[1];
 
@@ -296,8 +296,8 @@ inline Vector<2> Camera::Cubic::unproject(const Vector<2>& imframe){
   return my_last_camframe;
 }
 
-Matrix<2,2> Camera::Cubic::get_derivative(){
-  Matrix<2,2> result;
+TooN::Matrix<2,2> Camera::Cubic::get_derivative(){
+  TooN::Matrix<2,2> result;
   Identity(result,1+my_camera_parameters[4]*(my_last_camframe*my_last_camframe));
   result += (2*my_camera_parameters[4]*my_last_camframe.as_col()) * my_last_camframe.as_row();
   result[0] *= my_camera_parameters[0];
@@ -305,9 +305,9 @@ Matrix<2,2> Camera::Cubic::get_derivative(){
   return result;
 }
 
-Matrix<Camera::Cubic::num_parameters,2> Camera::Cubic::get_parameter_derivs(){
-  Vector<2> mod_camframe = my_last_camframe * (1+my_camera_parameters[4]*(my_last_camframe*my_last_camframe));
-  Matrix<num_parameters,2> result;
+TooN::Matrix<Camera::Cubic::num_parameters,2> Camera::Cubic::get_parameter_derivs(){
+  TooN::Vector<2> mod_camframe = my_last_camframe * (1+my_camera_parameters[4]*(my_last_camframe*my_last_camframe));
+  TooN::Matrix<num_parameters,2> result;
   result(0,0) = mod_camframe[0]*my_camera_parameters[0];
   result(0,1) = 0;
   result(1,0) = 0;
@@ -320,9 +320,9 @@ Matrix<Camera::Cubic::num_parameters,2> Camera::Cubic::get_parameter_derivs(){
   return result;
 }
 
-Vector<Camera::Cubic::num_parameters> Camera::Cubic::get_parameter_derivs(const Vector<2>& direction){
-  Vector<2> mod_camframe = my_last_camframe * (1+my_camera_parameters[4]*(my_last_camframe*my_last_camframe));
-  Vector<num_parameters> result;
+TooN::Vector<Camera::Cubic::num_parameters> Camera::Cubic::get_parameter_derivs(const TooN::Vector<2>& direction){
+  TooN::Vector<2> mod_camframe = my_last_camframe * (1+my_camera_parameters[4]*(my_last_camframe*my_last_camframe));
+  TooN::Vector<num_parameters> result;
   result[0] = mod_camframe[0] * direction[0] *my_camera_parameters[0];
   result[1] = mod_camframe[1] * direction[1] *my_camera_parameters[1];
   result[2] = direction[0] *my_camera_parameters[0];
@@ -331,7 +331,7 @@ Vector<Camera::Cubic::num_parameters> Camera::Cubic::get_parameter_derivs(const 
   return result;
 }
 
-void Camera::Cubic::update(const Vector<num_parameters>& updates){
+void Camera::Cubic::update(const TooN::Vector<num_parameters>& updates){
   double fu=my_camera_parameters[0];
   double fv=my_camera_parameters[1];
   my_camera_parameters[0]+=fu*updates[0];
@@ -354,19 +354,19 @@ void Camera::Quintic::save(std::ostream& os){
   os << my_camera_parameters;
 }
 
-inline Vector<2> Camera::Quintic::linearproject(const Vector<2>& camframe, double scale){
-  return Vector<2>(scale * diagmult(camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
+inline TooN::Vector<2> Camera::Quintic::linearproject(const TooN::Vector<2>& camframe, double scale){
+  return TooN::Vector<2>(scale * diagmult(camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
 }
 
-inline Vector<2> Camera::Quintic::project(const Vector<2>& camframe){
+inline TooN::Vector<2> Camera::Quintic::project(const TooN::Vector<2>& camframe){
   my_last_camframe = camframe;
   double sc = /*sat*/(camframe*camframe);
-  Vector<2> mod_camframe = camframe * (1 + sc*(my_camera_parameters[4] + sc*my_camera_parameters[5]));
-  return Vector<2>(diagmult(mod_camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
+  TooN::Vector<2> mod_camframe = camframe * (1 + sc*(my_camera_parameters[4] + sc*my_camera_parameters[5]));
+  return TooN::Vector<2>(diagmult(mod_camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
 }
 
-inline Vector<2> Camera::Quintic::unproject(const Vector<2>& imframe){
-  Vector<2> mod_camframe;
+inline TooN::Vector<2> Camera::Quintic::unproject(const TooN::Vector<2>& imframe){
+  TooN::Vector<2> mod_camframe;
   mod_camframe[0] = (imframe[0]-my_camera_parameters[2])/my_camera_parameters[0];
   mod_camframe[1] = (imframe[1]-my_camera_parameters[3])/my_camera_parameters[1];
 
@@ -387,8 +387,8 @@ inline Vector<2> Camera::Quintic::unproject(const Vector<2>& imframe){
   return my_last_camframe;
 }
 
-Matrix<2,2> Camera::Quintic::get_derivative(){
-  Matrix<2,2> result;
+TooN::Matrix<2,2> Camera::Quintic::get_derivative(){
+  TooN::Matrix<2,2> result;
   double temp1=my_last_camframe*my_last_camframe;
   double temp2=my_camera_parameters[5]*temp1;
   Identity(result,1+temp1*(my_camera_parameters[4]+temp2));
@@ -398,11 +398,11 @@ Matrix<2,2> Camera::Quintic::get_derivative(){
   return result;
 }
 
-Matrix<Camera::Quintic::num_parameters,2> Camera::Quintic::get_parameter_derivs(){
-  Matrix<num_parameters,2> result;
+TooN::Matrix<Camera::Quintic::num_parameters,2> Camera::Quintic::get_parameter_derivs(){
+  TooN::Matrix<num_parameters,2> result;
   double r2 = my_last_camframe * my_last_camframe;
   double r4 = r2 * r2;
-  Vector<2> mod_camframe = my_last_camframe * (1+ r2 * (my_camera_parameters[4] + r2 * my_camera_parameters[5]));
+  TooN::Vector<2> mod_camframe = my_last_camframe * (1+ r2 * (my_camera_parameters[4] + r2 * my_camera_parameters[5]));
 
   double fu = my_camera_parameters[0];
   double fv = my_camera_parameters[1];
@@ -425,14 +425,14 @@ Matrix<Camera::Quintic::num_parameters,2> Camera::Quintic::get_parameter_derivs(
   return result;
 }
 
-Vector<Camera::Quintic::num_parameters> Camera::Quintic::get_parameter_derivs(const Vector<2>& direction){
-  //Vector<num_parameters> result;
+TooN::Vector<Camera::Quintic::num_parameters> Camera::Quintic::get_parameter_derivs(const TooN::Vector<2>& direction){
+  //TooN::Vector<num_parameters> result;
   //cout<<"Finish me!\n";					     
   //FIXME improve this somewhat
   return get_parameter_derivs() * direction;
 }
 
-void Camera::Quintic::update(const Vector<num_parameters>& updates){
+void Camera::Quintic::update(const TooN::Vector<num_parameters>& updates){
   double fu = my_camera_parameters[0];
   double fv = my_camera_parameters[1];
 
