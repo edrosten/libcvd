@@ -24,8 +24,8 @@
 #define __CAMERA_H
 
 #include <cmath>
-#include <numerics.h>
-#include <numhelpers.h>
+#include <TooN/TooN.h>
+#include <TooN/helpers.h>
 
 template<class T>
 inline T SAT(T x){return (x<-1.0/3?-1e9:x);}
