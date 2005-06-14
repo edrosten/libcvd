@@ -52,30 +52,38 @@ template<class In, class P, class Conversion> void conv_load(CVD::Image_IO::imag
 {
 	//Allocate an exception-safe buffer for reading in the image.
 	In* buf = new In[nl * i.elements_per_line()];
-	std::auto_ptr<In> m_buff(buf);
 
-	if(buf == NULL)
-		throw CVD::Exceptions::OutOfMemory();
+	try{
+		if(buf == NULL)
+			throw CVD::Exceptions::OutOfMemory();
 
-	int channels  = i.channels();
+		int channels  = i.channels();
 
-	//Read in the data	
-	i.get_raw_pixel_lines(buf, nl);
+		//Read in the data	
+		i.get_raw_pixel_lines(buf, nl);
 
-	unsigned long max;
-	max = nl * i.x_size();
+		unsigned long max;
+		max = nl * i.x_size();
 
-	//Convert the data to the correct type
+		//Convert the data to the correct type
 
-	//Switch coversion on the type of incmoing data
-	if(channels == 1)
-		load_line(buf, out, max, cv);
-	else if(channels == 2) //grey+alpha is currently unimplemented
-		load_line<2>(buf, out, max, cv);
-	else if(channels == 3)
-		load_line<3>(buf, out, max, cv);
-	else if(channels == 4)
-		load_line<4>(buf, out, max, cv);
+		//Switch coversion on the type of incmoing data
+		if(channels == 1)
+			load_line(buf, out, max, cv);
+		else if(channels == 2) //grey+alpha is currently unimplemented
+			load_line<2>(buf, out, max, cv);
+		else if(channels == 3)
+			load_line<3>(buf, out, max, cv);
+		else if(channels == 4)
+			load_line<4>(buf, out, max, cv);
+	}
+	catch(...)
+	{
+		delete[] buf;
+		throw;
+	}
+
+	delete[] buf;
 }
 
 
@@ -112,29 +120,38 @@ template<class Out, class P, class Conversion> void conv_save(CVD::Image_IO::ima
 {
 	//Allocate an exception-safe buffer for reading in the image.
 	Out* buf = new Out[nl * o.elements_per_line()];
-	std::auto_ptr<Out> m_buff(buf);
 
-	if(buf == NULL)
-		throw CVD::Exceptions::OutOfMemory();
+	try
+	{
+		if(buf == NULL)
+			throw CVD::Exceptions::OutOfMemory();
 
-	int channels  = o.channels();
+		int channels  = o.channels();
 
-	unsigned long max;
-	max = nl * o.x_size();
+		unsigned long max;
+		max = nl * o.x_size();
 
-	//Convert the image data to the outgoing type
-	if(channels == 1)
-		conv_to_disk(buf, im, max, cv);
-	else if(channels == 2) 
-		conv_to_disk<2>(buf, im, max, cv);
-	else if(channels == 3)
-		conv_to_disk<3>(buf, im, max, cv);
-	else if(channels == 4)
-		conv_to_disk<4>(buf, im, max, cv);
+		//Convert the image data to the outgoing type
+		if(channels == 1)
+			conv_to_disk(buf, im, max, cv);
+		else if(channels == 2) 
+			conv_to_disk<2>(buf, im, max, cv);
+		else if(channels == 3)
+			conv_to_disk<3>(buf, im, max, cv);
+		else if(channels == 4)
+			conv_to_disk<4>(buf, im, max, cv);
 
 
-	//Write in the data	
-	o.write_raw_pixel_lines(buf, nl);
+		//Write in the data	
+		o.write_raw_pixel_lines(buf, nl);
+	}
+	catch(...)
+	{
+		delete[] buf;
+		throw;
+	}
+
+	delete[] buf;
 }
 
 //call the correct typed loader depending whether the image on disk
