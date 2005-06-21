@@ -2689,7 +2689,7 @@ then
 	echo "$as_me:$LINENO: checking g++ version" >&5
 echo $ECHO_N "checking g++ version... $ECHO_C" >&6
 
-	gxx_major_version=`g++ -v 2>&1 | $AWK -F '[ .]' '/version/{print $3}'`
+	gxx_major_version=`$CXX -v 2>&1 | $AWK -F '[ .]' '/version/{print $3}'`
 
 
 

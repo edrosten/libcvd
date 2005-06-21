@@ -24,7 +24,7 @@ then
 
 	AC_MSG_CHECKING([g++ version])
 	changequote(,)
-	gxx_major_version=`g++ -v 2>&1 | $AWK -F '[ .]' '/version/{print $3}'`
+	gxx_major_version=`$CXX -v 2>&1 | $AWK -F '[ .]' '/version/{print $3}'`
 	changequote([,])
 
 
