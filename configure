@@ -6667,7 +6667,7 @@ _ACEOF
 
 	;;
 	*sgi*)
-		os_options = "O2buffer"
+		os_options="O2buffer"
 		cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_O2UBFFER 1
 _ACEOF

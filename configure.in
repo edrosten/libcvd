@@ -681,7 +681,7 @@ case "$host" in
 		AC_DEFINE_UNQUOTED(CVD_KERNEL_RELEASE,$kernel_release)
 	;;
 	*sgi*)
-		os_options = "O2buffer"
+		os_options="O2buffer"
 		AC_DEFINE(CVD_HAVE_O2UBFFER)
 		AC_SUBST(have_o2buffer,yes)
 	
