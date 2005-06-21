@@ -147,7 +147,7 @@ endif
 #
 # IRIX
 ifeq (@have_o2buffer@,yes)
-	CVD_OBJS+=cvd_src/IRIX/O2buffer.o
+	CVD_OBJS+=cvd_src/IRIX/O2buffer.o cvd_src/IRIX/sgi-video.o
 endif
 
 
