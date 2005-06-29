@@ -77,6 +77,10 @@ void convolveSeparableGray(unsigned char* I, unsigned int width, unsigned int he
 /// creates a Gaussian kernel with given maximum value and standard deviation.
 /// All elements of the passed vector are filled up, therefore the vector
 /// defines the size of the computed kernel. The normalizing value is returned.
+/// @param k vector of T's holds the kernel values
+/// @param maxval the maximum value to be used
+/// @param stddev standard deviation of the kernel
+/// @return the sum of the kernel elements for normalization
 /// @ingroup gVision
 template <class T>
 T gaussianKernel(std::vector<T>& k, T maxval, double stddev)
@@ -98,6 +102,10 @@ T gaussianKernel(std::vector<T>& k, T maxval, double stddev)
 
 /// scales a GaussianKernel to a different maximum value. The new kernel is
 /// returned in scaled. The new normalizing value is returned.
+/// @param k input kernel
+/// @param scaled output vector to hold the resulting kernel
+/// @param maxval the new maximum value
+/// @return sum of the new kernel elements for normalization
 /// @ingroup gVision
 template <class S, class T>
 T scaleKernel(const std::vector<S>& k, std::vector<T>& scaled, T maxval)
@@ -118,6 +126,9 @@ T scaleKernel(const std::vector<S>& k, std::vector<T>& scaled, T maxval)
 /// is implemented in place and will change the argument image. On platforms
 /// supporting the extended MMX instruction set, optimized implementations
 /// are used for some types.
+/// @param I image to be convolved
+/// @param kernel a vector containing the kernel values
+/// @param divisor the sum of the kernel values for normalization
 /// @ingroup gVision
 template <class T, class K> void convolveSeparable(Image<T>& I, const std::vector<K>& kernel, K divisor)
 {
@@ -213,7 +224,12 @@ void convolveGaussian5_1(Image<T>& I)
 
 void convolveGaussian5_1(Image<byte>& I);
 
+
 // TODO: this was using aligned memory, check if this is necessary...
+/// convolves an image with a box of given size.
+/// @param I input image, modified in place
+/// @param hwin window size, this is half of the box size
+/// @ingroup gVision
 template <class T>
 void convolveWithBox(Image<T>& I, int hwin)
 {
@@ -264,11 +280,17 @@ void convolveWithBox(Image<T>& I, int hwin)
     }
 }
 
+/// subsamples an image to half its size by averaging 2x2 pixel blocks
+/// @param in input image
+/// @param out output image, must have the right dimensions versus input image
+/// @throw IncompatibleImageSizes if out does not have half the dimensions of in
+/// @ingroup gVision
 template <class T>
 void halfSample(const Image<T>& in, Image<T>& out)
 {
     typedef typename Pixel::traits<T>::wider_type sum_type;
-    assert(out.size().x == in.size().x/2 && out.size().y == in.size().y/2);
+    if( (im.size()/2) != out.size())
+        throw Exceptions::Vision::IncompatibleImageSizes("halfSample");
     const T* top = in.data();
     const T* bottom = top + in.size().x;
     int row = 0;
@@ -294,6 +316,11 @@ void halfSample(const Image<T>& in, Image<T>& out)
 void halfSample(const Image<byte>& in, Image<byte>& out);
 #endif
 
+/// thresholds an image by setting all pixel values below a minimum to 0 and all values above to a given maximum
+/// @param im input image changed in place
+/// @param minimum threshold value
+/// @param hi maximum value for values above the threshold
+/// @ingroup gVision
 template <class T>
 void threshold(Image<T>& im, const T& minimum, const T& hi)
 {
@@ -308,6 +335,9 @@ void threshold(Image<T>& im, const T& minimum, const T& hi)
     }
 }
 
+/// sets the border pixel lines of an image to zero
+/// @param I input image, changed in place
+/// @ingroup gVision
 template <class T> void zeroBorders(Image<T>& I)
 {
     int w = I.size().x;
@@ -320,6 +350,12 @@ template <class T> void zeroBorders(Image<T>& I)
     memset(I.data()+w*(h-1), 0, sizeof(T)*w);
 }
 
+/// computes the gradient image from an image. The gradient image contains two components per pixel holding
+/// the x and y components of the gradient.
+/// @param im input image
+/// @param out output image, must have the same dimensions as input image
+/// @throw IncompatibleImageSizes if out does not have same dimensions as im
+/// @ingroup gVision
 template <class S, class T>
 void gradient(const Image<S>& im, Image<T>& out)
 {
@@ -347,6 +383,12 @@ void gradient(const Image<byte>& im, Image<float[2]>& out);
 void gradient(const Image<byte>& im, Image<double[2]>& out);
 #endif
 
+/// computes mean and stddev of intensities in an image. These are computed for each component of the
+/// pixel type, therefore the output are two pixels with mean and stddev for each component.
+/// @param im input image
+/// @param mean pixel element containing the mean of intensities in the image for each component
+/// @param stddev pixel element containing the standard deviation for each component
+/// @ingroup gVision
 template <class T>
 void stats(const Image<T>& im, T& mean, T& stddev)
 {
@@ -372,32 +414,9 @@ void stats(const Image<T>& im, T& mean, T& stddev)
     }
 }
 
-template<class S, class T>
-ImageRef copy(const Image<S>& in, Image<T>& out, ImageRef size, ImageRef begin = ImageRef(), ImageRef dst = ImageRef())
-{
-    if(!in.in_image(begin) || !out.in_image(dst))
-        throw Exceptions::Vision::ImageRefNotInImage("copy");
-
-    if (size.x + begin.x >= in.size().x)
-        size.x = in.size().x - begin.x;
-    if (size.x + dst.x >= out.size().x)
-        size.x = out.size().x - dst.x;
-    if (size.y + begin.y >= in.size().y)
-        size.y = in.size().y - begin.y;
-    if (size.y + dst.y >= out.size().y)
-        size.y = out.size().y - dst.y;
-
-    const S* from = &in[begin];
-    T* to = &out[dst];
-    int i = 0;
-    while (i++<size.y) {
-        Pixel::row_convert<S,T>::convert(from, size.x, to);
-        from += in.size().x;
-        to += out.size().x;
-    }
-    return size;
-}
-
+/// a functor computing gray values from pixels with constant value. For use with apply to
+/// operate on all pixels in an image
+/// @ingroup gVision
 template <class S, class T, class PixelFunction = Pixel::BasicConversion<> >
 struct Gray {
     typedef typename Pixel::Component<S>::type SComp;
@@ -410,6 +429,9 @@ struct Gray {
     }
 };
 
+/// a functor multiplying pixels with constant value. For use with apply to
+/// operate on all pixels in an image
+/// @ingroup gVision
 template <class S, class T = S>
 struct multiplyBy
 {
@@ -422,6 +444,12 @@ struct multiplyBy
     };
 };
 
+/// applies a pixel operation to each pixel in an image and returns the result in an output image
+/// @param in the input image
+/// @param out the output image, can be the same as the input image
+/// @param op a functor implementation the operation. The functor must implement the operator()(const S& , const T&) or be a function with that signature.
+/// @throw IncompatibleImageSizes if the images are not of the same sizes
+/// @ingroup gVision
 template <class S, class T, class Op>
 void apply(const Image<S>& in, Image<T>& out, const Op& op)
 {
@@ -435,18 +463,29 @@ void apply(const Image<S>& in, Image<T>& out, const Op& op)
         op(*pi++, *po++);
 }
 
+/// searches through the image and returns pixel locations that match a given predicate. this
+/// version returns a new vector containing the image references.
+/// @param in the image to search through
+/// @param op the predicate to test with. It must implement bool operator()( const ImageRef & ) or be a function with that signature
+/// @return vector containing ImageRef with pixel matching the predicate
 template <class T, class Op>
-std::vector<ImageRef> & find( const Image<T> & in, const Op & op)
+std::vector<ImageRef> find( const Image<T> & in, const Op & op)
 {
     std::vector<ImageRef> list;
-    return find(in, op, list);
+    find(in, op, list);
+    return list;
 }
 
+/// searches through the image and returns pixel locations that match a given predicate. this
+/// version will append found image references to a vector passed in.
+/// @param in the image to search through
+/// @param op the predicate to test with. It must implement bool operator()( const ImageRef & ) or be a function with that signature
+/// @param list vector containing the image references
 template <class T, class Op>
 std::vector<ImageRef> & find( const Image<T> & in, const Op & op, std::vector<ImageRef> & list)
 {
     ImageRef begin(0,0);
-    ImageRef end = in.size();
+    const ImageRef end = in.size();
     do {
         if(op(in[begin]))
             list.push_back(begin);

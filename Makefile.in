@@ -89,7 +89,8 @@ CVD_OBJS=	cvd_src/cvd_timer.o 						\
 			cvd_src/image_io.o							\
 			cvd_src/bayer.o 							\
 			cvd_src/colourspace_convert.o 				\
-			cvd_src/vision.o \
+			cvd_src/vision.o 							\
+			cvd_src/draw.o 							\
 			pnm_src/instantiations.o					\
 			pnm_src/pnm_grok.o							\
 

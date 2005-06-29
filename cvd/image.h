@@ -230,6 +230,26 @@ template<class T> class BasicImage
 			return (my_data[pos.y*my_size.x + pos.x]);
 		}
 
+        /// Access pointer to pixel row. Returns the pointer to the first element of the passed row.
+        /// Allows to use [y][x] on images to access a pixel. Bounds checking is only performed if the library is compiled
+        /// with <code>-D IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is
+        /// thrown.
+        inline T* operator[](int row)
+        {
+            IMAGE_ASSERT(in_image(ImageRef(0,row)), ImageError::AccessOutsideImage);
+            return my_data+row*my_size.x;
+        }
+
+        /// Access pointer to pixel row. Returns the pointer to the first element of the passed row.
+        /// Allows to use [y][x] on images to access a pixel. Bounds checking is only performed if the library is compiled
+        /// with <code>-D IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is
+        /// thrown.
+        inline const T* operator[](int row) const
+        {
+            IMAGE_ASSERT(in_image(ImageRef(0,row)), ImageError::AccessOutsideImage);
+            return my_data+row*my_size.x;
+        }
+
 		/// Returns the raw image data
 		inline const T* data() const
 		{
