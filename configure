@@ -3144,7 +3144,7 @@ fi
 
 ################################################################################
 #
-# Make pisition independent code
+# Make position independent code
 #
 
 if test x$GXX = xyes
@@ -3247,11 +3247,13 @@ case "$host" in
 /Intel\(R\) Pentium\(R\) 4/			{print "p4";exit}
 /Intel\(R\) Pentium\(R\) M/			{print "pM";exit}
 /Intel\(R\) Xeon\(TM\)/				{print "xeon";exit}
+/AMD Athlon\(tm\) 64 Processor/		{print "athlon64";exit}
 /AMD Athlon\(tm\)/					{print "athlon";exit}
 /AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
 	;;
 esac
 
+echo CPU is $cpu
 
 
 # Check whether --with-simd or --without-simd was given.
