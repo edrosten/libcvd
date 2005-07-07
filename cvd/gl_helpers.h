@@ -28,6 +28,7 @@
 #include <cvd/byte.h>
 #include <cvd/rgb8.h>
 #include <cvd/rgba.h>
+#include <cvd/config.h>
 #include <GL/gl.h>
 #include <cvd/internal/gl_types.h>
 
