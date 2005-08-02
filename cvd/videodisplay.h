@@ -40,6 +40,7 @@
 #include <GL/gl.h>   // OpenGL proper
 
 #include <cvd/exceptions.h>
+#include <cvd/image_ref.h>
 
 namespace CVD {
 
@@ -94,6 +95,14 @@ namespace CVD {
 			/// @param scale The number of image pixels per GL unit (default 1:1)
 			/// @param visualAttr The attributes passed to glXChooseVisual
 			VideoDisplay(double left, double top, double right, double bottom, double scale=1, int* visualAttr = defAttr);
+
+
+
+			/// Construct (and display) a display window
+			/// @param size The GL co-ordinate window goes from (0,0) to (size.x, size.y)
+			/// @param scale The number of image pixels per GL unit (default 1:1)
+			/// @param visualAttr The attributes passed to glXChooseVisual
+			VideoDisplay(ImageRef size, double scale=1, int* visualAttr = defAttr);
 			
 			/// Destructor. This also removes the window from the display
 			~VideoDisplay();
@@ -195,6 +204,9 @@ namespace CVD {
 
 			VideoDisplay( VideoDisplay& copyof );
 			int operator = ( VideoDisplay& copyof );
+
+
+			void init(double, double, double, double, double, int* visualAttr);
 	};
    
 } // CVD

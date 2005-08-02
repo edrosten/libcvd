@@ -78,6 +78,28 @@ CVD::VideoDisplay::VideoDisplay(double left, double top, double right, double bo
    my_orig_bottom(bottom),
    my_orig_scale(scale)
 {
+	init(my_left, my_top, my_right, my_bottom, scale, visualAttr);
+}
+
+
+CVD::VideoDisplay::VideoDisplay(ImageRef s, double scale, int* visualAttr) :
+   my_left(0),
+   my_top(0),
+   my_right(s.x),
+   my_bottom(s.y),
+   my_scale(scale),
+   my_orig_left(0),
+   my_orig_top(0),
+   my_orig_right(s.x),
+   my_orig_bottom(s.y),
+   my_orig_scale(scale)
+{
+	init(my_left, my_top, my_right, my_bottom, scale, visualAttr);
+}
+
+
+void CVD::VideoDisplay::init(double left, double top, double right, double bottom, double scale, int* visualAttr)
+{
    // Need these for converting mouse clicks efficiently
    // (This stays the same even when zooming)
    my_positive_right = right > left;
