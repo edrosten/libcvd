@@ -3,6 +3,9 @@
 using namespace CVD;
 using namespace std;
 
+namespace CVD
+{
+
 ImageRef dir[17]=
 {
 	ImageRef(0,3),
@@ -145,4 +148,6 @@ void fast_corner_detect(const BasicImage<byte>& im, vector<ImageRef>& corners, i
 			}
 		}
 	}
+}
+
 }
