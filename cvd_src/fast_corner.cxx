@@ -131,7 +131,7 @@ void fast_corner_detect(const BasicImage<byte>& im, vector<ImageRef>& corners, i
 
 			if(num_above&2) //num_above is 2 or 3
 			{	
-				if(!num_above & 1) //num_above is 2
+				if(!(num_above & 1)) //num_above is 2
 					num_above+= (*(imp+3) > cb);
 				
 				//Only do a detailed look of num_above is 3
@@ -140,10 +140,10 @@ void fast_corner_detect(const BasicImage<byte>& im, vector<ImageRef>& corners, i
 			}
 			else if(num_below & 2)
 			{
-				if(!num_below & 1) //num_above is 2
-					num_below+= (*(imp+3) > cb);
+				if(!(num_below & 1)) //num_above is 2
+					num_below+= (*(imp+3) < c_b);
 
-				if((num_below &1) && is_corner_negative(imp, pointer_dir, cb))
+				if((num_below &1) && is_corner_negative(imp, pointer_dir, c_b))
 					corners.push_back(ImageRef(imp-line_min, y));
 			}
 		}
