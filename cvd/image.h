@@ -65,6 +65,8 @@
 	  bool		in_image(Ir)			Is an ImageRef inside the image
 	  T*		data()					block of data the image is in
 	  T&		operator[](Ir)			access pixels lika an array with an Ir
+	  T*		operator[](int)			return a row of the image
+	  Ir		pos()					return position of a pointer
 
 	  BasicImage is constructed from a blobck of data:
 
@@ -249,6 +251,13 @@ template<class T> class BasicImage
             IMAGE_ASSERT(in_image(ImageRef(0,row)), ImageError::AccessOutsideImage);
             return my_data+row*my_size.x;
         }
+
+		/// Given a pointer, this returns the image position as an ImageRef
+		inline ImageRef pos(T* ptr) const
+		{
+			int diff = ptr - data();
+			return ImageRef(diff % my_size.x, diff / my_size.x);
+		}
 
 		/// Returns the raw image data
 		inline const T* data() const
