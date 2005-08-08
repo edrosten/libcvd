@@ -56,6 +56,13 @@ namespace CVD
 				EofBeforeImage();
 			};
 
+			/// The ifstream which the file is being read from is not open
+			/// @ingroup gException
+			struct IfstreamNotOpen: public All
+			{
+				IfstreamNotOpen();
+			};
+
 			/// The image was incorrect
 			/// @ingroup gException
 			struct MalformedImage: public All

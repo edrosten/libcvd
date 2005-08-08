@@ -32,6 +32,7 @@
 	#include "pnm_src/tiff.h"
 #endif
 #include <sstream>
+#include <fstream>
 
 using namespace CVD;
 using namespace std;
@@ -54,6 +55,11 @@ Exceptions::Image_IO::MalformedImage::MalformedImage(const string& why)
 Exceptions::Image_IO::UnsupportedImageType::UnsupportedImageType()
 {
 	what = "Image input: Unsuppported image type.";
+}
+
+Exceptions::Image_IO::IfstreamNotOpen::IfstreamNotOpen()
+{
+	what = "Image input: File stream has not been opened succesfully.";
 }
 
 Exceptions::Image_IO::EofBeforeImage::EofBeforeImage()
@@ -144,11 +150,21 @@ image_out* image_factory::out(std::ostream& o, long xsize, long ysize, ImageType
 
 image_in* image_factory::in(std::istream& i)
 {
+	if(!i.good())
+	{
+		//Check for one of the commonest errors and put in
+		//a special case
+		ifstream* fs;
+		if((fs = dynamic_cast<ifstream*>(&i)) && !fs->is_open())
+			throw Exceptions::Image_IO::IfstreamNotOpen();
+		else
+			throw Exceptions::Image_IO::EofBeforeImage();
+	}
 	unsigned char c = i.get();
 
-	if(i.eof())
+	if(!i.good())
 		throw Exceptions::Image_IO::EofBeforeImage();
-
+		
 	i.putback(c);
 
 	if(c == 'P')
