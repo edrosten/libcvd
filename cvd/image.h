@@ -253,7 +253,7 @@ template<class T> class BasicImage
         }
 
 		/// Given a pointer, this returns the image position as an ImageRef
-		inline ImageRef pos(T* ptr) const
+		inline ImageRef pos(const T* ptr) const
 		{
 			int diff = ptr - data();
 			return ImageRef(diff % my_size.x, diff / my_size.x);
