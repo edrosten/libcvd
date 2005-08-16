@@ -132,8 +132,6 @@ case "$host" in
 	;;
 esac
 
-echo CPU is $cpu
-
 AC_ARG_WITH(simd, [  --without-simd       disable SIMD code])
 
 if test "$with_simd" != "no"
