@@ -366,16 +366,16 @@ fi
 AC_MSG_CHECKING([for TooN])
 
 #Check for TooN in a bunch of places
-save_CPPFLAGS="$CPPLAGS"
+save_CPPFLAGS="$CPPFLAGS"
 toondir="Missing"
 for dir in  $opt_toon_dir "" "$HOME/code/TooN" "$HOME/Src/TooN" "$HOME/usr/include" "../TooN" ".."
 do
 	a=
 	if test "$dir" = ""
 	then
-		CPPFLAGS="$save_CPPLAGS"
+		CPPFLAGS="$save_CPPFLAGS"
 	else
-		CPPFLAGS="$save_CPPLAGS -I$dir"
+		CPPFLAGS="$save_CPPFLAGS -I$dir"
 	fi
 
 	AC_COMPILE_IFELSE([#include <TooN/TooN.h>
