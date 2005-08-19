@@ -35,6 +35,8 @@ namespace CVD
 		enum ImageType
 		{
 			PNM,
+			PS,
+			EPS,
 			CVD_IMAGE_HAVE_JPEG  //This is a macro, ending in ,
 		};
 	}
