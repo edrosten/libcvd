@@ -42,7 +42,7 @@ void output_eps_header(ostream& o, int xs, int ys)
 	"20 dict begin"																			"\n";
 }
 
-void output_eps_header(ostream& o, ImageRef s)
+void output_eps_header(ostream& o, const ImageRef& s)
 {
 	output_eps_header(o, s.x, s.y);
 }
