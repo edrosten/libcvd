@@ -132,8 +132,6 @@ image_out::~image_out(){}
 image_out* image_factory::out(std::ostream& o, long xsize, long ysize, ImageType::ImageType t, int try_channels, bool try_2byte, const std::string& c)
 {
 
-	cerr << "---------------- " << t << endl;
-
 	switch(t)
 	{
 		case ImageType::PNM:

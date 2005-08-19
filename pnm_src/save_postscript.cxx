@@ -134,7 +134,6 @@ void ps_out::write_raw_pixel_lines(const unsigned short* data, unsigned long nli
 
 void ps_out::write_raw_pixel_lines(const unsigned char* data, unsigned long nlines)
 {
-	cerr << "hello\n";
 	if(nlines + lines > ys)
 		throw CVD::Exceptions::Image_IO::WriteError("Postscript: Internal error: attempting to write too many lines.");
 
