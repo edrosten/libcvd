@@ -21,6 +21,7 @@
 #include "cvd/image_io.h"
 #include "cvd/internal/disk_image.h"
 #include "pnm_src/pnm_grok.h"
+#include "pnm_src/save_postscript.h"
 
 #include "cvd/config.h"
 
@@ -130,6 +131,9 @@ image_out::~image_out(){}
 
 image_out* image_factory::out(std::ostream& o, long xsize, long ysize, ImageType::ImageType t, int try_channels, bool try_2byte, const std::string& c)
 {
+
+	cerr << "---------------- " << t << endl;
+
 	switch(t)
 	{
 		case ImageType::PNM:
@@ -141,6 +145,14 @@ image_out* image_factory::out(std::ostream& o, long xsize, long ysize, ImageType
 				return new CVD::PNM::jpeg_out(o, xsize, ysize, try_channels, try_2byte, c);
 				break;
 		#endif
+
+		case ImageType::EPS:
+			return new CVD::PNM::eps_out(o, xsize, ysize, try_channels, try_2byte, c);
+			break;
+
+		case ImageType::PS:
+			return new CVD::PNM::ps_out(o, xsize, ysize, try_channels, try_2byte, c);
+			break;
 
 		default:
 			throw Exceptions::Image_IO::UnsupportedImageType();

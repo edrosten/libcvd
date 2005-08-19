@@ -133,7 +133,12 @@ namespace CVD
 			/// PNM image format (PBM, PGM or PPM). This is a raw image format.
 			PNM, 
 			/// JPEG image format. This is a compressed (lossy) image format, but defaults to 95% quality, which has very few compression artefacts. This image type is only present if libjpeg is available.
-			JPEG
+			JPEG,
+			/// PS  format. This outputs a bare PostScript image. All PostScript images are output
+			/// in the ASCII-85 format.
+			PS,
+			/// EPS format. This outputs a complete EPS (Encapsulated PostScript) figure.
+			EPS,
 		};
 	}
 	#endif
@@ -332,6 +337,45 @@ namespace CVD
 	template<class PixelType> void pnm_load(Image<PixelType>& im, std::istream& i)
 	{
 		img_load(im, i);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	//
+	// Postscript helper functions
+	//
+
+	/// Outputs an EPS footer to an ostream
+	/// @param o the ostream
+	/// @ingroup gImageIO
+	void output_eps_footer(std::ostream& o);
+
+	/// Outputs an EPS header to an ostream. Typical use is to output the header,
+	/// save a raw PS image, output some other PS (eg annotations) and the output
+	/// the EPS footer.
+	/// @param o the ostream
+	/// @param xs the width of the image
+	/// @param ys the height of the image
+	/// @ingroup gImageIO
+	void output_eps_header(std::ostream& o, int xs, int ys);
+
+
+	/// Outputs an EPS header to an ostream. Typical use is to output the header,
+	/// save a raw PS image, output some other PS (eg annotations) and the output
+	/// the EPS footer.
+	/// @param o the ostream
+	/// @param s size  of the image
+	/// @ingroup gImageIO
+	void output_eps_header(std::ostream & o, const ImageRef& s);
+
+	/// Outputs an EPS header to an ostream. Typical use is to output the header,
+	/// save a raw PS image, output some other PS (eg annotations) and the output
+	/// the EPS footer.
+	/// @param o the ostream
+	/// @param im the image
+	/// @ingroup gImageIO
+	template<class PixelType> void output_eps_header(std::ostream& o, const BasicImage<PixelType>& im)
+	{
+		output_eps_header(o, im.size());
 	}
 
 }
