@@ -49,7 +49,7 @@ void output_eps_header(ostream& o, const ImageRef& s)
 
 void output_eps_footer(ostream& o)
 {
-	o << "showpage end restore\n"
+	o << "end restore\n"
 	  << "%%EOF\n";
 }
 
