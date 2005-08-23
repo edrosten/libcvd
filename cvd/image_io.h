@@ -127,15 +127,20 @@ namespace CVD
 	/// Contains the enumeration of possible image types
 	namespace ImageType
 	{
-	/// Possible image types
+		/// Possible image types
 		enum ImageType
 		{
 			/// PNM image format (PBM, PGM or PPM). This is a raw image format.
 			PNM, 
 			/// JPEG image format. This is a compressed (lossy) image format, but defaults to 95% quality, which has very few compression artefacts. This image type is only present if libjpeg is available.
 			JPEG,
-			/// PS  format. This outputs a bare PostScript image. All PostScript images are output
-			/// in the ASCII-85 format.
+			/// Postscript  format. This outputs a bare PostScript image with the coordinate system set up 
+			/// to that (x,y) corresponds to pixel (x,y), with (0,0) being at the top left of the pixel (0,0).
+			/// The Y axis is therefore inverted compared to normal postscript drawing, but is image aligned.
+			/// To get the drawing axes aligned with the centre of the pixels, write the postscript command
+			/// ".5 .5 translate" after the image.
+			/// The image data in encoded in ASCII-85 for portability. Helper functions are provided for
+			/// generating EPS figures. See CVD::output_eps_header and CVD::output_eps_footer
 			PS,
 			/// EPS format. This outputs a complete EPS (Encapsulated PostScript) figure.
 			EPS,

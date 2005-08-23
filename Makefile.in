@@ -214,7 +214,12 @@ progs: $(PROGS)
 @docs@:
 	doxygen Doxyfile
 
-install: progs $(soname) libcvd.a
+#If the mandir is older than the lib, then remake. A bit of a hack
+man: libcvd.a
+	doxygen Doxyfile
+	touch man
+
+install: progs $(soname) libcvd.a man
 	mkdir -p $(includedir)
 	mkdir -p $(libdir)
 	mkdir -p $(bindir)
@@ -224,11 +229,14 @@ install: progs $(soname) libcvd.a
 	ln -fs  $(libdir)/$(soname1) $(libdir)/$(soname)
 	cp libcvd.a $(libdir)
 	cp $(PROGS) $(bindir)
+	mkdir -p '$(mandir)'
+	cp -r man/man3 '$(mandir)'
 
 clean:
 	/bin/rm -f tmp libcvd.a $(sos)
 	find . -name '*.o' | xargs rm -f
 	find progs/ -perm +0100 -type f | xargs rm -f
+	rm -rf html man
 distclean: clean
 	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h
 
