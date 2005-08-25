@@ -79,7 +79,7 @@ namespace CVD
 
 			double& timestamp() 
 			  {
-			    return my_timestamp;
+			    return this->my_timestamp;
 			  }
 
 		private:

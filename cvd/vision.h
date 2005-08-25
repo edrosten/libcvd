@@ -289,7 +289,7 @@ template <class T>
 void halfSample(const Image<T>& in, Image<T>& out)
 {
     typedef typename Pixel::traits<T>::wider_type sum_type;
-    if( (im.size()/2) != out.size())
+    if( (in.size()/2) != out.size())
         throw Exceptions::Vision::IncompatibleImageSizes("halfSample");
     const T* top = in.data();
     const T* bottom = top + in.size().x;

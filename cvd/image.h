@@ -357,7 +357,7 @@ class Image: public BasicImage<T>
 
 			*this = tmp;
 
-			memcpy(my_data, copy.data(), totalsize()*sizeof(T));
+			memcpy(this->my_data, copy.data(), this->totalsize()*sizeof(T));
 		}
 
 		///Make this image independent of any copies (i.e. force a copy of the image data).
@@ -401,8 +401,8 @@ class Image: public BasicImage<T>
 		{
 			num_copies = new int;
 			*num_copies = 1;
- 			my_size = size;
-			my_data  = new T[totalsize()];
+ 			this->my_size = size;
+			this->my_data  = new T[this->totalsize()];
 		}
 		
 		///Resize the image (destroying the data). The image is resized even if the new size is the same as the old one.
@@ -425,10 +425,10 @@ class Image: public BasicImage<T>
 
 		inline void remove()		//Get rid of a reference to the data
 		{
-			if(my_data && *num_copies && --(*num_copies) == 0)
+			if(this->my_data && *num_copies && --(*num_copies) == 0)
 			{
-				delete[] my_data;
-				my_data = 0;
+				delete[] this->my_data;
+				this->my_data = 0;
 				delete   num_copies;
 				num_copies = 0;
 			}
@@ -438,15 +438,15 @@ class Image: public BasicImage<T>
 		{
 			if(copyof != NULL && copyof->my_data != NULL)
 			{
-				my_size = copyof->my_size;
-				my_data = copyof->my_data;
+				this->my_size = copyof->my_size;
+				this->my_data = copyof->my_data;
 				num_copies = copyof->num_copies;
 				(*num_copies)++;
 			}
 			else
 			{
-				my_size.home();
-				my_data = 0;
+				this->my_size.home();
+				this->my_data = 0;
 				num_copies = 0;
 			}
 		}
