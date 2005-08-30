@@ -38,7 +38,7 @@ SE3::SE3() :
 SE3 SE3::exp(const Vector<6>& vect){
   SE3 result;
   
-  result.my_rotation = SO3::exp(vect.template slice<3,3>());  
+  result.my_rotation = SO3::exp(vect.slice<3,3>());  
 
   double theta = sqrt(vect[3]*vect[3] + vect[4]*vect[4] + vect[5]*vect[5]);
   
@@ -50,10 +50,10 @@ SE3 SE3::exp(const Vector<6>& vect){
 
 
   // now do the rotation
-  SO3 halfrotator = SO3::exp(vect.template slice<3,3>()/2);
+  SO3 halfrotator = SO3::exp(vect.slice<3,3>()/2);
 
-  Vector<3> trans(vect.template slice<0,3>());
-  Vector<3> rot(vect.template slice<3,3>());
+  Vector<3> trans(vect.slice<0,3>());
+  Vector<3> rot(vect.slice<3,3>());
 
   result.my_translation = halfrotator * trans * (2*shtot);
 
@@ -92,8 +92,8 @@ Vector<6> SE3::ln() const{
   rottrans /= (2 * shtot);
 
   Vector<6> result;
-  result.template slice<0,3>()=rottrans;
-  result.template slice<3,3>()=rot;
+  result.slice<0,3>()=rottrans;
+  result.slice<3,3>()=rot;
   return result;
 }
 
