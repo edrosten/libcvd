@@ -50,10 +50,8 @@ namespace CVD{namespace Pixel
 		//Don't know how to do a generic conversion
 		template<class From, int FCopms, class To, int TComps> struct c
 		{
-			static void conv(const From& fr, To& to, const BasicConversion&)
-			{
-				I_dont_know_how_to_perform_this_conversion;
-			}
+            template<bool x> struct dont_know_about_this_conversion;
+            static const int fail = sizeof(dont_know_about_this_conversion<false>);
 		};	
 
 		//The number of components is the same, so this is simple

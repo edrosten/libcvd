@@ -34,10 +34,9 @@ namespace CVD
 		//We use a 2 layer thing here so that Component is only properly defined
 		//for builtin types, unless explicitly overridden.
 
-		template<class P, int spp> struct component_base
-		{
-			static const int count=component_information_is_unknown_for_this_class;
-			typedef  typename P::component_type_is_unknown_for_this_class type;
+		template<class P, int spp> struct component_base {
+            template<bool x> struct component_base_only_for_basic_types;
+            static const int fail = sizeof(component_base_only_for_basic_types<false>);		
 		};
 
 		template<class P> struct component_base<P, 1>
