@@ -253,7 +253,7 @@ namespace CVD{namespace Pixel
 			n<From, Component<From>::count, To, Component<To>::count>::conv(fr, to, *this);
 		}
 
-		template<class F, int Fc, class T, int Tc> struct n:public BasicConversion<ScalarConvert>::c<F,Fc,T,Tc>
+		template<class F, int Fc, class T, int Tc> struct n:public BasicConversion<ScalarConvert>::template c<F,Fc,T,Tc>
 		{};
 
 		template<class F, class T> struct n<F, 1, T, 1>
@@ -288,7 +288,7 @@ namespace CVD{namespace Pixel
 			n<From, Component<From>::count, To, Component<To>::count>::conv(fr, to, *this);
 		}
 
-		template<class F, int Fc, class T, int Tc> struct n:public BasicConversion<ScalarConvert>::c<F,Fc,T,Tc>
+		template<class F, int Fc, class T, int Tc> struct n:public BasicConversion<ScalarConvert>::template c<F,Fc,T,Tc>
 		{};
 
 		template<class F, class T> struct n<F, 1, T, 1>
@@ -328,7 +328,7 @@ namespace CVD{namespace Pixel
 			n<From, Component<From>::count, To, Component<To>::count>::conv(fr, to, *this);
 		}
 
-		template<class F, int Fc, class T, int Tc> struct n:public BasicConversion<ScalarConvert>::c<F,Fc,T,Tc>
+		template<class F, int Fc, class T, int Tc> struct n:public BasicConversion<ScalarConvert>::template c<F,Fc,T,Tc>
 		{};
 		
 		//Convert rgb to y using weightings
