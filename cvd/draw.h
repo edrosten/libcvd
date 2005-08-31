@@ -31,6 +31,7 @@
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/internal/pixel_operations.h>
 #include <vector>
+#include <iostream>
 
 namespace CVD {
 
@@ -75,9 +76,9 @@ template <class T> struct color<T,1> {
     /// returns pixel value corresponding to minimal saturation
     inline static const T& black() { static T c; Pixel::Component<T>::get(c,0) = 0; return c;}
     /// returns pixel value corresponding to 50% gray
-    inline static const T& gray() { static T c; Pixel::Component<T>::get(c,0) = Pixel::traits<TComp>::max_intensity()/2; return c;}
+    inline static const T& gray() { static T c; Pixel::Component<T>::get(c,0) = Pixel::traits<TComp>::max_intensity/2; return c;}
     /// returns pixel value corresponding to maximal saturation
-    inline static const T& white() { static T c; Pixel::Component<T>::get(c,0) = Pixel::traits<TComp>::max_intensity(); return c;}
+    inline static const T& white() { static T c; Pixel::Component<T>::get(c,0) = Pixel::traits<TComp>::max_intensity; return c;}
 };
 
 /// traits type defining colors for pixel types. For pixel types with three component
@@ -86,7 +87,7 @@ template <class T> struct color<T,1> {
 /// @ingroup gGraphics
 template <class T> struct color<T,3> {
     typedef typename Pixel::Component<T>::type TComp;
-    static const TComp hi = Pixel::traits<TComp>::max_intensity();
+    static const TComp hi = Pixel::traits<TComp>::max_intensity;
     inline static const T&   black() { static T c; Pixel::operations<T>::zero(c); return c;}
     inline static const T&   white() { TComp s[3]={hi,hi,hi}; static T c; Pixel::BasicConversion<>::convert_pixel<TComp[3],T>(s,c); return c;}
     inline static const T&     red() { TComp s[3]={hi, 0, 0}; static T c; Pixel::BasicConversion<>::convert_pixel<TComp[3],T>(s,c); return c;}
@@ -273,7 +274,7 @@ template <class S, class T, class U> void combineImages(const Image<S>& a, const
     if( &a != &out )
     {
         CVD::copy(a,out, a.size());
-        cout << "Warning copy in combineImages!" << endl;
+        std::cout << "Warning copy in combineImages!" << std::endl;
     }
 
     ImageRef sourceA = dst;

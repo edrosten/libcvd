@@ -32,128 +32,124 @@ namespace Pixel {
 	{
 	};
 	
-	template<class T> struct traits: public traits_error<T>
+	// LIFT is a dummy parameter to lift the partial specialisations of traits 
+	// on various types into templates again. Then the visibility of static const
+	// members is sorted out by the compiler correctly.
+	template<class T, int LIFT=0> struct traits: public traits_error<T>
 	{
 		static const bool integral=traits_error<T>::Error_trait_not_defined_for_this_class;
 	};
 
-	template<> struct traits<unsigned char> 
+	template<int LIFT> struct traits<unsigned char, LIFT> 
 	{ 
 		typedef int wider_type;
 		static const bool integral = true;
 		static const bool is_signed = false;
 		static const int bits_used = 8;
-		//static const byte max_intensity=(1 << bits_used) - 1; 
-		static unsigned char max_intensity() throw() { return (1 << bits_used) - 1; }
+		static const unsigned char max_intensity=(1 << bits_used) - 1; 
 	};
 
-	template<> struct traits<char> 
+	template<int LIFT> struct traits<char, LIFT> 
 	{ 
 		typedef int wider_type;
 		static const bool integral = true;
 		static const bool is_signed = std::numeric_limits<char>::is_signed;
 		static const int bits_used = std::numeric_limits<char>::digits;
-		//static const byte max_intensity=(1 << bits_used) - 1; 
-		static char max_intensity() throw() { return (1 << bits_used) - 1; }
+		static const char max_intensity=(1 << bits_used) - 1; 
 	};
 
-	template<> struct traits<signed char> 
+	template<int LIFT> struct traits<signed char, LIFT> 
 	{ 
 		typedef int wider_type;
 		static const bool integral = true;
 		static const bool is_signed = false;
 		static const int bits_used = 7;
-		//static const byte max_intensity=(1 << bits_used) - 1; 
-		static signed char max_intensity() throw() { return (1 << bits_used) - 1; }
+		static const signed char max_intensity=(1 << bits_used) - 1; 
 	};
 
-	template<> struct traits<short> 
+	template<int LIFT> struct traits<short, LIFT> 
 	{ 
 		typedef int wider_type;
 		static const bool integral = true;
 		static const bool is_signed = true;
 		static const int bits_used = 15;
-		static short max_intensity() throw() { return (1 << bits_used) - 1; }
-		//static const short max_intensity=(1 << bits_used) - 1; 
+		static const short max_intensity=(1 << bits_used) - 1; 
 	};
 
-	template<> struct traits<unsigned short> 
+	template<int LIFT> struct traits<unsigned short, LIFT> 
 	{ 
 		typedef int wider_type;
 		static const bool integral = true;
 		static const bool is_signed = false;
 		static const int bits_used = 16;
-		//static const unsigned short max_intensity=(1 << bits_used) - 1; 
-		static unsigned short max_intensity() throw() { return (1 << bits_used) - 1; }
+		static const unsigned short max_intensity=(1 << bits_used) - 1; 
 	};
 
-	template<> struct traits<int> 
+	template<int LIFT> struct traits<int, LIFT> 
 	{ 
 		typedef int wider_type; 
 		static const bool integral = true;
 		static const bool is_signed = true;
 		static const int bits_used = 16;
-		static int max_intensity() throw() { return (1 << bits_used) - 1; }
-		//static const int max_intensity=(1 << bits_used) - 1; 
+		static const int max_intensity=(1 << bits_used) - 1; 
 	};
 
-	template<> struct traits<unsigned int> 
+	template<int LIFT> struct traits<unsigned int, LIFT> 
 	{ 
 		typedef unsigned int wider_type; 
 		static const bool integral = true;
 		static const bool is_signed = false;
 		static const int bits_used = 16;
-		//static const unsigned int max_intensity=(1 << bits_used) - 1; 
-		static unsigned int max_intensity() throw() { return (1 << bits_used) - 1; }
+		static const unsigned int max_intensity=(1 << bits_used) - 1; 
 	};
 
-	template<> struct traits<long> 
+	template<int LIFT> struct traits<long, LIFT> 
 	{ 
 		typedef int wider_type; 
 		static const bool integral = true;
 		static const bool is_signed = true;
 		static const int bits_used = 16;
-		//static const long max_intensity=(1 << bits_used) - 1; 
-		static long max_intensity() throw() { return (1 << bits_used) - 1; }
+		static const long max_intensity=(1 << bits_used) - 1; 
 	};
 
-	template<> struct traits<unsigned long> 
+	template<int LIFT> struct traits<unsigned long, LIFT> 
 	{ 
 		typedef unsigned int wider_type; 
 		static const bool integral = true;
 		static const bool is_signed = false;
 		static const int bits_used = 16;
-		//static const long max_intensity=(1 << bits_used) - 1; 
-		static unsigned long max_intensity() throw() { return (1 << bits_used) - 1; }
+		static const long max_intensity=(1 << bits_used) - 1; 
 	};
 
-	template<> struct traits<float> 
+	template<int LIFT> struct traits<float, LIFT> 
 	{ 
 		typedef float wider_type; 
 		static const bool integral = false;
 		static const bool is_signed = true;
-		//static const float max_intensity=1.0f; 
-		static float max_intensity() throw() { return 1.0f;}
+		static const float max_intensity; 
 	};
 
-	template<> struct traits<double> 
+    template<int LIFT> const float traits<float, LIFT>::max_intensity = 1.0f;
+
+	template<int LIFT> struct traits<double, LIFT> 
 	{ 
 		typedef double wider_type; 
 		static const bool integral = false;
 		static const bool is_signed = true;
-		//static const double max_intensity=1.0; 
-		static double max_intensity() throw() { return 1.0;}
+		static const double max_intensity; 
 	};
+	
+	template<int LIFT> const double traits<double, LIFT>::max_intensity = 1.0f;
 
-	template<> struct traits<long double> 
+	template<int LIFT> struct traits<long double, LIFT> 
 	{ 
 		typedef long double wider_type; 
 		static const bool integral = false;
 		static const bool is_signed = true;
-		//static const long double max_intensity=1.0; 
-		static long double max_intensity() throw() { return 1.0;}
+		static const long double max_intensity; 
 	};
 
+    template<int LIFT> const long double traits<long double, LIFT>::max_intensity = 1.0f;
 }
 }
 

@@ -69,7 +69,7 @@ namespace Pixel
 		{
 			static To from(From f)
 			{
-				return static_cast<To>(f*traits<To>::max_intensity()/traits<From>::max_intensity()); 
+				return static_cast<To>(f*traits<To>::max_intensity/traits<From>::max_intensity); 
 			}
 		};
 		
