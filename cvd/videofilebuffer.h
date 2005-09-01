@@ -137,7 +137,11 @@ namespace CVD
 			/// What is the (expected) frame rate of this video buffer, in frames per second?		
 			double frames_per_second() 
 			{
-				return pCodecContext->frame_rate / static_cast<double>(pCodecContext->frame_rate_base);
+			    #if LIBAVCODEC_BUILD >= 4754
+                    return pCodecContext->time_base.den / static_cast<double>(pCodecContext->time_base.num);
+                #else
+				    return pCodecContext->frame_rate / static_cast<double>(pCodecContext->frame_rate_base);
+			    #endif
 			};
 			
 			/// What is the path to the video file?

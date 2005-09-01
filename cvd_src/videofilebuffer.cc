@@ -102,14 +102,23 @@ RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, bool rgbp) :
 		video_stream = -1;
 		for(int i=0; i < pFormatContext->nb_streams && video_stream == -1; i++)
 		{
+		    #if LIBAVFORMAT_BUILD >= 4629
+			if(pFormatContext->streams[i]->codec->codec_type == CODEC_TYPE_VIDEO)
+				video_stream = i; // Found one!
+		    #else
 			if(pFormatContext->streams[i]->codec.codec_type == CODEC_TYPE_VIDEO)
 				video_stream = i; // Found one!
+			#endif
 		}
 		if(video_stream == -1)
 			throw FileOpen(file, "No video stream found.");
 		
 		// Get the codec context for this video stream
-		pCodecContext = &(pFormatContext->streams[video_stream]->codec);
+		#if LIBAVFORMAT_BUILD >= 4629
+		pCodecContext = pFormatContext->streams[video_stream]->codec;
+		#else
+		pCodecContext = &pFormatContext->streams[video_stream]->codec;
+		#endif
 		
 		// Find the decoder for the video stream
 		AVCodec* pCodec = avcodec_find_decoder(pCodecContext->codec_id);
@@ -126,9 +135,12 @@ RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, bool rgbp) :
 			throw FileOpen(file, string(pCodec->name) + " codec could not be initialised.");
 		}
 		
+		#if LIBAVCODEC_BUILD < 4754
 		// Hack to fix wrong frame rates
 		if(pCodecContext->frame_rate > 1000 && pCodecContext->frame_rate_base == 1)
 			pCodecContext->frame_rate_base = 1000;
+		#endif
+		
 		
 		// Allocate video frame
 		pFrame = avcodec_alloc_frame();
@@ -360,7 +372,11 @@ void RawVideoFileBuffer::seek_to(double t)
 		// No need to find the stream--we know which one it is (in video_stream)
 		
 		// Get the codec context for this video stream
-		pCodecContext = &(pFormatContext->streams[video_stream]->codec);
+		#if LIBAVFORMAT_BUILD >= 4629
+		pCodecContext = pFormatContext->streams[video_stream]->codec;
+		#else
+		pCodecContext = &pFormatContext->streams[video_stream]->codec;
+		#endif
 		
 		// Find the decoder for the video stream
 		AVCodec* pCodec = avcodec_find_decoder(pCodecContext->codec_id);
@@ -377,10 +393,6 @@ void RawVideoFileBuffer::seek_to(double t)
 			throw FileOpen(file, string(pCodec->name) + " codec could not be initialised.");
 		}
 		
-		// Hack to fix wrong frame rates
-		if(pCodecContext->frame_rate > 1000 && pCodecContext->frame_rate_base == 1)
-			pCodecContext->frame_rate_base = 1000;
-
 		start_time = 0;
 		frame_ready = true;
 		
