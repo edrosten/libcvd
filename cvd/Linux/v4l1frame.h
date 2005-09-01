@@ -59,7 +59,7 @@ private:
 
         ~V4L1Frame()
         {
-            my_data = NULL;
+            this->my_data = NULL;
         }
 };
 

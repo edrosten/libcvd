@@ -38,8 +38,10 @@ namespace DC
 	#ifndef DOXYGEN_IGNORE_INTERNAL
 	template<class C> struct cam_type
 	{
-		static const int mode = Error__type_not_valid_for_camera___Use_byte_or_rgb_of_byte;
-		static const int fps  = Error__type_not_valid_for_camera___Use_byte_or_rgb_of_byte;
+	    template<bool x> struct Error__type_not_valid_for_camera___Use_byte_or_yuv411_or_rgb_of_byte;
+		static const int mode = sizeof(Error__type_not_valid_for_camera___Use_byte_or_yuv411_or_rgb_of_byte<false>);
+		// We can't really set the frame rate, but the alternative is to give the above error twice
+		static const double fps = 30; 
 	};
 	
 	template<> struct cam_type<yuv411>
@@ -69,14 +71,15 @@ namespace DC
 	#endif
 
 	/// Internal (non type-safe) class used by DVBuffer2 to do the actual interfacing with the
-	/// Firewire (IEE 1394) video hardware. A wrapper for the libdc1394 library.
+	/// Firewire (IEE 1394) video hardware. A wrapper for the libdc1394 library, it assumes that 
+	/// the firewire device is on <tt>/dev/video1394/0</tt>.
 	/// Use DVBuffer2 if you want 8-bit greyscale or 24-bit colour.
 	class RawDCVideo
 	{
 		public:
 		/// Construct a video buffer
-		/// @param camera_no The camera number
-		/// @param num_dma_buffers The number of DMA buffers to use
+		/// @param camera_no The camera number (the first camera is 0)
+		/// @param num_dma_buffers The number of DMA buffers to use (at least 3 is recommended)
 		/// @param bright The brightness correction
 		/// @param exposure The exposure correction
 		/// @param mode The required mode
@@ -155,16 +158,18 @@ namespace DC
 		
 }
 
-/// A video buffer from a Firewire (IEEE 1394) camera.
+/// A video buffer from a Firewire (IEEE 1394) camera. The requested image format depends on the
+/// templated pixel type. Frames of size 640 by 480 pixels are requested, at 30fps (except for 
+/// <code>CVD::Rgb<CVD::byte></code>, which is 15fps).
 /// @param T The pixel type of the frames. Currently only <code><CVD::Rgb<CVD::byte> ></code> 
-/// and <code>CVD::byte></code> are supported.
+/// <code>CVD::yuv411></code> and <code>CVD::byte></code> are supported.
 /// @ingroup gVideoBuffer
 template<class T> class DVBuffer2: public VideoBuffer<T>, public DC::RawDCVideo
 {
 	public:
 		/// Construct a video buffer
-		/// @param cam_no The camera number
-		/// @param num_dma_buffers The number of DMA buffers to use
+		/// @param cam_no The camera number (the first camera is 0)
+		/// @param num_dma_buffers The number of DMA buffers to use (at least 3 is recommended)
 		/// @param bright The brightness correction (default = -1 = automatic)
 		/// @param exposure The exposure correction (default = -1 = automatic)
 		/// @param fps The number of frames per second (default = 30fps)

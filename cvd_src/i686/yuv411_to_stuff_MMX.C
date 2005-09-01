@@ -272,7 +272,7 @@ void yuv411_to_rgb_y(const unsigned char* in, int size, unsigned char* out, unsi
 	//   0          1        2   	
 	:
 	: "m" (out), "m" (in), "g" (size), [luma] "m" (lum_out), [end] "m" (in_end)
-	: "eax", "ebx", "ecx", "edx",  "edi", "esi", "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+	: "eax", "ecx", "edx",  "edi", "esi", "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
 	);
 }
 void yuv411_to_rgb(const unsigned  char* in, int size, unsigned char* out)
@@ -493,7 +493,7 @@ void yuv411_to_rgb(const unsigned  char* in, int size, unsigned char* out)
 	//   0          1        2   	
 	:
 	: "m" (out), "m" (in), "g" (size)
-	: "eax", "ebx", "ecx", "edx",  "edi", "esi", "mm0", "mm1", "mm2", "mm3", "mm4", "mm5"
+	: "eax", "ecx", "edx",  "edi", "esi", "mm0", "mm1", "mm2", "mm3", "mm4", "mm5"
 	);
 }
 
