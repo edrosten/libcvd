@@ -126,6 +126,7 @@ case "$host" in
 /Intel\(R\) Pentium\(R\) 4/			{print "p4";exit}
 /Intel\(R\) Pentium\(R\) M/			{print "pM";exit}
 /Intel\(R\) Xeon\(TM\)/				{print "xeon";exit}
+/Intel\(R\) XEON\(TM\)/				{print "xeon";exit}
 /AMD Athlon\(tm\) 64 Processor/		{print "athlon64";exit}
 /AMD Athlon\(tm\)/					{print "athlon";exit}
 /AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
@@ -174,6 +175,23 @@ then
 				AC_MSG_RESULT(no)
 			fi
 		
+			#Also check whether we have a 64-bit processor
+			#(since some Pentium 4s have EM64T, and some don't)
+			#At least AMD name their processors with x86_64 something different!
+			AC_MSG_CHECKING([for 64-bit extensions])
+			if grep -q lm /proc/cpuinfo
+			then
+				AC_MSG_RESULT(yes)
+				AC_SUBST(have_64bit,yes)
+				AC_DEFINE(CVD_HAVE_64BIT)
+				# Append _64 onto the CPU name so that we can look up the right flags
+				# if it is a pentuim 4
+				cpu=$cpu"_64"
+			else
+				AC_MSG_RESULT(no)
+				bit64=""
+			fi
+			
 		;;
 	esac
 fi
