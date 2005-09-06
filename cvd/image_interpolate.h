@@ -146,12 +146,12 @@ namespace CVD
 			:im(i)
 			{}
 
-			bool in_image(const Vector<2>& pos)
+			bool in_image(const TooN::Vector<2>& pos)
 			{
 				return im.in_image(ir(floor(pos)));
 			}
 
-			T operator[](const Vector<2>& pos)
+			T operator[](const TooN::Vector<2>& pos)
 			{
 				Vector<2> delta =  pos - floor(pos);
 
@@ -215,12 +215,12 @@ namespace CVD
 			:im(i)
 			{}
 
-			bool in_image(const Vector<2>& pos)
+			bool in_image(const TooN::Vector<2>& pos)
 			{
 				return pos[0] >= 1 && pos[1] >=1 && pos[0] < im.size().x-2 && pos[1] < im.size().y - 2;
 			}
 
-			T operator[](const Vector<2>& pos)
+			T operator[](const TooN::Vector<2>& pos)
 			{
 				int x = (int)floor(pos[0]);
 				int y = (int)floor(pos[1]);
