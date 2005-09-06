@@ -153,7 +153,7 @@ namespace CVD
 
 			T operator[](const TooN::Vector<2>& pos)
 			{
-				Vector<2> delta =  pos - floor(pos);
+				TooN::Vector<2> delta =  pos - floor(pos);
 
 				ImageRef p = ir(floor(pos));
 
