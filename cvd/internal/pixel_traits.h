@@ -43,6 +43,7 @@ namespace Pixel {
 	template<int LIFT> struct traits<unsigned char, LIFT> 
 	{ 
 		typedef int wider_type;
+		typedef float float_type;
 		static const bool integral = true;
 		static const bool is_signed = false;
 		static const int bits_used = 8;
@@ -52,6 +53,7 @@ namespace Pixel {
 	template<int LIFT> struct traits<char, LIFT> 
 	{ 
 		typedef int wider_type;
+		typedef float float_type;
 		static const bool integral = true;
 		static const bool is_signed = std::numeric_limits<char>::is_signed;
 		static const int bits_used = std::numeric_limits<char>::digits;
@@ -61,6 +63,7 @@ namespace Pixel {
 	template<int LIFT> struct traits<signed char, LIFT> 
 	{ 
 		typedef int wider_type;
+		typedef float float_type;
 		static const bool integral = true;
 		static const bool is_signed = false;
 		static const int bits_used = 7;
@@ -70,6 +73,7 @@ namespace Pixel {
 	template<int LIFT> struct traits<short, LIFT> 
 	{ 
 		typedef int wider_type;
+		typedef float float_type;
 		static const bool integral = true;
 		static const bool is_signed = true;
 		static const int bits_used = 15;
@@ -79,6 +83,7 @@ namespace Pixel {
 	template<int LIFT> struct traits<unsigned short, LIFT> 
 	{ 
 		typedef int wider_type;
+		typedef float float_type;
 		static const bool integral = true;
 		static const bool is_signed = false;
 		static const int bits_used = 16;
@@ -88,6 +93,7 @@ namespace Pixel {
 	template<int LIFT> struct traits<int, LIFT> 
 	{ 
 		typedef int wider_type; 
+		typedef float float_type;
 		static const bool integral = true;
 		static const bool is_signed = true;
 		static const int bits_used = 16;
@@ -97,6 +103,7 @@ namespace Pixel {
 	template<int LIFT> struct traits<unsigned int, LIFT> 
 	{ 
 		typedef unsigned int wider_type; 
+		typedef float float_type;
 		static const bool integral = true;
 		static const bool is_signed = false;
 		static const int bits_used = 16;
@@ -106,6 +113,7 @@ namespace Pixel {
 	template<int LIFT> struct traits<long, LIFT> 
 	{ 
 		typedef int wider_type; 
+		typedef float float_type;
 		static const bool integral = true;
 		static const bool is_signed = true;
 		static const int bits_used = 16;
@@ -115,6 +123,7 @@ namespace Pixel {
 	template<int LIFT> struct traits<unsigned long, LIFT> 
 	{ 
 		typedef unsigned int wider_type; 
+		typedef float float_type;
 		static const bool integral = true;
 		static const bool is_signed = false;
 		static const int bits_used = 16;
@@ -124,6 +133,7 @@ namespace Pixel {
 	template<int LIFT> struct traits<float, LIFT> 
 	{ 
 		typedef float wider_type; 
+		typedef float float_type;
 		static const bool integral = false;
 		static const bool is_signed = true;
 		static const float max_intensity; 
@@ -134,6 +144,7 @@ namespace Pixel {
 	template<int LIFT> struct traits<double, LIFT> 
 	{ 
 		typedef double wider_type; 
+		typedef double float_type;
 		static const bool integral = false;
 		static const bool is_signed = true;
 		static const double max_intensity; 
@@ -144,6 +155,7 @@ namespace Pixel {
 	template<int LIFT> struct traits<long double, LIFT> 
 	{ 
 		typedef long double wider_type; 
+		typedef long double float_type;
 		static const bool integral = false;
 		static const bool is_signed = true;
 		static const long double max_intensity; 
