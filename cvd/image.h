@@ -114,15 +114,15 @@
 
 	MACROS
 	  
-	  Defining IMAGE_DEBUG before including this file compiles in bounds
+	  Defining CVD_IMAGE_DEBUG before including this file compiles in bounds
 	  checking with operator[]
 
 
 *******************************************************************************/
 
 
-#ifndef __CVD_IMAGE_H__
-#define __CVD_IMAGE_H__
+#ifndef CVD_IMAGE_H
+#define CVD_IMAGE_H
 
 #include <string.h>
 #include <cvd/image_ref.h>
@@ -130,15 +130,15 @@
 namespace CVD {
 
 
-#ifdef IMAGE_DEBUG
-	#define IMAGE_ASSERT(X,Y)  if(!(X)) throw Y()
+#ifdef CVD_IMAGE_DEBUG
+	#define CVD_IMAGE_ASSERT(X,Y)  if(!(X)) throw Y()
 #else
-	#define IMAGE_ASSERT(X,Y)
+	#define CVD_IMAGE_ASSERT(X,Y)
 #endif
 
 /// Fatal image errors (used for debugging). These are not included in the
 /// main CVD::Exceptions namespace since they are fatal errors which are 
-/// only thrown if the library is compiled with <code>-D IMAGE_DEBUG</code>.
+/// only thrown if the library is compiled with <code>-D CVD_IMAGE_DEBUG</code>.
 /// This compiles in image bounds checking (see CVD::BasicImage::operator[]())
 /// and makes image accesses very slow!
 /// @ingroup gException
@@ -215,40 +215,40 @@ template<class T> class BasicImage
 		{}
 
 		/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
-		/// with <code>-D IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is 
+		/// with <code>-D CVD_IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is 
 		/// thrown.
 		inline T& operator[](const ImageRef& pos)
 		{
-			IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
+			CVD_IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
 			return (my_data[pos.y*my_size.x + pos.x]);
 		}
 		
 		/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
-		/// with <code>-D IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is 
+		/// with <code>-D CVD_IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is 
 		/// thrown.
 		inline const T& operator[](const ImageRef& pos) const 
 		{
-			IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
+			CVD_IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
 			return (my_data[pos.y*my_size.x + pos.x]);
 		}
 
         /// Access pointer to pixel row. Returns the pointer to the first element of the passed row.
         /// Allows to use [y][x] on images to access a pixel. Bounds checking is only performed if the library is compiled
-        /// with <code>-D IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is
+        /// with <code>-D CVD_IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is
         /// thrown.
         inline T* operator[](int row)
         {
-            IMAGE_ASSERT(in_image(ImageRef(0,row)), ImageError::AccessOutsideImage);
+            CVD_IMAGE_ASSERT(in_image(ImageRef(0,row)), ImageError::AccessOutsideImage);
             return my_data+row*my_size.x;
         }
 
         /// Access pointer to pixel row. Returns the pointer to the first element of the passed row.
         /// Allows to use [y][x] on images to access a pixel. Bounds checking is only performed if the library is compiled
-        /// with <code>-D IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is
+        /// with <code>-D CVD_IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is
         /// thrown.
         inline const T* operator[](int row) const
         {
-            IMAGE_ASSERT(in_image(ImageRef(0,row)), ImageError::AccessOutsideImage);
+            CVD_IMAGE_ASSERT(in_image(ImageRef(0,row)), ImageError::AccessOutsideImage);
             return my_data+row*my_size.x;
         }
 
