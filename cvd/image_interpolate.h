@@ -165,7 +165,7 @@ namespace CVD
 
 	};
 
-/*
+
 	template<class T> class image_interpolate<Interpolate::Bicubic, T>
 	{
 		private:
@@ -193,8 +193,8 @@ namespace CVD
 
 			T operator[](const Vector<2>& pos)
 			{
-				int x = (int)floor(pos[0] + .5);
-				int y = (int)floor(pos[1] + .5);
+				int x = (int)floor(pos[0]);
+				int y = (int)floor(pos[1]);
 				float dx = pos[0] - x;
 				float dy = pos[1] - y;
 
@@ -225,7 +225,7 @@ namespace CVD
 			}
 
 	};
-*/
+
 }
 
 #endif
