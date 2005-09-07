@@ -33,6 +33,7 @@
 #define __CVD_IMAGE_REF_H__
 
 #include <iostream>
+#include <cctype>
 
 namespace CVD {
 
@@ -175,7 +176,40 @@ inline std::ostream& operator<<(std::ostream& os, const ImageRef& ref)
 /// @relates ImageRef
 inline std::istream& operator>>(std::istream& is, ImageRef& ref)
 {
-	is >> ref.x >> ref.y;
+	//Full parsing for ImageRefs, to allow it to accept the 
+	//output produced above.
+	is >> std::ws;
+	
+	unsigned char c = is.get();
+
+	if(is.eof())
+		return is;
+
+	if(c == '(' )
+	{
+		is >> std::ws >> ref.x >> std::ws;
+
+		if(is.get() != ',')
+			goto bad;
+	
+		is >> std::ws >> ref.y >> std::ws;
+		
+		if(is.get() != ')')
+			goto bad;
+	}
+	else if(isdigit(c))
+	{
+		is.unget();
+		is >> ref.x >> ref.y;
+	}	
+	else
+		goto bad;
+
+	return is;
+
+	bad:	
+	is.setstate(std::ios_base::badbit);
+	
 	return is;
 }
 
