@@ -24,6 +24,7 @@
 
 #include <vector>
 
+#include <cvd/config.h>
 #include <cvd/exceptions.h>
 #include <cvd/image.h>
 #include <cvd/internal/pixel_operations.h>
@@ -61,16 +62,23 @@ namespace Exceptions {
 
 // internal functions used by CVD vision algorithm implementations
 namespace Internal {
+extern "C"{
 #ifdef CVD_HAVE_MMXEXT
-void byte_to_float_gradient(const unsigned char* gray, const float (*grad)[2], int width, int height);
-void byte_to_double_gradient(const unsigned char* gray, const double (*grad)[2], int width, int height);
 void halfsample(const unsigned char* in, unsigned char* out, int width, int height);
+#endif
+
+#ifdef CVD_HAVE_SSE
+void byte_to_float_gradient(const unsigned char* gray, const float (*grad)[2], int width, int height);
 void convolve_float4(float (*I)[4], int w, int h, float* kernel, int k);
 void convolve_float(float *I, int w, int h, float* kernel, int k);
 //void box_convolve_float4(float (*I)[4], int w, int h, int hwin, float factor);
 // void float_second_moment(const float (*grad)[2], int size, float* Gx, float* Gy, float* Gxy);
 #endif
 
+#ifdef CVD_HAVE_SSE2
+void byte_to_double_gradient(const unsigned char* gray, const double (*grad)[2], int width, int height);
+#endif
+};
 void convolveSeparableGray(unsigned char* I, unsigned int width, unsigned int height, const int kernel[], unsigned int size, int divisor);
 };
 
@@ -130,7 +138,7 @@ T scaleKernel(const std::vector<S>& k, std::vector<T>& scaled, T maxval)
 /// @param kernel a vector containing the kernel values
 /// @param divisor the sum of the kernel values for normalization
 /// @ingroup gVision
-template <class T, class K> void convolveSeparable(Image<T>& I, const std::vector<K>& kernel, K divisor)
+template <class T, class K> void convolveSeparable(BasicImage<T>& I, const std::vector<K>& kernel, K divisor)
 {
     typedef typename Pixel::traits<T>::wider_type sum_type;
     int w = I.size().x;
@@ -169,13 +177,13 @@ template <class T, class K> void convolveSeparable(Image<T>& I, const std::vecto
     }
 }
 
-static inline void convolveSeparable(Image<byte>& I, const std::vector<int>& kernel, int divisor)
+static inline void convolveSeparable(BasicImage<byte>& I, const std::vector<int>& kernel, int divisor)
 {
     Internal::convolveSeparableGray(I.data(), I.size().x, I.size().y, &kernel[0], kernel.size(), divisor);
 }
 
 #ifdef CVD_HAVE_MMXEXT
-static inline void convolveSeparable(Image<float[4]>& I, const std::vector<float>& kernel, float divisor)
+static inline void convolveSeparable(BasicImage<float[4]>& I, const std::vector<float>& kernel, float divisor)
 {
     std::vector<float> sk = kernel;
     for (unsigned int i=0; i<sk.size(); i++)
@@ -183,7 +191,7 @@ static inline void convolveSeparable(Image<float[4]>& I, const std::vector<float
     Internal::convolve_float4(I.data(), I.size().x, I.size().y, &sk[0], (int)sk.size());
 }
 
-static inline void convolveSeparable(Image<float>& I, const std::vector<float>& kernel, float divisor)
+static inline void convolveSeparable(BasicImage<float>& I, const std::vector<float>& kernel, float divisor)
 {
     std::vector<float> sk = kernel;
     for (unsigned int i=0; i<sk.size(); i++)
@@ -193,7 +201,7 @@ static inline void convolveSeparable(Image<float>& I, const std::vector<float>& 
 #endif
 
 template <class T>
-void convolveGaussian5_1(Image<T>& I)
+void convolveGaussian5_1(BasicImage<T>& I)
 {
     int w = I.size().x;
     int h = I.size().y;
@@ -222,7 +230,7 @@ void convolveGaussian5_1(Image<T>& I)
     }
 }
 
-void convolveGaussian5_1(Image<byte>& I);
+void convolveGaussian5_1(BasicImage<byte>& I);
 
 
 // TODO: this was using aligned memory, check if this is necessary...
@@ -231,7 +239,7 @@ void convolveGaussian5_1(Image<byte>& I);
 /// @param hwin window size, this is half of the box size
 /// @ingroup gVision
 template <class T>
-void convolveWithBox(Image<T>& I, int hwin)
+void convolveWithBox(BasicImage<T>& I, int hwin)
 {
     typedef typename Pixel::traits<T>::wider_type sum_type;
     int w = I.size().x;
@@ -286,7 +294,7 @@ void convolveWithBox(Image<T>& I, int hwin)
 /// @throw IncompatibleImageSizes if out does not have half the dimensions of in
 /// @ingroup gVision
 template <class T>
-void halfSample(const Image<T>& in, Image<T>& out)
+void halfSample(const BasicImage<T>& in, BasicImage<T>& out)
 {
     typedef typename Pixel::traits<T>::wider_type sum_type;
     if( (in.size()/2) != out.size())
@@ -313,7 +321,7 @@ void halfSample(const Image<T>& in, Image<T>& out)
 }
 
 #ifdef CVD_HAVE_MMXEXT
-void halfSample(const Image<byte>& in, Image<byte>& out);
+void halfSample(const BasicImage<byte>& in, BasicImage<byte>& out);
 #endif
 
 /// thresholds an image by setting all pixel values below a minimum to 0 and all values above to a given maximum
@@ -322,7 +330,7 @@ void halfSample(const Image<byte>& in, Image<byte>& out);
 /// @param hi maximum value for values above the threshold
 /// @ingroup gVision
 template <class T>
-void threshold(Image<T>& im, const T& minimum, const T& hi)
+void threshold(BasicImage<T>& im, const T& minimum, const T& hi)
 {
     T* p = im.data();
     const T* end = im.data()+im.totalsize();
@@ -338,7 +346,7 @@ void threshold(Image<T>& im, const T& minimum, const T& hi)
 /// sets the border pixel lines of an image to zero
 /// @param I input image, changed in place
 /// @ingroup gVision
-template <class T> void zeroBorders(Image<T>& I)
+template <class T> void zeroBorders(BasicImage<T>& I)
 {
     int w = I.size().x;
     int h = I.size().y;
@@ -357,7 +365,7 @@ template <class T> void zeroBorders(Image<T>& I)
 /// @throw IncompatibleImageSizes if out does not have same dimensions as im
 /// @ingroup gVision
 template <class S, class T>
-void gradient(const Image<S>& im, Image<T>& out)
+void gradient(const BasicImage<S>& im, BasicImage<T>& out)
 {
     typedef typename Pixel::Component<T>::type TComp;
     typedef typename Pixel::Component<S>::type SComp;
@@ -378,9 +386,11 @@ void gradient(const Image<S>& im, Image<T>& out)
     zeroBorders(out);
 }
 
-#ifdef CVD_HAVE_MMXEXT
-void gradient(const Image<byte>& im, Image<float[2]>& out);
-void gradient(const Image<byte>& im, Image<double[2]>& out);
+#ifdef CVD_HAVE_SSE
+void gradient(const BasicImage<byte>& im, BasicImage<float[2]>& out);
+#endif
+#ifdef CVD_HAVE_SSE2
+void gradient(const BasicImage<byte>& im, BasicImage<double[2]>& out);
 #endif
 
 /// computes mean and stddev of intensities in an image. These are computed for each component of the
@@ -390,7 +400,7 @@ void gradient(const Image<byte>& im, Image<double[2]>& out);
 /// @param stddev pixel element containing the standard deviation for each component
 /// @ingroup gVision
 template <class T>
-void stats(const Image<T>& im, T& mean, T& stddev)
+void stats(const BasicImage<T>& im, T& mean, T& stddev)
 {
     const unsigned int c = Pixel::Component<T>::count;
     double v;
@@ -451,7 +461,7 @@ struct multiplyBy
 /// @throw IncompatibleImageSizes if the images are not of the same sizes
 /// @ingroup gVision
 template <class S, class T, class Op>
-void apply(const Image<S>& in, Image<T>& out, const Op& op)
+void apply(const BasicImage<S>& in, BasicImage<T>& out, const Op& op)
 {
     if(out.size() != in.size())
         throw Exceptions::Vision::IncompatibleImageSizes("apply");
@@ -469,7 +479,7 @@ void apply(const Image<S>& in, Image<T>& out, const Op& op)
 /// @param op the predicate to test with. It must implement bool operator()( const ImageRef & ) or be a function with that signature
 /// @return vector containing ImageRef with pixel matching the predicate
 template <class T, class Op>
-std::vector<ImageRef> find( const Image<T> & in, const Op & op)
+std::vector<ImageRef> find( const BasicImage<T> & in, const Op & op)
 {
     std::vector<ImageRef> list;
     find(in, op, list);
@@ -482,7 +492,7 @@ std::vector<ImageRef> find( const Image<T> & in, const Op & op)
 /// @param op the predicate to test with. It must implement bool operator()( const ImageRef & ) or be a function with that signature
 /// @param list vector containing the image references
 template <class T, class Op>
-std::vector<ImageRef> & find( const Image<T> & in, const Op & op, std::vector<ImageRef> & list)
+std::vector<ImageRef> & find( const BasicImage<T> & in, const Op & op, std::vector<ImageRef> & list)
 {
     ImageRef begin(0,0);
     const ImageRef end = in.size();
@@ -498,10 +508,10 @@ std::vector<ImageRef> & find( const Image<T> & in, const Op & op, std::vector<Im
 
 template<template <class P> class PixelFunction=Pixel::pixel_norm>
 struct desaturate {
-    template <class S, class T> void operator()(const Image<S>& I, Image<T>& D) {
+    template <class S, class T> void operator()(const BasicImage<S>& I, BasicImage<T>& D) {
         apply(I,D,Gray<S,T,PixelFunction>());
     }
-    template <class T> void operator()(Image<T>& I){
+    template <class T> void operator()(BasicImage<T>& I){
         apply(I,I,Gray<T,T,PixelFunction>());
     }
 };
@@ -509,7 +519,7 @@ struct desaturate {
 
   /*
     template <class T, int N>
-    void subtract(Image<T[N]>& I, const Image<T[N]>& operand)
+    void subtract(BasicImage<T[N]>& I, const BasicImage<T[N]>& operand)
     {
         typedef typename traits<T>::wider_type wider;
         assert(operand.size() == I.size());

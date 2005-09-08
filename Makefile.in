@@ -157,13 +157,18 @@ endif
 ################################################################################
 #
 #Architecture objects
+ifeq (@host_cpu@@have_sse2@,i686yes)
+	CVD_OBJS+= cvd_src/i686/byte_to_double_gradient.o
+endif
+
+ifeq (@host_cpu@@have_sse@,i686yes)
+	CVD_OBJS+= cvd_src/i686/byte_to_float_gradient.o \
+			cvd_src/i686/convolve_float.o \
+			cvd_src/i686/convolve_float4.o  
+endif
 
 ifeq (@host_cpu@@have_mmxext@,i686yes)
 	CVD_OBJS+=cvd_src/i686/yuv411_to_stuff_MMX.o  \
-			cvd_src/i686/byte_to_double_gradient.o \
-			cvd_src/i686/byte_to_float_gradient.o \
-			cvd_src/i686/convolve_float.o \
-			cvd_src/i686/convolve_float4.o  \
 			cvd_src/i686/halfsample.o
 else
 	CVD_OBJS+=cvd_src/yuv411_to_stuff.o

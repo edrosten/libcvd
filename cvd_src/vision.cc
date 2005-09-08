@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cvd/vision.h>
+#include <cvd/config.h>
 
 using namespace std;
 
@@ -109,20 +110,24 @@ void convolveGaussian5_1(Image<byte>& I)
 void halfSample(const Image<byte>& in, Image<byte>& out)
 {
     assert(out.size().x == in.size().x/2 && out.size().y == in.size().y/2);
-    halfsample(in.data(), out.data(), in.size().x, in.size().y);
+    Internal::halfsample(in.data(), out.data(), in.size().x, in.size().y);
 }
+#endif
 
+#ifdef CVD_HAVE_SSE
 void gradient(const Image<byte>& im, Image<float[2]>& out)
 {
     assert(im.size() == out.size());
-    byte_to_float_gradient(im.data(), out.data(), im.size().x, im.size().y);
+    Internal::byte_to_float_gradient(im.data(), out.data(), im.size().x, im.size().y);
     zeroBorders(out);
 }
+#endif
 
+#ifdef CVD_HAVE_SSE2
 void gradient(const Image<byte>& im, Image<double[2]>& out)
 {
     assert(im.size() == out.size());
-    byte_to_double_gradient(im.data(), out.data(), im.size().x, im.size().y);
+    Internal::byte_to_double_gradient(im.data(), out.data(), im.size().x, im.size().y);
     zeroBorders(out);
 }
 #endif
