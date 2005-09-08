@@ -182,7 +182,7 @@ static inline void convolveSeparable(BasicImage<byte>& I, const std::vector<int>
     Internal::convolveSeparableGray(I.data(), I.size().x, I.size().y, &kernel[0], kernel.size(), divisor);
 }
 
-#ifdef CVD_HAVE_MMXEXT
+#ifdef CVD_HAVE_SSE
 static inline void convolveSeparable(BasicImage<float[4]>& I, const std::vector<float>& kernel, float divisor)
 {
     std::vector<float> sk = kernel;
