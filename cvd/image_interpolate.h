@@ -8,15 +8,15 @@
 namespace CVD
 {
 	///Classes used to specify the interpolation type
-	///for image_interpolate
+	///for image_interpolate.
 	///@ingroup gImage
 	namespace Interpolate
 	{
 		/// This does not interpolate: it uses the nearest neighbour.
 		///
 		/// The sub pixel to be accessed is \f$p = (x,y)\f$. The nearest pixel is
-		/// \f$q = ( \operatorname{round}\ x, \operatorname{round}\ y)
-		/// The interpolated value, \f$v\f$ is \f$v = I(q)\f$
+		/// \f$q = ( \operatorname{round}\ x, \operatorname{round}\ y)\f$
+		/// The interpolated value, \f$v\f$, is \f$v = I(q)\f$
 		class NearestNeighbour{};
 
 
@@ -26,36 +26,40 @@ namespace CVD
 		/// \f$\delta = p - p'\f$
 		///
 		/// 4 pixels in a square with \f$p'\f$ in the top left corner are taken:
-		/// \f$a = I(p')\f$
-		/// \f$b = I(p' + (1,0))\f$
-		/// \f$c = I(p' + (0,1))\f$
-		///	\f$d = I(p' + (1,1))\f$
+		/// \f{eqnarray*}
+		/// a &=& I(p')\\
+		/// b &=& I(p' + (1,0))\\
+		/// c &=& I(p' + (0,1))\\
+		///	d &=& I(p' + (1,1))
+		/// \f}
 		/// 
-		/// \f$v = (1-\delta_y)((1-\delta_x)a + \delta_xb) + \delta_y((1-\delta_x)c + \delta_xd)\f$
+		/// The interpolated value, \f$v\f$, is 
+		/// \f[v = (1-\delta_y)((1-\delta_x)a + \delta_xb) + \delta_y((1-\delta_x)c + \delta_xd)\f]
 		class Bilinear{};
 
 
 		/// This class is for bicubic (not bicubic spline) interpolation.
 		///
-		/// \f$ v = \sum_{m=-1}^2\sum_{n=-1}^2 I(x' + m, y' + n)r(m - \delta_x)r(\delta_y-n) \f$
+		/// \f[ v = \sum_{m=-1}^2\sum_{n=-1}^2 I(x' + m, y' + n)r(m - \delta_x)r(\delta_y-n) \f]
 		///
 		/// where:
 		///
-		/// r(x) = \frac{1}{6}\left[ p(x+2)^3 - 4p(x+1)^3 + 6p(x)^3 - 4p(x-1)^3 \right]\f$
-		///
-		/// \f$ p(x) = \left{ \begin{array}{cc}x&x>0\\0&x \le 0\end{array} \right}\f$
+		/// \f{align*}
+		/// r(x) &= \frac{1}{6}\left[ p(x+2)^3 - 4p(x+1)^3 + 6p(x)^3 - 4p(x-1)^3 \right]\\
+		/// p(x) &= \begin{cases}x&x>0\\0&x \le 0\end{cases} \f}
 		///This algorithm is described in http://astronomy.swin.edu.au/~pbourke/colour/bicubic/
 		class Bicubic{};
 	};
 
 	#ifdef DOXYGEN_INCLUDE_ONLY_FOR_DOCS
 		///This is a generic interpolation class which wraps in image and provides
-		///a similar interface for floating point pixel posisions.
-		///@param I The interpolation type. See CVD::Interpolate for available types.
-		///@param P The pixel type.
-		///@ingroup gImage
+		///a similar interface for floating point pixel positions.
+		//@param I The interpolation type. See CVD::Interpolate for available types.
+		//@param P The pixel type.
+		//@ingroup gImage
 		template<class I, class P> class image_interpolate
 		{
+		  public:
 			///Construct the class.
 			///@param i The image to be interpolated.
 			image_interpolate(const BasicImage<byte>& i);
@@ -65,9 +69,9 @@ namespace CVD
 			bool in_image(const TooN::Vector<2>& pos);
 
 			///Access the pixel at pos, with interpolation.
-			///Bouds checking is tha same as for CVD::Image.
+			///Bounds checking is the same as for CVD::Image.
 			///@param pos The pixel to access
-			C operator[](const TooN::Vector<2>& pos);
+			P operator[](const TooN::Vector<2>& pos);
 
 			///Return the minimum value for which in_image returns true.
 			TooN::Vector<2> min();
