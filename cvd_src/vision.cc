@@ -107,26 +107,30 @@ void convolveGaussian5_1(Image<byte>& I)
 }
 
 #ifdef CVD_HAVE_MMXEXT
-void halfSample(const Image<byte>& in, Image<byte>& out)
-{
-    assert(out.size().x == in.size().x/2 && out.size().y == in.size().y/2);
+void halfSample(const BasicImage<byte>& in, BasicImage<byte>& out)
+{   
+
+	if( (in.size()/2) != out.size())
+        throw Exceptions::Vision::IncompatibleImageSizes("halfSample");
     Internal::halfsample(in.data(), out.data(), in.size().x, in.size().y);
 }
 #endif
 
 #ifdef CVD_HAVE_SSE
-void gradient(const Image<byte>& im, Image<float[2]>& out)
-{
-    assert(im.size() == out.size());
+void gradient(const BasicImage<byte>& im, BasicImage<float[2]>& out)
+{ 
+	if( im.size() != out.size())
+        throw Exceptions::Vision::IncompatibleImageSizes("gradient");
     Internal::byte_to_float_gradient(im.data(), out.data(), im.size().x, im.size().y);
     zeroBorders(out);
 }
 #endif
 
 #ifdef CVD_HAVE_SSE2
-void gradient(const Image<byte>& im, Image<double[2]>& out)
+void gradient(const BasicImage<byte>& im, BasicImage<double[2]>& out)
 {
-    assert(im.size() == out.size());
+	if( im.size() != out.size())
+        throw Exceptions::Vision::IncompatibleImageSizes("gradient");
     Internal::byte_to_double_gradient(im.data(), out.data(), im.size().x, im.size().y);
     zeroBorders(out);
 }
