@@ -1,4 +1,4 @@
-/*                       
+/*
 	This file is part of the CVD Library.
 
 	Copyright (C) 2005 The Authors
@@ -15,15 +15,15 @@
 
 	You should have received a copy of the GNU Lesser General Public
 	License along with this library; if not, write to the Free Software
-	Foundation, Inc., 
+	Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-inline ImageRef::ImageRef() 
+inline ImageRef::ImageRef()
 {
 	x=y=0;
 }
-	
-inline ImageRef::ImageRef(int xp, int yp) 
+
+inline ImageRef::ImageRef(int xp, int yp)
 :x(xp),y(yp)
 {}
 
@@ -32,7 +32,7 @@ inline ImageRef::ImageRef(std::istream& is)
 	is.read((char*)&x,sizeof(int));
 	is.read((char*)&y,sizeof(int));
 }
-	
+
 	//////////////////////////////////////////////////////////////////////////
 	// the following cryptic pieces of rubbish are because inline functions //
 	// must have their one and only return function as the last call        //
@@ -48,7 +48,7 @@ inline bool ImageRef::next(const ImageRef& max)	// move on to the next value
 inline bool ImageRef::next(const ImageRef& min, const ImageRef& max)
 {
 	return (++x != max.x || (x=min.x, ++y != max.y) || (y=min.y, false));
-}	
+}
 
 inline bool ImageRef::prev(const ImageRef& max)	// move back to the previous value
 {
@@ -65,25 +65,25 @@ inline void ImageRef::home()
 	x=y=0;
 }
 
-inline void ImageRef::end(const ImageRef& size) 
+inline void ImageRef::end(const ImageRef& size)
 {
 	x=size.x-1;
 	y=size.y-1;
 }
 
-inline ImageRef& ImageRef::operator=(const ImageRef& ref) 
+inline ImageRef& ImageRef::operator=(const ImageRef& ref)
 {
-	x=ref.x; 
-	y=ref.y; 
+	x=ref.x;
+	y=ref.y;
 	return *this;
 }
 
-inline bool ImageRef::operator ==(const ImageRef& ref) const 
+inline bool ImageRef::operator ==(const ImageRef& ref) const
 {
 	return (x==ref.x && y==ref.y);
 }
 
-inline bool ImageRef::operator !=(const ImageRef& ref) const 
+inline bool ImageRef::operator !=(const ImageRef& ref) const
 {
 	return (x!=ref.x || y!=ref.y);
 }
@@ -91,40 +91,40 @@ inline bool ImageRef::operator !=(const ImageRef& ref) const
 inline ImageRef& ImageRef::operator*=(const double scale)
 {
 	x=(int)(x*scale);
-	y=(int)(y*scale); 
+	y=(int)(y*scale);
 	return *this;
 }
 
 inline ImageRef& ImageRef::operator/=(const double scale)
 {
-	x=(int)(x/scale); 
-	y=(int)(y/scale); 
+	x=(int)(x/scale);
+	y=(int)(y/scale);
 	return *this;
 }
 
-inline ImageRef& ImageRef::operator+=(const ImageRef rhs) 
+inline ImageRef& ImageRef::operator+=(const ImageRef rhs)
 {
-	x+=rhs.x; 
-	y+=rhs.y; 
+	x+=rhs.x;
+	y+=rhs.y;
 	return *this;
 }
 
-inline ImageRef& ImageRef::operator-=(const ImageRef rhs) 
+inline ImageRef& ImageRef::operator-=(const ImageRef rhs)
 {
-	x-=rhs.x; 
-	y-=rhs.y; 
+	x-=rhs.x;
+	y-=rhs.y;
 	return *this;
 }
 
 inline ImageRef ImageRef::operator*(const double scale) const
 {
-	ImageRef v((int)(x*scale),(int)(y*scale)); 
+	ImageRef v((int)(x*scale),(int)(y*scale));
 	return v;
 }
 
 inline ImageRef ImageRef::operator/(const double scale) const
 {
-	ImageRef v((int)(x/scale),(int)(y/scale)); 
+	ImageRef v((int)(x/scale),(int)(y/scale));
 	return v;
 }
 
@@ -136,14 +136,14 @@ inline ImageRef ImageRef::operator+(const ImageRef rhs) const
 
 inline ImageRef ImageRef::operator-(const ImageRef rhs) const
 {
-	ImageRef v(x-rhs.x, y-rhs.y); 
+	ImageRef v(x-rhs.x, y-rhs.y);
 	return v;
 }
 
-inline ImageRef& ImageRef::operator<<=(int i) 
+inline ImageRef& ImageRef::operator<<=(int i)
 {
-	x = x << i; 
-	y=y << i; 
+	x = x << i;
+	y=y << i;
 	return *this;
 }
 
@@ -156,8 +156,8 @@ inline ImageRef& ImageRef::operator>>=(int i)
 
 inline ImageRef ImageRef::shiftl(int i) const
 {
-	ImageRef result; 
-	result.x = x << i; 
+	ImageRef result;
+	result.x = x << i;
 	result.y=y << i;
 	return result;
 }
@@ -184,4 +184,9 @@ inline ImageRef ImageRef::operator>>(int i) const
 inline ImageRef operator*(const int scale, const ImageRef&  ref)
 {
 	return ImageRef(ref.x*scale, ref.y*scale);
+}
+
+inline bool ImageRef::operator<(const ImageRef & other) const
+{
+	return x < other.x || ( x == other.x && y < other.y);
 }
