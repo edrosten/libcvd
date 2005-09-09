@@ -1,4 +1,4 @@
-/*                       
+/*
 	This file is part of the CVD Library.
 
 	Copyright (C) 2005 The Authors
@@ -15,11 +15,13 @@
 
 	You should have received a copy of the GNU Lesser General Public
 	License along with this library; if not, write to the Free Software
-	Foundation, Inc., 
+	Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #ifndef CVD_GL_HELPERS_H
 #define CVD_GL_HELPERS_H
+
+#include <vector>
 
 #include <cvd/image_ref.h>
 #include <cvd/image.h>
@@ -34,11 +36,12 @@
 
 #ifdef CVD_HAVE_TOON
 #include <TooN/TooN.h>
+#include <TooN/se3.h>
 #endif
 
 namespace CVD
 {
-	
+
 	/// Specify the (x,y) co-ordinates of a vertex
 	/// @param i The vertex location
 	///@ingroup gGL
@@ -72,10 +75,131 @@ namespace CVD
 		glVertex4d(v[0], v[1], v[2], v[3]);
 	}
 
+	/// add a translation specified from the first three coordinates of a vector
+	/// @param v the translation vector
+	/// @ingroup gGL
+	template <int N> inline void glTranslate( const TooN::Vector<N> & v)
+	{
+		glTranslated(v[0], v[1], v[2]);
+	}
 
+	/// add a translation specified from the first two coordinates of a 2-vector
+	/// z is set to zero here
+	/// @param v the translation vector
+	/// @ingroup gGL
+	template <> inline void glTranslate( const TooN::Vector<2> & v)
+	{
+		glTranslated(v[0], v[1], 0);
+	}
 
+	/// add a translation specified from the first coordinate of a 1-vector
+	/// Y and Z are zero here
+	/// @param v the translation vector
+	/// @ingroup gGL
+	template <> inline void glTranslate( const TooN::Vector<1> & v)
+	{
+		glTranslated(v[0], 0, 0);
+	}
 
-	/// Set the new colour to the red, green and blue components given in the Vector 
+	/// multiply a TooN matrix onto the current matrix stack. Works for matrizes
+	/// of size n >= 4 and uses the upper left 4x4 submatrix. The matrix is also
+	/// transposed to account for GL's column major format.
+	/// @param m the transformation matrix
+	/// @ingroup gGL
+	template <int N> inline void glMultMatrix( const TooN::Matrix<N> & m )
+	{
+		GLdouble glm[16];
+		glm[0] = m[0][0]; glm[1] = m[1][0]; glm[2] = m[2][0]; glm[3] = m[3][0];
+		glm[4] = m[0][1]; glm[5] = m[1][1]; glm[6] = m[2][1]; glm[7] = m[3][1];
+		glm[8] = m[0][2]; glm[9] = m[1][2]; glm[10] = m[2][2]; glm[11] = m[3][2];
+		glm[12] = m[0][3]; glm[13] = m[1][3]; glm[14] = m[2][3]; glm[15] = m[3][3];
+		glMultMatrixd(glm);
+	}
+
+	/// multiply a TooN 3x3 matrix onto the current matrix stack. The GL matrix
+	/// last column and row are set to 0 with the lower right element to 1.
+	/// The matrix is also transposed to account for GL's column major format.
+	/// @param m the transformation matrix
+	/// @ingroup gGL
+	template <> inline void glMultMatrix( const TooN::Matrix<3> & m )
+	{
+		GLdouble glm[16];
+		glm[0] = m[0][0]; glm[1] = m[1][0]; glm[2] = m[2][0]; glm[3] = 0;
+		glm[4] = m[0][1]; glm[5] = m[1][1]; glm[6] = m[2][1]; glm[7] = 0;
+		glm[8] = m[0][2]; glm[9] = m[1][2]; glm[10] = m[2][2]; glm[11] = 0;
+		glm[12] = 0; glm[13] = 0; glm[14] = 0; glm[15] = 1;
+		glMultMatrixd(glm);
+	}
+
+	/// multiply a TooN 2x2 matrix onto the current matrix stack. The TooN matrix
+	/// will only occupy the upper left hand block, the remainder will be from the
+	/// identity matrix. The matrix is also transposed to account for GL's column major format.
+	/// @param m the transformation matrix
+	/// @ingroup gGL
+	template <> inline void glMultMatrix( const TooN::Matrix<2> & m )
+	{
+		GLdouble glm[16];
+		glm[0] = m[0][0]; glm[1] = m[1][0]; glm[2] = 0; glm[3] = 0;
+		glm[4] = m[0][1]; glm[5] = m[1][1]; glm[6] = 0; glm[7] = 0;
+		glm[8] = 0; glm[9] = 0; glm[10] = 1; glm[11] = 0;
+		glm[12] = 0; glm[13] = 0; glm[14] = 0; glm[15] = 1;
+		glMultMatrixd(glm);
+	}
+
+	/// multiplies a SO3 onto the current matrix stack
+	/// @param so3 the SO3
+	/// @ingroup gGL
+	inline void glMultMatrix( const TooN::SO3 & so3 )
+	{
+		glMultMatrix( so3.get_matrix());
+	}
+
+	/// multiplies a SE3 onto the current matrix stack. This multiplies
+	/// the SO3 and the translation in order.
+	/// @param se3 the SE3
+	/// @ingroup gGL
+	inline void glMultMatrix( const TooN::SE3 & se3 )
+	{
+		glMultMatrix( se3.get_rotation());
+		glTranslate( se3.get_translation());
+	}
+
+	/// sets a gl frustum from the linear camera parameters, image size and near and far plane.
+	/// The camera will be in OpenGL style with camera center in the origin and the viewing direction
+	/// down the negative z axis, with y pointing upwards and x pointing to the left and the image plane
+	/// at z=-1.
+	/// Images coordinates need to be rotated around the x axis to make sense here, because typically
+	/// the camera is described as y going down (pixel lines) and image plane at z=1.
+	/// @param params vector containing fu, fv, pu, pv as in the linear part of camera parameters
+	/// @param width width of the image plane in pixels, here the viewport for example
+	/// @param height height of the image plane in pixels, here the viewport for example
+	/// @param near near clipping plane
+	/// @param far far clipping plane
+	/// @ingroup gGL
+	inline void glFrustum( const TooN::Vector<4> & params, double width, double height, double near = 0.1, double far = 100)
+	{
+		GLdouble left, right, bottom, top;
+		left = -near * params[2] / params[0];
+		top = near * params[3] / params[1];
+		right = near * ( width - params[2] ) / params[0];
+		bottom = - near * ( height - params[3] ) / params[1];
+		::glFrustum( left, right, bottom, top, near, far );
+	}
+
+	/// sets a gl frustum taking the first 4 parameters from the camera model. see @see glFrustum for
+	/// details on the created frustum.
+	/// @param camera camera supplying the parameters for the frustum
+	/// @param width width of the image plane in pixels, here the viewport for example
+	/// @param height height of the image plane in pixels, here the viewport for example
+	/// @param near near clipping plane
+	/// @param far far clipping plane
+	/// @ingroup gGL
+	template <class CAMERA> inline void glFrustum( const CAMERA & camera, double width, double height, double near = 0.1, double far = 100)
+	{
+		glFrustum( camera.get_parameters().template slice<0,4>(), width, height, near, far);
+	}
+
+	/// Set the new colour to the red, green and blue components given in the Vector
 	/// (where 0.0 represents zero intensity and 1.0 full intensity)
 	/// @param v The new colour
 	///@ingroup gGL
@@ -84,7 +208,7 @@ namespace CVD
 		glColor3d(v[0], v[1], v[2]);
 	}
 
-	/// Set the new colour to the red, green, blue and alpha components given in the Vector 
+	/// Set the new colour to the red, green, blue and alpha components given in the Vector
 	/// (where 0.0 represents zero intensity and 1.0 full intensity)
 	/// @param v The new colour
 	///@ingroup gGL
@@ -93,6 +217,16 @@ namespace CVD
 		glColor4d(v[0], v[1], v[2], v[3]);
 	}
 	#endif
+
+	/// sets a whole list of vertices stored in a std::vector. It uses the various
+	/// glVertex helpers defined in this header file.
+	/// @param list the list of vertices
+	/// @ingroup gGL
+	template<class T> inline void glVertex( const std::vector<T> & list )
+	{
+		for(unsigned int i=0; i < list.size(); i++)
+			glVertex(list[i]);
+	}
 
 	/// Set the new colour to the red, green, blue components given
 	/// (where 0 represents zero intensity and 255 full intensity)
@@ -120,7 +254,7 @@ namespace CVD
 	{
 		glColor3ub(c.red, c.green, c.blue);
 	}
-	
+
  	/// Set the new colour to the red, green, blue and alpha components given
 	/// (where 0.0 represents zero intensity and 1.0 full intensity)
 	/// @param c The new colour
@@ -148,7 +282,7 @@ namespace CVD
 		glColor4f(c.red, c.green, c.blue, c.alpha);
 	}
 
- 	/// Draw an image to the frame buffer at the current raster position. 
+ 	/// Draw an image to the frame buffer at the current raster position.
 	/// Use glRasterPos to set the current raster position
 	/// @param i The image to draw
 	///@ingroup gGL
