@@ -290,5 +290,24 @@ template <class S, class T, class U> void combineImages(const Image<S>& a, const
     }
 }
 
+/// flips an image vertically in place.
+/// @param in image to be flipped in place
+/// @ingroup gGraphics
+template <class T> void flipVertical( Image<T> & in )
+{
+    const ImageRef size = in.size();
+    T buffer[size.x];
+    T * top = in.data();
+    T * bottom = top + (size.y - 1)*size.x;
+    while( top < bottom )
+    {
+        memcpy(buffer, top, size.x * sizeof(T));
+        memcpy(top, bottom, size.x * sizeof(T));
+        memcpy(bottom, buffer, size.x * sizeof(T));
+        top += size.x;
+        bottom -= size.x;
+    }
+}
+
 };
 #endif // CVD_DRAW_H_
