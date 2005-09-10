@@ -161,7 +161,20 @@ namespace Pixel {
 		static const long double max_intensity; 
 	};
 
+
+
     template<int LIFT> const long double traits<long double, LIFT>::max_intensity = 1.0f;
+
+	template<class C> struct indirect_type
+	{
+		typedef C type;
+	};
+
+	template<class C, int N, int LIFT> struct traits<C[N], LIFT>
+	{
+		typedef typename indirect_type<typename traits<C>::wider_type[N]>::type  wider_type;
+		typedef typename indirect_type<typename traits<C>::float_type[N]>::type  float_type;
+	};
 }
 }
 
