@@ -94,7 +94,7 @@ namespace CVD
 	template<class C> class image_interpolate<Interpolate::NearestNeighbour, C>
 	{
 		private:
-			const BasicImage<C>& im;
+			const BasicImage<C>* im;
 
 			int round(double d)
 			{
@@ -112,17 +112,17 @@ namespace CVD
 	
 		public:
 			image_interpolate(const BasicImage<byte>& i)
-			:im(i)
+			:im(&i)
 			{}
 
 			bool in_image(const TooN::Vector<2>& pos)
 			{
-				return im.in_image(to_ir(pos));
+				return im->in_image(to_ir(pos));
 			}
 
 			C operator[](const TooN::Vector<2>& pos)
 			{
-				return im[to_ir(pos)];
+				return (*im)[to_ir(pos)];
 			}
 
 			TooN::Vector<2> min()
@@ -132,7 +132,7 @@ namespace CVD
 
 			TooN::Vector<2> max()
 			{
-				return ir(im.size());
+				return ir(im->size());
 			}
 
 			
@@ -141,7 +141,7 @@ namespace CVD
 	template<class T> class image_interpolate<Interpolate::Bilinear, T>
 	{
 		private:
-			const BasicImage<T>& im;
+			const BasicImage<T>* im;
 
 			TooN::Vector<2> floor(const TooN::Vector<2>& v)
 			{
@@ -150,12 +150,12 @@ namespace CVD
 
 		public:
 			image_interpolate(const BasicImage<byte>& i)
-			:im(i)
+			:im(&i)
 			{}
 
 			bool in_image(const TooN::Vector<2>& pos)
 			{
-				return im.in_image(ir(floor(pos)));
+				return im->in_image(ir(floor(pos)));
 			}
 
 			T operator[](const TooN::Vector<2>& pos)
@@ -165,7 +165,7 @@ namespace CVD
 				ImageRef p = ir(floor(pos));
 
 				if(delta[0] == 0 && delta[1] == 0)
-					return im[p];
+					return (*im)[p];
 				else
 				{	
 					double x = delta[0];
@@ -177,10 +177,10 @@ namespace CVD
 					{
 						float a, b, c, d;
 
-						a = Pixel::Component<T>::get(im[p + ImageRef(0,0)], i);
-						b = Pixel::Component<T>::get(im[p + ImageRef(1,0)], i);
-						c = Pixel::Component<T>::get(im[p + ImageRef(0,1)], i);
-						d = Pixel::Component<T>::get(im[p + ImageRef(1,1)], i);
+						a = Pixel::Component<T>::get((*im)[p + ImageRef(0,0)], i);
+						b = Pixel::Component<T>::get((*im)[p + ImageRef(1,0)], i);
+						c = Pixel::Component<T>::get((*im)[p + ImageRef(0,1)], i);
+						d = Pixel::Component<T>::get((*im)[p + ImageRef(1,1)], i);
 						
 						Pixel::Component<T>::get(ret, i) = (typename Pixel::Component<T>::type)  ((a*(1-x) + b*x)*(1-y) + (c*(1-x) + d*x)*y);
 					}
@@ -196,7 +196,7 @@ namespace CVD
 
 			TooN::Vector<2> max()
 			{
-				return ir(im.size());
+				return ir(im->size());
 			}
 
 	};
@@ -205,7 +205,7 @@ namespace CVD
 	template<class T> class image_interpolate<Interpolate::Bicubic, T>
 	{
 		private:
-			const BasicImage<T>& im;
+			const BasicImage<T>* im;
 
 			float p(float f)
 			{
@@ -219,12 +219,12 @@ namespace CVD
 
 		public:
 			image_interpolate(const BasicImage<byte>& i)
-			:im(i)
+			:im(&i)
 			{}
 
 			bool in_image(const TooN::Vector<2>& pos)
 			{
-				return pos[0] >= 1 && pos[1] >=1 && pos[0] < im.size().x-2 && pos[1] < im.size().y - 2;
+				return pos[0] >= 1 && pos[1] >=1 && pos[0] < im->size().x-2 && pos[1] < im->size().y - 2;
 			}
 
 			T operator[](const TooN::Vector<2>& pos)
@@ -242,7 +242,7 @@ namespace CVD
 
 					for(int m = -1; m < 3; m++)
 						for(int n = -1; n < 3; n++)
-							s += Pixel::Component<T>::get(im[y+n][x+m], i) * r(m - dx) * r(dy-n);
+							s += Pixel::Component<T>::get((*im)[y+n][x+m], i) * r(m - dx) * r(dy-n);
 						
 					Pixel::Component<T>::get(ret, i)= (typename Pixel::Component<T>::type) s;
 				}
@@ -257,7 +257,7 @@ namespace CVD
 
 			TooN::Vector<2> max()
 			{
-				return (TooN::make_Vector, im.size().x - 2, im.size().y - 2);
+				return (TooN::make_Vector, im->size().x - 2, im->size().y - 2);
 			}
 
 	};
