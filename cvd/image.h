@@ -306,7 +306,7 @@ template<class T> class BasicImage
 		ImageRef my_size; ///< The size of the image
 
 	private:
-		void operator=(const BasicImage&copyof);
+		void operator=(const BasicImage&copyof)
 		{
 			my_size = copyof.my_size;
 			my_data = copyof.my_data;
