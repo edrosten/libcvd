@@ -202,7 +202,7 @@ template<class T> class BasicImage
 			my_size = copyof.my_size;
 			my_data = copyof.my_data;
 		}
-
+	
 		/// Is this pixel co-ordinate inside the image?
 		/// @param ir The co-ordinate to test
 		bool in_image(const ImageRef& ir) const
@@ -306,24 +306,12 @@ template<class T> class BasicImage
 		ImageRef my_size; ///< The size of the image
 
 	private:
-		void operator=(const BasicImage&);
-
+		void operator=(const BasicImage&copyof);
+		{
+			my_size = copyof.my_size;
+			my_data = copyof.my_data;
+		}
 };
-
-
-// HELP: Is this still relevant? Should this be part of the 
-// Doxygen documnetation? PAS 20/4/05
-//Since the images implement copy on write, each write operation has to be 
-//checked, which could be slow. Image provides a cast to NonConstImage which
-//does not do any checking of this sort on writes, but care must be taken:
-//Since multiple images can point to the same set of data, care has to be taken
-//with references to the image data. For instance if a pointer or NonConstImage
-//is made to refer to the data, and <em>then</em> another Image is made to reference
-//the data as well, using the pointer or the NonConstImage for writing will
-//alter <em>both</em> images.
-//If this situation is encountered, <code>image1=image2.force_copy();</code> can be used
-//to force a copy operation, so that image1 and image2 do not reference the 
-//same chunk of data.
 
 
 /// A full image which manages its own data.
@@ -370,15 +358,6 @@ class Image: public BasicImage<T>
 			}
 		}
 
-/* I don't think we want this. Make it more explicit
-		Image(const BasicImage<T>& copy) //This has to be slow, since it might
-									  //not be a good idea to keep references
-									  //to that data
-		{
-			dup_from(NULL):
-			copy_from(copy);
-		}
-*/		
 		///Assign this image to another one. This does not copy the data, it just creates a new
 		///reference to the image data
 		///@param copyof The image to copy
