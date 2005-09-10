@@ -27,9 +27,9 @@ namespace CVD
 		///
 		/// 4 pixels in a square with \f$p'\f$ in the top left corner are taken:
 		/// \f[\begin{array}{rl}
-		/// a =& I(p')\\
-		/// b =& I(p' + (1,0))\\
-		/// c =& I(p' + (0,1))\\
+		/// a =& I(p')\\  % 
+		/// b =& I(p' + (1,0))\\  %
+		/// c =& I(p' + (0,1))\\  %
 		///	d =& I(p' + (1,1))
 		/// \end{array}
 		/// \f]
@@ -46,7 +46,7 @@ namespace CVD
 		/// where:
 		///
 		/// \f[\begin{array}{rl}
-		/// r(x) =& \frac{1}{6}\left[ p(x+2)^3 - 4p(x+1)^3 + 6p(x)^3 - 4p(x-1)^3 \right]\\
+		/// r(x) =& \frac{1}{6}\left[ p(x+2)^3 - 4p(x+1)^3 + 6p(x)^3 - 4p(x-1)^3 \right]\\  %   
 		/// p(x) =& \begin{cases}x&x>0\\0&x \le 0\end{cases}
 		/// \end{array}\f]
 		///
