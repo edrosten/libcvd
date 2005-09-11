@@ -39,7 +39,7 @@ namespace CVD {
 	/// @ingroup gMaths
 	inline double rand_g()
 	{
-		static bool use_old=0
+		static bool use_old=0;
 		static double y2;
 		double r;
 
@@ -48,8 +48,8 @@ namespace CVD {
 		{
 			double x1, x2, w, y1;
 			do {
-				x1 = 2.0 * ranf() - 1.0;
-				x2 = 2.0 * ranf() - 1.0;
+				x1 = 2.0 * rand_u() - 1.0;
+				x2 = 2.0 * rand_u() - 1.0;
 				w = x1 * x1 + x2 * x2;
 			} while ( w >= 1.0 );
 
@@ -69,5 +69,6 @@ namespace CVD {
 		return r;
 	}
 
+}
 
 #endif
