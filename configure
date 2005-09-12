@@ -7762,6 +7762,7 @@ cat << FOO > cvd/config.h
 #ifndef CVD_CONFIG_H
 #define CVD_CONFIG_H
 `cat confdefs.h | grep CVD_`
+#define CVD_HAVE_CPU_$host_cpu 1
 #endif
 FOO
 

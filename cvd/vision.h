@@ -63,11 +63,11 @@ namespace Exceptions {
 // internal functions used by CVD vision algorithm implementations
 namespace Internal {
 extern "C"{
-#ifdef CVD_HAVE_MMXEXT
+#if defined(CVD_HAVE_MMXEXT) && defined(CVD_HAVE_CPU_i686)
 void halfsample(const unsigned char* in, unsigned char* out, int width, int height);
 #endif
 
-#ifdef CVD_HAVE_SSE
+#if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_CPU_i686)
 void byte_to_float_gradient(const unsigned char* gray, const float (*grad)[2], int width, int height);
 void convolve_float4(float (*I)[4], int w, int h, float* kernel, int k);
 void convolve_float(float *I, int w, int h, float* kernel, int k);
@@ -75,7 +75,7 @@ void convolve_float(float *I, int w, int h, float* kernel, int k);
 // void float_second_moment(const float (*grad)[2], int size, float* Gx, float* Gy, float* Gxy);
 #endif
 
-#ifdef CVD_HAVE_SSE2
+#if defined(CVD_HAVE_SSE2) && defined(CVD_HAVE_CPU_i686)
 void byte_to_double_gradient(const unsigned char* gray, const double (*grad)[2], int width, int height);
 #endif
 };
@@ -182,7 +182,7 @@ static inline void convolveSeparable(BasicImage<byte>& I, const std::vector<int>
     Internal::convolveSeparableGray(I.data(), I.size().x, I.size().y, &kernel[0], kernel.size(), divisor);
 }
 
-#ifdef CVD_HAVE_SSE
+#if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_CPU_i686)
 static inline void convolveSeparable(BasicImage<float[4]>& I, const std::vector<float>& kernel, float divisor)
 {
     std::vector<float> sk = kernel;
@@ -320,7 +320,7 @@ void halfSample(const BasicImage<T>& in, BasicImage<T>& out)
     }
 }
 
-#ifdef CVD_HAVE_MMXEXT
+#if defined(CVD_HAVE_MMXEXT) && defined(CVD_HAVE_CPU_i686)
 void halfSample(const BasicImage<byte>& in, BasicImage<byte>& out);
 #endif
 
@@ -386,10 +386,10 @@ void gradient(const BasicImage<S>& im, BasicImage<T>& out)
     zeroBorders(out);
 }
 
-#ifdef CVD_HAVE_SSE
+#if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_CPU_i686)
 void gradient(const BasicImage<byte>& im, BasicImage<float[2]>& out);
 #endif
-#ifdef CVD_HAVE_SSE2
+#if defined(CVD_HAVE_SSE2) && defined(CVD_HAVE_CPU_i686)
 void gradient(const BasicImage<byte>& im, BasicImage<double[2]>& out);
 #endif
 

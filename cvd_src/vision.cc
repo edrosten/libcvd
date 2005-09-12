@@ -106,7 +106,7 @@ void convolveGaussian5_1(Image<byte>& I)
     }
 }
 
-#ifdef CVD_HAVE_MMXEXT
+#if defined(CVD_HAVE_MMXEXT) && defined(CVD_HAVE_CPU_i686)
 void halfSample(const BasicImage<byte>& in, BasicImage<byte>& out)
 {   
 
@@ -116,7 +116,7 @@ void halfSample(const BasicImage<byte>& in, BasicImage<byte>& out)
 }
 #endif
 
-#ifdef CVD_HAVE_SSE
+#if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_CPU_i686)
 void gradient(const BasicImage<byte>& im, BasicImage<float[2]>& out)
 { 
 	if( im.size() != out.size())
@@ -126,7 +126,7 @@ void gradient(const BasicImage<byte>& im, BasicImage<float[2]>& out)
 }
 #endif
 
-#ifdef CVD_HAVE_SSE2
+#if defined(CVD_HAVE_SSE2) && defined(CVD_HAVE_CPU_i686)
 void gradient(const BasicImage<byte>& im, BasicImage<double[2]>& out)
 {
 	if( im.size() != out.size())
