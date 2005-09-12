@@ -224,7 +224,7 @@ man: libcvd.a
 	doxygen Doxyfile
 	touch man
 
-install: progs $(soname) libcvd.a man
+install: progs $(soname) libcvd.a
 	mkdir -p $(includedir)
 	mkdir -p $(libdir)
 	mkdir -p $(bindir)
