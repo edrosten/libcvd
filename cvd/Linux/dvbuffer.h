@@ -38,8 +38,7 @@ namespace DC
 	#ifndef DOXYGEN_IGNORE_INTERNAL
 	template<class C> struct cam_type
 	{
-	    template<bool x> struct Error__type_not_valid_for_camera___Use_byte_or_yuv411_or_rgb_of_byte;
-		static const int mode = sizeof(Error__type_not_valid_for_camera___Use_byte_or_yuv411_or_rgb_of_byte<false>);
+		static const int mode = C::Error__type_not_valid_for_camera___Use_byte_or_yuv411_or_rgb_of_byte;
 		// We can't really set the frame rate, but the alternative is to give the above error twice
 		static const double fps = 30; 
 	};

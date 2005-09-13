@@ -80,7 +80,7 @@ namespace CVD
 	#ifndef DOXYGEN_IGNORE_INTERNAL
 	template<class C> struct rgb
 	{
-		static const bool p=Error__type_not_valid___Use_byte_or_rgb_of_byte;
+		static const bool p=C::Error__type_not_valid___Use_byte_or_rgb_of_byte;
 	};
 
 	template<> struct rgb<CVD::byte>
