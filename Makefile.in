@@ -235,7 +235,6 @@ install: progs $(soname) libcvd.a
 	cp libcvd.a $(libdir)
 	cp $(PROGS) $(bindir)
 	mkdir -p '$(mandir)'
-	cp -r man/man3 '$(mandir)'
 
 clean:
 	/bin/rm -f tmp libcvd.a $(sos)
