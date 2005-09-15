@@ -36,7 +36,8 @@
 
 #ifdef CVD_HAVE_TOON
 #include <TooN/TooN.h>
-#include <TooN/se3.h>
+#include <cvd/se3.h>
+#include <cvd/so3.h>
 #endif
 
 namespace CVD
@@ -149,7 +150,7 @@ namespace CVD
 	/// multiplies a SO3 onto the current matrix stack
 	/// @param so3 the SO3
 	/// @ingroup gGL
-	inline void glMultMatrix( const TooN::SO3 & so3 )
+	inline void glMultMatrix( const CVD::SO3 & so3 )
 	{
 		glMultMatrix( so3.get_matrix());
 	}
@@ -158,7 +159,7 @@ namespace CVD
 	/// the SO3 and the translation in order.
 	/// @param se3 the SE3
 	/// @ingroup gGL
-	inline void glMultMatrix( const TooN::SE3 & se3 )
+	inline void glMultMatrix( const CVD::SE3 & se3 )
 	{
 		glMultMatrix( se3.get_rotation());
 		glTranslate( se3.get_translation());

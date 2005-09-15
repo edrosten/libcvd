@@ -19,8 +19,8 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 //-*- c++ -*-
-#ifndef __SO3_H
-#define __SO3_H
+#ifndef CVD_INC_SO3_H
+#define CVD_INC_SO3_H
 
 #include <TooN/TooN.h>
 
