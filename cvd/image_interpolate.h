@@ -65,7 +65,7 @@ namespace CVD
 		  public:
 			///Construct the class.
 			///@param i The image to be interpolated.
-			image_interpolate(const BasicImage<I>& i);
+			image_interpolate(const BasicImage<byte>& i);
 
 			///Is this pixel inside the image?
 			///@param pos The coordinate to test.
@@ -111,7 +111,7 @@ namespace CVD
 
 	
 		public:
-			image_interpolate(const BasicImage<I>& i)
+			image_interpolate(const BasicImage<C>& i)
 			:im(&i)
 			{}
 
@@ -149,7 +149,7 @@ namespace CVD
 			}
 
 		public:
-			image_interpolate(const BasicImage<I>& i)
+			image_interpolate(const BasicImage<T>& i)
 			:im(&i)
 			{}
 
@@ -218,7 +218,7 @@ namespace CVD
 			}
 
 		public:
-			image_interpolate(const BasicImage<I>& i)
+			image_interpolate(const BasicImage<T>& i)
 			:im(&i)
 			{}
 
