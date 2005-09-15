@@ -30,7 +30,7 @@
 #include <cvd/internal/pixel_operations.h>
 
 namespace CVD {
-
+#undef CVD_HAVE_SSE
 namespace Exceptions {
 
     /// %Exceptions specific to vision algorithms
