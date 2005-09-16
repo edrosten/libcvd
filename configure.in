@@ -532,89 +532,6 @@ AC_SUBST(minor, $cvd_minor)
 
 ################################################################################
 #
-#Check for optional libraries
-#
-
-echo
-echo -------------------------------
-echo Checking for optional libraries
-echo -------------------------------
-
-
-AC_PATH_X
-echo "FIXME! check for OpenGL properly!"
-if test "x$ac_cv_have_x" != x
-then
-	AC_DEFINE(CVD_HAVE_VIDEODISPLAY)
-	options="$options videodisplay"
-	AC_SUBST(have_videodisplay, yes)
-	LIBS="-lX11 -lGL $LIBS"
-	test -n "$x_libraries" && LIBS="-L$x_libraries $LIBS"
-	test -n "$x_includes" && CPPFLAGS="$CPPFLAGS -I$x_includes"
-fi
-
-AC_ARG_WITH(tiff, [  --without-tiff       compile without TIFF support],[if test "$withval" = no; then disable_tiff=yes; else disable_tiff=no; fi])
-if test "$disable_tiff" != yes 
-then
-	AC_CHECK_HEADERS(tiffio.h)
-	AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented)
-
-	if test "$ac_cv_header_tiffio_h" = yes && test "$ac_cv_lib_tiff_TIFFReadRGBAImageOriented" = yes
-	then
-		AC_DEFINE(CVD_IMAGE_HAVE_TIFF, [TIFF,])
-		AC_SUBST(have_tiff,yes)
-		options="$options tiff"
-	fi
-fi
-
-
-AC_ARG_WITH(jpeg, [  --without-jpeg	  compile without JPEG support],[if test "$withval" = no; then disable_jpeg=yes; else disable_jpeg=no; fi])
-if test "$disable_jpeg" != yes 
-then
-	AC_CHECK_HEADERS(jpeglib.h)
-	AC_CHECK_LIB(jpeg, jpeg_destroy_decompress)
-	if test "$ac_cv_header_jpeglib_h" = yes && test "$ac_cv_lib_jpeg_jpeg_destroy_decompress" = yes
-	then
-		AC_DEFINE(CVD_IMAGE_HAVE_JPEG, [JPEG,])
-		AC_SUBST(have_jpeg,yes)
-		options="$options jpeg"
-	fi
-fi
-
-
-AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support],[if test "$withval" = no; then use_ffmpeg=no; else use_ffmpeg="$withval"; fi])
-if test "$use_ffmpeg" != no
-then
-	save_LIBS="$LIBS"
-	if test x"$use_ffmpeg" != x
-	then 
-		LIBS="$LIBS -L $use_ffmpeg"
-	fi
-
-	a=
-	AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h, [], [break])
-	AC_CHECK_LIB(avcodec, avcodec_open)
-	AC_CHECK_LIB(avformat, av_open_input_file)
-	AC_CHECK_LIB(avformat, av_read_frame) #only in >= 0.4.9
-	if test "$ac_cv_lib_avcodec_avcodec_open$ac_cv_lib_avformat_av_open_input_file" = yesyes
-	then
-		if test "$ac_cv_lib_avformat_av_read_frame" = yes
-		then
-			AC_DEFINE(CVD_HAVE_FFMPEG)
-			AC_SUBST(have_ffmpeg, yes)
-			options="$options ffmpeg"
-			save_LIBS="$LIBS"
-		else
-			echo "You have FFMPEG, but the version is too old. Version 0.4.9 or newer is required."
-		fi
-	fi
-
-	LIBS="$save_LIBS"
-fi
-
-
-################################################################################
-#
 # platform specific options
 echo
 echo ---------------------------------------
@@ -716,6 +633,89 @@ case "$host" in
 		fi
 	;;
 esac
+
+################################################################################
+#
+#Check for optional libraries
+#
+
+echo
+echo -------------------------------
+echo Checking for optional libraries
+echo -------------------------------
+
+
+AC_PATH_X
+echo "FIXME! check for OpenGL properly!"
+if test "x$ac_cv_have_x" != x
+then
+	AC_DEFINE(CVD_HAVE_VIDEODISPLAY)
+	options="$options videodisplay"
+	AC_SUBST(have_videodisplay, yes)
+	LIBS="-lX11 -lGL $LIBS"
+	test -n "$x_libraries" && LIBS="-L$x_libraries $LIBS"
+	test -n "$x_includes" && CPPFLAGS="$CPPFLAGS -I$x_includes"
+fi
+
+AC_ARG_WITH(tiff, [  --without-tiff       compile without TIFF support],[if test "$withval" = no; then disable_tiff=yes; else disable_tiff=no; fi])
+if test "$disable_tiff" != yes 
+then
+	AC_CHECK_HEADERS(tiffio.h)
+	AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented)
+
+	if test "$ac_cv_header_tiffio_h" = yes && test "$ac_cv_lib_tiff_TIFFReadRGBAImageOriented" = yes
+	then
+		AC_DEFINE(CVD_IMAGE_HAVE_TIFF, [TIFF,])
+		AC_SUBST(have_tiff,yes)
+		options="$options tiff"
+	fi
+fi
+
+
+AC_ARG_WITH(jpeg, [  --without-jpeg	  compile without JPEG support],[if test "$withval" = no; then disable_jpeg=yes; else disable_jpeg=no; fi])
+if test "$disable_jpeg" != yes 
+then
+	AC_CHECK_HEADERS(jpeglib.h)
+	AC_CHECK_LIB(jpeg, jpeg_destroy_decompress)
+	if test "$ac_cv_header_jpeglib_h" = yes && test "$ac_cv_lib_jpeg_jpeg_destroy_decompress" = yes
+	then
+		AC_DEFINE(CVD_IMAGE_HAVE_JPEG, [JPEG,])
+		AC_SUBST(have_jpeg,yes)
+		options="$options jpeg"
+	fi
+fi
+
+
+AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support],[if test "$withval" = no; then use_ffmpeg=no; else use_ffmpeg="$withval"; fi])
+if test "$use_ffmpeg" != no
+then
+	save_LIBS="$LIBS"
+	if test x"$use_ffmpeg" != x
+	then 
+		LIBS="$LIBS -L $use_ffmpeg"
+	fi
+
+	a=
+	AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h, [], [break])
+	AC_CHECK_LIB(avcodec, avcodec_open)
+	AC_CHECK_LIB(avformat, av_open_input_file)
+	AC_CHECK_LIB(avformat, av_read_frame) #only in >= 0.4.9
+	if test "$ac_cv_lib_avcodec_avcodec_open$ac_cv_lib_avformat_av_open_input_file" = yesyes
+	then
+		if test "$ac_cv_lib_avformat_av_read_frame" = yes
+		then
+			AC_DEFINE(CVD_HAVE_FFMPEG)
+			AC_SUBST(have_ffmpeg, yes)
+			options="$options ffmpeg"
+			save_LIBS="$LIBS"
+		else
+			echo "You have FFMPEG, but the version is too old. Version 0.4.9 or newer is required."
+		fi
+	fi
+
+	LIBS="$save_LIBS"
+fi
+
 
 ################################################################################
 #
