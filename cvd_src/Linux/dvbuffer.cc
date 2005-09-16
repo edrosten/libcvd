@@ -21,9 +21,9 @@
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.6 $$Name:  $
-**       $Date: 2005/05/09 11:55:00 $
-**   Copyright: LGPL $Author: er258 $
+**   $Revision: 1.7 $$Name:  $
+**       $Date: 2005/09/16 10:00:13 $
+**   Copyright: LGPL $Author: edrosten $
 ** Description:
 **
 **    Get one gray image using libdc1394 and store it as portable gray map
@@ -32,6 +32,9 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
+**  Revision 1.7  2005/09/16 10:00:13  edrosten
+**  Re-fixed instation of cam_type<...>::fps.
+**
 **  Revision 1.6  2005/05/09 11:55:00  er258
 **  Put in correct address for the FSF
 **
@@ -101,7 +104,12 @@
 #include "cvd/Linux/dvframe.h"
 
 using namespace std;
-using namespace CVD;
+namespace CVD
+{
+
+template<> const double DC::cam_type<yuv411>::fps = 30;
+template<> const double DC::cam_type<byte>::fps = 30;
+template<> const double DC::cam_type<Rgb<byte> >::fps = 15;
 
 
 int get_closest_framerate(double fps, double& ret)
@@ -367,12 +375,12 @@ void tom_dc1394_dma_release_camera(raw1394handle_t handle, const unsigned char* 
   }
 }
   
-double CVD::DC::RawDCVideo::frame_rate()
+double DC::RawDCVideo::frame_rate()
 {
 	return true_fps;
 }
 
-CVD::DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int exposure, int mode, double fps)
+DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int exposure, int mode, double fps)
 {
 
   int channel = camera_no;
@@ -628,7 +636,7 @@ CVD::DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, 
   }
 }
 
-VideoFrame<byte>* CVD::DC::RawDCVideo::get_frame(){
+VideoFrame<byte>* DC::RawDCVideo::get_frame(){
   struct cvd_video1394_wait vwait;
 
   vwait.channel_number = my_channel;
@@ -679,7 +687,7 @@ VideoFrame<byte>* CVD::DC::RawDCVideo::get_frame(){
   return frame;
 }
   
-void CVD::DC::RawDCVideo::put_frame(VideoFrame<byte>* f){
+void DC::RawDCVideo::put_frame(VideoFrame<byte>* f){
   DVFrame* frame = (DVFrame*) f;
 
   struct cvd_video1394_wait vwait;
@@ -704,7 +712,7 @@ void CVD::DC::RawDCVideo::put_frame(VideoFrame<byte>* f){
 
 
 
-CVD::DC::RawDCVideo::~RawDCVideo(){
+DC::RawDCVideo::~RawDCVideo(){
   /*-----------------------------------------------------------------------
    *  Stop data transmission
    *-----------------------------------------------------------------------*/
@@ -723,18 +731,18 @@ CVD::DC::RawDCVideo::~RawDCVideo(){
   raw1394_destroy_handle(my_handle);
 }
 
-ImageRef CVD::DC::RawDCVideo::size(){return my_size;}
-bool CVD::DC::RawDCVideo::frame_pending(){return true;}
-//void CVD::DC::RawDCVideo::seek_to(unsigned long long int t){}
+ImageRef DC::RawDCVideo::size(){return my_size;}
+bool DC::RawDCVideo::frame_pending(){return true;}
+//void DC::RawDCVideo::seek_to(unsigned long long int t){}
 
 
-void CVD::DC::RawDCVideo::set_shutter(unsigned int s)
+void DC::RawDCVideo::set_shutter(unsigned int s)
 {
 	if(dc1394_set_shutter(my_handle, my_node, s) != DC1394_SUCCESS)
 		fprintf(stderr, "couldn't set shutter.\n");
 }
 
-unsigned int CVD::DC::RawDCVideo::get_shutter()
+unsigned int DC::RawDCVideo::get_shutter()
 {
 	unsigned int s;
 	if(dc1394_get_shutter(my_handle, my_node, &s) != DC1394_SUCCESS)
@@ -742,13 +750,13 @@ unsigned int CVD::DC::RawDCVideo::get_shutter()
 	return s;
 }
 
-void CVD::DC::RawDCVideo::set_iris(unsigned int s)
+void DC::RawDCVideo::set_iris(unsigned int s)
 {
 	if(dc1394_set_iris(my_handle, my_node, s) != DC1394_SUCCESS)
 		fprintf(stderr, "couldn't set iris.\n");
 }
 
-unsigned int CVD::DC::RawDCVideo::get_iris()
+unsigned int DC::RawDCVideo::get_iris()
 {
 	unsigned int s;
 	if(dc1394_get_iris(my_handle, my_node, &s) != DC1394_SUCCESS)
@@ -756,13 +764,13 @@ unsigned int CVD::DC::RawDCVideo::get_iris()
 	return s;
 }
 
-void CVD::DC::RawDCVideo::set_gain(unsigned int s)
+void DC::RawDCVideo::set_gain(unsigned int s)
 {
 	if(dc1394_set_gain(my_handle, my_node, s) != DC1394_SUCCESS)
 		fprintf(stderr, "couldn't set gain.\n");
 }
 
-unsigned int CVD::DC::RawDCVideo::get_gain()
+unsigned int DC::RawDCVideo::get_gain()
 {
 	unsigned int s;
 	if(dc1394_get_gain(my_handle, my_node, &s) != DC1394_SUCCESS)
@@ -771,13 +779,13 @@ unsigned int CVD::DC::RawDCVideo::get_gain()
 }
 
 
-void CVD::DC::RawDCVideo::set_exposure(unsigned int s)
+void DC::RawDCVideo::set_exposure(unsigned int s)
 {
 	if(dc1394_set_exposure(my_handle, my_node, s) != DC1394_SUCCESS)
 		fprintf(stderr, "couldn't set exposure.\n");
 }
 
-unsigned int CVD::DC::RawDCVideo::get_exposure()
+unsigned int DC::RawDCVideo::get_exposure()
 {
 	unsigned int s;
 	if(dc1394_get_exposure(my_handle, my_node, &s) != DC1394_SUCCESS)
@@ -786,13 +794,13 @@ unsigned int CVD::DC::RawDCVideo::get_exposure()
 }
 
 
-void CVD::DC::RawDCVideo::set_brightness(unsigned int s)
+void DC::RawDCVideo::set_brightness(unsigned int s)
 {
 	if(dc1394_set_brightness(my_handle, my_node, s) != DC1394_SUCCESS)
 		fprintf(stderr, "couldn't set brightness.\n");
 }
 
-unsigned int CVD::DC::RawDCVideo::get_brightness()
+unsigned int DC::RawDCVideo::get_brightness()
 {
 	unsigned int s;
 	if(dc1394_get_brightness(my_handle, my_node, &s) != DC1394_SUCCESS)
@@ -800,12 +808,14 @@ unsigned int CVD::DC::RawDCVideo::get_brightness()
 	return s;
 }
 
-raw1394handle_t& CVD::DC::RawDCVideo::handle()
+raw1394handle_t& DC::RawDCVideo::handle()
 {
 	return my_handle;
 }
 
-nodeid_t& CVD::DC::RawDCVideo::node()
+nodeid_t& DC::RawDCVideo::node()
 {
 	return my_node;
+}
+
 }

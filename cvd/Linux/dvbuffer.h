@@ -36,34 +36,30 @@ namespace CVD {
 namespace DC
 {
 	#ifndef DOXYGEN_IGNORE_INTERNAL
-	template<class C, int LIFT=0> struct cam_type
+	template<class C> struct cam_type
 	{
 		static const int mode = C::Error__type_not_valid_for_camera___Use_byte_or_yuv411_or_rgb_of_byte;
 		// We can't really set the frame rate, but the alternative is to give the above error twice
-		static const double fps;
+		static const double fps; 
 	};
-	template<class C, int LIFT> const double cam_type<C,LIFT>::fps=30;
 	
-	template<int LIFT> struct cam_type<yuv411,LIFT>
+	template<> struct cam_type<yuv411>
 	{
 		static const int mode = MODE_640x480_YUV411;
-		static const double fps;
+		static const double fps; //30
 	};
-	template<int LIFT> const double cam_type<yuv411,LIFT>::fps=30;
 
-	template<int LIFT> struct cam_type<byte,LIFT>
+	template<> struct cam_type<byte>
 	{
 		static const int mode = MODE_640x480_MONO;
-		static const double fps;
+		static const double fps; //30
 	};
-	template<int LIFT> const double cam_type<byte,LIFT>::fps=30;
 	
-	template<int LIFT> struct cam_type<Rgb<byte>,LIFT>
+	template<> struct cam_type<Rgb<byte> >
 	{
 		static const int mode = MODE_640x480_RGB;
-		static const double  fps;
+		static const double  fps; //15
 	};
-	template<int LIFT> const double cam_type<Rgb<byte>,LIFT>::fps=30;
 
 	struct raw_frame
 	{
