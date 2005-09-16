@@ -386,7 +386,7 @@ AC_MSG_CHECKING([for TooN])
 #Check for TooN in a bunch of places
 save_CPPFLAGS="$CPPFLAGS"
 toondir="Missing"
-for dir in  $opt_toon_dir "" "$HOME/code/TooN" "$HOME/Src/TooN" "$HOME/usr/include" "../TooN" ".."
+for dir in  $opt_toon_dir "" "$HOME/usr/include" "$HOME/code/TooN" "$HOME/Src/TooN" "../TooN" ".."
 do
 	a=
 	if test "$dir" = ""
@@ -409,7 +409,12 @@ int main(){Vector<2> v;return 0;}], [old_toon="$old_toon $dir"])
 	fi
 done
 
-AC_MSG_RESULT($toondir)
+if test "$toondir" = ""
+then
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT($toondir)
+fi
 
 if test "$toondir" = Missing
 then
