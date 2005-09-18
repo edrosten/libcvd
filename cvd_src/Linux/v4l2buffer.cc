@@ -288,7 +288,7 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 
 	num_buffers = sv4l2RequestBuffers.count;
   
-	m_sv4l2Buffer = new(struct v4l2_buffer)[num_buffers];
+	m_sv4l2Buffer = new struct v4l2_buffer [num_buffers];
 	m_pvVideoBuffer = new void*[num_buffers];
 
 
