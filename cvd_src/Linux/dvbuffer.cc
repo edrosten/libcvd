@@ -21,8 +21,8 @@
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.7 $$Name:  $
-**       $Date: 2005/09/16 10:00:13 $
+**   $Revision: 1.8 $$Name:  $
+**       $Date: 2005/09/18 15:46:22 $
 **   Copyright: LGPL $Author: edrosten $
 ** Description:
 **
@@ -32,6 +32,9 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
+**  Revision 1.8  2005/09/18 15:46:22  edrosten
+**  Fix for gcc40
+**
 **  Revision 1.7  2005/09/16 10:00:13  edrosten
 **  Re-fixed instation of cam_type<...>::fps.
 **
@@ -106,10 +109,12 @@
 using namespace std;
 namespace CVD
 {
-
-template<> const double DC::cam_type<yuv411>::fps = 30;
-template<> const double DC::cam_type<byte>::fps = 30;
-template<> const double DC::cam_type<Rgb<byte> >::fps = 15;
+namespace DC
+{
+	const double cam_type<yuv411>::fps = 30;
+	const double cam_type<byte>::fps = 30;
+	const double cam_type<Rgb<byte> >::fps = 15;
+}
 
 
 int get_closest_framerate(double fps, double& ret)
