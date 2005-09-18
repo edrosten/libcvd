@@ -151,6 +151,13 @@ then
 				AC_SUBST(have_mmxext,yes)
 				AC_DEFINE(CVD_HAVE_SSE)
 				AC_DEFINE(CVD_HAVE_MMXEXT)
+
+				if test x$GXX = xyes
+				then
+					CXXFLAGS="$CXXFLAGS -mmmx -msse"
+				fi
+
+
 			else
 				AC_MSG_RESULT(no)
 			fi
@@ -161,6 +168,12 @@ then
 				AC_MSG_RESULT(yes)
 				AC_SUBST(have_mmxext,yes)
 				AC_DEFINE(CVD_HAVE_MMXEXT)
+
+				if test x$GXX = xyes
+				then
+					CXXFLAGS="$CXXFLAGS -mmmx -m3dnow"
+				fi
+
 			else
 				AC_MSG_RESULT(no)
 			fi
@@ -171,6 +184,11 @@ then
 				AC_MSG_RESULT(yes)
 				AC_SUBST(have_sse2,yes)
 				AC_DEFINE(CVD_HAVE_SSE2)
+
+				if test x$GXX = xyes
+				then
+					CXXFLAGS="$CXXFLAGS -msse2"
+				fi
 			else
 				AC_MSG_RESULT(no)
 			fi

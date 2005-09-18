@@ -3287,6 +3287,13 @@ _ACEOF
 #define CVD_HAVE_MMXEXT 1
 _ACEOF
 
+
+				if test x$GXX = xyes
+				then
+					CXXFLAGS="$CXXFLAGS -mmmx -msse"
+				fi
+
+
 			else
 				echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
@@ -3303,6 +3310,12 @@ echo "${ECHO_T}yes" >&6
 				cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_MMXEXT 1
 _ACEOF
+
+
+				if test x$GXX = xyes
+				then
+					CXXFLAGS="$CXXFLAGS -mmmx -m3dnow"
+				fi
 
 			else
 				echo "$as_me:$LINENO: result: no" >&5
@@ -3321,6 +3334,11 @@ echo "${ECHO_T}yes" >&6
 #define CVD_HAVE_SSE2 1
 _ACEOF
 
+
+				if test x$GXX = xyes
+				then
+					CXXFLAGS="$CXXFLAGS -msse2"
+				fi
 			else
 				echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
