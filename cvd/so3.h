@@ -26,6 +26,8 @@
 
 namespace CVD {
 
+class SE3;
+
 /// Class to represent a three-dimensional rotation matrix. Three-dimensional rotation
 /// matrices are members of the Special Orthogonal Lie group SO3. This group can be parameterised
 /// three numbers (a vector in the space of the Lie Algebra). In this class, the three parameters are the
@@ -36,7 +38,7 @@ namespace CVD {
 class SO3 {
 public:
   friend inline std::istream& operator>>(std::istream& is, SO3& rhs);
-  friend inline std::istream& operator>>(std::istream& is, class SE3& rhs);
+  friend inline std::istream& operator>>(std::istream& is, class CVD::SE3& rhs);
   /// Default constructor. Initialises the matrix to the identity (no rotation)
   SO3();
 
