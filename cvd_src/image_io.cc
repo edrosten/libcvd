@@ -34,6 +34,7 @@
 #endif
 #include <sstream>
 #include <fstream>
+#include <cstring>
 
 using namespace CVD;
 using namespace std;
@@ -46,6 +47,11 @@ Exceptions::Image_IO::ImageSizeMismatch::ImageSizeMismatch(const ImageRef& src, 
 resizable image (size " << dest << ").";
 
 	what = o.str();
+}
+
+Exceptions::Image_IO::OpenError::OpenError(const string& name, int error)
+{
+	what = "Opening file: " + name+ ": " + strerror(errno);
 }
 
 Exceptions::Image_IO::MalformedImage::MalformedImage(const string& why)

@@ -26,7 +26,9 @@
 #include <cvd/internal/load_and_save.h>
 #include <cvd/internal/name_builtin_types.h>
 #include <cvd/internal/name_CVD_rgb_types.h>
+#include <errno.h>
 #include <memory>
+#include <string>
 
 namespace CVD
 {
@@ -112,6 +114,14 @@ namespace CVD
 				UnsupportedImageSubType(const std::string &, const std::string&); ///< Construct from a subtype string and an error string
 			};
 
+			/// Error in opening file
+			/// @ingroup gException
+			struct OpenError: public All
+			{
+				OpenError(const std::string&, int); ///< Construct from the filename and the error number
+			};
+
+
 		}
 	}
 
@@ -159,6 +169,16 @@ namespace CVD
 	{
 		img_load(im, i, Pixel::CIE);
 	}
+
+	//  syg21
+	template<class I> void img_load(Image<I> &im, const std::string &s)
+	{
+		std::ifstream i(s.c_str());
+
+		if(!i.good())
+			throw Exceptions::Image_IO::OpenError(s, errno);
+		img_load(im, i);
+	}	
 
 	/// Load an image from a stream into a Basic Image. The function checks that the
 	/// BasicImage is the right size, and if not will throw an Image_IO::ImageSizeMismatch
@@ -267,7 +287,8 @@ namespace CVD
 		std::string comments;
 		
 		//I tmp;
-		comments = "Saving image from pixel type of " + PNM::type_name<PixelType>::name();
+		comments = "";
+		//comments = "Saving image from pixel type of " + PNM::type_name<PixelType>::name();
 
 		std::auto_ptr<Image_IO::image_out> out(Image_IO::image_factory::out(o, im.size().x, im.size().y, t, channels, use_16bit, comments));
 
