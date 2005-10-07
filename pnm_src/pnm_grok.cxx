@@ -531,9 +531,9 @@ void pnm_out::write_header(const std::string& comments)
 		m[1] += 3;
 
 	//Write comments
-	o << m <<"\n" 
-	  << "# Created by Ed's cool PNM grokking library in CVD\n"
-	  << "# CVD Version " << CVD_MAJOR_VERSION << "." << CVD_MINOR_VERSION << "\n";
+	o << m <<"\n"; 
+	//  << "# Created by Ed's cool PNM grokking library in CVD\n"
+	//  << "# CVD Version " << CVD_MAJOR_VERSION << "." << CVD_MINOR_VERSION << "\n";
 
 	//Indent commants with 1 space. Ensure embedded newlines do the right thing
 	//Make sure comments (if they exist) are terminated with a newline.
