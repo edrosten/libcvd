@@ -31,6 +31,10 @@
 #include <assert.h>
 #include <cmath>
 
+
+#warning "Deprecated: Use TooN/wls_cholesky.h"
+
+
 namespace CVD {
 
 /// Performs weighted least squares using Cholesky decomposition and sparse JtJ.

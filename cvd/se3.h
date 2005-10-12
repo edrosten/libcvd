@@ -25,6 +25,10 @@
 #include <cvd/so3.h>
 #include <TooN/TooN.h>
 
+
+#warning "Deprecated: Use TooN/se3.h"
+
+
 namespace CVD {
 
 /// Class to represent a three-dimensional Euclidean transformation (a rotation and a translation). 

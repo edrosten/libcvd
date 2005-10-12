@@ -22,6 +22,9 @@
 #ifndef __WLS_H
 #define __WLS_H
 
+
+#warning "Deprecated: Use TooN/wls.h"
+
 #include <numerics.h>
 #include <SVD.h>
 #include <numhelpers.h>

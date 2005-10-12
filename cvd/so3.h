@@ -24,6 +24,10 @@
 
 #include <TooN/TooN.h>
 
+
+#warning "Deprecated: Use TooN/so3.h"
+
+
 namespace CVD {
 
 class SE3;
