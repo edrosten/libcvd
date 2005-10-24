@@ -29,6 +29,7 @@
 #include <errno.h>
 #include <memory>
 #include <string>
+#include <fstream>
 
 namespace CVD
 {
