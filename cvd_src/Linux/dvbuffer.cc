@@ -21,9 +21,9 @@
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.8 $$Name:  $
-**       $Date: 2005/09/18 15:46:22 $
-**   Copyright: LGPL $Author: edrosten $
+**   $Revision: 1.9 $$Name:  $
+**       $Date: 2005/10/26 10:42:04 $
+**   Copyright: LGPL $Author: georgklein $
 ** Description:
 **
 **    Get one gray image using libdc1394 and store it as portable gray map
@@ -32,6 +32,9 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
+**  Revision 1.9  2005/10/26 10:42:04  georgklein
+**  Add sharpness control
+**
 **  Revision 1.8  2005/09/18 15:46:22  edrosten
 **  Fix for gcc40
 **
@@ -766,6 +769,20 @@ unsigned int DC::RawDCVideo::get_iris()
 	unsigned int s;
 	if(dc1394_get_iris(my_handle, my_node, &s) != DC1394_SUCCESS)
 		fprintf(stderr, "couldn't get iris.\n");
+	return s;
+}
+
+void DC::RawDCVideo::set_sharpness(unsigned int s)
+{
+	if(dc1394_set_sharpness(my_handle, my_node, s) != DC1394_SUCCESS)
+		fprintf(stderr, "couldn't set sharpness.\n");
+}
+
+unsigned int DC::RawDCVideo::get_sharpness()
+{
+	unsigned int s;
+	if(dc1394_get_sharpness(my_handle, my_node, &s) != DC1394_SUCCESS)
+		fprintf(stderr, "couldn't get sharpness.\n");
 	return s;
 }
 

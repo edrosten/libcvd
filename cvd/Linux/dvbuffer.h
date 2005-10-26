@@ -107,23 +107,29 @@ namespace DC
 			void set_iris(unsigned int i );
 			/// Get the camera iris
 			unsigned int get_iris();
+			
+			/// Set the camera sharpness
+			/// @param s The requested sharpness
+			void set_sharpness(unsigned int s );
+			/// Get the camera sharpness
+			unsigned int get_sharpness();			
 
 			/// Set the camera gain
 			/// @param g The requested gain
 			void set_gain(unsigned int g);
-			/// Get the camera iris
+			/// Get the camera gain
 			unsigned int get_gain();
 
 			/// Set the camera exposure
 			/// @param e The requested exposure
 			void set_exposure(unsigned int e);
-			/// Get the camera iris
+			/// Get the camera exposure
 			unsigned int get_exposure();
 
 			/// Set the camera brightness
 			/// @param b The requested brightness
 			void set_brightness(unsigned int b);
-			/// Get the camera iris
+			/// Get the camera brightness
 			unsigned int get_brightness();
 
 			/// Get the camera frame rate
