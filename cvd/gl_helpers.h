@@ -165,6 +165,20 @@ namespace CVD
 		glTranslate( se3.get_translation());
 	}
 
+
+	/// Sets up an ortho projection suitable for drawing onto individual pixels of a 
+	/// gl window (or video image.) glVertex2f(0.0,0.0) will be the top left pixel and 
+	/// glVertex2f(xsize-1.0, ysize-1.0) will be the bottom right pixel. Depth is set 
+	/// from -1 to 1.
+        /// n.b. You first need to set up the matrix environment yourself, 
+	/// e.g. glMatrixMode(GL_PROJECTION); glLoadIdentity();
+	/// @param size ImageRef containing the size of the GL window.
+	inline void glOrtho( const CVD::ImageRef & size)
+	{
+	         ::glOrtho(-0.5, size.x - 0.5, size.y - 0.5, -0.5, -1.0, 1.0);
+	}
+
+	
 	/// sets a gl frustum from the linear camera parameters, image size and near and far plane.
 	/// The camera will be in OpenGL style with camera center in the origin and the viewing direction
 	/// down the negative z axis, with y pointing upwards and x pointing to the left and the image plane
