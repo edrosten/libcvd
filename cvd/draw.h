@@ -230,7 +230,8 @@ ImageRef copy(const Image<S>& in, Image<T>& out, ImageRef size, ImageRef begin =
 /// @param J resulting joint image
 /// @ingroup gGraphics
 template <class S, class T, class U> void joinImages(const Image<S>& a, const Image<T>& b, Image<U>& J) {
-    J.resize(ImageRef(a.size().x+b.size().x, MAX(a.size().y, b.size().y)));
+    int h = (a.size().y > b.size().y)?(a.size().y):(b.size().y);
+    J.resize(ImageRef(a.size().x+b.size().x, h));
     CVD::copy(a, J, a.size());
     CVD::copy(b, J, b.size(), ImageRef(), ImageRef(a.size().x, 0));
     ImageRef blackBegin, blackEnd;
