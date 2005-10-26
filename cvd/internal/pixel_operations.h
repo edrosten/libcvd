@@ -47,8 +47,8 @@ template <class T> struct operations<T,1> {
     template <class S> inline static void assign(T& lhs, const S& rhs) { lhs = (T)rhs; }
     template <class S> inline static void add(T& lhs, const S& rhs) { lhs += rhs; }
     template <class S> inline static void subtract(T& lhs, const S& rhs) { lhs -= rhs; }
-    template <class S> inline static void multiply(T& lhs, const S& rhs) { lhs *= rhs; }
-    template <class S> inline static void divide(T& lhs, const S& rhs) { lhs /= rhs; }
+    template <class S> inline static void multiply(T& lhs, const S& rhs) { lhs = (T)(lhs*rhs); }
+    template <class S> inline static void divide(T& lhs, const S& rhs) { lhs = (T)(lhs/rhs); }
     inline static bool equal(const T& a, const T& b) { return a == b; }
     inline static void zero(T& t) { t = T(); }
 };
