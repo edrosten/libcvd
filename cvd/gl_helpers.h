@@ -175,7 +175,7 @@ namespace CVD
 	/// @param size ImageRef containing the size of the GL window.
 	inline void glOrtho( const CVD::ImageRef & size)
 	{
-	         ::glOrtho(-0.5, size.x - 0.5, size.y - 0.5, -0.5, -1.0, 1.0);
+	         ::glOrtho(-0.375, size.x - 0.375, size.y - 0.375, -0.375, -1.0, 1.0);
 	}
 
 	
