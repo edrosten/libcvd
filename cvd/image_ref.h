@@ -34,6 +34,7 @@
 
 #include <iostream>
 #include <cctype>
+#include <cvd/exceptions.h>
 
 namespace CVD {
 
@@ -143,6 +144,9 @@ public:
 	/// simple lexical ordering to enable ImageRefs for sets, maps, multisets, multimaps etc.
 	inline bool operator<(const ImageRef & other) const;
 
+	/// Square bracket subscripts for easy loops. 0=x 1=y other=error
+	inline int&             operator[](int i);
+
 	//Why do these exist?
 	///@overload
 	inline ImageRef shiftl(int i) const;
@@ -160,6 +164,15 @@ public:
 /// @param ref The ImageRef to scale
 /// @relates ImageRef
 inline ImageRef operator*(const int scale, const ImageRef&  ref);
+
+namespace Exceptions
+{
+  /// Exception if subscript for [] is not 0 or 1
+  struct BadSubscript: public CVD::Exceptions::All {BadSubscript(){};};
+}
+
+
+struct foo {foo(){}};
 
 #include <cvd/internal/image_ref_implementation.hh>
 

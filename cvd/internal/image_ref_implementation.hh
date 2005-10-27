@@ -190,3 +190,14 @@ inline bool ImageRef::operator<(const ImageRef & other) const
 {
 	return x < other.x || ( x == other.x && y < other.y);
 }
+
+
+
+inline int& ImageRef::operator[](int i)
+{
+  if(i==0)
+    return x;
+  if(i==1)
+    return y;
+  throw Exceptions::BadSubscript();
+}
