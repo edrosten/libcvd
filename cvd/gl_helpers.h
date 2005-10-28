@@ -51,6 +51,15 @@ namespace CVD
 		glVertex2i(i.x, i.y);
 	}
 
+	/// Specify the (x,y) co-ordinates of the current raster position
+	/// @param i The raster position
+	///@ingroup gGL
+	inline void glRasterPos(const ImageRef& i)
+	{
+		glRasterPos2i(i.x, i.y);
+	}
+
+
 	#ifdef CVD_HAVE_TOON
 	/// Specify the (x,y) co-ordinates of a vertex
 	/// @param v The vertex location
@@ -74,6 +83,30 @@ namespace CVD
 	inline void glVertex(const TooN::Vector<4>& v)
 	{
 		glVertex4d(v[0], v[1], v[2], v[3]);
+	}
+
+	/// Specify the (x,y) co-ordinates of the current raster position
+	/// @param v The raster position
+	///@ingroup gGL
+	inline void glRasterPos(const TooN::Vector<2>& v)
+	{
+		glRasterPos2d(v[0], v[1]);
+	}
+
+	/// Specify the (x,y,z) co-ordinates of the current raster position
+	/// @param v The raster position
+	///@ingroup gGL
+	inline void glRasterPos(const TooN::Vector<3>& v)
+	{
+		glRasterPos3d(v[0], v[1], v[2]);
+	}
+
+	/// Specify the (x,y,z,w) co-ordinates of the current raster position
+	/// @param v The raster position
+	///@ingroup gGL
+	inline void glRasterPos(const TooN::Vector<4>& v)
+	{
+		glRasterPos4d(v[0], v[1], v[2], v[3]);
 	}
 
 	/// add a translation specified from the first three coordinates of a vector
