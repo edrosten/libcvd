@@ -21,7 +21,7 @@
 #ifndef CVD_VECTOR_IMAGE_REF_H
 #define CVD_VECTOR_IMAGE_REF_H
 
-#include <TooN/toon.h>
+#include <TooN/TooN.h>
 #include <cvd/image_ref.h>
 
 namespace CVD
