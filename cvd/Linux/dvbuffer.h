@@ -29,6 +29,7 @@
 #include <libraw1394/raw1394.h>
 #include <libdc1394/dc1394_control.h>
 #include <vector>
+#include <utility>
 
 namespace CVD {
 
@@ -132,6 +133,20 @@ namespace DC
 			/// Get the camera brightness
 			unsigned int get_brightness();
 
+
+			/// Set any DC1394 camera feature value
+			/// @param feature The feature to be set - c.f. dc1394_control.h
+			/// @param value Requested feature value
+			void set_feature_value(unsigned int feature, unsigned int value);
+
+			/// Get any DC1394 camera feature value
+			/// @param feature The feature to be queried - c.f. dc1394_control.h
+			unsigned int get_feature_value(unsigned int feature);
+
+			/// Get the min and max value of any camera feature
+			/// @param feature The feature to be queried - c.f. dc1394_control.h
+			std::pair<unsigned int, unsigned int> get_feature_min_max(unsigned int feature);
+			
 			/// Get the camera frame rate
 			double frame_rate();
 

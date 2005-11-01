@@ -21,8 +21,8 @@
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.9 $$Name:  $
-**       $Date: 2005/10/26 10:42:04 $
+**   $Revision: 1.10 $$Name:  $
+**       $Date: 2005/11/01 12:55:12 $
 **   Copyright: LGPL $Author: georgklein $
 ** Description:
 **
@@ -32,6 +32,9 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
+**  Revision 1.10  2005/11/01 12:55:12  georgklein
+**  *** empty log message ***
+**
 **  Revision 1.9  2005/10/26 10:42:04  georgklein
 **  Add sharpness control
 **
@@ -829,6 +832,31 @@ unsigned int DC::RawDCVideo::get_brightness()
 		fprintf(stderr, "couldn't get brightness.\n");
 	return s;
 }
+
+void DC::RawDCVideo::set_feature_value(unsigned int feature, unsigned int value)
+{
+  if(dc1394_set_feature_value(my_handle, my_node, feature, value) != DC1394_SUCCESS)
+    fprintf(stderr, "couldn't set feature.\n");
+}
+
+unsigned int DC::RawDCVideo::get_feature_value(unsigned int feature)
+{
+  unsigned int value;
+  if(dc1394_get_feature_value(my_handle, my_node, feature, &value) != DC1394_SUCCESS)
+    fprintf(stderr, "couldn't get feature value.\n");
+}
+
+std::pair<unsigned int, unsigned int> DC::RawDCVideo::get_feature_min_max(unsigned int feature)
+{
+  unsigned int min=0;
+  unsigned int max=0;
+  if(dc1394_get_min_value(my_handle, my_node, feature, &min) != DC1394_SUCCESS)
+    fprintf(stderr, "couldn't get feature min value.\n");
+  if(dc1394_get_max_value(my_handle, my_node, feature, &max) != DC1394_SUCCESS)
+    fprintf(stderr, "couldn't get feature max value.\n");
+  return std::pair<unsigned int, unsigned int>(min,max);
+}
+
 
 raw1394handle_t& DC::RawDCVideo::handle()
 {
