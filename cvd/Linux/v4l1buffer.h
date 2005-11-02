@@ -139,6 +139,8 @@ namespace V4L1
         double frame_rate();
         /// Is there a frame waiting in the buffer? This function does not block.
         bool frame_pending();
+        /// return underlying file handle for select operations etc
+        int get_handle() const { return myDevice; };
 
     private:
         std::string deviceName;
