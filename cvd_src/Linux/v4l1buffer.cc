@@ -1,4 +1,4 @@
-/*                       
+/*
 	This file is part of the CVD Library.
 
 	Copyright (C) 2005 The Authors
@@ -15,7 +15,7 @@
 
 	You should have received a copy of the GNU Lesser General Public
 	License along with this library; if not, write to the Free Software
-	Foundation, Inc., 
+	Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <sstream>
@@ -170,6 +170,18 @@ void RawV4L1::set_hue(double hue) { myHue = hue; }
 void RawV4L1::set_contrast(double contrast) { myContrast = contrast; }
 
 void RawV4L1::set_saturation(double saturation) { mySaturation = saturation; }
+
+void RawV4L1::set_auto_exp(bool on){
+    int val = on;
+    if( val != autoexp ){
+        autoexp = val;
+        ioctl(myDevice, (VIDIOCCAPTURE), &autoexp);
+    }
+}
+
+bool RawV4L1::get_auto_exp(void){
+    return autoexp;
+}
 
 void RawV4L1::set_palette(unsigned int palette) {
     myPalette = palette;

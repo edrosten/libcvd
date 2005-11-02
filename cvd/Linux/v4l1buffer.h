@@ -1,4 +1,4 @@
-/*                       
+/*
 	This file is part of the CVD Library.
 
 	Copyright (C) 2005 The Authors
@@ -15,7 +15,7 @@
 
 	You should have received a copy of the GNU Lesser General Public
 	License along with this library; if not, write to the Free Software
-	Foundation, Inc., 
+	Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 //-*- c++ -*-
@@ -125,6 +125,10 @@ namespace V4L1
         void set_saturation(double saturation);
         /** returns current saturation setting. */
         double get_saturation(void) { return mySaturation; };
+        /** sets autoexposure */
+        void set_auto_exp(bool on);
+        /** gets autoexposure */
+        bool get_auto_exp(void);
         /** Get current settings from the camera device. */
         void retrieveSettings();
         /** Commit the settings to the camera device. */
@@ -149,6 +153,7 @@ namespace V4L1
         unsigned int myPalette;
         double myBrightness, myWhiteness, myContrast, myHue, mySaturation;
         unsigned int myBpp;
+        int autoexp;
 
         std::vector<unsigned char*> myFrameBuf;
         std::vector<bool> myFrameBufState;
