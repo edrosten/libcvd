@@ -147,6 +147,11 @@ namespace DC
 			/// @param feature The feature to be queried - c.f. dc1394_control.h
 			std::pair<unsigned int, unsigned int> get_feature_min_max(unsigned int feature);
 			
+			/// Toggle auto on or off
+			/// @param feature The feature to be toggled
+			/// @param auto - 0 for auto off, nonzero for auto on
+			void auto_on_off(unsigned int feature, unsigned int auto_value);
+
 			/// Get the camera frame rate
 			double frame_rate();
 

@@ -21,8 +21,8 @@
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.10 $$Name:  $
-**       $Date: 2005/11/01 12:55:12 $
+**   $Revision: 1.11 $$Name:  $
+**       $Date: 2005/11/07 11:52:14 $
 **   Copyright: LGPL $Author: georgklein $
 ** Description:
 **
@@ -32,6 +32,9 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
+**  Revision 1.11  2005/11/07 11:52:14  georgklein
+**  Added auto_on_off
+**
 **  Revision 1.10  2005/11/01 12:55:12  georgklein
 **  *** empty log message ***
 **
@@ -856,6 +859,13 @@ std::pair<unsigned int, unsigned int> DC::RawDCVideo::get_feature_min_max(unsign
     fprintf(stderr, "couldn't get feature max value.\n");
   return std::pair<unsigned int, unsigned int>(min,max);
 }
+
+void DC::RawDCVideo::auto_on_off(unsigned int feature, unsigned int auto_value)
+{
+  if(dc1394_auto_on_off(my_handle, my_node, feature, auto_value) != DC1394_SUCCESS)
+    fprintf(stderr, "couldn't set auto on/off.\n");
+}
+
 
 
 raw1394handle_t& DC::RawDCVideo::handle()
