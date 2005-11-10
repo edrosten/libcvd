@@ -1,4 +1,4 @@
-/*                       
+/*
 	This file is part of the CVD Library.
 
 	Copyright (C) 2005 The Authors
@@ -15,13 +15,15 @@
 
 	You should have received a copy of the GNU Lesser General Public
 	License along with this library; if not, write to the Free Software
-	Foundation, Inc., 
+	Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #ifndef CVD_COLOURSPACES_H
 #define CVD_COLOURSPACES_H
 
 //#include <cvd/internal/is_pod.h>
+#include <cvd/internal/builtin_components.h>
+#include <cvd/internal/pixel_traits.h>
 
 namespace CVD
 {
@@ -32,6 +34,9 @@ namespace CVD
 	struct bayer
 	{
 		unsigned char val;
+                operator unsigned char(){
+                    return val;
+                };
 	};
 
 	/// A datatype to represent yuv411 (uyyvyy) data, typically from firewire
@@ -41,6 +46,23 @@ namespace CVD
 	{
 		unsigned char val;
 	};
+
+    namespace Pixel {
+        template<> struct Component<bayer> : public component_base<bayer, 1>
+        {
+        };
+
+        template<int LIFT> struct traits<bayer, LIFT>
+        {
+            typedef int wider_type;
+            typedef float float_type;
+            static const bool integral = true;
+            static const bool is_signed = false;
+            static const int bits_used = 8;
+            static const unsigned char max_intensity=(1 << bits_used) - 1;
+        };
+    }
+
 /*
 	#ifndef DOXYGEN_IGNORE_INTERNAL
 	namespace Internal
