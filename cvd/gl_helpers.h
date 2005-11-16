@@ -109,6 +109,14 @@ namespace CVD
 		glRasterPos4d(v[0], v[1], v[2], v[3]);
 	}
 
+    /// add a translation specified by an ImageRef
+    /// @param v the translation ImageRef
+    /// @ingroup gGL
+    inline void glTranslate( const ImageRef & v )
+    {
+        glTranslatef( v.x, v.y, 0);
+    }
+
 	/// add a translation specified from the first three coordinates of a vector
 	/// @param v the translation vector
 	/// @ingroup gGL
@@ -199,11 +207,11 @@ namespace CVD
 	}
 
 
-	/// Sets up an ortho projection suitable for drawing onto individual pixels of a 
-	/// gl window (or video image.) glVertex2f(0.0,0.0) will be the top left pixel and 
-	/// glVertex2f(xsize-1.0, ysize-1.0) will be the bottom right pixel. Depth is set 
+	/// Sets up an ortho projection suitable for drawing onto individual pixels of a
+	/// gl window (or video image.) glVertex2f(0.0,0.0) will be the top left pixel and
+	/// glVertex2f(xsize-1.0, ysize-1.0) will be the bottom right pixel. Depth is set
 	/// from -1 to 1.
-        /// n.b. You first need to set up the matrix environment yourself, 
+        /// n.b. You first need to set up the matrix environment yourself,
 	/// e.g. glMatrixMode(GL_PROJECTION); glLoadIdentity();
 	/// @param size ImageRef containing the size of the GL window.
 	inline void glOrtho( const CVD::ImageRef & size)
@@ -211,7 +219,7 @@ namespace CVD
 	         ::glOrtho(-0.375, size.x - 0.375, size.y - 0.375, -0.375, -1.0, 1.0);
 	}
 
-	
+
 	/// sets a gl frustum from the linear camera parameters, image size and near and far plane.
 	/// The camera will be in OpenGL style with camera center in the origin and the viewing direction
 	/// down the negative z axis, with y pointing upwards and x pointing to the left and the image plane
