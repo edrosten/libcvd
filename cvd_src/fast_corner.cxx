@@ -187,7 +187,7 @@ int corner_score(const BasicImage<byte>& im, ImageRef c, const int *pointer_dir,
 
 
 
-void nonmax(const BasicImage<byte>& im, const vector<ImageRef>& corners, int barrier, vector<ImageRef>& nonmax_corners)
+void fast_nonmax(const BasicImage<byte>& im, const vector<ImageRef>& corners, int barrier, vector<ImageRef>& nonmax_corners)
 {
 	
 	if(corners.size() < 5)
