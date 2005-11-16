@@ -24,7 +24,7 @@ namespace CVD
 	/// @param barrier	Corner detection threshold
 	/// @ingroup	corners
 	void fast_corner_detect(const BasicImage<byte>& im, std::vector<ImageRef>& corners, int barrier);
-	void nonmax(const BasicImage<byte>& im, const std::vector<ImageRef>& corners, int barrier, std::vector<ImageRef>& nonmax_corners);
+	void fast_nonmax(const BasicImage<byte>& im, const std::vector<ImageRef>& corners, int barrier, std::vector<ImageRef>& nonmax_corners);
 	int corner_score(const BasicImage<byte>& im, ImageRef c, const int *pointer_dir, int barrier);
 
 
