@@ -119,7 +119,7 @@ namespace CVD
 			/// @ingroup gException
 			struct OpenError: public All
 			{
-				OpenError(const std::string&, int); ///< Construct from the filename and the error number
+				OpenError(const std::string&, const std::string&, int); ///< Construct from the filename and the error number
 			};
 
 
@@ -177,7 +177,7 @@ namespace CVD
 		std::ifstream i(s.c_str());
 
 		if(!i.good())
-			throw Exceptions::Image_IO::OpenError(s, errno);
+			throw Exceptions::Image_IO::OpenError(s, "for reading", errno);
 		img_load(im, i);
 	}	
 
@@ -324,6 +324,25 @@ namespace CVD
 	}
 
 
+	/// Save an image to a file. This function will convert types if necessary, using
+	/// the Pixel::CIE conversion
+	/// @param PixelType The pixel type of the image
+	/// @param im The image to save
+	/// @param f The file name
+	/// @param t The image file format to use (see ImageType::ImageType for a list of supported formats)
+	/// @ingroup gImageIO
+	template<class PixelType> void img_save(const BasicImage<PixelType>& im, const std::string& f, ImageType::ImageType t)
+	{
+		std::ofstream fs;
+
+		fs.open(f.c_str());
+
+
+		if(!fs.good())
+			throw Exceptions::Image_IO::OpenError(f, "for writing", errno);
+	
+		img_save(im, fs, t, Pixel::CIE);
+	}
 
 
 	////////////////////////////////////////////////////////////////////////////////
