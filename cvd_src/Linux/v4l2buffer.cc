@@ -79,8 +79,14 @@ void ErrorInfo(int e)
 	#error "Can't do v4l2 for this kernel version"
 #endif
 
+
+
+
+
+
+
 #ifdef USE_24
-V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block, int input, int bufs)
+V4L2Buffer_Base::V4L2Buffer_Base(const char *devname, bool fields, V4L2BufferBlockMethod block, int input, int bufs, unsigned long int pixtype)
 {
 	device = devname;
 	my_frame_rate=0;
@@ -102,9 +108,9 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 	if(0!=ioctl(m_nVideoFileDesc, VIDIOC_QUERYCAP, &sv4l2Capability))
 		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Query capabilities");
 
-	cerr << "  V4L2Buffer: Device name:"<< sv4l2Capability.name <<endl;
-	cerr << "  V4L2Buffer: (If that was garbled then you've not go the right modules loaded.) "<<endl;
-	cerr << "  V4L2Buffer: Streaming flags: "<< (sv4l2Capability.flags&V4L2_FLAG_STREAMING)<<endl;
+	cerr << "  V4L2Buffer_Base: Device name:"<< sv4l2Capability.name <<endl;
+	cerr << "  V4L2Buffer_Base: (If that was garbled then you've not go the right modules loaded.) "<<endl;
+	cerr << "  V4L2Buffer_Base: Streaming flags: "<< (sv4l2Capability.flags&V4L2_FLAG_STREAMING)<<endl;
 
 	// Change a few of the card's settings to our liking:
 	struct v4l2_control sv4l2Control;
@@ -137,7 +143,7 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 	if(ioctl(m_nVideoFileDesc, VIDIOC_G_FMT, &sv4l2Format))
 		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Get capture format");
 
-	cerr	<<"  V4L2Buffer: Current capture format: "<<sv4l2Format.fmt.pix.width<<
+	cerr	<<"  V4L2Buffer_Base: Current capture format: "<<sv4l2Format.fmt.pix.width<<
 			"x"<<sv4l2Format.fmt.pix.height<<
 			"x"<<sv4l2Format.fmt.pix.depth<<
 			"bpp, image size:"<<sv4l2Format.fmt.pix.sizeimage<<endl;
@@ -145,7 +151,7 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 	// ******************************************* CAPTURE FORMAT******
 	sv4l2Format.fmt.pix.width=768;                                
 	sv4l2Format.fmt.pix.depth=8;                                 
-	sv4l2Format.fmt.pix.pixelformat=V4L2_PIX_FMT_GREY;          
+	sv4l2Format.fmt.pix.pixelformat=pixtype;          
 	if(i_am_using_fields)                                      
 	{
 		sv4l2Format.fmt.pix.flags|=V4L2_FMT_FLAG_TOPFIELD;    
@@ -166,7 +172,7 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 	if(ioctl(m_nVideoFileDesc, VIDIOC_S_FMT, &sv4l2Format))
 		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Set capture format");
 
-	cerr<<"  V4L2Buffer: New capture format: "<<sv4l2Format.fmt.pix.width<<
+	cerr<<"  V4L2Buffer_Base: New capture format: "<<sv4l2Format.fmt.pix.width<<
 	"x"<<sv4l2Format.fmt.pix.height<<
 	"x"<<sv4l2Format.fmt.pix.depth<<
 	"bpp, image size:"<<sv4l2Format.fmt.pix.sizeimage<<endl;
@@ -183,10 +189,10 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 	struct v4l2_requestbuffers sv4l2RequestBuffers;
 	sv4l2RequestBuffers.count=num_buffers;
 	sv4l2RequestBuffers.type=V4L2_BUF_TYPE_CAPTURE; //|V4L2_BUF_ATTR_DEVICEMEM;
-	cerr<<"  V4L2Buffer: Request buffer of count "<<sv4l2RequestBuffers.count<<" and type "<<sv4l2RequestBuffers.type<<".."<<endl;
+	cerr<<"  V4L2Buffer_Base: Request buffer of count "<<sv4l2RequestBuffers.count<<" and type "<<sv4l2RequestBuffers.type<<".."<<endl;
 	if(ioctl(m_nVideoFileDesc,VIDIOC_REQBUFS,&sv4l2RequestBuffers))
 		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Request capture buffers");
-	cerr<<"  V4L2Buffer: Granted buffer of count "<<sv4l2RequestBuffers.count<<" and type "<<sv4l2RequestBuffers.type<<".."<<endl;
+	cerr<<"  V4L2Buffer_Base: Granted buffer of count "<<sv4l2RequestBuffers.count<<" and type "<<sv4l2RequestBuffers.type<<".."<<endl;
 
 	// Set up the streaming buffers, and mmap them
 	for(int ii=0;ii<num_buffers;ii++) 
@@ -213,8 +219,9 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 #else
 
 
-V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block, int input, int bufs)
+V4L2Buffer_Base::V4L2Buffer_Base(const char *devname, bool fields, V4L2BufferBlockMethod block, int input, int bufs, unsigned long int pixtype)
 {
+	device = devname;
 	my_frame_rate=0;
 	my_block_method=block;
 	i_am_using_fields=fields;
@@ -232,8 +239,8 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Query capabilities");
 
 
-	cout << "  V4L2Buffer: Device name:"<< sv4l2Capability.card <<endl;
-	cout << "  V4L2Buffer: (If that was garbled then you've not go the right modules loaded.) "<<endl;
+	cout << "  V4L2Buffer_Base: Device name:"<< sv4l2Capability.card <<endl;
+	cout << "  V4L2Buffer_Base: (If that was garbled then you've not go the right modules loaded.) "<<endl;
   
 	// Select video input
 	struct v4l2_input sv4l2Input;
@@ -254,13 +261,13 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Get capture format");
 
 	// ******************************************* CAPTURE FORMAT******
-	sv4l2Format.fmt.pix.width=768;                                  //*
-	sv4l2Format.fmt.pix.pixelformat=V4L2_PIX_FMT_GREY;              //*
-	sv4l2Format.fmt.pix.height=576;                             //*
-	if(i_am_using_fields)                                           //*
+	sv4l2Format.fmt.pix.width=768;
+	sv4l2Format.fmt.pix.pixelformat=pixtype;
+	sv4l2Format.fmt.pix.height=576;
+	if(i_am_using_fields)
 	{
 		sv4l2Format.fmt.pix.field=  V4L2_FIELD_ALTERNATE;
-	};                                                            //*
+	};                                                            
 	if(!i_am_using_fields)
 	{
 		sv4l2Format.fmt.pix.field=  V4L2_FIELD_INTERLACED;
@@ -270,7 +277,7 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 	if(ioctl(m_nVideoFileDesc, VIDIOC_S_FMT, &sv4l2Format))
 		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Set capture format");
 
-	cout<<"  V4L2Buffer: Using capture format: "<<sv4l2Format.fmt.pix.width<<
+	cout<<"  V4L2Buffer_Base: Using capture format: "<<sv4l2Format.fmt.pix.width<<
 		"x"<<sv4l2Format.fmt.pix.height<<
 		", image size:"<<sv4l2Format.fmt.pix.sizeimage<<endl;
 	my_image_size.x=sv4l2Format.fmt.pix.width;
@@ -319,7 +326,7 @@ V4L2Buffer::V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod b
 
 #endif
 
-V4L2Buffer::~V4L2Buffer()
+V4L2Buffer_Base::~V4L2Buffer_Base()
 {
 	if(ioctl(m_nVideoFileDesc,VIDIOC_STREAMOFF, &m_sv4l2Buffer[0].type))
 		throw Exceptions::V4L2Buffer::DeviceSetup(device, "End streaming");
@@ -333,7 +340,7 @@ V4L2Buffer::~V4L2Buffer()
 	close(m_nVideoFileDesc);
 }  
 
-void V4L2Buffer::put_frame(V4L2Frame *f)
+void V4L2Buffer_Base::put_frame(V4L2Frame_Base *f)
 {
   // Requeue
   struct v4l2_buffer buffer;
@@ -349,12 +356,12 @@ void V4L2Buffer::put_frame(V4L2Frame *f)
   delete f;
 }
 
-void V4L2Buffer::put_frame(VideoFrame<unsigned char> *f)
+void V4L2Buffer_Base::put_frame(VideoFrame<unsigned char> *f)
 {
-  put_frame((V4L2Frame *)f);
+  put_frame((V4L2Frame_Base *)f);
 }
 
-bool V4L2Buffer::frame_pending(){
+bool V4L2Buffer_Base::frame_pending(){
   fd_set fdsetRead;
   fd_set fdsetOther;
   struct timeval tv;
@@ -368,13 +375,13 @@ bool V4L2Buffer::frame_pending(){
   return false;
 }
 
-V4L2Frame* V4L2Buffer::get_frame(){
+V4L2Frame_Base* V4L2Buffer_Base::get_frame(){
 
   fd_set fdsetRead;
   fd_set fdsetOther;
   struct v4l2_buffer buffer;
   struct v4l2_buffer buffer2;
-  V4L2Frame *frame;
+  V4L2Frame_Base *frame;
  
   buffer.type=m_sv4l2Buffer[0].type;
   buffer2.type=m_sv4l2Buffer[0].type;
@@ -432,7 +439,7 @@ V4L2Frame* V4L2Buffer::get_frame(){
     }
   )
 
-  frame=new V4L2Frame(timer.conv_ntime(buffer.timestamp),my_image_size,buffer.index,(unsigned char *)m_pvVideoBuffer[buffer.index], field);
+  frame=new V4L2Frame_Base(timer.conv_ntime(buffer.timestamp),my_image_size,buffer.index,(unsigned char *)m_pvVideoBuffer[buffer.index], field);
 
   frame->m_buf = new struct v4l2_buffer;
   *(frame->m_buf) = buffer;
