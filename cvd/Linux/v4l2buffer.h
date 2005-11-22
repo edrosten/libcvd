@@ -94,7 +94,7 @@ struct V4L2_Traits<CVD::YC>{
 /// This provides 8-bit greyscale video frames of type CVD::V4L2Frame and throws exceptions
 /// of type CVD::Exceptions::V4L2Buffer
 /// @ingroup gVideoBuffer
-class V4L2Buffer_Base : public VideoBuffer<unsigned char> 
+class V4L2Buffer_Base
 {
 	public:
 		/// Construct a video buffer
@@ -146,24 +146,29 @@ class V4L2Buffer_Base : public VideoBuffer<unsigned char>
 
 template<class T>
 class V4L2BufferT : public VideoBuffer<unsigned char>,
-                    public V4L2Buffer_Base {
-  V4L2BufferT(const char *devname, bool fields, V4L2BufferBlockMethod block, int input=1, int numbufs=V4L2BUFFERS):
-  V4L2Buffer_Base(devname, fields, block, input, numbufs, V4L2_Traits<T>::pix_code){}
+                    public V4L2Buffer_Base 
+{
+	public:
+		V4L2BufferT(const char *devname, bool fields, V4L2BufferBlockMethod block, int input=1, int numbufs=V4L2BUFFERS)
+		:V4L2Buffer_Base(devname, fields, block, input, numbufs, V4L2_Traits<T>::pix_code)
+		{}
 
-  virtual ImageRef size() 
-  {
-    return my_image_size;
-  }
+		virtual ImageRef size() 
+		{
+			return V4L2Buffer_Base::size();
+		}
 
-  virtual V4L2FrameT<T>* get_frame() {return static_cast<V4L2FrameT<T>*>(V4L2Buffer_Base::get_frame());}
+		virtual V4L2FrameT<T>* get_frame() {return static_cast<V4L2FrameT<T>*>(V4L2Buffer_Base::get_frame());}
 
-  /// Tell the buffer that you are finished with this frame. Overloaded version of VideoBuffer<T>::put_frame()
-  virtual void put_frame(VideoFrame<T>* f) {V4L2Buffer_Base::put_frame(static_cast<V4L2Frame_Base*>(f));}
+		/// Tell the buffer that you are finished with this frame. Overloaded version of VideoBuffer<T>::put_frame()
+		virtual void put_frame(VideoFrame<T>* f) {V4L2Buffer_Base::put_frame(static_cast<V4L2Frame_Base*>(f));}
 
-  virtual bool frame_pending() {return V4L2Buffer_Base::frame_pending();}
-  virtual double frame_rate() {return V4L2Buffer_Base::frame_rate();}
+		virtual bool frame_pending() {return V4L2Buffer_Base::frame_pending();}
+		virtual double frame_rate() {return V4L2Buffer_Base::frame_rate();}
 };
 
+
+typedef V4L2BufferT<unsigned char> V4L2Buffer;
 
 }
 

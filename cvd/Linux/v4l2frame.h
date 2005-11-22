@@ -43,7 +43,7 @@ class V4L2Frame_Base : public VideoFrame<unsigned char>
 {
 	friend class V4L2Buffer_Base;
 
-	private:
+	protected:
 		/// (Used internally) Construct a video frame
 		/// @param t The timestamp
 		/// @param size The image size
@@ -70,7 +70,14 @@ class V4L2Frame_Base : public VideoFrame<unsigned char>
 };
 
 template <class T>
-class V4L2FrameT : public V4L2Frame_Base {};
+class V4L2FrameT : public V4L2Frame_Base 
+{
+	public:
+		V4L2FrameT(double t, const ImageRef& size, int index, unsigned char *data, VideoFrameFlags::FieldType f)
+		:V4L2Frame_Base(t, size, index, data, f)
+		{}
+
+};
 
 typedef V4L2FrameT<unsigned char> V4L2Frame;
 
