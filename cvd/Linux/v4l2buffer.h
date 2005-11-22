@@ -22,6 +22,8 @@
 #ifndef __CVD_V4L2BUFFER_H
 #define __CVD_V4L2BUFFER_H
 
+#include <cvd/yc.h>
+
 #include <string>
 
 #include <cvd/videobuffer.h>
@@ -73,12 +75,26 @@ namespace Exceptions
 	}
 }
 
+template<class T>
+struct V4L2_Traits;
+
+template<>
+struct V4L2_Traits<unsigned char>{
+  static const unsigned int pix_code=V4L2_PIX_FMT_GREY;
+};
+
+template<>
+struct V4L2_Traits<CVD::YC>{
+  static const unsigned int pix_code=V4L2_PIX_FMT_YUYV;
+};
+
+
 
 /// A live video buffer from a the framegrabber (using the Video for Linux 2 API).
 /// This provides 8-bit greyscale video frames of type CVD::V4L2Frame and throws exceptions
 /// of type CVD::Exceptions::V4L2Buffer
 /// @ingroup gVideoBuffer
-class V4L2Buffer : public VideoBuffer<unsigned char> 
+class V4L2Buffer_Base : public VideoBuffer<unsigned char> 
 {
 	public:
 		/// Construct a video buffer
@@ -87,22 +103,22 @@ class V4L2Buffer : public VideoBuffer<unsigned char>
 		/// @param block Which buffer block method to use
 		/// @param input Which card input?
 		/// @param numbufs How many buffers?
-		V4L2Buffer(const char *devname, bool fields, V4L2BufferBlockMethod block, int input=1, int numbufs=V4L2BUFFERS);
-		~V4L2Buffer();
+	  V4L2Buffer_Base(const char *devname, bool fields, V4L2BufferBlockMethod block, int input, int numbufs, unsigned long int pixtpe);
+		~V4L2Buffer_Base();
 
-		virtual ImageRef size() 
+		ImageRef size() 
 		{
 			return my_image_size;
 		}
 
-		virtual V4L2Frame* get_frame(); 
+		V4L2Frame_Base* get_frame(); 
 		/// Tell the buffer that you are finished with this frame. Overloaded version of VideoBuffer<T>::put_frame()
-		virtual void put_frame(VideoFrame<unsigned char>* f);
+		void put_frame(VideoFrame<unsigned char>* f);
 		/// Tell the buffer that you are finished with this frame. Overloaded version of VideoBuffer<T>::put_frame()
-		virtual void put_frame(V4L2Frame *f);
-		virtual bool frame_pending();
+		void put_frame(V4L2Frame_Base *f);
+		bool frame_pending();
 
-		virtual double frame_rate() 
+		double frame_rate() 
 		{
 			return my_frame_rate;
 		}
@@ -123,10 +139,31 @@ class V4L2Buffer : public VideoBuffer<unsigned char>
 
 		int my_fd;
 
-		V4L2Buffer( V4L2Buffer& copyof );
-		int operator = ( V4L2Buffer& copyof );
+		V4L2Buffer_Base( V4L2Buffer_Base& copyof );
+		int operator = ( V4L2Buffer_Base& copyof );
 
 };
+
+template<class T>
+class V4L2BufferT : public VideoBuffer<unsigned char>,
+                    public V4L2Buffer_Base {
+  V4L2BufferT(const char *devname, bool fields, V4L2BufferBlockMethod block, int input=1, int numbufs=V4L2BUFFERS):
+  V4L2Buffer_Base(devname, fields, block, input, numbufs, V4L2_Traits<T>::pix_code){}
+
+  virtual ImageRef size() 
+  {
+    return my_image_size;
+  }
+
+  virtual V4L2FrameT<T>* get_frame() {return static_cast<V4L2FrameT<T>*>(V4L2Buffer_Base::get_frame());}
+
+  /// Tell the buffer that you are finished with this frame. Overloaded version of VideoBuffer<T>::put_frame()
+  virtual void put_frame(VideoFrame<T>* f) {V4L2Buffer_Base::put_frame(static_cast<V4L2Frame_Base*>(f));}
+
+  virtual bool frame_pending() {return V4L2Buffer_Base::frame_pending();}
+  virtual double frame_rate() {return V4L2Buffer_Base::frame_rate();}
+};
+
 
 }
 
