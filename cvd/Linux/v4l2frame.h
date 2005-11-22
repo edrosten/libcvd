@@ -28,8 +28,8 @@
 //                                                                  //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __CVD_V4L2FRAME_H
-#define __CVD_V4L2FRAME_H
+#ifndef CVD_V4L2FRAME_H
+#define CVD_V4L2FRAME_H
 
 #include <cvd/videoframe.h>
 #include <linux/videodev.h>
@@ -39,9 +39,9 @@ namespace CVD {
 /// A frame from a V4L2Buffer
 /// This is an 8-bit greyscale video frame
 /// @ingroup gVideoFrame	
-class V4L2Frame : public VideoFrame<unsigned char>
+class V4L2Frame_Base : public VideoFrame<unsigned char>
 {
-	friend class V4L2Buffer;
+	friend class V4L2Buffer_Base;
 
 	private:
 		/// (Used internally) Construct a video frame
@@ -50,7 +50,7 @@ class V4L2Frame : public VideoFrame<unsigned char>
 		/// @param index The index
 		/// @param data The image data
 		/// @param f The field
-		V4L2Frame(double t, const ImageRef& size, int index, unsigned char *data, VideoFrameFlags::FieldType f) 
+		V4L2Frame_Base(double t, const ImageRef& size, int index, unsigned char *data, VideoFrameFlags::FieldType f) 
 		: VideoFrame<unsigned char>(t, data, size, f),my_index(index)
 		{
 		}
@@ -62,12 +62,18 @@ class V4L2Frame : public VideoFrame<unsigned char>
 
 	  int my_index;
 
-	  ~V4L2Frame() 
+	  ~V4L2Frame_Base() 
 	  {}
 
 	public:
 
 };
+
+template <class T>
+class V4L2FrameT : public V4L2Frame_Base {};
+
+typedef V4L2FrameT<unsigned char> V4L2Frame;
+
 
 }
 
