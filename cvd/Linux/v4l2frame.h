@@ -38,8 +38,9 @@ namespace CVD {
 
 /// A frame from a V4L2Buffer
 /// This is an 8-bit greyscale video frame
-/// @ingroup gVideoFrame	
-class V4L2Frame_Base : public VideoFrame<unsigned char>
+/// @ingroup gVideoFrame
+template <class T>	
+class V4L2FrameT : public VideoFrame<T>
 {
 	friend class V4L2Buffer_Base;
 
@@ -50,8 +51,8 @@ class V4L2Frame_Base : public VideoFrame<unsigned char>
 		/// @param index The index
 		/// @param data The image data
 		/// @param f The field
-		V4L2Frame_Base(double t, const ImageRef& size, int index, unsigned char *data, VideoFrameFlags::FieldType f) 
-		: VideoFrame<unsigned char>(t, data, size, f),my_index(index)
+	  V4L2FrameT(double t, const ImageRef& size, int index, T *data, VideoFrameFlags::FieldType f) 
+		: VideoFrame<T>(t, data, size, f),my_index(index)
 		{
 		}
 		
@@ -62,20 +63,10 @@ class V4L2Frame_Base : public VideoFrame<unsigned char>
 
 	  int my_index;
 
-	  ~V4L2Frame_Base() 
+	  ~V4L2FrameT() 
 	  {}
 
 	public:
-
-};
-
-template <class T>
-class V4L2FrameT : public V4L2Frame_Base 
-{
-	public:
-		V4L2FrameT(double t, const ImageRef& size, int index, unsigned char *data, VideoFrameFlags::FieldType f)
-		:V4L2Frame_Base(t, size, index, data, f)
-		{}
 
 };
 

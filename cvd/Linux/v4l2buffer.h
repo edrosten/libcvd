@@ -111,11 +111,11 @@ class V4L2Buffer_Base
 			return my_image_size;
 		}
 
-		V4L2Frame_Base* get_frame(); 
+		V4L2FrameT<unsigned char>* get_frame(); 
 		/// Tell the buffer that you are finished with this frame. Overloaded version of VideoBuffer<T>::put_frame()
 		void put_frame(VideoFrame<unsigned char>* f);
 		/// Tell the buffer that you are finished with this frame. Overloaded version of VideoBuffer<T>::put_frame()
-		void put_frame(V4L2Frame_Base *f);
+		void put_frame(V4L2FrameT<unsigned char>* f);
 		bool frame_pending();
 
 		double frame_rate() 
@@ -145,7 +145,7 @@ class V4L2Buffer_Base
 };
 
 template<class T>
-class V4L2BufferT : public VideoBuffer<unsigned char>,
+class V4L2BufferT : public VideoBuffer<T>,
                     public V4L2Buffer_Base 
 {
 	public:
@@ -158,10 +158,10 @@ class V4L2BufferT : public VideoBuffer<unsigned char>,
 			return V4L2Buffer_Base::size();
 		}
 
-		virtual V4L2FrameT<T>* get_frame() {return static_cast<V4L2FrameT<T>*>(V4L2Buffer_Base::get_frame());}
+		virtual VideoFrame<T>* get_frame() {return reinterpret_cast<V4L2FrameT<T>*>(V4L2Buffer_Base::get_frame());}
 
 		/// Tell the buffer that you are finished with this frame. Overloaded version of VideoBuffer<T>::put_frame()
-		virtual void put_frame(VideoFrame<T>* f) {V4L2Buffer_Base::put_frame(static_cast<V4L2Frame_Base*>(f));}
+		virtual void put_frame(VideoFrame<T>* f) {V4L2Buffer_Base::put_frame(reinterpret_cast<V4L2FrameT<unsigned char>*>(f));}
 
 		virtual bool frame_pending() {return V4L2Buffer_Base::frame_pending();}
 		virtual double frame_rate() {return V4L2Buffer_Base::frame_rate();}

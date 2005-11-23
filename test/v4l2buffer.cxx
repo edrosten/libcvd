@@ -27,7 +27,7 @@ typedef unsigned char pix;
 
 VideoBuffer<pix>* get_vbuf()
 {
-	return new V4L2Buffer("/dev/video0", 0, V4L2BBMsleep);
+  return new V4L2Buffer("/dev/video0", 0, V4L2BBMsleep);
 }
 
 #include "test/videoprog.cxx"

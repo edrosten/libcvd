@@ -340,7 +340,7 @@ V4L2Buffer_Base::~V4L2Buffer_Base()
 	close(m_nVideoFileDesc);
 }  
 
-void V4L2Buffer_Base::put_frame(V4L2Frame_Base *f)
+void V4L2Buffer_Base::put_frame(V4L2FrameT<unsigned char> *f)
 {
   // Requeue
   struct v4l2_buffer buffer;
@@ -358,7 +358,7 @@ void V4L2Buffer_Base::put_frame(V4L2Frame_Base *f)
 
 void V4L2Buffer_Base::put_frame(VideoFrame<unsigned char> *f)
 {
-  put_frame((V4L2Frame_Base *)f);
+  put_frame((V4L2FrameT<unsigned char> *)f);
 }
 
 bool V4L2Buffer_Base::frame_pending(){
@@ -375,13 +375,13 @@ bool V4L2Buffer_Base::frame_pending(){
   return false;
 }
 
-V4L2Frame_Base* V4L2Buffer_Base::get_frame(){
+V4L2FrameT<unsigned char>* V4L2Buffer_Base::get_frame(){
 
   fd_set fdsetRead;
   fd_set fdsetOther;
   struct v4l2_buffer buffer;
   struct v4l2_buffer buffer2;
-  V4L2Frame_Base *frame;
+  V4L2FrameT<unsigned char> *frame;
  
   buffer.type=m_sv4l2Buffer[0].type;
   buffer2.type=m_sv4l2Buffer[0].type;
@@ -439,7 +439,7 @@ V4L2Frame_Base* V4L2Buffer_Base::get_frame(){
     }
   )
 
-  frame=new V4L2Frame_Base(timer.conv_ntime(buffer.timestamp),my_image_size,buffer.index,(unsigned char *)m_pvVideoBuffer[buffer.index], field);
+  frame=new V4L2FrameT<unsigned char>(timer.conv_ntime(buffer.timestamp),my_image_size,buffer.index,(unsigned char *)m_pvVideoBuffer[buffer.index], field);
 
   frame->m_buf = new struct v4l2_buffer;
   *(frame->m_buf) = buffer;
