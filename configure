@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX build build_cpu build_vendor build_os host host_cpu host_vendor host_os have_sse have_mmxext have_sse2 have_64bit OFLAGS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB CXXCPP EGREP osx_hacks have_toon have_lapack major minor have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer have_videodisplay have_tiff have_jpeg have_ffmpeg docs cpu progs testprogs LIBOBJS LTLIBOBJS debug_options debug_all_options'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX build build_cpu build_vendor build_os host host_cpu host_vendor host_os have_sse have_mmxext have_sse2 have_64bit OFLAGS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB CXXCPP EGREP osx_hacks have_toon have_lapack major minor have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer have_videodisplay have_tiff have_jpeg have_ffmpeg fast_pointers fast_force docs cpu progs testprogs LIBOBJS LTLIBOBJS debug_options debug_all_options'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -874,6 +874,8 @@ Optional Packages:
   --without-tiff       compile without TIFF support
   --without-jpeg	  compile without JPEG support
   --without-ffmpeg	  compile without FFMPEG support
+  --with-fast-pointers=N  Number of pointers for FAST detectors. Answer: 2
+  --with-fast-force=N  Force first question position for FAST. Answer: 0,1
 
 Some influential environment variables:
   CC          C compiler command
@@ -6737,6 +6739,58 @@ _ACEOF
 	LIBS="$save_LIBS"
 fi
 
+################################################################################
+#
+# Fast options
+
+echo
+echo -------------------------------
+echo Fast feature detection
+echo -------------------------------
+
+
+fast_ptr=2
+
+# Check whether --with-TooN or --without-TooN was given.
+if test "${with_TooN+set}" = set; then
+  withval="$with_TooN"
+  fast_ptr=$withval
+fi;
+
+fast_force=1
+
+# Check whether --with-TooN or --without-TooN was given.
+if test "${with_TooN+set}" = set; then
+  withval="$with_TooN"
+  fast_force=$withval
+fi;
+
+if test "$fast_force" != 0 && test "$fast_force" != 1
+then
+	fast_force=1
+fi
+
+if test "$fast_ptr" != 2
+then
+	fast_ptr=2
+fi
+
+echo "$as_me:$LINENO: checking for FAST parameter \"pointers\"" >&5
+echo $ECHO_N "checking for FAST parameter \"pointers\"... $ECHO_C" >&6
+echo "$as_me:$LINENO: result: $fast_ptr" >&5
+echo "${ECHO_T}$fast_ptr" >&6
+
+echo "$as_me:$LINENO: checking for FAST parameter \"force\"" >&5
+echo $ECHO_N "checking for FAST parameter \"force\"... $ECHO_C" >&6
+echo "$as_me:$LINENO: result: $fast_force" >&5
+echo "${ECHO_T}$fast_force" >&6
+
+fast_pointers=$fast_ptr
+
+fast_force=$fast_force
+
+
+
 
 ################################################################################
 #
@@ -7506,6 +7560,8 @@ s,@have_videodisplay@,$have_videodisplay,;t t
 s,@have_tiff@,$have_tiff,;t t
 s,@have_jpeg@,$have_jpeg,;t t
 s,@have_ffmpeg@,$have_ffmpeg,;t t
+s,@fast_pointers@,$fast_pointers,;t t
+s,@fast_force@,$fast_force,;t t
 s,@docs@,$docs,;t t
 s,@cpu@,$cpu,;t t
 s,@progs@,$progs,;t t
