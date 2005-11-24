@@ -826,11 +826,11 @@ AC_OUTPUT(Makefile)
 cat << FOO > cvd/config.h
 #ifndef CVD_CONFIG_H
 #define CVD_CONFIG_H
-`cat confdefs.h | grep CVD_`
-#define CVD_HAVE_CPU_$host_cpu 1
+`echo '#define CVD_HAVE_CPU_'$host_cpu 1 | cat - confdefs.h | grep CVD_ | sort | sed -e's/#define CVD_.*HAVE_\(.*\) .*/#ifndef CVD_DISABLE_\1\\
+    &\\
+#endif/'`
 #endif
 FOO
-
 
 AC_SUBST(debug_options,$options)
 all_opts="$all_options $os_options"
