@@ -407,7 +407,7 @@ TooN::Matrix<Camera::Quintic::num_parameters,2> Camera::Quintic::get_parameter_d
   double fu = my_camera_parameters[0];
   double fv = my_camera_parameters[1];
 
-  result(0,0) = mod_camframe[0] * fu;
+  result(0,0) = mod_camframe[0];
   result(1,0) = 0;
   result(2,0) = 1;
   result(3,0) = 0;
@@ -415,7 +415,7 @@ TooN::Matrix<Camera::Quintic::num_parameters,2> Camera::Quintic::get_parameter_d
   result(5,0) = my_camera_parameters[0]*my_last_camframe[0]*r4;
 
   result(0,1) = 0;
-  result(1,1) = mod_camframe[1]*fv;
+  result(1,1) = mod_camframe[1];
   result(2,1) = 0;
   result(3,1) = 1;
   result(4,1) = my_camera_parameters[1]*my_last_camframe[1]*r2;
