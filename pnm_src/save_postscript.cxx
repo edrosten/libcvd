@@ -18,7 +18,7 @@
 	Foundation, Inc., 
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <pnm_src/save_postscript.h>
+#include <cvd/internal/io/save_postscript.h>
 
 #include <cvd/internal/load_and_save.h>
 #include <iostream>

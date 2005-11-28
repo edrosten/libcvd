@@ -18,7 +18,7 @@
 	Foundation, Inc., 
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include "pnm_src/jpeg.h"
+#include "cvd/internal/io/jpeg.h"
 
 #include "cvd/image_io.h"
 using namespace std;

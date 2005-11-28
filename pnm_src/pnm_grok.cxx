@@ -48,7 +48,7 @@ from a logic error in the calling program.
 #include <ctype.h>
 #include <limits>
 
-#include <pnm_src/pnm_grok.h>
+#include <cvd/internal/io/pnm_grok.h>
 #include <cvd/internal/load_and_save.h>
 #include <cvd/config.h>
 

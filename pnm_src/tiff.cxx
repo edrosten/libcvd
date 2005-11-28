@@ -18,7 +18,7 @@
 	Foundation, Inc., 
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include "pnm_src/tiff.h"
+#include "cvd/internal/io/tiff.h"
 #include "cvd/image_io.h"
 #include <tiffio.h>
 #include <memory>

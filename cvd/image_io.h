@@ -33,17 +33,17 @@
 #include <string>
 #include <fstream>
 
-#include <pnm_src/pnm_grok.h>
-#include <pnm_src/save_postscript.h>
-#include <pnm_src/bmp.h>
+#include <cvd/internal/io/pnm_grok.h>
+#include <cvd/internal/io/save_postscript.h>
+#include <cvd/internal/io/bmp.h>
 
 
 #ifdef CVD_IMAGE_HAVE_JPEG
-	#include <pnm_src/jpeg.h>
+	#include <cvd/internal/io/jpeg.h>
 #endif
 
 #ifdef CVD_IMAGE_HAVE_TIFF
-	#include <pnm_src/tiff.h>
+	#include <cvd/internal/io/tiff.h>
 #endif
 
 namespace CVD
