@@ -25,6 +25,7 @@
 #include <string>
 #include <stdarg.h>
 #include <cvd/image.h>
+#include <cvd/internal/load_and_save.h>
 #include <cvd/internal/convert_pixel_types.h>
 namespace CVD
 {
