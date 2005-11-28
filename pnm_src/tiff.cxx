@@ -24,7 +24,7 @@
 #include <memory>
 
 using namespace CVD;
-using namespace PNM;
+using namespace TIFF;
 using namespace CVD::Exceptions::Image_IO;
 using namespace std;
 

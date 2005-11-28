@@ -28,7 +28,7 @@ using namespace std;
 
 namespace CVD
 {
-namespace PNM
+namespace JPEG
 {
 
 struct jpeg_istream_src: public jpeg_source_mgr
@@ -204,8 +204,6 @@ jpeg_in::jpeg_in(istream& in)
 	ys = cinfo.output_height;
 
 	m_channels = cinfo.out_color_components;
-
-	m_is_2_byte = 0;
 }
 
 void jpeg_in::get_raw_pixel_lines(unsigned char*data, unsigned long nlines)
@@ -229,10 +227,6 @@ void jpeg_in::get_raw_pixel_lines(unsigned char*data, unsigned long nlines)
 		jpeg_read_scanlines(&cinfo, datap, 1);
 		data += elements_per_line();
 	}
-}
-
-void jpeg_in::get_raw_pixel_lines(unsigned short*datap, unsigned long nlines)
-{
 }
 
 jpeg_in::~jpeg_in()
@@ -297,13 +291,11 @@ struct jpeg_ostream_dest: public jpeg_destination_mgr
 
 
 
-jpeg_out::jpeg_out(std::ostream& out, int xsize, int ysize, int try_channels, bool use2bytes, const string& comm)
+jpeg_out::jpeg_out(std::ostream& out, int xsize, int ysize, int try_channels, const string& comm)
 :o(out)
 {
 	xs = xsize;
 	ys = ysize;
-	//use2bytes is ignored for jpegs.
-	m_is_2_byte = 0;
 
 	if(try_channels < 3)
 		m_channels = 1;
@@ -352,11 +344,6 @@ jpeg_out::jpeg_out(std::ostream& out, int xsize, int ysize, int try_channels, bo
 
 	//Written without zero termination, since the length is also written
 	jpeg_write_marker(&cinfo, JPEG_COM, (JOCTET*)comm.c_str(), comm.length());
-}
-
-void jpeg_out::write_raw_pixel_lines(const unsigned short* data, unsigned long nlines)
-{
-	throw CVD::Exceptions::Image_IO::WriteError("JPEG: Internal error: can not write 16bit JPEG.");
 }
 
 void jpeg_out::write_raw_pixel_lines(const unsigned char* data, unsigned long nlines)

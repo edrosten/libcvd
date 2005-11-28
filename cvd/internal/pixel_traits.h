@@ -120,6 +120,26 @@ namespace Pixel {
 		static const long max_intensity=(1 << bits_used) - 1; 
 	};
 
+	template<int LIFT> struct traits<long long, LIFT> 
+	{ 
+		typedef long long wider_type; 
+		typedef double float_type;
+		static const bool integral = true;
+		static const bool is_signed = true;
+		static const int bits_used = 31;
+		static const long long max_intensity=(1ll << bits_used) - 1ll; 
+	};
+
+	template<int LIFT> struct traits<unsigned long long, LIFT> 
+	{ 
+		typedef unsigned long long wider_type; 
+		typedef double float_type;
+		static const bool integral = true;
+		static const bool is_signed = false;
+		static const int bits_used = 31;
+		static const unsigned long long max_intensity=(1ull << bits_used) - 1ull; 
+	};
+
 	template<int LIFT> struct traits<unsigned long, LIFT> 
 	{ 
 		typedef unsigned int wider_type; 

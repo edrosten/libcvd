@@ -19,19 +19,10 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "cvd/image_io.h"
-#include "cvd/internal/disk_image.h"
-#include "pnm_src/pnm_grok.h"
-#include "pnm_src/save_postscript.h"
+#include "cvd/internal/load_and_save.h"
 
 #include "cvd/config.h"
 
-#ifdef CVD_IMAGE_HAVE_JPEG
-	#include "pnm_src/jpeg.h"
-#endif
-
-#ifdef CVD_IMAGE_HAVE_TIFF
-	#include "pnm_src/tiff.h"
-#endif
 #include <sstream>
 #include <fstream>
 #include <cstring>
@@ -97,109 +88,6 @@ Exceptions::Image_IO::UnsupportedImageSubType::UnsupportedImageSubType(const str
 Exceptions::Image_IO::InternalLibraryError::InternalLibraryError(const std::string& l, const std::string e)
 {
 	what = "Internal error in " + l + " library: " + e;
-}
-namespace CVD
-{
-namespace Image_IO
-{
-/*
-long image_base::elements_per_line() const
-{
-	if(m_is_rgb)
-		return xs * 3;
-	else
-		return xs;
-}
-
-long image_base::x_size() const
-{
-	return xs;
-}
-
-long image_base::y_size() const
-{
-	return ys;
-}
-
-bool image_base::is_2_byte() const
-{
-	return m_is_2_byte;
-}
-
-bool image_base::is_rgb() const
-{
-	return m_is_rgb;
-}
-*/
-image_in::~image_in(){}
-image_out::~image_out(){}
-
-
-image_out* image_factory::out(std::ostream& o, long xsize, long ysize, ImageType::ImageType t, int try_channels, bool try_2byte, const std::string& c)
-{
-
-	switch(t)
-	{
-		case ImageType::PNM:
-			return new CVD::PNM::pnm_out(o, xsize, ysize, try_channels, try_2byte, c);
-			break;
-
-		#ifdef CVD_IMAGE_HAVE_JPEG
-			case ImageType::JPEG:
-				return new CVD::PNM::jpeg_out(o, xsize, ysize, try_channels, try_2byte, c);
-				break;
-		#endif
-
-		case ImageType::EPS:
-			return new CVD::PNM::eps_out(o, xsize, ysize, try_channels, try_2byte, c);
-			break;
-
-		case ImageType::PS:
-			return new CVD::PNM::ps_out(o, xsize, ysize, try_channels, try_2byte, c);
-			break;
-
-		default:
-			throw Exceptions::Image_IO::UnsupportedImageType();
-			return NULL;
-	}
-}
-
-image_in* image_factory::in(std::istream& i)
-{
-	if(!i.good())
-	{
-		//Check for one of the commonest errors and put in
-		//a special case
-		ifstream* fs;
-		if((fs = dynamic_cast<ifstream*>(&i)) && !fs->is_open())
-			throw Exceptions::Image_IO::IfstreamNotOpen();
-		else
-			throw Exceptions::Image_IO::EofBeforeImage();
-	}
-	unsigned char c = i.get();
-
-	if(!i.good())
-		throw Exceptions::Image_IO::EofBeforeImage();
-		
-	i.putback(c);
-
-	if(c == 'P')
-		return new CVD::PNM::pnm_in(i);
-	#ifdef CVD_IMAGE_HAVE_JPEG
-		else if(c == 0xff)
-			return new CVD::PNM::jpeg_in(i);
-	#endif
-	#ifdef CVD_IMAGE_HAVE_TIFF
-		else if(c == 'I')
-			return new CVD::PNM::tiff_in(i);
-	#endif
-	else
-		throw Exceptions::Image_IO::UnsupportedImageType();
-
-}
-
-
-}
 }
 
 

@@ -23,7 +23,6 @@
 #include <string>
 
 
-
 #include <cvd/image_io.h>
 
 using namespace std;
@@ -62,21 +61,21 @@ template<class T> void loadsave(string fin)
 	
 	//Load the image
 	cout << "Reading: " << fin << endl;
-	ifstream i(fin.c_str());
+	ifstream i(fin.c_str(), ios::in|ios::binary);
 	img_load(im, i);
-	i.close();
-
+ 	i.close();
+ 
 
 	string fout=make_output_file_name<T>(fin, "pnm");
 	cout << "Writing: " << fout << endl << endl;
-
-	//Save it	
-	ofstream o(fout.c_str());
+ 
+ 	//Save it	
+	ofstream o(fout.c_str(), ios::out|ios::binary);
 	img_save(im, o, ImageType::PNM);
 	o.close();
 
 	//Save it
-	#ifdef CVD_IMAGE_HAS_JPEG
+	#ifdef CVD_IMAGE_HAVE_JPEG
 		fout=make_output_file_name<T>(fin, "jpg");
 		cout << "Writing: " << fout << endl << endl;
 		o.open(fout.c_str());
@@ -111,37 +110,37 @@ int main(int ac, char** av)
 	for(int i=1; i <ac; i++)
 	{
 		loadsave_safe<unsigned char>(av[i]);
-		//loadsave_safe<signed char>(av[i]);
-		//loadsave_safe<short>(av[i]);
-		//loadsave_safe<unsigned short>(av[i]);
-		//loadsave_safe<int>(av[i]);
-		//loadsave_safe<unsigned int>(av[i]);
-		//loadsave_safe<long>(av[i]);
-		//loadsave_safe<unsigned long>(av[i]);
-		//loadsave_safe<long long>(av[i]);
-		//loadsave_safe<unsigned long long>(av[i]);
-		//loadsave_safe<float>(av[i]);
-		//loadsave_safe<double>(av[i]);
-		//loadsave_safe<long double>(av[i]);
+		loadsave_safe<signed char>(av[i]);
+		loadsave_safe<short>(av[i]);
+		loadsave_safe<unsigned short>(av[i]);
+		loadsave_safe<int>(av[i]);
+		loadsave_safe<unsigned int>(av[i]);
+		loadsave_safe<long>(av[i]);
+		loadsave_safe<unsigned long>(av[i]);
+		loadsave_safe<long long>(av[i]);
+		loadsave_safe<unsigned long long>(av[i]);
+		loadsave_safe<float>(av[i]);
+		loadsave_safe<double>(av[i]);
+		loadsave_safe<long double>(av[i]);
 
 	
 		loadsave_safe<CVD::Rgb<unsigned char> >(av[i]);
-		//loadsave_safe<CVD::Rgb<signed char> >(av[i]);
-		//loadsave_safe<CVD::Rgb<short> >(av[i]);
-		//loadsave_safe<CVD::Rgb<unsigned short> >(av[i]);
-		//loadsave_safe<CVD::Rgb<int> >(av[i]);
-		//loadsave_safe<CVD::Rgb<unsigned int> >(av[i]);
-		//loadsave_safe<CVD::Rgb<long> >(av[i]);
-		//loadsave_safe<CVD::Rgb<unsigned long> >(av[i]);
-		//loadsave_safe<CVD::Rgb<long long> >(av[i]);
-		//loadsave_safe<CVD::Rgb<unsigned long long> >(av[i]);
-		//loadsave_safe<CVD::Rgb<float> >(av[i]);
-		//loadsave_safe<CVD::Rgb<double> >(av[i]);
-		//loadsave_safe<CVD::Rgb<long double> >(av[i]);
+		loadsave_safe<CVD::Rgb<signed char> >(av[i]);
+		loadsave_safe<CVD::Rgb<short> >(av[i]);
+		loadsave_safe<CVD::Rgb<unsigned short> >(av[i]);
+		loadsave_safe<CVD::Rgb<int> >(av[i]);
+		loadsave_safe<CVD::Rgb<unsigned int> >(av[i]);
+		loadsave_safe<CVD::Rgb<long> >(av[i]);
+		loadsave_safe<CVD::Rgb<unsigned long> >(av[i]);
+		loadsave_safe<CVD::Rgb<long long> >(av[i]);
+		loadsave_safe<CVD::Rgb<unsigned long long> >(av[i]);
+		loadsave_safe<CVD::Rgb<float> >(av[i]);
+		loadsave_safe<CVD::Rgb<double> >(av[i]);
+		loadsave_safe<CVD::Rgb<long double> >(av[i]);
 
-		//loadsave_safe<CVD::Rgb8>(av[i]);
-		//loadsave_safe<CVD::Rgba<unsigned char> >(av[i]);
-		//loadsave_safe<CVD::Rgba<unsigned int> >(av[i]);
+		loadsave_safe<CVD::Rgb8>(av[i]);
+		loadsave_safe<CVD::Rgba<unsigned char> >(av[i]);
+		loadsave_safe<CVD::Rgba<unsigned int> >(av[i]);
 	}
 	
 	

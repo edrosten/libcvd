@@ -216,7 +216,7 @@ void stats(const BasicImage<T>& im, T& mean, T& stddev)
 /// a functor computing gray values from pixels with constant value. For use with apply to
 /// operate on all pixels in an image
 /// @ingroup gVision
-template <class S, class T, class PixelFunction = Pixel::BasicConversion<> >
+template <class S, class T, class PixelFunction = Pixel::DefaultConversion<S,T> >
 struct Gray {
     typedef typename Pixel::Component<S>::type SComp;
     typedef typename Pixel::Component<T>::type TComp;

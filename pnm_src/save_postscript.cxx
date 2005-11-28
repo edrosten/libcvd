@@ -18,9 +18,9 @@
 	Foundation, Inc., 
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include "pnm_src/save_postscript.h"
+#include <pnm_src/save_postscript.h>
 
-#include "cvd/image_io.h"
+#include <cvd/internal/load_and_save.h>
 #include <iostream>
 #include <string>
 #include <iomanip>
@@ -65,10 +65,10 @@ void output_eps_footer(ostream& o)
 }
 
 
-namespace PNM
+namespace PS
 {
 
-string ps_out::bytes_to_base85(int n)
+  string ps_out::bytes_to_base85(int n)
 {
 	//This function converts 4 raw bytes to 5 base-85 bytes. If there
 	//are less than 4 bytes, then the data is zero padded.
@@ -123,14 +123,13 @@ ps_out::ps_out(std::ostream& out)
 	num_in_buf = lines = 0;
 }
 
-ps_out::ps_out(std::ostream& out, int xsize, int ysize, int try_channels, bool use2bytes, const string& comm)
+ps_out::ps_out(std::ostream& out, int xsize, int ysize, int try_channels)
 :o(out)
 {
 	xs = xsize;
 	ys = ysize;
 	num_in_buf = lines = 0;
 
-	m_is_2_byte = 0;
 
 	if(try_channels < 3)
 		m_channels = 1;
@@ -143,12 +142,6 @@ ps_out::ps_out(std::ostream& out, int xsize, int ysize, int try_channels, bool u
 
 ps_out::~ps_out()
 {
-}
-
-void ps_out::write_raw_pixel_lines(const unsigned short* data, unsigned long nlines)
-{
-	//I think PS supports 12 bit images. They could be supported here.
-	throw CVD::Exceptions::Image_IO::WriteError("Postscript: Internal error: can not write 16bit Postscript image.");
 }
 
 void ps_out::write_raw_pixel_lines(const unsigned char* data, unsigned long nlines)
@@ -191,13 +184,11 @@ void ps_out::write_raw_pixel_lines(const unsigned char* data, unsigned long nlin
 		o << "~>\n";
 }
 
-eps_out::eps_out(std::ostream& out, int xsize, int ysize, int try_channels, bool use2bytes, const string& comm)
+eps_out::eps_out(std::ostream& out, int xsize, int ysize, int try_channels)
 :ps_out(out)
 {
 	xs = xsize;
 	ys = ysize;
-
-	m_is_2_byte = 0;
 
 	if(try_channels < 3)
 		m_channels = 1;

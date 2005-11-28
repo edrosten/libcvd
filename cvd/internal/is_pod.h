@@ -9,17 +9,17 @@ namespace Internal{
 	//arrays.
 	template<class C> struct is_POD
 	{
-		static const bool is_pod = std::numeric_limits<C>::is_specialized;
+	  enum { is_pod = std::numeric_limits<C>::is_specialized };
 	};
 
 	template<class C> struct is_POD<C*>
 	{
-		static const bool is_pod = true;
+	  enum { is_pod = true };
 	};
 
 	template<class C, int i> struct is_POD<C[i]>
 	{
-		static const bool is_pod = is_POD<C>::is_pod;
+	  enum { is_pod = is_POD<C>::is_pod };
 	};
 
 }

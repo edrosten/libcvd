@@ -48,9 +48,9 @@ from a logic error in the calling program.
 #include <ctype.h>
 #include <limits>
 
-#include "pnm_src/pnm_grok.h"
+#include <pnm_src/pnm_grok.h>
+#include <cvd/internal/load_and_save.h>
 #include <cvd/config.h>
-#include <cvd/image_io.h>
 
 /* Compile time, arch specific parameters
 
@@ -197,18 +197,6 @@ bool clean(istream& i)
 // base PNM class definitions
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-bool pnm_out::can_proc_lines(unsigned long nl)
-{
-	//Slightly oddly named. Update the number of processed lines and return 
-	//an error condition if the lines can not be processed.
-
-	lines_so_far += nl;
-	if(lines_so_far > ys)
-		return false;
-	else
-		return true;
-}
 
 bool pnm_in::can_proc_lines(unsigned long nl)
 {
@@ -488,138 +476,74 @@ void pnm_in::get_raw_pixel_lines(unsigned short* s, unsigned long nlines)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-pnm_out::pnm_out(std::ostream& out, int xsize, int ysize, int try_channels, bool use2bytes, const std::string& comm)
-:o(out)
+void writePNMHeader(ostream& out, int channels, ImageRef size, int maxval, bool text, const std::string& comments)
 {
-	lines_so_far=0;
-	xs=xsize;
-	ys=ysize;
-
-	if(try_channels < 3)
-		m_channels = 1;
-	else
-		m_channels = 3;
-
-	if(m_channels == 3)
-		type = PPM;
-	else 
-		type = PGM;
-
-
-	m_is_2_byte = use2bytes;
-	if(use2bytes)
-		maxval = 0xffff;
-	else
-		maxval = 0xff;
-	
-	is_text=false;
-	
-	write_header(comm);
+  char m[3] = {'P',' ', '\n'};
+  if (channels == 1)
+    m[1] = '2';
+  else 
+    m[1] = '3';
+  if (!text)
+    m[1] += 3;
+  out.write(m, 3);
+  bool freshLine = true;
+  for (size_t i=0; i<comments.length(); i++) {
+    if (freshLine)
+      out << "# ";
+    char c = comments[i];
+    if (c == '\n') {
+      freshLine = true;
+      out << endl;
+    } else {
+      out << c;
+      freshLine = false;
+    }
+  }
+  if (!freshLine)
+    out << endl;
+  out << size.x << " " << size.y << endl << maxval << endl;
 }
 
-void pnm_out::write_header(const std::string& comments)
+template <class T> void writePNMPixelsText(ostream& out, const T* data, size_t count) 
 {
-	//Figure out which magic number to write
-	unsigned char m[3]="P ";
-	
-	if(type == PGM)
-		m[1] = '2';
-	else // (type == PPM)
-		m[1] = '3';
-	
-	if(!is_text)
-		m[1] += 3;
-
-	//Write comments
-	o << m <<"\n"; 
-	//  << "# Created by Ed's cool PNM grokking library in CVD\n"
-	//  << "# CVD Version " << CVD_MAJOR_VERSION << "." << CVD_MINOR_VERSION << "\n";
-
-	//Indent commants with 1 space. Ensure embedded newlines do the right thing
-	//Make sure comments (if they exist) are terminated with a newline.
-	
-	unsigned int i;
-	bool last_was_nl = true;
-
-	for(i=0; i < comments.size(); i++)
-	{
-		if(last_was_nl)
-		{
-			o << "# ";
-			last_was_nl = false;
-		}
-	
-		o << comments[i];
-
-		if(comments[i] == '\n')
-			last_was_nl = true;
-	}
-	if(!last_was_nl)
-		o << "\n";
-
-	//Write the rest of the pixmap information
-	o << xs << " " << ys << "\n";
-	o << maxval << "\n";
+  size_t lines = count / 25;
+  size_t k=0;
+  for (size_t i=0; i<lines; i++) {
+    for (size_t j=0; j<25; j++)
+      out << (int)(data[k++]) << " ";
+    out << endl;
+  }
+  while (k<count)
+    out << (int)(data[k++]);
+  out << endl;
 }
 
-
-void pnm_out::write_raw_pixel_lines(const unsigned char* mem, unsigned long nlines)
+void writePNMPixels(ostream& out, const unsigned char* data, size_t count, bool text) 
 {
-	unsigned long npix = nlines * xs, j;
-
-	if(!can_proc_lines(nlines))
-		RETURN(E_WRITE_PAST_END);
-
-	if(type == PPM)
-		npix*=3;
-
-	if(m_is_2_byte)
-		RETURN(E_NOT_1_BYTE);
-	if(is_text)
-	{
-		for(j=0; j < npix; j++, mem++)
-			o << (unsigned int)*mem << "\n";
-	}
-	else
-		o.write((const char*)(mem), npix);
+  if (text)
+    writePNMPixelsText(out, data, count);
+  else
+    out.write((const char*)data, count);
 }
 
-
-void pnm_out::write_raw_pixel_lines(const unsigned short* mem, unsigned long nlines)
+void writePNMPixels(ostream& out, const unsigned short* data, size_t count, bool text) 
 {
-	unsigned long npix = nlines * xs, j;
-
-	if(!can_proc_lines(nlines))
-		RETURN(E_WRITE_PAST_END);
-
-
-	if(type == PPM)
-		npix*=3;
-
-	if(!m_is_2_byte)
-		RETURN(E_NOT_2_BYTE);	
-	else if(is_text)
-	{
-		for(j=0;  j < npix; j++)
-			o << *mem++ << "\n";
-	}
-	else
-	{
-		#ifndef LONG_PNM_FAST_SAVE
-		
-		unsigned char il, ih;
-		for(j=0; j < npix; j++)
-		{
-			il = *mem & 0xff;
-			ih = (*mem++ >> 8) & 0xff;
-
-			o << ih << il;
-		}
-
-		#else
-			o.write((char*)mem, npix*2);
-		#endif
-	}
+  if (text)
+    writePNMPixelsText(out, data, count);
+  else {
+    char endiantest[sizeof(unsigned short)];
+    memset(endiantest, 0, sizeof(unsigned short));
+    endiantest[0] = 1;
+    unsigned short s = *(unsigned short*)endiantest;
+    if (s == 1)
+      out.write((const char*)data, count*sizeof(unsigned short));
+    else {
+      for (size_t i=0; i<count; i++) {
+	unsigned char lohi[2] = {data[i]&0xFF, (data[i] & 0xFF00) >> 8};
+	out.write((const char*)lohi,2);
+      }
+    }
+  }
 }
 
 }

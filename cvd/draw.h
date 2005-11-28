@@ -89,17 +89,17 @@ template <class T> struct color<T,3> {
     typedef typename Pixel::Component<T>::type TComp;
     static const TComp hi = Pixel::traits<TComp>::max_intensity;
     inline static const T&   black() { static T c; Pixel::operations<T>::zero(c); return c;}
-    inline static const T&   white() { TComp s[3]={hi,hi,hi}; static T c; Pixel::BasicConversion<>::convert_pixel<TComp[3],T>(s,c); return c;}
-    inline static const T&     red() { TComp s[3]={hi, 0, 0}; static T c; Pixel::BasicConversion<>::convert_pixel<TComp[3],T>(s,c); return c;}
-    inline static const T&   green() { TComp s[3]={ 0,hi, 0}; static T c; Pixel::BasicConversion<>::convert_pixel<TComp[3],T>(s,c); return c;}
-    inline static const T&    blue() { TComp s[3]={ 0, 0,hi}; static T c; Pixel::BasicConversion<>::convert_pixel<TComp[3],T>(s,c); return c;}
-    inline static const T&    cyan() { TComp s[3]={ 0,hi,hi}; static T c; Pixel::BasicConversion<>::convert_pixel<TComp[3],T>(s,c); return c;}
-    inline static const T& magenta() { TComp s[3]={hi, 0,hi}; static T c; Pixel::BasicConversion<>::convert_pixel<TComp[3],T>(s,c); return c;}
-    inline static const T&  yellow() { TComp s[3]={hi,hi, 0}; static T c; Pixel::BasicConversion<>::convert_pixel<TComp[3],T>(s,c); return c;}
+    inline static const T&   white() { TComp s[3]={hi,hi,hi}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
+    inline static const T&     red() { TComp s[3]={hi, 0, 0}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
+    inline static const T&   green() { TComp s[3]={ 0,hi, 0}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
+    inline static const T&    blue() { TComp s[3]={ 0, 0,hi}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
+    inline static const T&    cyan() { TComp s[3]={ 0,hi,hi}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
+    inline static const T& magenta() { TComp s[3]={hi, 0,hi}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
+    inline static const T&  yellow() { TComp s[3]={hi,hi, 0}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
     inline static const T& shade(const T& c, double b) {
         TComp s[3] = {(TComp)(c[0]*b), (TComp)(c[1]*b), (TComp)(c[2]*b) };
         static T shaded;
-        Pixel::BasicConversion<>::convert_pixel<TComp[3],T>(s,shaded);
+        Pixel::DefaultConversion<TComp[3],T>::convert(s,shaded);
         return shaded;
     }
 };
@@ -217,9 +217,9 @@ ImageRef copy(const Image<S>& in, Image<T>& out, ImageRef size, ImageRef begin =
     T* to = &out[dst];
     int i = 0;
     while (i++<size.y) {
-        Pixel::row_convert<S,T>::convert(from, size.x, to);
-        from += in.size().x;
-        to += out.size().x;
+      Pixel::ConvertPixels<S,T>::convert(from, to, size.x);
+      from += in.size().x;
+      to += out.size().x;
     }
     return size;
 }

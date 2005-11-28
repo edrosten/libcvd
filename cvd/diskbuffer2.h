@@ -187,9 +187,15 @@ namespace CVD
 			throw Exceptions::DiskBuffer2::BadFile(file_names[next_frame], errno);
 
 		try{
-			//The cast here hides the resize functionality, since we all
-			//frames must be the same size
-			pnm_load(static_cast<BasicImage<T>& >(foo), im_file);
+#if 0 // by Ethan
+		  //The cast here hides the resize functionality, since we all
+		  //frames must be the same size
+		  pnm_load(static_cast<BasicImage<T>& >(foo), im_file);
+#else
+		  img_load(foo, im_file);
+		  
+#endif
+			
 		}
 		catch(CVD::Exceptions::Image_IO::All err)
 		{

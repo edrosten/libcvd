@@ -53,21 +53,6 @@ template <class T> struct operations<T,1> {
     inline static void zero(T& t) { t = T(); }
 };
 
-template <class T, class S, unsigned int M=Component<T>::count, unsigned int N=Component<S>::count>
-struct row_convert {
-    inline static void convert(const T* t, unsigned int count, S* s) {
-        BasicConversion<> c;
-        while (count--)
-            c.convert_pixel(*(t++), *(s++));
-    }
-};
-
-template <class T, unsigned int N> struct row_convert<T,T,N,N> {
-    inline static void convert(const T* t, unsigned int count, T* s) {
-        memcpy(s, t, count*sizeof(T));
-    }
-};
-
 template <class T, unsigned int N=Pixel::Component<T>::count>
 struct difference {
     typedef typename Pixel::Component<T>::type TComp;

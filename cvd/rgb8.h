@@ -21,6 +21,9 @@
 #ifndef __RGB8_H
 #define __RGB8_H
 
+#include <cvd/internal/is_pod.h>
+
+
 namespace CVD {
 
 /// @ingroup gImage
@@ -51,6 +54,15 @@ struct Rgb8
    {}
 };
 
+#ifndef DOXYGEN_IGNORE_INTERNAL
+namespace Internal
+{
+  template <> struct is_POD<Rgb8>
+  {
+    enum { is_pod = 1 };
+  };
+}
+#endif
 
 } // end namespace 
 #endif

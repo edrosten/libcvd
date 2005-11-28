@@ -23,6 +23,7 @@
 #include <iostream>
 using namespace std;
 
+#if 0 // removed by Ethan
 namespace CVD
 {
 namespace Pixel
@@ -41,3 +42,4 @@ namespace Pixel
 
 }
 }
+#endif 

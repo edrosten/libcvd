@@ -1,4 +1,4 @@
-/*                       
+/*			 
 	This file is part of the CVD Library.
 
 	Copyright (C) 2005 The Authors
@@ -16,7 +16,7 @@
 	You should have received a copy of the GNU Lesser General Public
 	License along with this library; if not, write to the Free Software
 	Foundation, Inc., 
-    51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+    51 Franklin Street, Fifth Floor, Boston, MA	 02110-1301  USA
 */
 #ifndef CVD_RGB_TRAITS_H
 #define CVD_RGB_TRAITS_H
@@ -24,6 +24,7 @@
 #include <cvd/rgb.h>
 #include <cvd/rgba.h>
 #include <cvd/rgb8.h>
+#include <cvd/internal/builtin_components.h>
 
 namespace CVD
 {
@@ -86,21 +87,6 @@ namespace CVD
 			}
 		};
 
-		template<class P, int I> struct Component<P[I]>
-		{
-			typedef P type;
-			static const unsigned int count=I;
-
-			static const P& get(const P pixel[I], unsigned int i)
-			{
-				return pixel[i];
-			}
-
-			static  P& get(P pixel[I], unsigned int i)
-			{
-				return pixel[i];
-			}
-		};
 
 	}
 }

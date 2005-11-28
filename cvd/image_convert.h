@@ -28,82 +28,64 @@
 namespace CVD
 {
 
-	/// Some standard image conversion classes.
-	/// @ingroup gImageIO
-	namespace Pixel
-	{
-		/// The standard (0.299, 0.587, 0.114) weightings
-		extern WeightedRGB<> CIE;
-		/// Extract only the red component
-		extern WeightedRGB<> red_only;
-		/// Extract only the green component
-		extern WeightedRGB<> green_only;
-		/// Extract only the blue component
-		extern WeightedRGB<> blue_only;
-		/// Weight red, green and blue seperately
-		extern WeightedRGB<> uniform;
-	}
+  // The most general case: one row at a time
 
-	/// Convert an image from one type to another using a specified conversion.
-	/// @param D The destination image pixel type
-	/// @param C The source image pixel type
-	/// @param Conv The conversion class to use
-	/// @param from The image to convert from
-	/// @param cv The instance of the conversion to use. See Pixel for a list of common conversions.
-	/// @ingroup gImageIO
-	template<class D, class C, class Conv> 
-	Image<D> convert_image(const BasicImage<C>& from, Conv& cv)
-	{
-		Image<D> to(from.size());
+  template <class From, class To, class Conv=typename Pixel::DefaultConversion<From,To>::type, int both_pod=Internal::is_POD<From>::is_pod && Internal::is_POD<To>::is_pod> struct ConvertImage {
+    static void convert(const BasicImage<From>& from, BasicImage<To>& to) {
+      for (int r=0; r<from.size().y; r++)
+	Pixel::ConvertPixels<From,To>::convert(from[r], to[r], from.size().x);
+    };
+  };
 
-		const C *fp, *fpe;
-		D* tp;
+  // The blat case: memcpy all data at once 
+  template <class T> struct ConvertImage<T,T,Pixel::GenericConversion<T,T>,1> {
+    static void convert(const BasicImage<T>& from, BasicImage<T>& to) {
+      memcpy(to.data(), from.data(), from.totalsize() * sizeof(T));
+    };
+  };
 
-		fp = from.data();
-		fpe = fp + from.totalsize();
+  
+  template<class D, class C, class Conv> void convert_image(const BasicImage<C>& from, BasicImage<D>& to)
+  {
+    if (from.size() != to.size())
+      throw Exceptions::Image::IncompatibleImageSizes(__FUNCTION__);
+    ConvertImage<C,D,Conv>::convert(from, to);
+  }
+  
+  template<class D, class C> void convert_image(const BasicImage<C>& from, BasicImage<D>& to)
+  {
+    if (from.size() != to.size())
+      throw Exceptions::Image::IncompatibleImageSizes(__FUNCTION__);
+    ConvertImage<C,D>::convert(from, to);
+  }
 
-		tp = to.data();
-
-		
-		for(; fp < fpe; fp++, tp++)
-			cv.convert_pixel(*fp, *tp);
-
-		return to;
-	}
-
-	/// Convert an image from one type to another using the default conversion (Pixel::CIE).
-	/// This converts Rgb to greyscale using the usual (0.299, 0.587, 0.114) weightings
-	/// and maps [0,1] floating point numbers onto the maximum ranges of integer datatypes and
-	/// vice-versa. 
-	/// @param D The destination image pixel type
-	/// @param C The source image pixel type
-	/// @param from The image to convert
-	/// @ingroup gImageIO
-	template<class D, class C> Image<D> 
-	convert_image(const BasicImage<C>& from)
-	{
-		return convert_image<D>(from, Pixel::CIE);
-	}
-
-	template<class D> Image<D> 
-	convert_image(const BasicImage<D>& from)
-	{
-		Image<D> ret;
-		ret.copy_from(from);
-		return ret;
-	}
-
-	template<class D, class E, class F> std::pair<Image<D>, Image<E> >convert_image(const BasicImage<F>& from)
-	{
-		Image<D> r1;
-		Image<E> r2;
-
-		r1 = convert_image<D>(from);
-		r2 = convert_image<E>(from);
-		
-		return std::pair<Image<D>, Image<E> >(r1, r2);
-	}
-
+  /// Convert an image from one type to another using a specified conversion.
+  /// @param D The destination image pixel type
+  /// @param C The source image pixel type
+  /// @param Conv The conversion to use
+  /// @param from The image to convert from
+  /// @ingroup gImageIO
+  
+  template<class D, class C, class Conv> Image<D> convert_image(const BasicImage<C>& from)
+  {
+    Image<D> to(from.size());
+    ConvertImage<C,D,Conv>::convert(from, to);
+    return to;
+  }
+    
+  /// Convert an image from one type to another using the default.
+  /// @param D The destination image pixel type
+  /// @param C The source image pixel type
+  /// @param from The image to convert from
+  /// @ingroup gImageIO
+  
+  template<class D, class C> Image<D> convert_image(const BasicImage<C>& from)
+  {
+    Image<D> to(from.size());
+    ConvertImage<C,D>::convert(from, to);
+    return to;
+  }
+  
 	
 }
 

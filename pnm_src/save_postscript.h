@@ -23,23 +23,31 @@
 
 #include <iostream>
 #include <string>
-#include <cvd/internal/disk_image.h>
+#include <memory>
+#include <cvd/image.h>
+#include <cvd/byte.h>
+#include <cvd/rgb.h>
+#include <cvd/internal/convert_pixel_types.h>
 
 namespace CVD
 {
-namespace PNM
+namespace PS
 {
 
-	class ps_out: public CVD::Image_IO::image_out
+	class ps_out
 	{
 		public:
-			ps_out(std::ostream&, int  xsize, int ysize, int ch, bool use2bytes, const std::string&c="");
+			ps_out(std::ostream&, int  xsize, int ysize, int ch);
 
-			virtual void 	write_raw_pixel_lines(const unsigned char*, unsigned long);
-			virtual void 	write_raw_pixel_lines(const unsigned short*, unsigned long);
+			void 	write_raw_pixel_lines(const unsigned char*, unsigned long);
 			virtual ~ps_out();
+			int channels(){return m_channels;}
+			long  x_size() const {return xs;}
+			long  y_size() const {return ys;}
 
 		protected:
+			long	xs, ys;
+			int	m_channels;
 			std::string bytes_to_base85(int n);
 			void output_header();
 			int lines;
@@ -53,8 +61,50 @@ namespace PNM
 	{
 		public:
 			virtual ~eps_out();
-			eps_out(std::ostream&, int  xsize, int ysize, int ch, bool use2bytes, const std::string&c="");
+			eps_out(std::ostream&, int  xsize, int ysize, int ch);
 	};
+
+	template <class T, class S> struct PSWriter {
+	  static void write(const BasicImage<T>& im, ps_out& ps) {
+	    std::auto_ptr<S> rowbuf(new S[im.size().x]);
+	    for (int r=0; r<ps.y_size(); r++) {
+	      Pixel::ConvertPixels<T,S>::convert(im[r], rowbuf.get(), im.size().x);
+	      ps.write_raw_pixel_lines((const byte*)rowbuf.get(), 1);
+	    }	    
+	  }
+	};
+
+	template <> struct PSWriter<byte,byte> {
+	  static void write(const BasicImage<byte>& im, ps_out& ps) {
+	    ps.write_raw_pixel_lines(im.data(), ps.y_size());
+	  }
+	};
+
+	template <> struct PSWriter<Rgb<byte>,Rgb<byte> > {
+	  static void write(const BasicImage<Rgb<byte> >& im, ps_out& ps) {
+	    ps.write_raw_pixel_lines((const byte*)im.data(), ps.y_size());
+	  }
+	};
+	
+	template <class T, int C=Pixel::Component<T>::count> struct PSWriterChooser{
+	  typedef PSWriter<T,byte> type;
+	  enum {channels = 1};
+	};
+	template <class T> struct PSWriterChooser<T,3> {
+	  typedef PSWriter<T,Rgb<byte> > type;
+	  enum {channels = 3};
+	};
+
+	template <class T> void writePS(const BasicImage<T>& im, std::ostream& out) {
+	  typedef typename PSWriterChooser<T>::type Writer;
+	  ps_out ps(out, im.size().x, im.size().y, PSWriterChooser<T>::channels);
+	  Writer::write(im, ps);	  
+	}
+	template <class T> void writeEPS(const BasicImage<T>& im, std::ostream& out) {
+	  typedef typename PSWriterChooser<T>::type Writer;
+	  eps_out eps(out, im.size().x, im.size().y, PSWriterChooser<T>::channels);
+	  Writer::write(im, eps);  
+	}
 
 }
 }

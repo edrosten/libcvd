@@ -109,6 +109,7 @@ namespace Pixel
 
 		static const bool is_int_to_int = traits<C>::integral;
 	};
+
 }
 }
 #endif

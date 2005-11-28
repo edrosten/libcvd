@@ -126,8 +126,38 @@
 
 #include <string.h>
 #include <cvd/image_ref.h>
+#include <cvd/exceptions.h>
+#include <string>
 
 namespace CVD {
+
+namespace Exceptions {
+
+  /// @ingroup gException
+  namespace Image {
+      /// Base class for all Image_IO exceptions
+        /// @ingroup gException
+        struct All: public CVD::Exceptions::All {};
+
+        /// Input images have incompatible dimensions
+        /// @ingroup gException
+        struct IncompatibleImageSizes : public All {
+            IncompatibleImageSizes(const std::string & function)
+            {
+                what = "Incompatible image sizes in " + function;
+            };
+        };
+
+        /// Input ImageRef not within image dimensions
+        /// @ingroup gException
+        struct ImageRefNotInImage : public All {
+            ImageRefNotInImage(const std::string & function)
+            {
+                what = "Input ImageRefs not in image in " + function;
+            };
+        };
+    }
+}
 
 
 #ifdef CVD_IMAGE_DEBUG
