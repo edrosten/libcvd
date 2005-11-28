@@ -95,6 +95,22 @@ namespace CVD {
 	BMPReader<T,3>::read(im,in);
     }
 
+    template <class T> void readBMP(BasicImage<T>& im, std::istream& in) {
+      unsigned int w,h,ch, comp;
+      readBMPHeader(w,h,ch,comp,in);
+      if (comp || (ch != 3 && ch != 1)) 
+	throw CVD::Exceptions::Image_IO::UnsupportedImageType();
+      
+      ImageRef size(w, h);
+      if(im.size() != size)
+        throw Exceptions::Image_IO::ImageSizeMismatch(size, im.size());
+      
+      if (ch == 1)
+	BMPReader<T,1>::read(im, in);
+      else
+	BMPReader<T,3>::read(im,in);
+    }
+
     template <class T, int Channels> struct BMPWriter;
     template <class T> struct BMPWriter<T,1> {
       static void write(const BasicImage<T>& im, std::ostream& out) {

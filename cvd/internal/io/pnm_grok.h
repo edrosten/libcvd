@@ -25,6 +25,7 @@
 #include <string>
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/image.h>
+#include <cvd/internal/load_and_save.h>
 
 namespace CVD
 {
@@ -101,10 +102,8 @@ namespace CVD
       }
     };
   
-    template <class T> void readPNM(Image<T>& im, std::istream& in)
+    template <class T> void readPNM(BasicImage<T>& im, pnm_in& pnm)
     {
-      pnm_in pnm(in);
-      im.resize(ImageRef(pnm.x_size(), pnm.y_size()));
       if (pnm.is_2_byte()) {
 	if (pnm.channels() == 3)
 	  PNMReader<T,unsigned short,3>::readPixels(im, pnm);
@@ -117,6 +116,25 @@ namespace CVD
 	  PNMReader<T,unsigned char,1>::readPixels(im, pnm);
       }
     }
+	
+	template <class T> void readPNM(BasicImage<T>&im, std::istream& in)
+	{
+      pnm_in pnm(in);
+	  ImageRef size(pnm.x_size(), pnm.y_size());
+
+	  if(size != im.size())
+	    throw Exceptions::Image_IO::ImageSizeMismatch(size, im.size());
+	
+		readPNM(im, pnm);
+
+	}
+
+	template <class T> void readPNM(Image<T>&im, std::istream& in)
+	{
+      pnm_in pnm(in);
+      im.resize(ImageRef(pnm.x_size(), pnm.y_size()));
+	  readPNM(im, pnm);
+	}
 
 
     void writePNMHeader(std::ostream& out, int channels, ImageRef size, int maxval, bool text, const std::string& comments);

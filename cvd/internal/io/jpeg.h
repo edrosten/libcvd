@@ -31,6 +31,7 @@ extern "C"{
 #include <cvd/image.h>
 #include <cvd/byte.h>
 #include <cvd/internal/convert_pixel_types.h>
+#include <cvd/internal/load_and_save.h>
 
 namespace CVD
 {
@@ -82,6 +83,19 @@ namespace JPEG
   {
     jpeg_in jpeg(in);
     im.resize(ImageRef(jpeg.x_size(), jpeg.y_size()));
+    if (jpeg.channels() == 3)
+      JPEGReader<T,Rgb<byte> >::read(im, jpeg);
+    else
+      JPEGReader<T,byte>::read(im, jpeg);    
+  }
+
+  template <class T> void readJPEG(BasicImage<T>& im, std::istream& in)
+  {
+    jpeg_in jpeg(in);
+	ImageRef size(jpeg.x_size(), jpeg.y_size());
+	if(size != im.size())
+	    throw Exceptions::Image_IO::ImageSizeMismatch(size, im.size());
+	
     if (jpeg.channels() == 3)
       JPEGReader<T,Rgb<byte> >::read(im, jpeg);
     else
