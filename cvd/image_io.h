@@ -152,25 +152,6 @@ namespace CVD
 	//
 	// Image saving
 	//
-	#ifndef DOXYGEN_IGNORE_INTERNAL
-	namespace Internal
-	{
-		template<class C, int i> struct save_default_
-		{
-			static const bool use_16bit=1;
-		};
-
-		template<class C> struct save_default_<C,1>
-		{
-			static const bool use_16bit=Pixel::traits<typename Pixel::Component<C>::type>::bits_used > 8;
-		};
-
-		template<class C> struct save_default
-		{
-			static const bool use_16bit = save_default_<C, Pixel::traits<typename Pixel::Component<C>::type>::integral>::use_16bit;
-		};
-	}
-	#endif	
 
 
 
@@ -295,6 +276,26 @@ namespace CVD
 	{
 		output_eps_header(o, im.size());
 	}
+
+
+	namespace Internal
+	{
+	  template<class C, int i> struct save_default_
+	  {
+	    static const bool use_16bit=1;
+	  };
+	  
+	  template<class C> struct save_default_<C,1>
+	  {
+	    static const bool use_16bit=(CVD::Pixel::traits<typename CVD::Pixel::Component<C>::type>::bits_used) > 8;
+	  };
+	  
+	  template<class C> struct save_default
+	  {
+	    static const bool use_16bit = save_default_<C, CVD::Pixel::traits<typename CVD::Pixel::Component<C>::type>::integral>::use_16bit;
+	  };
+	}
+
 
 }
 

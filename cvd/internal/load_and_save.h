@@ -21,7 +21,7 @@
 #ifndef CVD_LOAD_AND_SAVE_H
 #define CVD_LOAD_AND_SAVE_H
 
-#include <cvd/internal/disk_image.h>
+#include <cvd/exceptions.h>
 namespace CVD {
 
 	namespace Exceptions
@@ -115,8 +115,6 @@ namespace CVD {
 
 		}
 	}
-
-
 
 
 }
