@@ -142,8 +142,8 @@ namespace CVD
     void writePNMPixels(std::ostream& out, const byte* data, size_t count, bool text);
     void writePNMPixels(std::ostream& out, const unsigned short* data, size_t count, bool text);
     
-    template <class T, int N> struct PNMWriter;
-    template <class T> struct PNMWriter<T,3> {
+    template <class T, int N, bool SixteenBit=CVD::Internal::save_default<typename Pixel::Component<T>::type>::use_16bit> struct PNMWriter;
+    template <class T> struct PNMWriter<T,3,true> {
       typedef Rgb<unsigned short> array;
       static void write(const BasicImage<T>& im, std::ostream& out) {
 	writePNMHeader(out, 3, im.size(), 65535, false, "");	
@@ -155,12 +155,37 @@ namespace CVD
       }
     };
 
-    template <class T> struct PNMWriter<T,1> {
+    template <class T> struct PNMWriter<T,3,false> {
+      typedef Rgb<byte> array;
       static void write(const BasicImage<T>& im, std::ostream& out) {
-	writePNMHeader(out, 1, im.size(), 65535, false, "");	
-	std::auto_ptr<unsigned short> rowbuf(new unsigned short[im.size().x]);
+	writePNMHeader(out, 3, im.size(), 255, false, "");	
+	std::auto_ptr<array> rowbuf(new array[im.size().x]);
 	for (int r=0; r<im.size().y; r++) {
-	  Pixel::ConvertPixels<T, unsigned short>::convert(im[r], rowbuf.get(), im.size().x);
+	  Pixel::ConvertPixels<T, array>::convert(im[r], rowbuf.get(), im.size().x);
+	  writePNMPixels(out, (const byte*)rowbuf.get(), im.size().x*3, false);
+	}	
+      }
+    };
+
+    template <class T> struct PNMWriter<T,1,true> {
+      typedef unsigned short S;
+      static void write(const BasicImage<T>& im, std::ostream& out) {
+	writePNMHeader(out, 1, im.size(), 255, false, "");	
+	std::auto_ptr<S> rowbuf(new S[im.size().x]);
+	for (int r=0; r<im.size().y; r++) {
+	  Pixel::ConvertPixels<T, S>::convert(im[r], rowbuf.get(), im.size().x);
+	  writePNMPixels(out, rowbuf.get(), im.size().x, false);
+	}	
+      }
+    };
+
+    template <class T> struct PNMWriter<T,1,false> {
+      typedef byte S;
+      static void write(const BasicImage<T>& im, std::ostream& out) {
+	writePNMHeader(out, 1, im.size(), 255, false, "");	
+	std::auto_ptr<S> rowbuf(new S[im.size().x]);
+	for (int r=0; r<im.size().y; r++) {
+	  Pixel::ConvertPixels<T, S>::convert(im[r], rowbuf.get(), im.size().x);
 	  writePNMPixels(out, rowbuf.get(), im.size().x, false);
 	}	
       }
