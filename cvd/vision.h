@@ -33,6 +33,7 @@
 
 #if defined(CVD_HAVE_TOON)
 #include <TooN/TooN.h>
+#include <TooN/helpers.h>
 #endif
 
 
@@ -110,12 +111,12 @@ void threshold(BasicImage<T>& im, const T& minimum, const T& hi)
 {
   typename BasicImage<T>::iterator it = im.begin();
   typename BasicImage<T>::iterator end = im.end();
-  while (p != end) {
-    if (*p < minimum)
-      *p = T();
+  while (it != end) {
+    if (*it < minimum)
+      *it = T();
     else
-      *p = hi;
-    ++p;
+      *it = hi;
+    ++it;
   }
 }
 
@@ -128,8 +129,9 @@ void threshold(BasicImage<T>& im, const T& minimum, const T& hi)
 template <class T>
 void stats(const BasicImage<T>& im, T& mean, T& stddev)
 {
-  double v;
-  double sum[c] = {0};
+    const int c = Pixel::Component<T>::count;
+    double v;
+    double sum[c] = {0};
     double sumSq[c] = {0};
     const T* p = im.data();
     const T* end = im.data()+im.totalsize();
@@ -248,7 +250,7 @@ template <class T> void transform(const BasicImage<T>& in, BasicImage<T>& out, c
     TooN::Vector<2> offset;
     offset[0] = in.size().x/2;
     offset[1] = in.size().y/2;
-    offset -= project(base);
+    offset -= TooN::project(base);
     TooN::Vector<3> across = Minv.T()[0];
     TooN::Vector<3> down = Minv.T()[1];
     double w = in.size().x-1;

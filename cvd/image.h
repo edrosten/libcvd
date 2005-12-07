@@ -385,7 +385,7 @@ class Image: public BasicImage<T>
 
 			*this = tmp;
 			
-			std::copy(copy.begin(), copy.end(), begin());
+			std::copy(copy.begin(), copy.end(), this->begin());
 		}
 
 		///Make this image independent of any copies (i.e. force a copy of the image data).
