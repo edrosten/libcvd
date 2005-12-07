@@ -90,7 +90,10 @@ CVD_OBJS=	cvd_src/cvd_timer.o 						\
 			cvd_src/bayer.o 							\
 			cvd_src/colourspace_convert.o 				\
 			cvd_src/vision.o 							\
+			cvd_src/utility.o 							\
 			cvd_src/draw.o 								\
+			cvd_src/yuv422.o 								\
+			cvd_src/yuv420.o 								\
 			pnm_src/pnm_grok.o							\
 			pnm_src/bmp.o							\
 			pnm_src/save_postscript.o					\
@@ -163,18 +166,29 @@ endif
 #
 #Architecture objects
 ifeq (@host_cpu@@have_sse2@,i686yes)
-	CVD_OBJS+= cvd_src/i686/byte_to_double_gradient.o
+	CVD_OBJS+= 
 endif
 
 ifeq (@host_cpu@@have_sse@,i686yes)
-	CVD_OBJS+= cvd_src/i686/byte_to_float_gradient.o \
-			cvd_src/i686/convolve_float.o \
-			cvd_src/i686/convolve_float4.o  
+	CVD_OBJS+=  cvd_src/i686/convolve_float.o \
+		    cvd_src/i686/convolve_float4.o \
+		    cvd_src/i686/float_difference.o \
+		    cvd_src/i686/float_assign_mul.o \
+		    cvd_src/i686/float_add_mul_add.o \
+		    cvd_src/i686/float_add_mul_add_unaligned.o \
+		    cvd_src/i686/float_innerproduct.o 
 endif
 
 ifeq (@host_cpu@@have_mmxext@,i686yes)
 	CVD_OBJS+=cvd_src/i686/yuv411_to_stuff_MMX.o  \
-			cvd_src/i686/halfsample.o
+			cvd_src/i686/halfsample.o \
+			cvd_src/i686/byte_to_short_difference.o \
+			cvd_src/i686/short_difference.o \
+			cvd_src/i686/int_difference.o \
+			cvd_src/i686/yuv422_to_rgb.o \
+			cvd_src/i686/yuv422_to_grey.o \
+			cvd_src/i686/yuv420p_to_rgb.o 
+
 else
 	CVD_OBJS+=cvd_src/yuv411_to_stuff.o
 endif
@@ -201,7 +215,7 @@ all: libcvd.a $(soname) progs
 
 $(soname): $(OBJS)
 	rm -f $(sos)
-	$(CXX) $(shared) -o $(soname2) $(OBJS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(shared) -o $(soname2) $(OBJS) $(LIBS)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
@@ -249,9 +263,18 @@ clean:
 distclean: clean
 	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h
 
+depend:
+	rm -f .sourcefiles
+	find . -name "*.cxx" -o -name "*.cc" -o -name "*.cpp" -o -name "*.c" -o -name "*.C" > .sourcefiles
+	rm -f .deps
+	bash generate_dependencies.bash "-I. $(CPPFLAGS)" > .deps
+
 .PRECIOUS: %.o
 
 %.o: %.cc
+	$(CXX) -I. $(OFLAGS)  $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+%.o: %.cpp
 	$(CXX) -I. $(OFLAGS)  $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 %.o: %.cxx
@@ -264,3 +287,4 @@ distclean: clean
 	$(CXX) -o $@ $< $(LDFLAGS)
 
 
+include .deps

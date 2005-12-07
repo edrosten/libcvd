@@ -23,27 +23,18 @@
 #define CVD_CONVOLUTION_H_
 
 #include <vector>
+#include <memory>
+#include <numeric>
+#include <algorithm>
 
 #include <cvd/config.h>
 #include <cvd/exceptions.h>
 #include <cvd/image.h>
 #include <cvd/internal/pixel_operations.h>
+#include <cvd/internal/aligned_mem.h>
+#include <cvd/utility.h>
 
 namespace CVD {
-
-#undef CVD_HAVE_SSE
-// internal functions used by CVD convolution algorithm implementations
-namespace Internal {
-extern "C"{
-
-#if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_CPU_i686)
-void convolve_float4(float (*I)[4], int w, int h, float* kernel, int k);
-void convolve_float(float *I, int w, int h, float* kernel, int k);
-#endif
-
-};
-void convolveSeparableGray(unsigned char* I, unsigned int width, unsigned int height, const int kernel[], unsigned int size, int divisor);
-};
 
 /// creates a Gaussian kernel with given maximum value and standard deviation.
 /// All elements of the passed vector are filled up, therefore the vector
@@ -92,77 +83,6 @@ T scaleKernel(const std::vector<S>& k, std::vector<T>& scaled, T maxval)
     return sum;
 }
 
-/// convolves an image with a separable kernel described by a vector and a
-/// normalization factor (such as returned by gaussianKernel). The convolution
-/// is implemented in place and will change the argument image. On platforms
-/// supporting the extended MMX instruction set, optimized implementations
-/// are used for some types.
-/// @param I image to be convolved
-/// @param kernel a vector containing the kernel values
-/// @param divisor the sum of the kernel values for normalization
-/// @ingroup gVision
-template <class T, class K> void convolveSeparable(BasicImage<T>& I, const std::vector<K>& kernel, K divisor)
-{
-    typedef typename Pixel::traits<T>::wider_type sum_type;
-    int w = I.size().x;
-    int h = I.size().y;
-    int r = (int)kernel.size()/2;
-    int i,j;
-    unsigned int m;
-    double factor = 1.0/divisor;
-    for (j=0;j<w;j++) {
-        T* src = I.data()+j;
-        for (i=0; i<h-2*r; i++,src+=w) {
-            sum_type sum, v;
-            Pixel::operations<sum_type>::zero(sum);
-            for (m=0; m<kernel.size(); m++) {
-            Pixel::operations<sum_type>::assign(v, src[m*w]);
-            Pixel::operations<sum_type>::multiply(v, kernel[m]);
-            Pixel::operations<sum_type>::add(sum,v);
-            }
-            Pixel::operations<sum_type>::multiply(sum, factor);
-            Pixel::operations<T>::assign(*(src), sum);
-        }
-    }
-    for (i=h-2*r-1;i>=0;i--) {
-        T* src = I.data()+i*w;
-        for (j=0;j<w-2*r;j++, src++) {
-            sum_type sum, v;
-            Pixel::operations<sum_type>::zero(sum);
-            for (m=0; m<kernel.size(); m++) {
-            Pixel::operations<sum_type>::assign(v, src[m]);
-            Pixel::operations<sum_type>::multiply(v, kernel[m]);
-            Pixel::operations<sum_type>::add(sum,v);
-            }
-            Pixel::operations<sum_type>::multiply(sum, factor);
-            Pixel::operations<T>::assign(*(src+r*w+r), sum);
-        }
-    }
-}
-
-static inline void convolveSeparable(BasicImage<byte>& I, const std::vector<int>& kernel, int divisor)
-{
-    Internal::convolveSeparableGray(I.data(), I.size().x, I.size().y, &kernel[0], kernel.size(), divisor);
-}
-
-#if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_CPU_i686)
-static inline void convolveSeparable(BasicImage<float[4]>& I, const std::vector<float>& kernel, float divisor)
-{
-    std::vector<float> sk = kernel;
-    for (unsigned int i=0; i<sk.size(); i++)
-    sk[i] /= divisor;
-    Internal::convolve_float4(I.data(), I.size().x, I.size().y, &sk[0], (int)sk.size());
-}
-
-static inline void convolveSeparable(BasicImage<float>& I, const std::vector<float>& kernel, float divisor)
-{
-    std::vector<float> sk = kernel;
-    for (unsigned int i=0; i<sk.size(); i++)
-    sk[i] /= divisor;
-    Internal::convolve_float(I.data(), I.size().x, I.size().y, &sk[0], (int)sk.size());
-}
-#endif
-
 template <class T>
 void convolveGaussian5_1(BasicImage<T>& I)
 {
@@ -193,62 +113,84 @@ void convolveGaussian5_1(BasicImage<T>& I)
     }
 }
 
-void convolveGaussian5_1(BasicImage<byte>& I);
+namespace Exceptions {
 
-// TODO: this was using aligned memory, check if this is necessary...
-/// convolves an image with a box of given size.
-/// @param I input image, modified in place
-/// @param hwin window size, this is half of the box size
-/// @ingroup gVision
-template <class T>
-void convolveWithBox(BasicImage<T>& I, int hwin)
-{
-    typedef typename Pixel::traits<T>::wider_type sum_type;
-    int w = I.size().x;
-    int h = I.size().y;
-    int i,j;
-    int win = 2*hwin+1;
-    //sum_type* sums = aligned_mem<sum_type,16>::alloc(w);
-    sum_type sums[w];
-    memset(sums, 0, sizeof(sum_type)*w);
+    /// %Exceptions specific to vision algorithms
+    /// @ingroup gException
+    namespace Convolution {
+        /// Base class for all Image_IO exceptions
+        /// @ingroup gException
+        struct All: public CVD::Exceptions::All {};
 
-    char buffer[64];
-    int val = (int)buffer;
-    T& sum = *(T*)(buffer + (16 - (val%16)));
-    T& tmp = *(&sum + 1);
-
-    T* row = I.data();
-    T* old = I.data();
-    for (i=0; i<hwin*2; i++) {
-        for (j=0;j<w; j++)
-            Pixel::operations<sum_type>::add(sums[j],*(row++));
-    }
-    for (; i<h; i++) {
-        T* s = sums;
-        for (j=0;j<w;j++, old++, row++, s++) {
-            Pixel::operations<sum_type>::add(*s, *row);
-            Pixel::operations<sum_type>::assign(tmp, *old);
-            Pixel::operations<T>::assign(*old, *s);
-            Pixel::operations<sum_type>::subtract(*s, tmp);
-        }
-    }
-    //aligned_mem<float[4],16>::release(sums);
-    int offset = hwin+w*hwin;
-    for (i=h-win; i>=0; i--) {
-        row = I.data()+i*w;
-        old = row;
-        Pixel::operations<sum_type>::zero(sum);
-        for (j=0;j<hwin*2;j++, row++)
-            Pixel::operations<sum_type>::add(sum, *row);
-        for (;j<w;j++, row++, old++) {
-            Pixel::operations<sum_type>::add(sum, *row);
-            Pixel::operations<sum_type>::assign(tmp, sum);
-            Pixel::operations<sum_type>::subtract(sum, *old);
-            Pixel::operations<sum_type>::divide(tmp, win*win);
-            Pixel::operations<T>::assign(*(old+offset), tmp);
-        }
+        /// Input images have incompatible dimensions
+        /// @ingroup gException
+        struct IncompatibleImageSizes : public All {
+            IncompatibleImageSizes(const std::string & function)
+            {
+                what = "Incompatible image sizes in " + function;
+            };
+        };
     }
 }
+//void convolveGaussian5_1(BasicImage<byte>& I);
+
+/// convolves an image with a box of given size.
+  /// @param I input image, modified in place
+  /// @param hwin window size, this is half of the box size
+  /// @ingroup gVision
+  template <class T> void convolveWithBox(const BasicImage<T>& I, BasicImage<T>& J, int hwin)
+  {
+    typedef typename Pixel::traits<T>::wider_type sum_type;
+    if (I.size() != J.size()) {
+      throw Exceptions::Convolution::IncompatibleImageSizes("convolveWithBox");
+    }
+    int w = I.size().x;
+    int h = I.size().y;
+    int win = 2*hwin+1;
+    static const double factor = 1.0/(win*win);
+    std::auto_ptr<sum_type> buffer(new sum_type[w*win]);
+    std::auto_ptr<sum_type> sums_auto(new sum_type[w]);
+    sum_type* sums = sums_auto.get();
+    sum_type* next_row = buffer.get();
+    sum_type* oldest_row = buffer.get();
+    zeroPixels(sums, w);
+    const T* input = I.data();
+    T* output = J.data()+hwin*w - hwin;
+    for (int i=0; i<h; i++) {
+      sum_type hsum=sum_type();
+      const T* back = input;
+      int j;
+      for (j=0; j<win-1; j++)
+	hsum += input[j];
+      for (; j<w; j++) {
+	hsum += input[j];
+	next_row[j] = hsum;
+	sums[j] += hsum;
+	hsum -= *(back++);
+      }
+      if (i >= win-1) {
+	for (j=win-1; j<w; j++) {
+	  output[j] = static_cast<T>(sums[j]*factor);
+	  //sums[j] -= oldest_row[j];
+	}
+	differences(oldest_row+win-1, sums+win-1, sums+win-1, w-win+1);
+	output += w;
+	oldest_row += w;
+	if (oldest_row == buffer.get() + w*win)
+	  oldest_row = buffer.get();
+      }    
+      input += w;
+      next_row += w;
+      if (next_row == buffer.get() + w*win)
+	next_row = buffer.get();
+    }
+  }
+
+template <class T> inline void convolveWithBox(BasicImage<T>& I, int hwin) {
+  convolveWithBox(I,I,hwin);
+}
+
+    
 
 template <class T, int A, int B, int C> void convolveSymmetric(Image<T>& I)
   {
@@ -343,7 +285,7 @@ template <class T, int A, int B, int C> void convolveSymmetric(Image<T>& I)
     }
   }
 
-    template <class T, class K> void convolveSeparableSymmetric(Image<T>& I, const std::vector<K>& kernel, K divisor)
+template <class T, class K> void convolveSeparableSymmetric(Image<T>& I, const std::vector<K>& kernel, K divisor)
   {
     typedef typename Pixel::traits<T>::wider_type sum_type;
     int w = I.size().x;
@@ -355,37 +297,228 @@ template <class T, int A, int B, int C> void convolveSymmetric(Image<T>& I)
     for (j=0;j<w;j++) {
       T* src = I.data()+j;
       for (i=0; i<h-2*r; i++,src+=w) {
-        sum_type sum, v;
-        Pixel::operations<sum_type>::assign(sum, src[r*w]);
-        Pixel::operations<sum_type>::multiply(sum, kernel[r]);
-        for (m=0; m<r; m++) {
-          Pixel::operations<sum_type>::assign(v, src[m*w]);
-          Pixel::operations<sum_type>::add(v, src[(2*r-m)*w]);
-          Pixel::operations<sum_type>::multiply(v, kernel[m]);
-          Pixel::operations<sum_type>::add(sum,v);
-        }
-        Pixel::operations<sum_type>::multiply(sum, factor);
-        Pixel::operations<T>::assign(*(src), sum);
+        sum_type sum = src[r*w]*kernel[r], v;
+        for (m=0; m<r; m++)
+	  sum += (src[m*w] + src[(2*r-m)*w]) * kernel[m];
+	*(src) = static_cast<T>(sum * factor);
       }
     }
+    int offset = r*w + r;
     for (i=h-2*r-1;i>=0;i--) {
-      T* src = I.data()+i*w;
+      T* src = I[w];
       for (j=0;j<w-2*r;j++, src++) {
-        sum_type sum, v;
-        Pixel::operations<sum_type>::assign(sum, src[r]);
-        Pixel::operations<sum_type>::multiply(sum, kernel[r]);
-        for (m=0; m<r; m++) {
-          Pixel::operations<sum_type>::assign(v, src[m]);
-          Pixel::operations<sum_type>::add(v, src[2*r-m]);
-          Pixel::operations<sum_type>::multiply(v, kernel[m]);
-          Pixel::operations<sum_type>::add(sum,v);
-        }
-        Pixel::operations<sum_type>::multiply(sum, factor);
-        Pixel::operations<T>::assign(*(src+r*w+r), sum);
+        sum_type sum = src[r] * kernel[r], v;
+        for (m=0; m<r; m++)
+	  sum += (src[m] + src[2*r-m])*kernel[m];
+	*(src+offset) = static_cast<T>(sum*factor);
       }
     }
   }
   
+
+template <class A, class B> struct GetPixelRowTyped {
+  static inline const B* get(const A* row, int w, B* rowbuf) {
+    std::copy(row, row+w, rowbuf);
+    return rowbuf;
+  }
+};
+
+template <class T> struct GetPixelRowTyped<T,T> {
+  static inline const T* get(const T* row, int w, T* rowbuf) {
+    return row;
+  }
+};
+
+template <class A, class B> const B* getPixelRowTyped(const A* row, int n, B* rowbuf) {
+  return GetPixelRowTyped<A,B>::get(row,n,rowbuf);
+}
+
+template <class T, class S> struct CastCopy {
+  static inline void cast_copy(const T* from, S* to, int count) {
+    for (int i=0; i<count; i++)
+      to[i] = static_cast<S>(from[i]);
+  }
+};
+
+template <class T> struct CastCopy<T,T> {
+  static inline void cast_copy(const T* from, T* to, int count) {
+    std::copy(from, from+count, to);
+  }
+};
+
+template <class T, class S> inline void cast_copy(const T* from, S* to, int count) { CastCopy<T,S>::cast_copy(from,to,count); }
+
+template <class T, int N=-1, int C = Pixel::Component<T>::count> struct ConvolveMiddle {
+  template <class S> static inline T at(const T* input, const S& factor, const S* kernel) { return ConvolveMiddle<T,-1,C>::at(input,factor, kernel, N); }
+};
+
+template <class T, int N> struct ConvolveMiddle<T,N,1> {
+  template <class S> static inline T at(const T* input, const S& factor, const S* kernel) { return ConvolveMiddle<T,N-1>::at(input,factor, kernel) + (input[-N]+input[N])*kernel[N-1]; }
+};
+
+template <class T> struct ConvolveMiddle<T,-1,1> {
+  template <class S> static inline T at(const T* input, const S& factor, const S* kernel, int ksize) {
+    T hsum = *input * factor;
+    for (int k=0; k<ksize; k++)
+      hsum += (input[-k-1] + input[k+1]) * kernel[k];
+    return hsum;
+  }
+};
+
+template <class T, int C> struct ConvolveMiddle<T,-1, C> {
+  template <class S> static inline T at(const T* input, const S& factor, const S* kernel, int ksize) {
+    T hsum = *input * factor;
+    for (int k=0; k<ksize; k++)
+      hsum += (input[-k-1] + input[k+1]) * kernel[k];
+    return hsum;
+  }
+};
+
+template <class T> struct ConvolveMiddle<T,0,1> {
+  template <class S> static inline T at(const T* input, const S& factor, const S* kernel) { return *input * factor; }
+};
+
+#if 1
+template <class T,class S> inline const T* convolveMiddle(const T* input, const S& factor, const S* kernel, int ksize, int n, T* output) {
+#define CALL_CM(I) for (int j=0; j<n; j++, input++) { *(output++) = ConvolveMiddle<T,I>::at(input, factor, kernel); } break
+  switch (ksize) {
+  case 0: CALL_CM(0);
+  case 1: CALL_CM(1);
+  case 2: CALL_CM(2);
+  case 3: CALL_CM(3);
+  case 4: CALL_CM(4);
+  case 5: CALL_CM(5);
+  case 6: CALL_CM(6);
+  case 7: CALL_CM(7);
+  case 8: CALL_CM(8);
+  case 9: CALL_CM(9);
+  case 10: CALL_CM(10);
+  case 11: CALL_CM(11);
+  case 12: CALL_CM(12);
+  default: for (int j=0; j<n; j++, input++) { *(output++) = ConvolveMiddle<T,-1>::at(input, factor, kernel, ksize); }    
+  }
+  return input;
+#undef CALL_CM
+}
+
+#else
+
+template <class T,class S> const T* convolveMiddle(const T* input, const S& factor, const S* kernel, int ksize, int n, T* output) {
+  for (int j=0; j<n; j++)
+    output[j] = factor * input[j];
+  for (int r=0; r <ksize; r++) {
+    add_mul_add(input-r-1, input+r+1, kernel[r], output, n);
+  }
+  return input + n;
+}
+
+#endif
+
+template <class T> inline void convolveGaussian(BasicImage<T>& I, double sigma, double sigmas=3.0)
+{
+  convolveGaussian(I,I,sigma,sigmas);
+}
+
+template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& out, double sigma, double sigmas=3.0)
+{
+  typedef typename Pixel::traits<typename Pixel::Component<T>::type>::float_type sum_comp_type;
+  typedef typename Pixel::traits<T>::float_type sum_type;
+  assert(out.size() == I.size());
+  int ksize = (int)(sigmas*sigma + 0.5);
+  sum_comp_type kernel[ksize];
+  sum_comp_type ksum = sum_comp_type();
+  for (int i=1; i<=ksize; i++)
+    ksum += (kernel[i-1] = static_cast<sum_comp_type>(exp(-i*i/(2*sigma*sigma))));
+  for (int i=0; i<ksize; i++)
+    kernel[i] /= (2*ksum+1);
+  double factor = 1.0/(2*ksum+1);
+  int w = I.size().x;
+  int h = I.size().y;
+  int swin = 2*ksize;
+
+  sum_type* buffer = Internal::aligned_mem<sum_type,16>::alloc(w*(swin+1));
+  sum_type* rowbuf = Internal::aligned_mem<sum_type,16>::alloc(w);
+  sum_type* outbuf = Internal::aligned_mem<sum_type,16>::alloc(w);
+
+  sum_type* rows[swin+1];
+  for (int k=0;k<swin+1;k++)
+    rows[k] = buffer + k*w;
+
+  T* output = out.data();
+  for (int i=0; i<h; i++) {
+    sum_type* next_row = rows[swin];
+    const sum_type* input = getPixelRowTyped(I[i], w, rowbuf);
+    // beginning of row
+    for (int j=0; j<ksize; j++) {
+      sum_type hsum = input[j] * factor;
+      for (int k=0; k<ksize; k++)
+	hsum += (input[abs(j-k-1)] + input[j+k+1]) * kernel[k];
+      next_row[j] = hsum;
+    }
+    // middle of row
+    input += ksize;
+    input = convolveMiddle<sum_type, sum_comp_type>(input, factor, kernel, ksize, w-swin, next_row+ksize);
+    // end of row
+    for (int j=w-ksize; j<w; j++, input++) {
+      sum_type hsum = *input * factor;
+      const int room = w-j;
+      for (int k=0; k<ksize; k++) {
+	hsum += (input[-k-1] + (k+1 >= room ? input[2*room-k-2] : input[k+1])) * kernel[k];
+      }
+      next_row[j] = hsum;
+    }
+    // vertical
+    if (i >= swin) {
+      const sum_type* middle_row = rows[ksize];
+      assign_mul(middle_row, factor, outbuf, w);
+      for (int k=0; k<ksize; k++) {
+	const sum_comp_type m = kernel[k];
+	const sum_type* row1 = rows[ksize-k-1];
+	const sum_type* row2 = rows[ksize+k+1];	
+	add_mul_add(row1, row2, m, outbuf, w);
+      }
+      cast_copy(outbuf, output, w);
+      output += w;
+      if (i == h-1) {
+	for (int r=0; r<ksize; r++) {
+	  const sum_type* middle_row = rows[ksize+r+1];
+	  assign_mul(middle_row, factor, outbuf, w);
+	  for (int k=0; k<ksize; k++) {
+	    const sum_comp_type m = kernel[k];
+	    const sum_type* row1 = rows[ksize+r-k];
+	    const sum_type* row2 = rows[ksize+r+k+2 > swin ? 2*swin - (ksize+r+k+2) : ksize+r+k+2];
+	    add_mul_add(row1, row2, m, outbuf, w);
+	  }
+	  cast_copy(outbuf, output, w);
+	  output += w;
+	}	
+      }
+    } else if (i == swin-1) {
+      for (int r=0; r<ksize; r++) {
+	const sum_type* middle_row = rows[r+1];
+	assign_mul(middle_row, factor, outbuf, w);
+	for (int k=0; k<ksize; k++) {
+	  const sum_comp_type m = kernel[k];
+	  const sum_type* row1 = rows[abs(r-k-1)+1];
+	  const sum_type* row2 = rows[r+k+2];	
+	  add_mul_add(row1, row2, m, outbuf, w);
+	}
+	cast_copy(outbuf, output, w);
+	output += w;
+      }
+    }
+    
+    sum_type* tmp = rows[0];
+    for (int r=0;r<swin; r++)
+      rows[r] = rows[r+1];
+    rows[swin] = tmp;
+  }
+
+  Internal::aligned_mem<sum_type,16>::release(buffer);
+  Internal::aligned_mem<sum_type,16>::release(rowbuf);
+  Internal::aligned_mem<sum_type,16>::release(outbuf);
+}
+
 } // namespace CVD
 
 #endif

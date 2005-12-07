@@ -40,94 +40,120 @@ namespace CVD{namespace Pixel
   template <class From, class To, int CF=Pixel::Component<From>::count, int CT=Pixel::Component<To>::count> struct GenericConversion;
 
   template <class From, class To> struct GenericConversion<From,To,1,1> {
-    static void convert(const From& from, To& to) { 
-      to = scalar_convert<To,From>::from(from);
+    static inline void convert(const From& from, To& to) { 
+      to = scalar_convert<To,From>(from);
     }
   };
   
   template <class From, class To, int N> struct GenericConversion<From,To,N,N> {
     typedef typename Pixel::Component<From>::type FromS;
     typedef typename Pixel::Component<To>::type ToS;
-    static void convert(const From& from, To& to) { 
+    static inline void convert(const From& from, To& to) { 
       for (int i=0; i<N; i++)
-	Pixel::Component<To>::get(to,i) = scalar_convert<ToS,FromS>::from(Pixel::Component<From>::get(from,i));
+	Pixel::Component<To>::get(to,i) = scalar_convert<ToS,FromS>(Pixel::Component<From>::get(from,i));
     }
   };
 
   template <class T, int N> struct GenericConversion<T,T,N,N> { 
-    static void convert(const T& from, T& to) { 
+    static inline void convert(const T& from, T& to) { 
       to = from;
     }
   };
 
   template <class T, int N> struct GenericConversion<T[N],T[N], N, N> { 
     typedef T array[N];
-    static void convert(const array& from, array& to) { 
+    static inline void convert(const array& from, array& to) { 
       for (int i=0; i<N; i++)
 	to[i] = from[i];
     }
   };
 
   template <class Rgbish, class Scalar> struct CIE {
-    static void convert(const Rgbish& from, Scalar& to) {
+    static inline void convert(const Rgbish& from, Scalar& to) {
       const double wr=0.299, wg=0.587, wb=0.114;
-      to = scalar_convert<Scalar,double>::from(wr*scalar_convert<double,typename Pixel::Component<Rgbish>::type>::from(from.red) + 
-					      wg*scalar_convert<double,typename Pixel::Component<Rgbish>::type>::from(from.green) + 
-					      wb*scalar_convert<double,typename Pixel::Component<Rgbish>::type>::from(from.blue));
+      to = scalar_convert<Scalar,double>(wr*scalar_convert<double,typename Pixel::Component<Rgbish>::type>(from.red) + 
+					 wg*scalar_convert<double,typename Pixel::Component<Rgbish>::type>(from.green) + 
+					 wb*scalar_convert<double,typename Pixel::Component<Rgbish>::type>(from.blue));
     }
   };
 
-  template <class Rgbish, class Scalar> struct Uniform {
-    static void convert(const Rgbish& from, Scalar& to) {
-      typedef typename Pixel::Component<Rgbish>::type T;
-      typename traits<T>::wider_type sum = Pixel::Component<Rgbish>::get(from,0);
-      sum += Pixel::Component<Rgbish>::get(from,1);
-      sum += Pixel::Component<Rgbish>::get(from,2);
-      to = scalar_convert<Scalar,T>::from(static_cast<T>(sum/3));
+  template <class P, class Scalar> struct Uniform {
+    static inline void convert(const P& from, Scalar& to) {
+      typedef typename Pixel::Component<P>::type T;
+      typename traits<T>::wider_type sum = Pixel::Component<P>::get(from,0);
+      for (unsigned int i=1; i<Pixel::Component<P>::count; i++)
+	sum += Pixel::Component<P>::get(from,i);
+      to = scalar_convert<Scalar,T>(sum/Pixel::Component<P>::count);
     }
   };
-  
+
+  template <class P, class Scalar> struct RMS {
+    static inline void convert(const P& from, Scalar& to) {
+      typedef typename Pixel::Component<P>::type T;
+      double sum = Pixel::Component<P>::get(from,0);
+      sum *= sum;
+      for (unsigned int i=1; i<Pixel::Component<P>::count; i++) {
+	double w = Pixel::Component<P>::get(from,i);
+	sum += w*w;
+      }
+      to = scalar_convert<Scalar,T,double>(sqrt(sum/(Pixel::Component<P>::count)));
+    }
+  };  
+
+  template <class P, class Scalar> struct L2Norm {
+    static inline void convert(const P& from, Scalar& to) {
+      typedef typename Pixel::Component<P>::type T;
+      double sum = Pixel::Component<P>::get(from,0);
+      sum *= sum;
+      for (unsigned int i=1; i<Pixel::Component<P>::count; i++) {
+	double w = Pixel::Component<P>::get(from,i);
+	sum += w*w;
+      }
+      to = scalar_convert<Scalar,T,double>(sqrt(sum));
+    }
+  };  
+
   template <class Scalar, class Vec> struct Replicate {
-    static void convert(const Scalar& from, Vec& to) {
+    static inline void convert(const Scalar& from, Vec& to) {
       typedef typename Pixel::Component<Vec>::type T;
-      Pixel::Component<Vec>::get(to,0) = scalar_convert<T, Scalar>::from(from);
+      Pixel::Component<Vec>::get(to,0) = scalar_convert<T, Scalar>(from);
       for (size_t i=1; i<Pixel::Component<Vec>::count; i++) 
 	Pixel::Component<Vec>::get(to,i) = Pixel::Component<Vec>::get(to,0);
     }
   };
   
   template <class Scalar, class T> struct GreyToRgba {
-    static void convert(const Scalar& from, Rgba<T>& to) {
-      to.red = to.green = to.blue = scalar_convert<T, Scalar>::from(from);
+    static inline void convert(const Scalar& from, Rgba<T>& to) {
+      to.red = to.green = to.blue = scalar_convert<T, Scalar>(from);
       to.alpha = traits<T>::max_intensity;
     }
   };
 
-  template <class A, class B> void RgbToRgb(const A& from, B& to) {
+  template <class A, class B> inline void RgbToRgb(const A& from, B& to) {
     typedef typename Pixel::Component<A>::type T;
     typedef typename Pixel::Component<B>::type S;
-    to.red = scalar_convert<S,T>::from(from.red);
-    to.green = scalar_convert<S,T>::from(from.green);
-    to.blue = scalar_convert<S,T>::from(from.blue);
+    to.red = scalar_convert<S,T>(from.red);
+    to.green = scalar_convert<S,T>(from.green);
+    to.blue = scalar_convert<S,T>(from.blue);
   }
   
   template <class A, class B> struct RgbishToRgbish {
-    static void convert(const A& from, B& to) {
+    static inline void convert(const A& from, B& to) {
       RgbToRgb(from,to);
     }
   };
   
   template <class A,class T> struct RgbishToRgbish<A,Rgba<T> > {
-    static void convert(const A& from, Rgba<T>& to) {
+    static inline void convert(const A& from, Rgba<T>& to) {
       RgbToRgb(from,to);
       to.alpha = traits<T>::max_intensity;
     }
   };
 
   template <class S,class T> struct RgbishToRgbish<Rgba<S>,Rgba<T> > {
-    static void convert(const Rgba<S>& from, Rgba<T>& to) {
+    static inline void convert(const Rgba<S>& from, Rgba<T>& to) {
       RgbToRgb(from,to);
-      to.alpha = scalar_convert<T,S>::from(from.alpha);
+      to.alpha = scalar_convert<T,S>(from.alpha);
     }
   };
 
@@ -147,17 +173,20 @@ namespace CVD{namespace Pixel
   template <class T> struct DefaultConversion<Rgb<T>,Rgb8, 3,3> { typedef RgbishToRgbish<Rgb<T>, Rgb8> type; };
   template <class T, class S> struct DefaultConversion<Rgb<T>,Rgba<S>,3,4> { typedef RgbishToRgbish<Rgb<T>, Rgba<S> > type; };
   template <class T, class S> struct DefaultConversion<Rgb<T>,Rgb<S>,3,3> { typedef RgbishToRgbish<Rgb<T>, Rgb<S> > type; };
+  template <class T> struct DefaultConversion<Rgb<T>,Rgb<T>,3,3> { typedef GenericConversion<Rgb<T>, Rgb<T> > type; };
 
   // Rgb8 to X
   template <class S> struct DefaultConversion<Rgb8,S,3,1> { typedef CIE<Rgb8,S> type; };
   template <class S> struct DefaultConversion<Rgb8,Rgb<S>,3,3> { typedef RgbishToRgbish<Rgb8, Rgb<S> > type; };
   template <class S> struct DefaultConversion<Rgb8,Rgba<S>,3,4> { typedef RgbishToRgbish<Rgb8, Rgba<S> > type; };
+  template <> struct DefaultConversion<Rgb8,Rgb8,3,3> { typedef GenericConversion<Rgb8, Rgb8> type; };
 
   // Rgba<T> to X
   template <class T, class S> struct DefaultConversion<Rgba<T>,S,4,1> { typedef CIE<Rgba<T>,S> type; };
   template <class T, class S> struct DefaultConversion<Rgba<T>,Rgb<S>,4,3> { typedef RgbishToRgbish<Rgba<T>, Rgb<S> > type; };
   template <class T> struct DefaultConversion<Rgba<T>,Rgb8,4,3> { typedef RgbishToRgbish<Rgba<T>, Rgb8> type; };
   template <class T, class S> struct DefaultConversion<Rgba<T>,Rgba<S>,4,4> { typedef RgbishToRgbish<Rgba<T>, Rgba<S> > type; };
+  template <class T> struct DefaultConversion<Rgba<T>,Rgba<T>,4,4> { typedef GenericConversion<Rgba<T>, Rgba<T> > type; };
 
   
   template <class From, class To, class Conv=typename DefaultConversion<From,To>::type, 

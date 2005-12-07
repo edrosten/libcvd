@@ -51,18 +51,38 @@ namespace CVD
 		unsigned char val;
 	};
 
-	namespace Pixel {
-		template<int LIFT> struct traits<bayer, LIFT>
-		{
-			typedef int wider_type;
-			typedef float float_type;
-			static const bool integral = true;
-			static const bool is_signed = false;
-			static const int bits_used = 8;
-			static const unsigned char max_intensity=(1 << bits_used) - 1;
-		};
-	}
+	/// A datatype to represent yuv422 (yuyv) data.
+	/// @ingroup gVideoBuffer
+	struct yuv422
+	{
+		unsigned short val;
+	};
 
+	/// A datatype to represent yuv420p (yuyv) data.
+	/// @ingroup gVideoBuffer
+	struct yuv420p
+	{
+		unsigned short val;
+	};
+
+  namespace Pixel {
+      // Should be able to delete the following, since Component now defaults to 1 for unknown types
+      //template<> struct Component<bayer> : public component_base<bayer, 1>
+      //{
+      //};
+      
+        template<int LIFT> struct traits<bayer, LIFT>
+        {
+            typedef int wider_type;
+            typedef float float_type;
+            static const bool integral = true;
+            static const bool is_signed = false;
+            static const int bits_used = 8;
+            static const unsigned char max_intensity=(1 << bits_used) - 1;
+        };
+    }
+
+   
 #ifndef DOXYGEN_IGNORE_INTERNAL
     namespace Internal
     {

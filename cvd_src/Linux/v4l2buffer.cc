@@ -109,7 +109,7 @@ V4L2Buffer_Base::V4L2Buffer_Base(const char *devname, bool fields, V4L2BufferBlo
 		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Query capabilities");
 
 	cerr << "  V4L2Buffer_Base: Device name:"<< sv4l2Capability.name <<endl;
-	cerr << "  V4L2Buffer_Base: (If that was garbled then you've not go the right modules loaded.) "<<endl;
+	cerr << "  V4L2Buffer_Base: (If that was garbled then you've not got the right modules loaded.) "<<endl;
 	cerr << "  V4L2Buffer_Base: Streaming flags: "<< (sv4l2Capability.flags&V4L2_FLAG_STREAMING)<<endl;
 
 	// Change a few of the card's settings to our liking:

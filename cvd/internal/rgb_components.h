@@ -25,6 +25,7 @@
 #include <cvd/rgba.h>
 #include <cvd/rgb8.h>
 #include <cvd/internal/builtin_components.h>
+#include <cvd/internal/pixel_traits.h>
 
 namespace CVD
 {
@@ -87,7 +88,48 @@ namespace CVD
 			}
 		};
 
+		template <class T> struct is_Rgb { enum { value = 0 }; };
+		template <class T> struct is_Rgb<Rgb<T> > { enum { value = 1 }; };
+		template <> struct is_Rgb<Rgb8> { enum { value = 1 }; };
+		template <class T> struct is_Rgb<Rgba<T> > { enum { value = 1 }; };
+
+		template<class T, int LIFT> struct traits<Rgb<T>, LIFT> 
+		{ 
+		  typedef Rgb<typename Pixel::traits<T>::wider_type> wider_type; 
+		  typedef Rgb<typename Pixel::traits<T>::float_type> float_type;
+		};
+  
+		template<int LIFT> struct traits<Rgb8, LIFT> 
+		{ 
+		  typedef Rgb<int> wider_type; 
+		  typedef Rgb<float> float_type;
+		};
 
 	}
+		template <class T> struct Rgb_ops {
+		  template <class S> static inline T sum(const T& a, const S& b) { return T(a.red+b.red, a.green+b.green, a.blue+b.blue); }
+		  template <class S> static inline void add(T& a, const S& b) { a.red+=b.red; a.green+=b.green; a.blue+=b.blue; }
+		  template <class S> static inline T diff(const T& a, const S& b) { return T(a.red-b.red, a.green-b.green, a.blue-b.blue); }
+		  template <class S> static inline void sub(T& a, const S& b) { a.red-=b.red; a.green-=b.green; a.blue-=b.blue; }
+		  template <class S> static inline T prod(const T& a, const S& b) { return T(a.red*b, a.green*b, a.blue*b); }
+		  template <class S> static inline void mul(T& a, const S& b) { a.red*=b; a.green*=b; a.blue*=b; }
+		  template <class S> static inline T quot(const T& a, const S& b) { return T(a.red/b, a.green/b, a.blue/b); }
+		  template <class S> static inline void div(T& a, const S& b) { a.red/=b; a.green/=b; a.blue/=b; }
+		  template <class S> static inline void assign(T& a, const S& b) { a.red=b.red; a.green=b.green; a.blue=b.blue; }
+		};
+
+		template <class T, class S> inline Rgb<T> operator+(const Rgb<T>& a, const Rgb<S>& b) { return Rgb_ops<Rgb<T> >::sum(a,b); }
+		template <class T, class S> inline Rgb<T>& operator+=(Rgb<T>& a, const Rgb<S>& b) { Rgb_ops<Rgb<T> >::add(a,b); return a; }
+		template <class T, class S> inline Rgb<T> operator-(const Rgb<T>& a, const Rgb<S>& b) { return Rgb_ops<Rgb<T> >::diff(a,b); }
+		template <class T, class S> inline Rgb<T>& operator-=(Rgb<T>& a, const Rgb<S>& b) { Rgb_ops<Rgb<T> >::sub(a,b); return a; }
+		template <class T, class S> inline Rgb<T> operator*(const Rgb<T>& a, const S& b) { return Rgb_ops<Rgb<T> >::prod(a,b); }
+		template <class T, class S> inline Rgb<T> operator*(const S& b, const Rgb<T>& a) { return Rgb_ops<Rgb<T> >::prod(a,b); }
+		template <class T, class S> inline Rgb<T>& operator*=(Rgb<T>& a, const S& b) { Rgb_ops<Rgb<T> >::mul(a,b); return a; }
+		template <class T, class S> inline Rgb<T> operator/(const Rgb<T>& a, const S& b) { return Rgb_ops<Rgb<T> >::quot(a,b); }
+		template <class T, class S> inline Rgb<T> operator/(const S& b, const Rgb<T>& a) { return Rgb_ops<Rgb<T> >::quot(a,b); }
+		template <class T, class S> inline Rgb<T>& operator/=(Rgb<T>& a, const S& b) { Rgb_ops<Rgb<T> >::div(a,b); return a; }
+
+		
+	
 }
 #endif

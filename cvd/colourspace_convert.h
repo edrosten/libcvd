@@ -20,9 +20,9 @@
 */
 #include "cvd/image_convert_fwd.h"
 #include "cvd/colourspaces.h"
-#include "cvd/byte.h"
-#include "cvd/rgb.h"
-
+#include <cvd/byte.h>
+#include <cvd/rgb.h>
+#include <cvd/image_convert.h>
 
 
 namespace CVD
@@ -34,7 +34,7 @@ namespace CVD
 	/// @param width The width of the image
 	/// @param height The height of the image
 	/// @ingroup gImageIO
-	template<> Image<byte> convert_image(const BasicImage<bayer>& from);	
+  template<> void convert_image(const BasicImage<bayer>& from, BasicImage<byte>& to);	
 	
 	/// Convert Bayer pattern of the form ??? to rgb444 data
 	/// @param bggr The input data
@@ -42,15 +42,15 @@ namespace CVD
 	/// @param width The width of the image
 	/// @param height The height of the image
 	/// @ingroup gImageIO
-	template<> Image<Rgb<byte> > convert_image(const BasicImage<bayer>& from);
-	
+    template<> void convert_image(const BasicImage<bayer>& from, BasicImage<Rgb<byte> >& to);
+	 
 	
 	/// Convert YUV 411 pixel data to RGB
 	/// @param yuv411 The input data
 	/// @param npix The number of pixels
 	/// @param out The output data
 	/// @ingroup gImageIO
-	template<> Image<Rgb<byte> > convert_image(const BasicImage<yuv411>& from);
+      template<> void convert_image(const BasicImage<yuv411>& from, BasicImage<Rgb<byte> >& to);
 
 
 	/// Convert YUV 411 pixel data to Y only
@@ -58,7 +58,22 @@ namespace CVD
 	/// @param npix The number of pixels
 	/// @param out The output data
 	/// @ingroup gImageIO
-	template<> Image<byte> convert_image(const BasicImage<yuv411>& from);
+	template<> void convert_image(const BasicImage<yuv411>& from, BasicImage<byte>& to);
+	
+	/// Convert YUV 422 pixel data to RGB
+	/// @param yuv422 The input data
+	/// @param npix The number of pixels
+	/// @param out The output data
+	/// @ingroup gImageIO
+	template<> void convert_image(const BasicImage<yuv422>& from, BasicImage<Rgb<byte> >& to);
+	  
+
+	/// Convert YUV 422 pixel data to Y only
+	/// @param yuv422 The input data
+	/// @param npix The number of pixels
+	/// @param out The output data
+	/// @ingroup gImageIO
+	  template<> void convert_image(const BasicImage<yuv422>& from, BasicImage<byte>& to);
 
 	/// Convert YUV 411 pixel data to both Y and RGB
 	/// @param yuv411 The input data

@@ -28,9 +28,16 @@
 #include <cvd/exceptions.h>
 #include <cvd/image.h>
 #include <cvd/internal/pixel_operations.h>
+#include <cvd/utility.h>
+
+
+#if defined(CVD_HAVE_TOON)
+#include <TooN/TooN.h>
+#endif
+
 
 namespace CVD {
-#undef CVD_HAVE_SSE
+
 namespace Exceptions {
 
     /// %Exceptions specific to vision algorithms
@@ -60,23 +67,6 @@ namespace Exceptions {
     };
 };
 
-// internal functions used by CVD vision algorithm implementations
-namespace Internal {
-extern "C"{
-#if defined(CVD_HAVE_MMXEXT) && defined(CVD_HAVE_CPU_i686)
-void halfsample(const unsigned char* in, unsigned char* out, int width, int height);
-#endif
-
-#if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_CPU_i686)
-void byte_to_float_gradient(const unsigned char* gray, const float (*grad)[2], int width, int height);
-#endif
-
-#if defined(CVD_HAVE_SSE2) && defined(CVD_HAVE_CPU_i686)
-void byte_to_double_gradient(const unsigned char* gray, const double (*grad)[2], int width, int height);
-#endif
-};
-};
-
 /// subsamples an image to half its size by averaging 2x2 pixel blocks
 /// @param in input image
 /// @param out output image, must have the right dimensions versus input image
@@ -90,22 +80,19 @@ void halfSample(const BasicImage<T>& in, BasicImage<T>& out)
         throw Exceptions::Vision::IncompatibleImageSizes("halfSample");
     const T* top = in.data();
     const T* bottom = top + in.size().x;
-    int row = 0;
+    const T* end = top + in.totalsize();
+    int ow = out.size().x;
+    int skip = in.size().x + (in.size().x % 2);
     T* p = out.data();
-    sum_type sum;
-    while (row < in.size().y-1) {
-        for (int j=0; j<in.size().x/2; j++) {
-            Pixel::operations<sum_type>::assign(sum, top[j*2]);
-            Pixel::operations<sum_type>::add(sum, top[j*2+1]);
-            Pixel::operations<sum_type>::add(sum, bottom[j*2]);
-            Pixel::operations<sum_type>::add(sum, bottom[j*2+1]);
-            Pixel::operations<sum_type>::divide(sum, 4);
-            Pixel::operations<T>::assign(p[j], sum);
-        }
-        top += in.size().x*2;
-        bottom += in.size().x*2;
-        p += out.size().x;
-        row += 2;
+    while (bottom < end) {      
+      for (int j=0; j<ow; j++) {
+	*p = static_cast<T>((sum_type(top[0]) + top[1] + bottom[0] + bottom[1])/4);
+	p++;
+	top += 2;
+	bottom += 2;
+      }
+      top += skip;
+      bottom += skip;
     }
 }
 
@@ -121,66 +108,16 @@ void halfSample(const BasicImage<byte>& in, BasicImage<byte>& out);
 template <class T>
 void threshold(BasicImage<T>& im, const T& minimum, const T& hi)
 {
-    T* p = im.data();
-    const T* end = im.data()+im.totalsize();
-    while (p != end) {
-        if (*p < minimum)
-            *p = T();
-        else
-            *p = hi;
-        ++p;
-    }
+  typename BasicImage<T>::iterator it = im.begin();
+  typename BasicImage<T>::iterator end = im.end();
+  while (p != end) {
+    if (*p < minimum)
+      *p = T();
+    else
+      *p = hi;
+    ++p;
+  }
 }
-
-/// sets the border pixel lines of an image to zero
-/// @param I input image, changed in place
-/// @ingroup gVision
-template <class T> void zeroBorders(BasicImage<T>& I)
-{
-    int w = I.size().x;
-    int h = I.size().y;
-    memset(I.data(), 0, sizeof(T)*w);
-    for (int i=1;i<h-1; i++) {
-        Pixel::operations<T>::zero(I.data()[i*w]);
-        Pixel::operations<T>::zero(I.data()[i*w+w-1]);
-    }
-    memset(I.data()+w*(h-1), 0, sizeof(T)*w);
-}
-
-/// computes the gradient image from an image. The gradient image contains two components per pixel holding
-/// the x and y components of the gradient.
-/// @param im input image
-/// @param out output image, must have the same dimensions as input image
-/// @throw IncompatibleImageSizes if out does not have same dimensions as im
-/// @ingroup gVision
-template <class S, class T>
-void gradient(const BasicImage<S>& im, BasicImage<T>& out)
-{
-    typedef typename Pixel::Component<T>::type TComp;
-    typedef typename Pixel::Component<S>::type SComp;
-    typedef typename Pixel::traits<SComp>::wider_type diff_type;
-
-    if( im.size() != out.size())
-        throw Exceptions::Vision::IncompatibleImageSizes("gradient");
-    int w = im.size().x;
-    T* dp = out.data()+w+1;
-    const S* sp = im.data()+w+1;
-    const S* end = im.data()+im.totalsize()-w-1;
-    while (sp != end) {
-      (*dp)[0] = Pixel::scalar_convert<TComp,diff_type>::from(Pixel::difference<S>::avg(sp[1], sp[-1]));
-      (*dp)[1] = Pixel::scalar_convert<TComp,diff_type>::from(Pixel::difference<S>::avg(sp[w], sp[-w]));
-      ++sp;
-      ++dp;
-    }
-    zeroBorders(out);
-}
-
-#if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_CPU_i686)
-void gradient(const BasicImage<byte>& im, BasicImage<float[2]>& out);
-#endif
-#if defined(CVD_HAVE_SSE2) && defined(CVD_HAVE_CPU_i686)
-void gradient(const BasicImage<byte>& im, BasicImage<double[2]>& out);
-#endif
 
 /// computes mean and stddev of intensities in an image. These are computed for each component of the
 /// pixel type, therefore the output are two pixels with mean and stddev for each component.
@@ -191,9 +128,8 @@ void gradient(const BasicImage<byte>& im, BasicImage<double[2]>& out);
 template <class T>
 void stats(const BasicImage<T>& im, T& mean, T& stddev)
 {
-    const unsigned int c = Pixel::Component<T>::count;
-    double v;
-    double sum[c] = {0};
+  double v;
+  double sum[c] = {0};
     double sumSq[c] = {0};
     const T* p = im.data();
     const T* end = im.data()+im.totalsize();
@@ -213,115 +149,144 @@ void stats(const BasicImage<T>& im, T& mean, T& stddev)
     }
 }
 
-/// a functor computing gray values from pixels with constant value. For use with apply to
-/// operate on all pixels in an image
+/// a functor multiplying pixels with constant value.
 /// @ingroup gVision
-template <class S, class T, class PixelFunction = Pixel::DefaultConversion<S,T> >
-struct Gray {
-    typedef typename Pixel::Component<S>::type SComp;
-    typedef typename Pixel::Component<T>::type TComp;
-    PixelFunction c;
-    inline void operator()(const S& s, T& t) const {
-        c.convert_pixel(s, Pixel::Component<T>::get(t,0));
-        for (unsigned int i=1; i<Pixel::Component<T>::count; i++)
-            Pixel::Component<T>::get(t,i) = Pixel::Component<T>::get(t,0);
-    }
-};
-
-/// a functor multiplying pixels with constant value. For use with apply to
-/// operate on all pixels in an image
-/// @ingroup gVision
-template <class S, class T = S>
+template <class T>
 struct multiplyBy
 {
-    typename Pixel::Component<T>::type op;
-    multiplyBy( const typename Pixel::Component<T>::type & op_ ) : op(op_) {};
-    inline void operator()(const S& s, T& t) const
-    {
-        Pixel::operations<T>::assign(t,s);
-        Pixel::operations<T>::multiply(t, op);
-    };
+  const T& factor;
+  multiplyBy(const T& f) : factor(f) {};
+  template <class S> inline S operator()(const S& s) const {
+    return s * factor;
+  };
 };
 
-/// applies a pixel operation to each pixel in an image and returns the result in an output image
-/// @param in the input image
-/// @param out the output image, can be the same as the input image
-/// @param op a functor implementation the operation. The functor must implement the operator()(const S& , const T&) or be a function with that signature.
-/// @throw IncompatibleImageSizes if the images are not of the same sizes
+template <class S, class T, int Sn=Pixel::Component<S>::count, int Tn=Pixel::Component<T>::count> struct Gradient;
+template <class S, class T> struct Gradient<S,T,1,2> {
+  typedef typename Pixel::Component<S>::type SComp;
+  typedef typename Pixel::Component<T>::type TComp;
+  typedef typename Pixel::traits<SComp>::wider_type diff_type;
+  static void gradient(const BasicImage<S>& I, BasicImage<T>& grad) {
+    int w = I.size().x;
+    typename BasicImage<S>::const_iterator s = I.begin() + w + 1;
+    typename BasicImage<S>::const_iterator end = I.end() - w - 1;
+    typename BasicImage<T>::iterator t = grad.begin() + w + 1;
+    while (s != end) {
+      Pixel::Component<T>::get(*t, 0) = Pixel::scalar_convert<TComp,SComp,diff_type>(diff_type(*(s+1)) - *(s-1));
+      Pixel::Component<T>::get(*t, 1) = Pixel::scalar_convert<TComp,SComp,diff_type>(diff_type(*(s+w)) - *(s-w));
+      s++;
+      t++;
+    }
+    zeroBorders(grad);
+  }
+};
+
+/// computes the gradient image from an image. The gradient image contains two components per pixel holding
+/// the x and y components of the gradient.
+/// @param im input image
+/// @param out output image, must have the same dimensions as input image
+/// @throw IncompatibleImageSizes if out does not have same dimensions as im
 /// @ingroup gVision
-template <class S, class T, class Op>
-void apply(const BasicImage<S>& in, BasicImage<T>& out, const Op& op)
+template <class S, class T> void gradient(const BasicImage<S>& im, BasicImage<T>& out)
 {
-    if(out.size() != in.size())
-        throw Exceptions::Vision::IncompatibleImageSizes("apply");
-
-    const S* pi = in.data();
-    const S* end = pi+in.totalsize();
-    T* po = out.data();
-    while (pi != end)
-        op(*pi++, *po++);
+  if( im.size() != out.size())
+    throw Exceptions::Vision::IncompatibleImageSizes("gradient");
+  Gradient<S,T>::gradient(im,out);
 }
 
-/// searches through the image and returns pixel locations that match a given predicate. this
-/// version returns a new vector containing the image references.
-/// @param in the image to search through
-/// @param op the predicate to test with. It must implement bool operator()( const ImageRef & ) or be a function with that signature
-/// @return vector containing ImageRef with pixel matching the predicate
-template <class T, class Op>
-std::vector<ImageRef> find( const BasicImage<T> & in, const Op & op)
+template <class T, class S> inline void sample(const BasicImage<S>& im, double x, double y, T& result)
 {
-    std::vector<ImageRef> list;
-    find(in, op, list);
-    return list;
+  int lx = (int)x;
+  int ly = (int)y;
+  x -= lx;
+  y -= ly;
+  result = static_cast<T>((1-y)*((1-x)*im[ly][lx] + x*im[ly][lx+1]) + y * ((1-x)*im[ly+1][lx] + x*im[ly+1][lx+1]));
+  }
+
+inline void sample(const BasicImage<float>& im, double x, double y, float& result)
+  {
+    int lx = (int)x;
+    int ly = (int)y;
+    int w = im.size().x;
+    const float* base = im[ly]+lx;
+    float a = base[0];
+    float b = base[1];
+    float c = base[w];
+    float d = base[w+1];
+    float e = a-b;
+    x-=lx;
+    y-=ly;
+    result = x*(y*(e-c+d)-e)+y*(c-a)+a;
+  }
+
+#if defined (CVD_HAVE_TOON)
+template <class T> void transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<2>& M, const TooN::Vector<2>& inOrig, const TooN::Vector<2>& outOrig)
+  {
+    int i,j;
+    int w = out.size().x, iw = in.size().x;
+    int h = out.size().y, ih = in.size().y;
+    TooN::Vector<2> upperLeft = M * -outOrig + inOrig;
+    TooN::Vector<2> dcol = M.T()[0];
+    TooN::Vector<2> drow = M.T()[1];
+    TooN::Vector<2> p, row = upperLeft;
+    for (i=0;i<h;i++) {
+      p = row;
+      for (j=0;j<w;j++) {
+	if (p[0] < 0 || p[0]>= iw-1 || p[1] < 0 || p[1] >= ih-1)
+	  zeroPixel(out[i][j]);
+	else
+	  sample(in,p[0],p[1],out[i][j]);
+	p += dcol;
+      }
+      row += drow;
+    }
+  }
+
+  template <class T>  void transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<3>& Minv /* <-- takes points in "out" to points in "in" */)
+  {
+    TooN::Vector<3> base = Minv.T()[2];
+    TooN::Vector<2> offset;
+    offset[0] = in.size().x/2;
+    offset[1] = in.size().y/2;
+    offset -= project(base);
+    TooN::Vector<3> across = Minv.T()[0];
+    TooN::Vector<3> down = Minv.T()[1];
+    double w = in.size().x-1;
+    double h = in.size().y-1;
+    int ow = out.size().x;
+    int oh = out.size().y;
+    base -= down*(oh/2) + across*(ow/2);
+    for (int row = 0; row < oh; row++, base+=down) {
+      TooN::Vector<3> x = base;
+      for (int col = 0; col < ow; col++, x += across) {
+	TooN::Vector<2> p = project(x) + offset;
+	if (p[0] >= 0 && p[0] <= w-1 && p[1] >=0 && p[1] <= h-1)
+	  sample(in,p[0],p[1], out[row][col]);
+	else
+	  zeroPixel(out[row][col]);
+      }
+    }
+  }
+#endif
+
+/// flips an image vertically in place.
+template <class T> void flipVertical( Image<T> & in )
+{
+  int w = in.size().x;
+  std::auto_ptr<T> buffer_auto(new T[w]);
+  T* buffer = buffer_auto.get();
+  T * top = in.data();
+  T * bottom = top + (in.size().y - 1)*w;
+  while( top < bottom )
+  {
+    std::copy(top, top+w, buffer);
+    std::copy(bottom, bottom+w, top);
+    std::copy(buffer, buffer+w, bottom);
+    top += w;
+    bottom -= w;
+  }
 }
 
-/// searches through the image and returns pixel locations that match a given predicate. this
-/// version will append found image references to a vector passed in.
-/// @param in the image to search through
-/// @param op the predicate to test with. It must implement bool operator()( const ImageRef & ) or be a function with that signature
-/// @param list vector containing the image references
-template <class T, class Op>
-std::vector<ImageRef> & find( const BasicImage<T> & in, const Op & op, std::vector<ImageRef> & list)
-{
-    ImageRef begin(0,0);
-    const ImageRef end = in.size();
-    do {
-        if(op(in[begin]))
-            list.push_back(begin);
-    } while(begin.next(end));
-    return list;
-}
-
-/*
-// TODO: do we need these at all ?
-
-template<template <class P> class PixelFunction=Pixel::pixel_norm>
-struct desaturate {
-    template <class S, class T> void operator()(const BasicImage<S>& I, BasicImage<T>& D) {
-        apply(I,D,Gray<S,T,PixelFunction>());
-    }
-    template <class T> void operator()(BasicImage<T>& I){
-        apply(I,I,Gray<T,T,PixelFunction>());
-    }
-};
-*/
-
-  /*
-    template <class T, int N>
-    void subtract(BasicImage<T[N]>& I, const BasicImage<T[N]>& operand)
-    {
-        typedef typename traits<T>::wider_type wider;
-        assert(operand.size() == I.size());
-        T *p = (T*)I.data(), *end = (T*)I.data() + I.totalsize()*N;
-        T *q = (T*)operand.data();
-        while (p!=end)
-        {
-            wider diff = *p;
-            diff -= *q++;
-            *p++ = (T)CLAMP(diff,0,(wider)traits<T>::max_intensity);
-        }
-    }
-*/
 
 }; // namespace CVD
 

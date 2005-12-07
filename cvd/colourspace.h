@@ -58,6 +58,41 @@ namespace CVD
 		/// @param height The height of the image
 		void bayer_to_rgb(const unsigned char* bggr, unsigned char* rgb, unsigned int width, unsigned int height);
 
+
+		/// Convert yuv422 to rgb444.
+		/// @param yuv The yuv422 data: yuyvyuyv....
+		/// @param rgb The output data
+		/// @param width The width of the image
+		/// @param height The height of the image
+		  
+		void yuv422_to_rgb(const unsigned char* yuv, unsigned char* rgb, unsigned int width, unsigned int height);
+		
+		/// Convert yuv422 to grey.
+		/// @param yuv The yuv422 data: yuyvyuyv....
+		/// @param grey The output data
+		/// @param width The width of the image
+		/// @param height The height of the image
+		  void yuv422_to_grey(const unsigned char* yuv, unsigned char* grey, unsigned int width, unsigned int height);
+		
+		/// Convert yuv420 planar to rgb444
+		/// @param y The y plane: one byte per pixel
+		/// @param u The u plane: one byte per 2 pixel square 
+		/// @param v The v plane: one byte per 2 pixel square
+		/// @param rgb The output data
+		/// @param width The width of the image
+		/// @param rowpairs The number of rows pairs (i.e., height/2) in the image
+		void yuv420p_to_rgb(const unsigned char* y, const unsigned char* u, const unsigned char* v, 
+				    unsigned char* rgb, unsigned int width, unsigned int rowpairs);
+		
+		/// Convert yuv420 planar to grey
+		/// @param y The y plane: one byte per pixel
+		/// @param u The u plane: one byte per 2 pixel square 
+		/// @param v The v plane: one byte per 2 pixel square
+		/// @param grey The output data
+		/// @param width The width of the image
+		/// @param height The height of the image
+		void yuv420p_to_grey(const unsigned char* y, const unsigned char* u, const unsigned char* v, 
+				     unsigned char* grey, unsigned int width, unsigned int height);
 		
 	}
 }

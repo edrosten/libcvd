@@ -23,6 +23,10 @@
 
 #include <limits>
 
+#if defined (CVD_HAVE_TOON)
+#include <TooN/TooN.h>
+#endif
+
 namespace CVD
 {
   namespace Pixel
@@ -77,6 +81,24 @@ namespace CVD
 	return pixel[i];
       }
     };
+
+#if defined (CVD_HAVE_TOON)
+    template<int N> struct Component<TooN::Vector<N> >
+    {
+      typedef double type;
+      static const unsigned int count=N;
+      
+      static const type& get(const TooN::Vector<N>& pixel, unsigned int i)
+      {
+	return pixel[i];
+      }
+
+      static inline type& get(TooN::Vector<N>& pixel, unsigned int i)
+      {
+	return pixel[i];
+      }
+    };
+#endif
 		
   }
 }

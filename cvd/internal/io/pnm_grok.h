@@ -170,7 +170,7 @@ namespace CVD
     template <class T> struct PNMWriter<T,1,true> {
       typedef unsigned short S;
       static void write(const BasicImage<T>& im, std::ostream& out) {
-	writePNMHeader(out, 1, im.size(), 255, false, "");	
+	writePNMHeader(out, 1, im.size(), 65535, false, "");	
 	std::auto_ptr<S> rowbuf(new S[im.size().x]);
 	for (int r=0; r<im.size().y; r++) {
 	  Pixel::ConvertPixels<T, S>::convert(im[r], rowbuf.get(), im.size().x);
@@ -220,7 +220,7 @@ namespace CVD
     };
 
     template <class T> void writePNM(const BasicImage<T>& im, std::ostream& out) {
-      PNMWriter<T, Pixel::Component<T>::count == 3 ? 3 : 1>::write(im, out);
+      PNMWriter<T, Pixel::is_Rgb<T>::value ? 3 : 1>::write(im, out);
     }
   }
 }

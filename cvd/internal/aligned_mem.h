@@ -7,8 +7,6 @@ namespace CVD {
   namespace Internal
   {
     
-    template <class T, int N> std::map<T*,char*> aligned_mem<T,N>::buffers;
-
     template <class T, int N=20> struct placement_delete
     {
       enum { Size = (1<<N) };
@@ -22,20 +20,20 @@ namespace CVD {
 	(*(Array*)buf).~Array();
       }
       
-      static inline delete(T* buf, size_t M) 
+      static inline void free(T* buf, size_t M) 
       {
 	if (M >= Size) {
-	  placement_delete<T,N>::delete(buf+Size,M-Size);
+	  placement_delete<T,N>::free(buf+Size,M-Size);
 	  placement_delete<T,N>::destruct(buf);
 	} else {
-	  placement_delete<T,N-1>::delete(buf, M);
+	  placement_delete<T,N-1>::free(buf, M);
 	}
       }
     };
 
     template <class T> struct placement_delete<T,-1>
     {
-      inline placement_delete(T* buf, size_t M) {}
+      static inline void free(T* buf, size_t M) {}
     };
 
     template <class T, int N> struct aligned_mem {
@@ -55,13 +53,15 @@ namespace CVD {
       }
       static void release(T* ptr) 
       {
-	std::map<T*,entry>::iterator it = buffers.find(ptr);
+	typename std::map<T*,entry>::iterator it = buffers.find(ptr);
 	assert(it != buffers.end());
-	placement_delete<T>::delete(ptr, it->second.count);
+	placement_delete<T>::free(ptr, it->second.count);
 	delete[] it->second.buffer;
 	buffers.erase(it);
       }
     };
+
+    template <class T, int N> std::map<T*,typename aligned_mem<T,N>::entry> aligned_mem<T,N>::buffers;
 
 
   }

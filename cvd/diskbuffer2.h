@@ -178,24 +178,15 @@ namespace CVD
 		if(!frame_pending())
 			throw Exceptions::DiskBuffer2::EndOfBuffer();
 
-		std::ifstream im_file;	
 		Image<T> foo(my_size);
-
-		im_file.open(file_names[next_frame].c_str());
+		
+		std::ifstream im_file(file_names[next_frame].c_str(), std::ios::in|std::ios::binary);
 
 		if(!im_file.good())
 			throw Exceptions::DiskBuffer2::BadFile(file_names[next_frame], errno);
 
 		try{
-#if 0 // by Ethan
-		  //The cast here hides the resize functionality, since we all
-		  //frames must be the same size
-		  pnm_load(static_cast<BasicImage<T>& >(foo), im_file);
-#else
 		  img_load(foo, im_file);
-		  
-#endif
-			
 		}
 		catch(CVD::Exceptions::Image_IO::All err)
 		{

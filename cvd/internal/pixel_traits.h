@@ -170,7 +170,7 @@ namespace Pixel {
 		static const double max_intensity; 
 	};
 	
-	template<int LIFT> const double traits<double, LIFT>::max_intensity = 1.0f;
+	template<int LIFT> const double traits<double, LIFT>::max_intensity = 1.0;
 
 	template<int LIFT> struct traits<long double, LIFT> 
 	{ 
@@ -183,7 +183,7 @@ namespace Pixel {
 
 
 
-    template<int LIFT> const long double traits<long double, LIFT>::max_intensity = 1.0f;
+    template<int LIFT> const long double traits<long double, LIFT>::max_intensity = 1.0;
 
 	template<class C> struct indirect_type
 	{

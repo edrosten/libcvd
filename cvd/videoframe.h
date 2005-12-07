@@ -78,7 +78,6 @@ class VideoFrame : public BasicImage<T>
 			return my_timestamp;
 		}
 
-		/// What is the time (since boot) of this frame?
 		VideoFrameFlags::FieldType field() const
 		{
 			return my_field;

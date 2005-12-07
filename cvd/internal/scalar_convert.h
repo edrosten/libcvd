@@ -31,85 +31,77 @@ namespace Pixel
 
 	namespace Internal
 	{
-		template<class To, class From> struct int_info
-		{
-			//Difference in number of bits used
-			static const int diff=traits<To>::bits_used - traits<From>::bits_used;
-				
-			//Which way do we need to shift
-			static const int shift_dir =   (diff == 0)?0:((diff > 0)?1:-1);
+		template<class To, class From> struct int_info {
+		  //Difference in number of bits used
+		  static const int diff=traits<To>::bits_used - traits<From>::bits_used;
+		  
+		  //Which way do we need to shift
+		  static const int shift_dir =   (diff == 0)?0:((diff > 0)?1:-1);
 		};
 		
-		template<class To, class From, int i> struct shift_convert
-		{
-			static To from(From f)
-			{
-				return static_cast<To>(f);
-			}
+		template<class To, class From, int i=int_info<To,From>::shift_dir> struct shift_convert {
+		  template <class D> static To from(D f) {
+		    return static_cast<To>(f);
+		  }		  
+		};
+
+		template<class To, class From> struct shift_convert<To, From, 1> {
+		  template <class D> static To from(D f) {
+		    return static_cast<To>(f) << int_info<To,From>::diff;
+		  }
+		};
+
+		template<class To, class From> struct shift_convert<To, From,-1> {	
+		  template <class D> static To from(D f)  {
+		    return static_cast<To>(f >> -int_info<To,From>::diff);
+		  }
 		};
 		
-		template<class To, class From> struct shift_convert<To, From, 1>
-		{
-			static To from(From f)
-			{
-				return static_cast<To>(f) << int_info<To,From>::diff;
-			}
-		};
-
-		template<class To, class From> struct shift_convert<To, From,-1>
-		{
-			static To from(From f)
-			{
-				return static_cast<To>(f >> -int_info<To,From>::diff);
-			}
-		};
-
-		//Conversion for non integral types
-		template<class To, class From, int i> struct maybe_integral_conv
-		{
-			static To from(From f)
-			{
-				return static_cast<To>(f*traits<To>::max_intensity/traits<From>::max_intensity); 
-			}
+		
+		static float float_for_byte[511];
+		static double double_for_byte[511];
+		
+		template <class S> bool buildLookupTable(S table[]) {
+		  for (int i=0; i<=511; i++)
+		    table[i] = (i-255)/255.0;    
+		  return true;
+		}
+		static bool init_float_for_byte = buildLookupTable(float_for_byte);
+		static bool init_double_for_byte = buildLookupTable(double_for_byte);
+		inline float byte_to_float(int b) { return float_for_byte[b+255]; }
+		inline double byte_to_double(int b) { return double_for_byte[b+255]; }
+		
+		template <class From, class To, class D=From, bool int_to_int = traits<To>::integral && traits<From>::integral && traits<D>::integral> struct ScalarConvert {
+		  static inline To from(const D& from) {
+		    return static_cast<To>(from*traits<To>::max_intensity/traits<From>::max_intensity);
+		  }
 		};
 		
-		//Convertion for integral types
-		template<class To, class From> struct maybe_integral_conv<To, From, 1>
-		{
-			static To from(From f)
-			{
-					return shift_convert<To, From, int_info<To,From>::shift_dir>::from(f);
-			}
-
+		template <class From, class To, class D> struct ScalarConvert<From,To,D,true> {
+		  static inline To from(const D& f) {
+		    return shift_convert<To, From, int_info<To,From>::shift_dir>::from(f);
+		  }
 		};
+		
+		template <class D> struct ScalarConvert<byte,float,D,false> {
+		  static inline float from(const D& from) {
+		    return byte_to_float(from);
+		  }
+		};
+		
+		template <class D> struct ScalarConvert<byte,double,D,false> {
+		  static inline double from(const D& from) {
+		    return byte_to_double(from);
+		  }
+		};
+		
+
 	}
-	template<class To, class From> class scalar_convert
-	{
-		public:
-		
-		static To from(From f)
-		{
-			return Internal::maybe_integral_conv<To, From, is_int_to_int>::from(f);
-		}
+	
 
-		//private:
-
-		//True if converting from integral type to integral type
-		static const bool is_int_to_int = traits<To>::integral && traits<From>::integral;
-	};
-
-	template<class C> class scalar_convert<C,C>
-	{
-		public:
-		
-		static C from(C f)
-		{
-			return f;
-		}
-
-		static const bool is_int_to_int = traits<C>::integral;
-	};
-
+	template <class To, class From, class D> inline To scalar_convert(const D& d) { return Internal::ScalarConvert<From,To,D>::from(d); }
+	//template <class To, class From> inline To scalar_convert(const From& d) { return Internal::ScalarConvert<From,To>::from(d); }
+	
 }
 }
 #endif

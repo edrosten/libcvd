@@ -47,21 +47,28 @@ namespace CVD {
 	  palette.get()[i].red = buf[2];
 	  palette.get()[i].green = buf[1];
 	  palette.get()[i].blue = buf[0];
-	  if (buf[0] != buf[1] || buf[1] != buf[2])
+	  if (buf[0] != i || buf[0] != buf[1] || buf[1] != buf[2])
 	    notgray = true;
 	}
 	size_t rowSize = im.size().x;
 	if (rowSize % 4)
 	  rowSize += 4 - (rowSize%4);
 	std::auto_ptr<byte> rowbuf(new byte[rowSize]);
-	for (int r=0; r<im.size().y; r++) {
-	  in.read((char*)rowbuf.get(), rowSize);
-	  if (notgray) {
-	    for (int c=0; c<im.size().x; c++) {
-	      Pixel::DefaultConversion<Rgb<byte>,T>::type::convert(palette.get()[rowbuf.get()[c]], im[r][c]);
-	    }
-	  } else
+	
+	if (notgray) {
+	  std::cerr << "not gray" << std::endl;
+	  std::auto_ptr<T> cvt(new T[256]);
+	  Pixel::ConvertPixels<Rgb<byte>,T>::convert(palette.get(), cvt.get(), 256);
+	  for (int r=im.size().y-1; r>=0; r--) {
+	    in.read((char*)rowbuf.get(), rowSize);
+	    for (int c=0; c<im.size().x; c++)
+	      im[r][c] = cvt.get()[rowbuf.get()[c]];
+	  } 
+	} else {	  
+	  for (int r=im.size().y-1; r>=0; r--) {
+	    in.read((char*)rowbuf.get(), rowSize);
 	    Pixel::ConvertPixels<byte,T>::convert(rowbuf.get(), im[r], im.size().x);
+	  }
 	}
       }
     };
@@ -71,7 +78,7 @@ namespace CVD {
 	if (rowSize % 4)
 	  rowSize += 4 - (rowSize%4);
 	std::auto_ptr<byte> rowbuf(new byte[rowSize]);
-	for (int r=0; r<im.size().y; r++) {
+	for (int r=im.size().y-1; r>=0; r--) {
 	  in.read((char*)rowbuf.get(), rowSize);
 	  for (int c=0; c<im.size().x*3; c+=3) {
 	    byte tmp = rowbuf.get()[c];
@@ -119,7 +126,7 @@ namespace CVD {
 	if (rowSize % 4)
 	  rowSize += 4 - (rowSize % 4);
 	std::auto_ptr<byte> rowbuf(new byte[rowSize]);
-	for (int r=0; r<im.size().y; r++) {
+	for (int r=im.size().y-1; r>=0; r--) {
 	  Pixel::ConvertPixels<T,byte>::convert(im[r], rowbuf.get(), im.size().x);
 	  out.write((const char*)rowbuf.get(), rowSize);
 	}
@@ -130,7 +137,7 @@ namespace CVD {
 	writeBMPHeader(im.size().x, im.size().y, 1, out);
 	int pad = (im.size().x % 4) ? (4 - (im.size().x % 4)) : 0;
 	char zeros[4]={0,0,0,0};
-	for (int r=0; r<im.size().y; r++) {
+	for (int r=im.size().y-1; r>=0; r--) {
 	  out.write((const char*)im[r], im.size().x);
 	  if (pad)
 	    out.write(zeros,pad);
@@ -145,7 +152,7 @@ namespace CVD {
 	if (rowSize % 4)
 	  rowSize += 4 - (rowSize % 4);
 	std::auto_ptr<byte> rowbuf(new byte[rowSize]);
-	for (int r=0; r<im.size().y; r++) {
+	for (int r=im.size().y-1; r>=0; r--) {
 	  Pixel::ConvertPixels<T,Rgb<byte> >::convert(im[r], (Rgb<byte>*)rowbuf.get(), im.size().x);
 	  for (int c=0; c<im.size().x*3; c+=3) {
 	    byte tmp = rowbuf.get()[c];

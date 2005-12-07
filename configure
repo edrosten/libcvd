@@ -7853,6 +7853,12 @@ all_opts="$all_options $os_options"
 debug_all_options="$all_opts"
 
 
+if test ! -r .deps
+then
+echo > .deps
+fi
+
+
 echo
 echo Options:
 echo $options

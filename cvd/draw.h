@@ -27,11 +27,11 @@
 #include <cvd/image_ref.h>
 #include <cvd/internal/builtin_components.h>
 #include <cvd/internal/rgb_components.h>
-#include <cvd/internal/pixel_traits.h>
-#include <cvd/internal/convert_pixel_types.h>
-#include <cvd/internal/pixel_operations.h>
+#include <cvd/image_convert.h>
+#include <cvd/utility.h>
 #include <vector>
-#include <iostream>
+#include <algorithm>
+
 
 namespace CVD {
 
@@ -88,7 +88,7 @@ template <class T> struct color<T,1> {
 template <class T> struct color<T,3> {
     typedef typename Pixel::Component<T>::type TComp;
     static const TComp hi = Pixel::traits<TComp>::max_intensity;
-    inline static const T&   black() { static T c; Pixel::operations<T>::zero(c); return c;}
+    inline static const T&   black() { static T c; zeroPixel(c); return c;}
     inline static const T&   white() { TComp s[3]={hi,hi,hi}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
     inline static const T&     red() { TComp s[3]={hi, 0, 0}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
     inline static const T&   green() { TComp s[3]={ 0,hi, 0}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
@@ -124,7 +124,7 @@ void drawLine(Image<T>& im, double x1, double y1, double x2, double y2, const T&
         int x = (int)(x1 + t/(len)*dx+0.5);
         int y = (int)(y1 + t/(len)*dy+0.5);
         if (x >=0 && x <w && y>=0 && y<h)
-	       Pixel::operations<T>::assign(im[y][x],c);
+	  im[y][x] = c;
     }
 }
 
@@ -190,47 +190,13 @@ void drawCross(Image<T>& im, const ImageRef& p, double len, const T& c)
 /// @ingroup gGraphics
 std::vector<ImageRef> getCircle(int radius);
 
-/// generic image copy function for copying sub rectangles of images into other images.
-/// @param in input image to copy from
-/// @param out output image to copy into
-/// @param size size of the area to copy
-/// @param begin upper left corner of the area to copy, by default the upper left corner of the input image
-/// @param dst upper left corner of the destination in the output image, by default the upper left corner of the output image
-/// @throw ImageRefNotInImage if either begin is not in the input image or dst not in the output image
-/// @ingroup gGraphics
-template<class S, class T>
-ImageRef copy(const Image<S>& in, Image<T>& out, ImageRef size, ImageRef begin = ImageRef(), ImageRef dst = ImageRef())
-{
-    if(!in.in_image(begin) || !out.in_image(dst))
-        throw Exceptions::Draw::ImageRefNotInImage("copy");
-
-    if (size.x + begin.x >= in.size().x)
-        size.x = in.size().x - begin.x;
-    if (size.x + dst.x >= out.size().x)
-        size.x = out.size().x - dst.x;
-    if (size.y + begin.y >= in.size().y)
-        size.y = in.size().y - begin.y;
-    if (size.y + dst.y >= out.size().y)
-        size.y = out.size().y - dst.y;
-
-    const S* from = &in[begin];
-    T* to = &out[dst];
-    int i = 0;
-    while (i++<size.y) {
-      Pixel::ConvertPixels<S,T>::convert(from, to, size.x);
-      from += in.size().x;
-      to += out.size().x;
-    }
-    return size;
-}
-
 /// joins two images side-by-side to create a larger image, any remaining empty region will be blacked out
 /// @param a input image a to copy from
 /// @param b input image b to copy from
 /// @param J resulting joint image
 /// @ingroup gGraphics
 template <class S, class T, class U> void joinImages(const Image<S>& a, const Image<T>& b, Image<U>& J) {
-    int h = (a.size().y > b.size().y)?(a.size().y):(b.size().y);
+  int h = std::max(a.size().y,b.size().y);
     J.resize(ImageRef(a.size().x+b.size().x, h));
     CVD::copy(a, J, a.size());
     CVD::copy(b, J, b.size(), ImageRef(), ImageRef(a.size().x, 0));
@@ -243,7 +209,8 @@ template <class S, class T, class U> void joinImages(const Image<S>& a, const Im
         blackEnd = J.size();
     }
     for (int i = blackBegin.y; i<blackEnd.y; i++)
-        memset(J[i]+blackBegin.x, 0, (blackEnd.x-blackBegin.x)*sizeof(U));
+      for (int j= blackBegin.x; j<blackEnd.x; j++)
+	J[i][j] = U();
 }
 
 
@@ -275,7 +242,6 @@ template <class S, class T, class U> void combineImages(const Image<S>& a, const
     if( &a != &out )
     {
         CVD::copy(a,out, a.size());
-        std::cout << "Warning copy in combineImages!" << std::endl;
     }
 
     ImageRef sourceA = dst;
@@ -283,30 +249,11 @@ template <class S, class T, class U> void combineImages(const Image<S>& a, const
     ImageRef endA = dst + size;
     ImageRef endB = from + size;
 
-    Pixel::operations<U>::add(out[sourceA],b[sourceB]);
+    out[sourceA] += b[sourceB];
     while(sourceA.next(dst, endA))
     {
         sourceB.next(from, endB);
-        Pixel::operations<U>::add(out[sourceA],b[sourceB]);
-    }
-}
-
-/// flips an image vertically in place.
-/// @param in image to be flipped in place
-/// @ingroup gGraphics
-template <class T> void flipVertical( Image<T> & in )
-{
-    const ImageRef size = in.size();
-    T buffer[size.x];
-    T * top = in.data();
-    T * bottom = top + (size.y - 1)*size.x;
-    while( top < bottom )
-    {
-        memcpy(buffer, top, size.x * sizeof(T));
-        memcpy(top, bottom, size.x * sizeof(T));
-        memcpy(bottom, buffer, size.x * sizeof(T));
-        top += size.x;
-        bottom -= size.x;
+        out[sourceA] += b[sourceB];
     }
 }
 

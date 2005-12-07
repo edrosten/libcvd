@@ -27,10 +27,11 @@
 using namespace CVD;
 using namespace std;
 
+#ifndef MAKE_DEPEND
 #ifndef TYPE
 #error Define a type
 #endif
-
+#endif
 
 int main(int argc, char** argv)
 {

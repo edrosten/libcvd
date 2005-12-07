@@ -128,6 +128,7 @@
 #include <cvd/image_ref.h>
 #include <cvd/exceptions.h>
 #include <string>
+#include <cvd/internal/aligned_mem.h>
 
 namespace CVD {
 
@@ -229,8 +230,8 @@ template<class T> class BasicImage
 		/// @param copyof The image to copy
 		BasicImage(const BasicImage& copyof)
 		{
-			my_size = copyof.my_size;
-			my_data = copyof.my_data;
+		  my_size = copyof.my_size;
+		  my_data = copyof.my_data;
 		}
 	
 		/// Is this pixel co-ordinate inside the image?
@@ -261,6 +262,15 @@ template<class T> class BasicImage
 			CVD_IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
 			return (my_data[pos.y*my_size.x + pos.x]);
 		}
+  typedef T* iterator;
+  typedef const T* const_iterator;
+  
+  const_iterator begin() const { return my_data; }
+  iterator begin() { return my_data; }
+
+  const_iterator end() const { return my_data+totalsize(); }
+  iterator end() { return my_data+totalsize(); }
+
 
         /// Access pointer to pixel row. Returns the pointer to the first element of the passed row.
         /// Allows to use [y][x] on images to access a pixel. Bounds checking is only performed if the library is compiled
@@ -374,8 +384,8 @@ class Image: public BasicImage<T>
 			Image<T> tmp(copy.size());
 
 			*this = tmp;
-
-			memcpy(this->my_data, copy.data(), this->totalsize()*sizeof(T));
+			
+			std::copy(copy.begin(), copy.end(), begin());
 		}
 
 		///Make this image independent of any copies (i.e. force a copy of the image data).
@@ -411,7 +421,7 @@ class Image: public BasicImage<T>
 			num_copies = new int;
 			*num_copies = 1;
  			this->my_size = size;
-			this->my_data  = new T[this->totalsize()];
+			this->my_data = Internal::aligned_mem<T,16>::alloc(this->totalsize());
 		}
 		
 		///Resize the image (destroying the data). The image is resized even if the new size is the same as the old one.
@@ -436,10 +446,10 @@ class Image: public BasicImage<T>
 		{
 			if(this->my_data && *num_copies && --(*num_copies) == 0)
 			{
-				delete[] this->my_data;
-				this->my_data = 0;
-				delete   num_copies;
-				num_copies = 0;
+			  Internal::aligned_mem<T,16>::release(this->my_data);
+			  this->my_data = 0;
+			  delete   num_copies;
+			  num_copies = 0;
 			}
 		}
 

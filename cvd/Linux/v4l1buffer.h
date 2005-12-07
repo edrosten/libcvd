@@ -81,6 +81,11 @@ namespace V4L1
         static const unsigned int mode = VIDEO_PALETTE_RAW;
     };
 
+    template<> struct cam_type<yuv422>
+    {
+        static const unsigned int mode = VIDEO_PALETTE_YUV422;
+    };
+
     template<> struct cam_type<Rgb<byte> >
     {
         static const unsigned int mode = VIDEO_PALETTE_RGB24;
