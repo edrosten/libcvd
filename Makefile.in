@@ -87,6 +87,7 @@ CVD_OBJS=	cvd_src/cvd_timer.o 						\
 			cvd_src/deinterlacebuffer.o					\
 			cvd_src/exceptions.o						\
 			cvd_src/image_io.o							\
+			cvd_src/image_convert.o							\
 			cvd_src/bayer.o 							\
 			cvd_src/colourspace_convert.o 				\
 			cvd_src/vision.o 							\
@@ -147,7 +148,8 @@ ifeq (@have_dvbuffer@,yes)
 endif
 
 ifeq (@have_v4l2buffer@,yes)
-	CVD_OBJS+=cvd_src/Linux/v4l2buffer.o
+	CVD_OBJS+=cvd_src/Linux/v4l2buffer.o \
+		  cvd_src/Linux/v4lbuffer.o
 endif
 
 ifeq (@have_v4l1buffer@,yes)
@@ -187,7 +189,8 @@ ifeq (@host_cpu@@have_mmxext@,i686yes)
 			cvd_src/i686/int_difference.o \
 			cvd_src/i686/yuv422_to_rgb.o \
 			cvd_src/i686/yuv422_to_grey.o \
-			cvd_src/i686/yuv420p_to_rgb.o 
+			cvd_src/i686/yuv420p_to_rgb.o \
+			cvd_src/i686/rgb_to_gray.o 
 
 else
 	CVD_OBJS+=cvd_src/yuv411_to_stuff.o

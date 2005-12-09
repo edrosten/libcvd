@@ -21,6 +21,7 @@
 #ifndef CVD_IMAGE_CONVERT_H
 #define CVD_IMAGE_CONVERT_H
 
+#include <cvd/config.h>
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/internal/rgb_components.h>
 #include <cvd/internal/assembly.h>
@@ -48,18 +49,7 @@ namespace CVD
 #if defined(CVD_HAVE_MMXEXT) && defined(CVD_HAVE_CPU_i686)
   // The rgb to gray case: use mmx routine with integer CIE
   template <> struct ConvertImage<Rgb<byte>, byte, Pixel::CIE<Rgb<byte>, byte>, 1> {
-    static void convert(const BasicImage<Rgb<byte> >& from, BasicImage<byte>& to) {
-      const Rgb<byte>* rgb = from.data();
-      byte* gray = to.data();
-      int count=0;
-      while (((int)rgb)&0xF || ((int)gray)&0xF) {
-	Pixel::CIE<Rgb<byte>,byte>::convert(*rgb, *gray);
-	rgb++;
-	gray++;
-	count++;
-      }
-      Internal::Assembly::rgb_to_gray((const byte*)rgb, gray, from.totalsize()-count, 77, 150, 29);
-    };
+      static void convert(const BasicImage<Rgb<byte> >& from, BasicImage<byte>& to);
   };
 #endif
   
@@ -79,9 +69,9 @@ namespace CVD
 
   template<class C, class D> void convert_image(const BasicImage<C>& from, BasicImage<D>& to)
   {
-    if (from.size() != to.size())
-      throw Exceptions::Image::IncompatibleImageSizes(__FUNCTION__);
-    ConvertImage<C,D>::convert(from, to);
+      if (from.size() != to.size())
+	  throw Exceptions::Image::IncompatibleImageSizes(__FUNCTION__);
+      ConvertImage<C,D>::convert(from, to);
   }
 
   /// Convert an image from one type to another using a specified conversion.
