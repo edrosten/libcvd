@@ -348,6 +348,16 @@ namespace CVD
 		::glDrawPixels(i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
 	}
 
+	/// Sets an image as a texture sub region.
+	/// note the reordering of the various parameters to make better use of default parameters
+	/// @param i the image to set as texture
+	/// @ingroup gGL
+	template<class C> inline void glTexSubImage2D( const BasicImage<C> &i, GLint xoffset = 0, GLint yoffset = 0, GLenum target = GL_TEXTURE_2D, GLint level = 0)
+	{
+		::glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		::glTexSubImage2D(target, level, xoffset, yoffset, i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
+	}
+
  	/// Read the current image from the colour buffer specified by glReadBuffer
 	/// @param i The image to write the image data into. This must already be initialised to be an BasicImage (or Image) of the right size.
 	/// @param origin The window co-ordinate of the first pixel to be read from the frame buffer
