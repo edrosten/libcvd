@@ -136,14 +136,14 @@ void stats(const BasicImage<T>& im, T& mean, T& stddev)
     const T* p = im.data();
     const T* end = im.data()+im.totalsize();
     while (p != end) {
-        for (unsigned int k=0; k<c; k++) {
+        for (int k=0; k<c; k++) {
             v = Pixel::Component<T>::get(*p, k);
             sum[k] += v;
             sumSq[k] += v*v;
         }
         ++p;
     }
-    for (unsigned int k=0; k<c; k++) {
+    for (int k=0; k<c; k++) {
         double m = sum[k]/im.totalsize();
         Pixel::Component<T>::get(mean,k) = (typename Pixel::Component<T>::type)m;
         sumSq[k] /= im.totalsize();

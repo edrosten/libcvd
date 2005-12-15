@@ -22,7 +22,11 @@ namespace CVD { //begin namespace
       size = in.size();
     // FIXME: This should be an exception, but which one do I use? 
     // I refuse to define another "ImageRefNotInImage" in this namespace.
-    assert(!in.in_image(begin) || !out.in_image(dst) || !in.in_image(begin+size) || !out.in_image(dst+size));
+    if (!(in.in_image(begin) && out.in_image(dst) && in.in_image(begin+size - ImageRef(1,1)) && out.in_image(dst+size - ImageRef(1,1)))){	
+	std::cerr << "bad copy: " << in.size() << " " << out.size() << " " << size << " " << begin << " " << dst << std::endl;
+	int *p = 0;
+	*p = 1;
+    }
     if (in.size() == out.size() && size == in.size() && begin == ImageRef() && dst == ImageRef()) {
       Pixel::ConvertPixels<S,T>::convert(in.data(), out.data(), in.totalsize());
       return;

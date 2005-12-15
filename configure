@@ -3135,12 +3135,14 @@ then
 		if test "$ac_cv_cxx_compiler_gnu" = yes
 		then
 			CXXFLAGS="$CXXFLAGS -p -pg"
+			CFLAGS="$CFLAGS -p -pg"
 		else
 			{ echo "$as_me:$LINENO: WARNING: I don't know how to switch on profiling for this compiler" >&5
 echo "$as_me: WARNING: I don't know how to switch on profiling for this compiler" >&2;}
 		fi
 	else
 		CXXFLAGS="$CXXFLAGS $profile"
+		CFLAGS="$CFLAGS $profile"
 	fi
 fi
 

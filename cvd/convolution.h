@@ -147,7 +147,7 @@ namespace Exceptions {
     int w = I.size().x;
     int h = I.size().y;
     int win = 2*hwin+1;
-    static const double factor = 1.0/(win*win);
+    const double factor = 1.0/(win*win);
     std::auto_ptr<sum_type> buffer(new sum_type[w*win]);
     std::auto_ptr<sum_type> sums_auto(new sum_type[w]);
     sum_type* sums = sums_auto.get();
@@ -155,7 +155,7 @@ namespace Exceptions {
     sum_type* oldest_row = buffer.get();
     zeroPixels(sums, w);
     const T* input = I.data();
-    T* output = J.data()+hwin*w - hwin;
+    T* output = J[hwin] - hwin;
     for (int i=0; i<h; i++) {
       sum_type hsum=sum_type();
       const T* back = input;
