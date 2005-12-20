@@ -92,7 +92,7 @@ std::ostream& operator <<(std::ostream& os, const Rgba<T>& x)
              << x.blue << "," << x.alpha << ")";
 }
 
-/// Read a colour from a stream, interpreting four numbers as the four components
+/// Write the colour to a stream in the format "(red,green,blue,alpha)"
 /// @param os The stream
 /// @param x The colour object
 /// @relates Rgba
