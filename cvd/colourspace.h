@@ -94,6 +94,19 @@ namespace CVD
 		void yuv420p_to_grey(const unsigned char* y, const unsigned char* u, const unsigned char* v, 
 				     unsigned char* grey, unsigned int width, unsigned int height);
 		
+		/// Convert vuy422 to rgb444.
+		/// @param yuv The vuy422 data: uyvyuyvy....
+		/// @param rgb The output data
+		/// @param width The width of the image
+		/// @param height The height of the image
+		void vuy422_to_rgb(const unsigned char* yuv, unsigned char* rgb, unsigned int width, unsigned int height);
+		
+		/// Convert yuv422 to grey.
+		/// @param yuv The vuy422 data: uyvyuyvy....
+		/// @param grey The output data
+		/// @param width The width of the image
+		/// @param height The height of the image
+		void vuy422_to_grey(const unsigned char* yuv, unsigned char* grey, unsigned int width, unsigned int height);
 	}
 }
 

@@ -362,9 +362,10 @@ all_options="videodisplay jpeg tiff ffmpeg toon lapack"
 
 if test "$host_vendor" = apple
 then
-	CPPFLAGS="$CPPFLAGS -I /sw/include -I/usr/X11R6/include"
-	LIBS="$LIBS -L/sw/lib"
+	CPPFLAGS="$CPPFLAGS -I /sw/include -I/opt/local/include -I/usr/X11R6/include"
+	LIBS="$LIBS -L/sw/lib -L/opt/local/lib"
 	AC_MSG_NOTICE([Adding /sw to the build path.])
+	AC_MSG_NOTICE([Adding /opt/local to the build path.])
 	AC_MSG_NOTICE([Adding /usr/X11R6/include to the build path.])
 	AC_SUBST(osx_hacks,yes)
 fi
@@ -461,16 +462,13 @@ if test "$toon" = yes && test "$host_vendor" == apple
 then
 	
 	save_LIBS="$LIBS"
-	save_CPPFLAGS="$CPPFLAGS"
-	CPPFLAGS="$CPPFLAGS -framework vecLib"
 	LIBS="$LIBS -framework vecLib"
 
 
 	AC_MSG_CHECKING(vecLib framework)
 	a=0
-	AC_COMPILE_IFELSE([#include <numerics.h>
-#include <SVD.h>
-int main(){Matrix<2> m;SVD<2> svdm(m);return 0;}], [a=1]) 
+	AC_COMPILE_IFELSE([#include <TooN/SVD.h>
+int main(){TooN::Matrix<2> m;TooN::SVD<2> svdm(m);return 0;}], [a=1]) 
 
 	if test x$a	= x1
 	then
@@ -480,7 +478,6 @@ int main(){Matrix<2> m;SVD<2> svdm(m);return 0;}], [a=1])
 	else
 		AC_MSG_RESULT(no)
 		LIBS="$save_LIBS"
-		CPPFLAGS="$save_CPPFLAGS"
 	fi
 fi
 
@@ -654,6 +651,34 @@ case "$host" in
 	;;
 esac
 
+if test "$host_vendor" == apple
+then
+	os_options="qtbuffer"
+	AC_ARG_WITH(quicktime, [  --without-quicktime	  compile without quicktime buffer support],[if test "$withval" = no; then disable_qtbuffer=yes; else disable_qtbuffer=no; fi])
+	if test "$disable_qtbuffer" != yes 
+	then
+		save_LIBS="$LIBS"
+		LIBS="$LIBS -framework Carbon -framework QuickTime"
+
+		AC_MSG_CHECKING(Carbon and QuickTime framework)
+		a=0
+		AC_COMPILE_IFELSE([ #include <Carbon/Carbon.h>
+							#include <QuickTime/QuickTime.h>
+							int main(){InitCursor();EnterMovies();return 0;}], [a=1]) 
+
+		if test x$a	= x1
+		then
+			AC_MSG_RESULT(yes)
+			AC_DEFINE(CVD_HAVE_QTBUFFER)
+			AC_SUBST(have_qtbuffer, yes)
+			options="$options qtbuffer"
+		else
+			AC_MSG_RESULT(no)
+			LIBS="$save_LIBS"
+		fi
+	fi
+fi
+
 ################################################################################
 #
 #Check for optional libraries
@@ -818,7 +843,8 @@ test/dvbuffer_controls 			videodisplay dvbuffer
 test/dvbuffer_rgb   				videodisplay dvbuffer
 test/o2buffer        			videodisplay o2buffer
 test/v4l1buffer_bayer 			videodisplay v4l1buffer 
-test/v4l1buffer_rgb  			videodisplay v4l1buffer '
+test/v4l1buffer_rgb  			videodisplay v4l1buffer
+test/qtbuffer_yuvrgb            videodisplay qtbuffer '
 testprogs="`echo $options $T_PROGS | $AWK -v stub=test -f make/prog_dependencies.awk`"
 AC_SUBST(testprogs,$testprogs)
 

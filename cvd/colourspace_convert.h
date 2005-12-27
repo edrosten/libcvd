@@ -18,8 +18,8 @@
 	Foundation, Inc., 
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include "cvd/image_convert_fwd.h"
-#include "cvd/colourspaces.h"
+#include <cvd/image_convert_fwd.h>
+#include <cvd/colourspaces.h>
 #include <cvd/byte.h>
 #include <cvd/rgb.h>
 #include <cvd/image_convert.h>
@@ -81,4 +81,17 @@ namespace CVD
 	/// @param out The output data
 	/// @ingroup gImageIO
 	template<> std::pair<Image<byte>,Image<Rgb<byte> > > convert_image(const BasicImage<yuv411>& from);
+	
+	
+	/// Convert VUY 422 pixel data to RGB
+	/// @param from The input data
+	/// @param to The output data
+	/// @ingroup gImageIO
+	template<> void convert_image(const BasicImage<vuy422>& from, BasicImage<Rgb<byte> >& to);
+	
+	/// Convert VUY 422 pixel data to Y only
+	/// @param from The input data
+	/// @param to The output data
+	/// @ingroup gImageIO
+	template<> void convert_image(const BasicImage<vuy422>& from, BasicImage<byte>& to);	
 }

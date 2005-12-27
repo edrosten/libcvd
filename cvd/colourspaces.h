@@ -64,6 +64,15 @@ namespace CVD
 	{
 		unsigned short val;
 	};
+	
+	/// A datatype to represent the other yuv422 (uyvy) data. This is returned
+	/// by the @ref QTBuffer on Mac OSX. See the following from Apple:
+	/// http://developer.apple.com/quicktime/icefloe/dispatch020.html
+	/// @ingroup gVideoBuffer
+	struct vuy422
+	{
+		unsigned short val;
+	};
 
   namespace Pixel {
       // Should be able to delete the following, since Component now defaults to 1 for unknown types

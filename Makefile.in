@@ -163,6 +163,12 @@ ifeq (@have_o2buffer@,yes)
 	CVD_OBJS+=cvd_src/IRIX/O2buffer.o cvd_src/IRIX/sgi-video.o
 endif
 
+################################################################################
+#
+# OSX
+ifeq (@have_qtbuffer@,yes)
+    CVD_OBJS+=cvd_src/OSX/qtbuffer.o
+endif
 
 ################################################################################
 #
@@ -227,7 +233,7 @@ libcvd.a: $(OBJS)
 	$(RANLIB) libcvd.a
 
 
-LDFLAGS=-I. -L. -lcvd
+LDFLAGS=-I. -L. -lcvd $(LIBS)
 PROGS=@progs@
 TESTPROGS=@testprogs@
 

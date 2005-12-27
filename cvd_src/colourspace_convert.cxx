@@ -77,5 +77,14 @@ namespace CVD
     return std::pair<Image<byte>,Image<Rgb<byte> > >(rety, retc);
 
   }
+	
+	template<> void convert_image(const BasicImage<vuy422>& from, BasicImage<Rgb<byte> >& to)
+	{
+		ColourSpace::vuy422_to_rgb(reinterpret_cast<const byte*>(from.data()), reinterpret_cast<byte*>(to.data()), from.size().x, from.size().y);
+	}
 
+	template<> void convert_image(const BasicImage<vuy422>& from, BasicImage<byte>& to)
+	{
+		ColourSpace::vuy422_to_grey(reinterpret_cast<const byte*>(from.data()), to.data(), from.size().x, from.size().y);
+	}	
 }

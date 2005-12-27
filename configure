@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX build build_cpu build_vendor build_os host host_cpu host_vendor host_os have_sse have_mmxext have_sse2 have_64bit OFLAGS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB CXXCPP EGREP osx_hacks have_toon have_lapack major minor have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer have_videodisplay have_tiff have_jpeg have_ffmpeg fast_pointers fast_force docs cpu progs testprogs LIBOBJS LTLIBOBJS debug_options debug_all_options'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX build build_cpu build_vendor build_os host host_cpu host_vendor host_os have_sse have_mmxext have_sse2 have_64bit OFLAGS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB CXXCPP EGREP osx_hacks have_toon have_lapack major minor have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer have_qtbuffer have_videodisplay have_tiff have_jpeg have_ffmpeg fast_pointers fast_force docs cpu progs testprogs LIBOBJS LTLIBOBJS debug_options debug_all_options'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -870,6 +870,7 @@ Optional Packages:
   --without-v4l1	  compile without v4l1 support
   --without-v4l2	  compile without v4l2 support
   --without-o2buffer	  compile without sgi video
+  --without-quicktime	  compile without quicktime buffer support
   --with-x                use the X Window System
   --without-tiff       compile without TIFF support
   --without-jpeg	  compile without JPEG support
@@ -4105,10 +4106,12 @@ all_options="videodisplay jpeg tiff ffmpeg toon lapack"
 
 if test "$host_vendor" = apple
 then
-	CPPFLAGS="$CPPFLAGS -I /sw/include -I/usr/X11R6/include"
-	LIBS="$LIBS -L/sw/lib"
+	CPPFLAGS="$CPPFLAGS -I /sw/include -I/opt/local/include -I/usr/X11R6/include"
+	LIBS="$LIBS -L/sw/lib -L/opt/local/lib"
 	{ echo "$as_me:$LINENO: Adding /sw to the build path." >&5
 echo "$as_me: Adding /sw to the build path." >&6;}
+	{ echo "$as_me:$LINENO: Adding /opt/local to the build path." >&5
+echo "$as_me: Adding /opt/local to the build path." >&6;}
 	{ echo "$as_me:$LINENO: Adding /usr/X11R6/include to the build path." >&5
 echo "$as_me: Adding /usr/X11R6/include to the build path." >&6;}
 	osx_hacks=yes
@@ -4285,8 +4288,6 @@ if test "$toon" = yes && test "$host_vendor" == apple
 then
 
 	save_LIBS="$LIBS"
-	save_CPPFLAGS="$CPPFLAGS"
-	CPPFLAGS="$CPPFLAGS -framework vecLib"
 	LIBS="$LIBS -framework vecLib"
 
 
@@ -4294,9 +4295,8 @@ then
 echo $ECHO_N "checking vecLib framework... $ECHO_C" >&6
 	a=0
 	cat >conftest.$ac_ext <<_ACEOF
-#include <numerics.h>
-#include <SVD.h>
-int main(){Matrix<2> m;SVD<2> svdm(m);return 0;}
+#include <TooN/SVD.h>
+int main(){TooN::Matrix<2> m;TooN::SVD<2> svdm(m);return 0;}
 _ACEOF
 rm -f conftest.$ac_objext
 if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
@@ -4338,7 +4338,6 @@ echo "${ECHO_T}yes" >&6
 		echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
 		LIBS="$save_LIBS"
-		CPPFLAGS="$save_CPPFLAGS"
 	fi
 fi
 
@@ -5579,6 +5578,77 @@ fi;
 		fi
 	;;
 esac
+
+if test "$host_vendor" == apple
+then
+	os_options="qtbuffer"
+
+# Check whether --with-quicktime or --without-quicktime was given.
+if test "${with_quicktime+set}" = set; then
+  withval="$with_quicktime"
+  if test "$withval" = no; then disable_qtbuffer=yes; else disable_qtbuffer=no; fi
+fi;
+	if test "$disable_qtbuffer" != yes
+	then
+		save_LIBS="$LIBS"
+		LIBS="$LIBS -framework Carbon -framework QuickTime"
+
+		echo "$as_me:$LINENO: checking Carbon and QuickTime framework" >&5
+echo $ECHO_N "checking Carbon and QuickTime framework... $ECHO_C" >&6
+		a=0
+		cat >conftest.$ac_ext <<_ACEOF
+ #include <Carbon/Carbon.h>
+							#include <QuickTime/QuickTime.h>
+							int main(){InitCursor();EnterMovies();return 0;}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  a=1
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+
+		if test x$a	= x1
+		then
+			echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+			cat >>confdefs.h <<\_ACEOF
+#define CVD_HAVE_QTBUFFER 1
+_ACEOF
+
+			have_qtbuffer=yes
+
+			options="$options qtbuffer"
+		else
+			echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+			LIBS="$save_LIBS"
+		fi
+	fi
+fi
 
 ################################################################################
 #
@@ -6876,7 +6946,8 @@ test/dvbuffer_controls 			videodisplay dvbuffer
 test/dvbuffer_rgb   				videodisplay dvbuffer
 test/o2buffer        			videodisplay o2buffer
 test/v4l1buffer_bayer 			videodisplay v4l1buffer
-test/v4l1buffer_rgb  			videodisplay v4l1buffer '
+test/v4l1buffer_rgb  			videodisplay v4l1buffer
+test/qtbuffer_yuvrgb            videodisplay qtbuffer '
 testprogs="`echo $options $T_PROGS | $AWK -v stub=test -f make/prog_dependencies.awk`"
 testprogs=$testprogs
 
@@ -7558,6 +7629,7 @@ s,@have_dvbuffer@,$have_dvbuffer,;t t
 s,@have_v4l1buffer@,$have_v4l1buffer,;t t
 s,@have_v4l2buffer@,$have_v4l2buffer,;t t
 s,@have_o2buffer@,$have_o2buffer,;t t
+s,@have_qtbuffer@,$have_qtbuffer,;t t
 s,@have_videodisplay@,$have_videodisplay,;t t
 s,@have_tiff@,$have_tiff,;t t
 s,@have_jpeg@,$have_jpeg,;t t
