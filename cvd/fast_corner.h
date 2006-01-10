@@ -2,6 +2,7 @@
 #define CVD_FAST_CORNER_H
 
 #include <vector>
+#include <utility>
 
 #include <cvd/byte.h>
 #include <cvd/image.h>
@@ -36,6 +37,8 @@ namespace CVD
 	**/
 	void fast_corner_detect(const BasicImage<byte>& im, std::vector<ImageRef>& corners, int barrier);
 	void fast_nonmax(const BasicImage<byte>& im, const std::vector<ImageRef>& corners, int barrier, std::vector<ImageRef>& nonmax_corners);
+	void fast_nonmax_with_scores(const BasicImage<byte>& im, const std::vector<ImageRef>& corners, int barrier, std::vector<std::pair<ImageRef,int> >& nonmax_corners);
+	
 	int corner_score(const BasicImage<byte>& im, ImageRef c, const int *pointer_dir, int barrier);
 	
 	/// Perform tree based 9 point FAST feature detection. This is the fastest detector and

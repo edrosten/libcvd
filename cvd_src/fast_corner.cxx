@@ -185,136 +185,142 @@ int corner_score(const BasicImage<byte>& im, ImageRef c, const int *pointer_dir,
 		return sn;
 }
 
-
-
-void fast_nonmax(const BasicImage<byte>& im, const vector<ImageRef>& corners, int barrier, vector<ImageRef>& nonmax_corners)
+// fast_nonmax_t is templated so you can have either of:
+//  1: A vector of ImageRefs of the nonmax corners
+//  2: A vector of <ImageRef, int> pairs of the corners and their scores.
+//  It's internal, the user-visible functions instantiate it below..
+template<class ReturnType, class Collector>
+inline void fast_nonmax_t(const BasicImage<byte>& im, const vector<ImageRef>& corners, int barrier, vector<ReturnType>& nonmax_corners)
 {
-	
-	if(corners.size() < 5)
-		return;
-
-	ImageRef size = im.size();
-	nonmax_corners.clear();
-
-	//Create a list of integer pointer offstes, corresponding to the 
-	//direction offsets in dir[]
-	int	pointer_dir[16];
-	for(int i=0; i < 16; i++)
-		pointer_dir[i] = dir[i].x + dir[i].y * size.x;
-	
-	//Compute the score for each detected corner, and find where each row begins
-	// (the corners are output in raster scan order). A beginning of -1 signifies
-	// that there are no corners on that row.
-
-	vector<int> row_start(size.y);
-	vector<int> scores(corners.size());
-
-	for(int i=0; i <size.y; i++)
-		row_start[i] = -1;
-
-	int prev_row = -1;
-
-	for(unsigned int i=0; i< corners.size(); i++)
+  if(corners.size() < 5)
+    return;
+  
+  ImageRef size = im.size();
+  nonmax_corners.clear();
+  
+  //Create a list of integer pointer offstes, corresponding to the 
+  //direction offsets in dir[]
+  int	pointer_dir[16];
+  for(int i=0; i < 16; i++)
+    pointer_dir[i] = dir[i].x + dir[i].y * size.x;
+  
+  //Compute the score for each detected corner, and find where each row begins
+  // (the corners are output in raster scan order). A beginning of -1 signifies
+  // that there are no corners on that row.
+  
+  vector<int> row_start(size.y);
+  vector<int> scores(corners.size());
+  
+  for(int i=0; i <size.y; i++)
+    row_start[i] = -1;
+  
+  int prev_row = -1;
+  
+  for(unsigned int i=0; i< corners.size(); i++)
+    {
+      if(corners[i].y != prev_row)
 	{
-		if(corners[i].y != prev_row)
-		{
-			row_start[corners[i].y] = i;
-			prev_row = corners[i].y;
-		}
-		
-		if(corners[i].y < im.size().y - 4)
-			prefetch(im[ (corners[i].y+4)]);
-		
-		scores[i] = corner_score(im, corners[i], pointer_dir, barrier);
+	  row_start[corners[i].y] = i;
+	  prev_row = corners[i].y;
 	}
-
-
-	//Point above points (roughly) to the pixel above the one of interest, if there
-	//is a feature there.
-	int point_above = 0;
-	int point_below = 0;
-	
-	
-	
-	for(unsigned int i=1; i < corners.size()-1; i++)
+      
+      if(corners[i].y < im.size().y - 4)
+	prefetch(im[ (corners[i].y+4)]);
+      
+      scores[i] = corner_score(im, corners[i], pointer_dir, barrier);
+    }
+  
+  
+  //Point above points (roughly) to the pixel above the one of interest, if there
+  //is a feature there.
+  int point_above = 0;
+  int point_below = 0;
+  
+  
+  
+  for(unsigned int i=1; i < corners.size()-1; i++)
+    {
+      int score = scores[i];
+      ImageRef pos = corners[i];
+      
+      //Check left
+      if(corners[i-1] == pos-ImageRef(1,0) && scores[i-1] > score)
+	continue;
+      
+      //Check right
+      if(corners[i+1] == pos+ImageRef(1,0) && scores[i+1] > score)
+	continue;
+      
+      //Check above
+      if(pos.y != 0 && row_start[pos.y - 1] != -1) 
 	{
-		int score = scores[i];
-		ImageRef pos = corners[i];
-
-		//Check left
-		if(corners[i-1] == pos-ImageRef(1,0) && scores[i-1] > score)
-			continue;
-		
-		//Check right
-		if(corners[i+1] == pos+ImageRef(1,0) && scores[i+1] > score)
-			continue;
-
-		//Check above
-		if(pos.y != 0 && row_start[pos.y - 1] != -1) 
+	  if(corners[point_above].y < pos.y - 1)
+	    point_above = row_start[pos.y-1];
+	  
+	  //Make point above point to the first of the pixels above the current point, if it exists.
+	  for(; corners[point_above].y < pos.y && corners[point_above].x < pos.x - 1; point_above++);
+	  
+	  
+	  for(int i=point_above; corners[i].y < pos.y && corners[i].x <= pos.x + 1; i++)
+	    {
+	      int x = corners[i].x;
+	      if( (x == pos.x - 1 || x ==pos.x || x == pos.x+1) && scores[i] > score)
 		{
-			if(corners[point_above].y < pos.y - 1)
-				point_above = row_start[pos.y-1];
-
-			//Make point above point to the first of the pixels above the current point, if it exists.
-			for(; corners[point_above].y < pos.y && corners[point_above].x < pos.x - 1; point_above++);
-			
-
-			for(int i=point_above; corners[i].y < pos.y && corners[i].x <= pos.x + 1; i++)
-			{
-				int x = corners[i].x;
-				if( (x == pos.x - 1 || x ==pos.x || x == pos.x+1) && scores[i] > score)
-				{
-					goto cont;
-				}
-			}
-			
+		  goto cont;
 		}
-
-		//Check below
-		if(pos.y != size.y-1 && row_start[pos.y + 1] != -1) //Nothing below
-		{
-			if(corners[point_below].y < pos.y + 1)
-				point_below = row_start[pos.y+1];
-
-			//Make point above point to one of the pixels above the current point, if it exists.
-			for(; corners[point_above].y == pos.y+1 && corners[point_above].x < pos.x - 1; point_above++);
-
-			for(int i=point_below; corners[i].y == pos.y+1 && corners[i].x <= pos.x + 1; i++)
-			{
-				int x = corners[i].x;
-				if( (x == pos.x - 1 || x ==pos.x || x == pos.x+1) && scores[i] > score)
-				{
-					goto cont;
-				}
-			}
-		}
-
-		nonmax_corners.push_back(corners[i]);
-
-		cont:
-			;
+	    }
+	  
 	}
+      
+      //Check below
+      if(pos.y != size.y-1 && row_start[pos.y + 1] != -1) //Nothing below
+	{
+	  if(corners[point_below].y < pos.y + 1)
+	    point_below = row_start[pos.y+1];
+	  
+	  //Make point above point to one of the pixels above the current point, if it exists.
+	  for(; corners[point_above].y == pos.y+1 && corners[point_above].x < pos.x - 1; point_above++);
+	  
+	  for(int i=point_below; corners[i].y == pos.y+1 && corners[i].x <= pos.x + 1; i++)
+	    {
+	      int x = corners[i].x;
+	      if( (x == pos.x - 1 || x ==pos.x || x == pos.x+1) && scores[i] > score)
+		{
+		  goto cont;
+		}
+	    }
+	}
+      
+      nonmax_corners.push_back(Collector::collect(corners[i],scores[i]));
+      
+    cont:
+      ;
+    }
+}
+  
+// The two collectors which either return just the ImageRef or the <ImageRef,int> pair
+struct collect_pos
+{
+  static inline ImageRef collect(const ImageRef& pos, int score){return pos;}
+};
 
+struct collect_score
+{
+  static inline pair<ImageRef, int> collect(const ImageRef& pos, int score){return make_pair(pos,score);}
+};
 
+// The callable functions
+void fast_nonmax(const BasicImage<byte>& im, const vector<ImageRef>& corners,
+		 int barrier, vector<ImageRef>& nonmax_corners)
+{
+  fast_nonmax_t<ImageRef, collect_pos>(im, corners, barrier, nonmax_corners);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void fast_nonmax_with_scores(const BasicImage<byte>& im, const vector<ImageRef>& corners, int barrier, vector<pair<ImageRef,int> >& nonmax_corners)
+{
+  fast_nonmax_t<pair<ImageRef,int> , collect_score>(im, corners, barrier,
+						    nonmax_corners);
+}
 
 
 }
