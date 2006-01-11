@@ -144,6 +144,9 @@ public:
 	/// simple lexical ordering to enable ImageRefs for sets, maps, multisets, multimaps etc.
 	inline bool operator<(const ImageRef & other) const;
 
+	/// Magnitude-squared (x*x + y*y)
+	inline unsigned int     mag_squared() const;
+
 	/// Square bracket subscripts for easy loops. 0=x 1=y other=error
 	inline int&             operator[](int i);
 

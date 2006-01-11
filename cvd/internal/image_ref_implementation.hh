@@ -192,7 +192,6 @@ inline bool ImageRef::operator<(const ImageRef & other) const
 }
 
 
-
 inline int& ImageRef::operator[](int i)
 {
   if(i==0)
@@ -200,4 +199,9 @@ inline int& ImageRef::operator[](int i)
   if(i==1)
     return y;
   throw Exceptions::BadSubscript();
+}
+
+inline unsigned int ImageRef::mag_squared() const
+{
+  return (unsigned int) (x*x + y*y);
 }
