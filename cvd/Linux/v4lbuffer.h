@@ -72,12 +72,14 @@ namespace V4L
 	static const unsigned int v4l2_fmt = V4L2_PIX_FMT_GREY;
         static const unsigned int v4l1_palette = VIDEO_PALETTE_GREY;
     };
-
+	
+    #ifdef V4L2_PIX_FMT_SBGGR8
     template<> struct format<bayer>
     {
 	static const unsigned int v4l2_fmt = V4L2_PIX_FMT_SBGGR8;
         static const unsigned int v4l1_palette = VIDEO_PALETTE_RAW;
     };
+    #endif
 
     template<> struct format<yuv422>
     {
