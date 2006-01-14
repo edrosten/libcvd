@@ -78,7 +78,11 @@ namespace CVD
 	/// @ingroup	gVision
 	void fast_corner_detect_12(const BasicImage<byte>& im, std::vector<ImageRef>& corners, int barrier);
 
-
+	
+	/// The 16 offsets from the centre pixel used in FAST feature detection.
+	///
+	/// @ingroup gVision
+	extern const ImageRef fast_pixel_ring[16];
 }
 
 #endif

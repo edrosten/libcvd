@@ -6,6 +6,26 @@ using namespace std;
 namespace CVD
 {
 
+const ImageRef fast_pixel_ring[16]=
+{
+	ImageRef(0,3),
+	ImageRef(1,3),
+	ImageRef(2,2),
+	ImageRef(3,1),
+	ImageRef(3,0),
+	ImageRef(3,-1),
+	ImageRef(2,-2),
+	ImageRef(1,-3),
+	ImageRef(0,-3),
+	ImageRef(-1,-3),
+	ImageRef(-2,-2),
+	ImageRef(-3,-1),
+	ImageRef(-3,0),
+	ImageRef(-3,1),
+	ImageRef(-2,2),
+	ImageRef(-1,3),
+};
+
 ImageRef dir[17]=
 {
 	ImageRef(0,3),
