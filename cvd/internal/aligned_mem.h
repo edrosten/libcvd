@@ -45,7 +45,7 @@ namespace CVD {
       static T* alloc(size_t count)
       {
 	char* start = new char[count*sizeof(T) + N];
-	int val = (int)start;
+	size_t val = (size_t)start;
 	T* astart = (T*)(start + (N-(val % N)));
 	entry e = {start, count};
 	buffers[astart] = e;
