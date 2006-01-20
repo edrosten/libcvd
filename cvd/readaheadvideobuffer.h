@@ -142,6 +142,7 @@ namespace CVD {
 	    for (size_t i=0; i<q.size(); i++)
 		put_frame(q[i]);
 	    q.resize(0);
+	    qevent.triggerAll();
 	    vbuffer.seek_to(t);
 	}
     };
