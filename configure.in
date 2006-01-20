@@ -346,7 +346,7 @@ will make a #define a b. AC_DEFINE_UNQUOTED is needed if b is a shell expansion
 >>)
 changequote([,])
 
-all_options="videodisplay jpeg tiff ffmpeg toon lapack"
+all_options="videodisplay jpeg tiff ffmpeg toon lapack pthreads"
 
 
 ################################################################################
@@ -700,6 +700,20 @@ then
 	LIBS="-lX11 -lGL $LIBS"
 	test -n "$x_libraries" && LIBS="-L$x_libraries $LIBS"
 	test -n "$x_includes" && CPPFLAGS="$CPPFLAGS -I$x_includes"
+fi
+
+AC_ARG_WITH(threads, [  --without-threads       compile without PThread support],[if test "$withval" = no; then disable_threads=yes; else disable_threads=no; fi])
+if test "$disable_threads" != yes 
+then
+	AC_CHECK_HEADERS(pthread.h)
+	AC_CHECK_LIB(pthread, pthread_create)
+
+	if test "$ac_cv_header_pthread_h" = yes && test "$ac_cv_lib_pthread_pthread_create" = yes
+	then
+		AC_DEFINE(CVD_HAVE_PTHREAD, 1)
+		AC_SUBST(have_pthread,yes)
+		options="$options pthreads"
+	fi
 fi
 
 AC_ARG_WITH(tiff, [  --without-tiff       compile without TIFF support],[if test "$withval" = no; then disable_tiff=yes; else disable_tiff=no; fi])

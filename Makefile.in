@@ -135,6 +135,10 @@ ifeq (@have_ffmpeg@,yes)
 	CVD_OBJS+=cvd_src/videofilebuffer.o
 endif
 
+ifeq (@have_pthread@,yes)
+	CVD_OBJS+=cvd_src/thread.o cvd_src/synchronized.o cvd_src/eventobject.o
+endif
+
 ifeq (@have_videodisplay@,yes)
 	CVD_OBJS+=cvd_src/videodisplay.o
 endif
