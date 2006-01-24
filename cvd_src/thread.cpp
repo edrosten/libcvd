@@ -1,3 +1,4 @@
+#include <cvd/config.h>
 #include <cvd/thread.h>
 #include <time.h>
 
@@ -83,7 +84,13 @@ void Thread::sleep(unsigned int milli)
 
 void Thread::yield()
 {
+#ifdef CVD_HAVE_PTHREAD_YIELD
   pthread_yield();
+#elif defined(CVD_HAVE_PTHREAD_YIELD_NP)
+  pthread_yield_np();
+#else
+#warning "Thread::yield() not implemented"
+#endif
 }
 
 bool Thread::init() 

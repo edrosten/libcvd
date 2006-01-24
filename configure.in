@@ -679,6 +679,7 @@ then
 	fi
 fi
 
+
 ################################################################################
 #
 #Check for optional libraries
@@ -713,6 +714,11 @@ then
 		AC_DEFINE(CVD_HAVE_PTHREAD, 1)
 		AC_SUBST(have_pthread,yes)
 		options="$options pthreads"
+
+		# check for existence of pthread_yield
+		# Mac OS X only has pthread_yield_np
+		AC_CHECK_FUNCS(pthread_yield, AC_DEFINE(CVD_HAVE_PTHREAD_YIELD))
+		AC_CHECK_FUNCS(pthread_yield_np, AC_DEFINE(CVD_HAVE_PTHREAD_YIELD_NP))
 	fi
 fi
 
