@@ -179,7 +179,7 @@ namespace V4L { // V4L
 	Buffer ret;
 	ret.id = buffer.index;
 	ret.data = static_cast<unsigned char*>(state->frames[buffer.index].data);
-	ret.when = buffer.timestamp.tv_sec + buffer.timestamp.tv_usec*1e-6;
+	ret.when = timer.conv_ntime(buffer.timestamp);
 	return ret;
     }
     
