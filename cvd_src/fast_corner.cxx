@@ -303,7 +303,7 @@ inline void fast_nonmax_t(const BasicImage<byte>& im, const vector<ImageRef>& co
 	  // Make point below point to one of the pixels belowthe current point, if it
     // exists.
 	  for(; corners[point_below].y == pos.y+1 &&
-        corners[point_below].x < pos.x - 1; point_above++);
+        corners[point_below].x < pos.x - 1; point_below++);
 	  
 	  for(int i=point_below; corners[i].y == pos.y+1 && corners[i].x <= pos.x + 1; i++)
 	    {
