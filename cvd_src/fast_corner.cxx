@@ -277,8 +277,10 @@ inline void fast_nonmax_t(const BasicImage<byte>& im, const vector<ImageRef>& co
 	  if(corners[point_above].y < pos.y - 1)
 	    point_above = row_start[pos.y-1];
 	  
-	  //Make point above point to the first of the pixels above the current point, if it exists.
-	  for(; corners[point_above].y < pos.y && corners[point_above].x < pos.x - 1; point_above++);
+	  //Make point above point to the first of the pixels above the current point,
+    //if it exists.
+	  for(; corners[point_above].y < pos.y &&
+        corners[point_above].x < pos.x - 1; point_above++);
 	  
 	  
 	  for(int i=point_above; corners[i].y < pos.y && corners[i].x <= pos.x + 1; i++)
@@ -298,8 +300,10 @@ inline void fast_nonmax_t(const BasicImage<byte>& im, const vector<ImageRef>& co
 	  if(corners[point_below].y < pos.y + 1)
 	    point_below = row_start[pos.y+1];
 	  
-	  //Make point above point to one of the pixels above the current point, if it exists.
-	  for(; corners[point_above].y == pos.y+1 && corners[point_above].x < pos.x - 1; point_above++);
+	  // Make point below point to one of the pixels belowthe current point, if it
+    // exists.
+	  for(; corners[point_below].y == pos.y+1 &&
+        corners[point_below].x < pos.x - 1; point_above++);
 	  
 	  for(int i=point_below; corners[i].y == pos.y+1 && corners[i].x <= pos.x + 1; i++)
 	    {
