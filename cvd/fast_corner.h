@@ -29,6 +29,9 @@ namespace CVD
 \endverbatim
 
 		This performs 12 point FAST corner detection using the algorithm as originally described.
+
+		You probably don't want to use this feature detector. The 9 point FAST detector 
+		is better. See @ref fast_corner_detect_9
 	   
 	    @param im 		The input image
 	    @param corners	The resulting container of corner locations
@@ -75,15 +78,47 @@ namespace CVD
    int barrier, std::vector<std::pair<ImageRef,int> >& nonmax_corners);
 	
 	int corner_score(const BasicImage<byte>& im, ImageRef c, const int *pointer_dir, int barrier);
-	
-	/// Perform tree based 9 point FAST feature detection. This is the fastest detector and
-	/// preliminary results suggest that it is also the best. 
-	/// If you use this, please cite the paper given in @ref fast_corner_detect
+
+	/// Perform tree based 7 point FAST feature detection. This is more like an edge detector.
+	/// If you use this, please cite the paper given in @ref fast_corner_detect_9
 	///
 	/// @param im 		The input image
 	/// @param corners	The resulting container of corner locations
 	/// @param barrier	Corner detection threshold
 	/// @ingroup	gVision
+	void fast_corner_detect_7(const BasicImage<byte>& im, std::vector<ImageRef>& corners, int barrier);
+
+	/// Perform tree based 8 point FAST feature detection. This is more like an edge detector.
+	/// If you use this, please cite the paper given in @ref fast_corner_detect_9
+	///
+	/// @param im 		The input image
+	/// @param corners	The resulting container of corner locations
+	/// @param barrier	Corner detection threshold
+	/// @ingroup	gVision
+	void fast_corner_detect_8(const BasicImage<byte>& im, std::vector<ImageRef>& corners, int barrier);
+	
+	
+	/** Perform tree based 9 point FAST feature detection as described in:
+	    Machine Learning for High Speed Corner Detection, E. Rosten and T. Drummond.
+		Results show that this is both the fastest and the best of the detectors.
+		If you use this in published work, please cite:
+	
+\verbatim
+@inproceedings{rosten2006machine,
+	title       =    "Machine Learning for High Speed Corner Detection",
+	author      =    "Edward Rosten and Tom Drummond",
+	year        =    "2006",     
+	month       =    "May",     
+	booktitle   =    "9th European Conference on Computer Vision",
+	notes       =    "To appear"
+}
+\endverbatim
+
+	    @param im 		The input image
+	    @param corners	The resulting container of corner locations
+	    @param barrier	Corner detection threshold
+	    @ingroup	gVision
+	**/
 	void fast_corner_detect_9(const BasicImage<byte>& im, std::vector<ImageRef>& corners, int barrier);
 
 	/// Perform tree based 10 point FAST feature detection
@@ -96,7 +131,7 @@ namespace CVD
 	void fast_corner_detect_10(const BasicImage<byte>& im, std::vector<ImageRef>& corners, int barrier);
 
 	/// Perform tree based 11 point FAST feature detection
-	/// If you use this, please cite the paper given in @ref fast_corner_detect
+	/// If you use this, please cite the paper given in @ref fast_corner_detect_9
 	///
 	/// @param im 		The input image
 	/// @param corners	The resulting container of corner locations
@@ -105,7 +140,7 @@ namespace CVD
 	void fast_corner_detect_11(const BasicImage<byte>& im, std::vector<ImageRef>& corners, int barrier);
 
 	/// Perform tree based 12 point FAST feature detection
-	/// If you use this, please cite the paper given in @ref fast_corner_detect
+	/// If you use this, please cite the paper given in @ref fast_corner_detect_9
 	///
 	/// @param im 		The input image
 	/// @param corners	The resulting container of corner locations
@@ -113,7 +148,21 @@ namespace CVD
 	/// @ingroup	gVision
 	void fast_corner_detect_12(const BasicImage<byte>& im, std::vector<ImageRef>& corners, int barrier);
 
-	
+
+
+
+	/// Score corners detected by FAST as the maximum barrier at which the corner is still a corner.
+	/// WARNING!!! This is broken for n <= 8!!!
+	///	
+	///	@param	im		The input image
+	///	@param corners	Detected corners
+	///	@param ret		The returned corner scores
+	///	@param barrier  Do not check for scores below this (can be negative)
+	/// @param Num		Score for Num-point corner detection
+	/// @ingroup		gVision
+	template<int Num> void fast_score(const BasicImage<byte> im, const std::vector<ImageRef> corners, std::vector<int>& ret, int barrier);
+
+
 	/// The 16 offsets from the centre pixel used in FAST feature detection.
 	///
 	/// @ingroup gVision
