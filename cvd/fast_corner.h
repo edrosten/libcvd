@@ -152,7 +152,6 @@ namespace CVD
 
 
 	/// Score corners detected by FAST as the maximum barrier at which the corner is still a corner.
-	/// WARNING!!! This is broken for n <= 8!!!
 	///	
 	///	@param	im		The input image
 	///	@param corners	Detected corners

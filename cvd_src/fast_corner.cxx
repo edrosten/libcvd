@@ -218,33 +218,72 @@ template<class Type, int num_for_corner> inline int is_corner_with_diff(const by
 		return 0;
 }
 
-template<int Num> int max_threshold(const byte* imp, const int *pointer_dir, int start)
-{	
-	//Could start at t=0, but this saves 25% of the number of is_corner_with_diff calls.
-	//average of 3.01 instead of 4.20 calls
-	int t=start+1;
-	int s;
 
-	//Benchmarking shows that this step is worth the effort:
-	//0.77 versus 0.79 us per feature on a PIII 1GHz.
-	byte data[16];
-	for(int i=0; i < 16; i++)
-		data[i] = imp[pointer_dir[i]];
+//For N <=8, features can be positive or negatve OR BOTH!
+template<int Num, bool n_is_lessthan_or_equal_to_8> struct MaxThreshold
+{
+	static int eval(const byte* imp, const int *pointer_dir, int start)
+	{	
+		//Could start at t=0, but this saves 25% of the number of is_corner_with_diff calls.
+		//average of 3.01 instead of 4.20 calls
+		int t=start+1;
+		int s;
 
-	s = is_corner_with_diff<CornerPositive,Num>(data, *imp+t);
-	if(s > 0)
-	{
+		//Benchmarking shows that this step is worth the effort:
+		//0.77 versus 0.79 us per feature on a PIII 1GHz.
+		byte data[16];
+		for(int i=0; i < 16; i++)
+			data[i] = imp[pointer_dir[i]];
+
+		s = is_corner_with_diff<CornerPositive,Num>(data, *imp+t);
+		if(s > 0)
+		{
+			while(s)
+			{
+				t += s;
+				s = is_corner_with_diff<CornerPositive,Num>(data, *imp+t);
+			}
+			return t-1;
+		}
+
+		s = is_corner_with_diff<CornerNegative,Num>(data, *imp-t);
+		if(s > 0)
+		{
+			while(s)
+			{
+				t += s;
+				s = is_corner_with_diff<CornerNegative,Num>(data, *imp-t);
+			}
+			return t-1;
+		}
+		return t-1;
+	}
+};
+
+
+//For N <=8, features can be positive or negatve OR BOTH!
+template<int Num> struct MaxThreshold<Num, true>
+{
+	static int eval(const byte* imp, const int *pointer_dir, int start)
+	{	
+		int t=start+1;
+		int s;
+
+		byte data[16];
+		for(int i=0; i < 16; i++)
+			data[i] = imp[pointer_dir[i]];
+		
+
+		//Test brighter corners
+		s = is_corner_with_diff<CornerPositive,Num>(data, *imp+t);
 		while(s)
 		{
 			t += s;
 			s = is_corner_with_diff<CornerPositive,Num>(data, *imp+t);
 		}
-		return t-1;
-	}
-
-	s = is_corner_with_diff<CornerNegative,Num>(data, *imp-t);
-	if(s > 0)
-	{
+		
+		//Test darker corners with the new threshold
+		s = is_corner_with_diff<CornerNegative,Num>(data, *imp-t);
 		while(s)
 		{
 			t += s;
@@ -252,9 +291,7 @@ template<int Num> int max_threshold(const byte* imp, const int *pointer_dir, int
 		}
 		return t-1;
 	}
-	return t-1;
-}
-
+};
 
 template<int Num> void fast_score(const BasicImage<byte> im, const vector<ImageRef> corners, vector<int>& ret, int start)
 {
@@ -265,7 +302,7 @@ template<int Num> void fast_score(const BasicImage<byte> im, const vector<ImageR
 	ret.resize(corners.size());
 	
 	for(unsigned int i=0; i < corners.size(); i++)
-		ret[i] = max_threshold<Num>(&im[corners[i]], pointer_dir, start);
+		ret[i] = MaxThreshold<Num, (Num <=8)>::eval(&im[corners[i]], pointer_dir, start);
 }
 
 
@@ -274,6 +311,8 @@ void _fast_score_inst()
 	vector<ImageRef> c;
 	vector<int> s;
 	Image<byte> i;
+	fast_score<7>(i,c,s,1);
+	fast_score<8>(i,c,s,1);
 	fast_score<9>(i,c,s,1);
 	fast_score<10>(i,c,s,1);
 	fast_score<11>(i,c,s,1);
