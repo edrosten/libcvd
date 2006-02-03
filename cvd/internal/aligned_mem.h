@@ -33,7 +33,7 @@ namespace CVD {
 
     template <class T> struct placement_delete<T,-1>
     {
-      static inline void free(T* buf, size_t M) {}
+      static inline void free(T*, size_t ) {}
     };
 
     template <class T, int N> struct aligned_mem {
