@@ -59,6 +59,7 @@ class cvd_timer
 		/// Sets the start time to the current time
 		void reset();                       
 
+
 	private:
 		unsigned long long startTime;
 };
@@ -66,6 +67,11 @@ class cvd_timer
 /// A instance of a cvd_timer for general use
 /// @ingroup gCPP
 extern cvd_timer timer;
+
+/// Same as the system call gettimeofday, but returns time since
+/// the epoch as a double.
+static double get_time_of_day();
+
  
 }
 
