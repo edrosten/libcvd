@@ -45,10 +45,10 @@ double cvd_timer::get_time()
   struct timeval tv;
   unsigned long long temp;  // keep with integer arithmetic for diff
 
-  gettimeofday(&tv,null);
+  gettimeofday(&tv,NULL);
   temp=(unsigned long long)tv.tv_sec*1000000+tv.tv_usec;
 
-  return (temp-starttime)/1000000.0;
+  return (temp-startTime)/1000000.0;
 }
 
 // Conv from units of nanosecs (specifically for v4l2 : kernel 2.4
@@ -73,7 +73,7 @@ double get_time_of_day()
   struct timeval tv;
   unsigned long long temp;  // keep with integer arithmetic for diff
 
-  gettimeofday(&tv,null);
+  gettimeofday(&tv,NULL);
   temp=(unsigned long long)tv.tv_sec*1000000+tv.tv_usec;
   return temp/1000000.0;
 }
