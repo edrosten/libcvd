@@ -15,7 +15,8 @@ namespace CVD
 extern ImageRef dir[17];																		
 																								
 																								
-void fastest_detect_8(const BasicImage<byte>& im, vector<ImageRef>& corners, int barrier)		
+void fast_corner_detect_8(const BasicImage<byte>& im, vector<ImageRef>& corners,
+int barrier)
 {																								
 	int boundary = 3, y, cb, c_b;																
 	const byte  *line_max, *line_min;															
