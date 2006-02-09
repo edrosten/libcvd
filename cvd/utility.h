@@ -8,15 +8,24 @@
 
 namespace CVD { //begin namespace
 
-  /// generic image copy function for copying sub rectangles of images into other images.
-  /// @param in input image to copy from
-  /// @param out output image to copy into
-  /// @param size size of the area to copy
-  /// @param begin upper left corner of the area to copy, by default the upper left corner of the input image
-  /// @param dst upper left corner of the destination in the output image, by default the upper left corner of the output image
-  /// @throw ImageRefNotInImage if either begin is not in the input image or dst not in the output image
-  /// @ingroup gConvert
-  template<class S, class T> void copy(const BasicImage<S>& in, BasicImage<T>& out, ImageRef size=ImageRef(-1,-1), ImageRef begin = ImageRef(), ImageRef dst = ImageRef())
+  /** Generic image copy function for copying sub rectangles of images into
+  other images. This performs pixel type conversion if the input and output
+  images are different pixel types.
+  @param in input image to copy from
+  @param out output image to copy into
+  @param size size of the area to copy. By default this is the entirty of the
+input image
+  @param begin upper left corner of the area to copy, by default the upper left
+corner of the input image
+  @param dst upper left corner of the destination in the output image, by
+default the upper left corner of the output image
+  @throw ImageRefNotInImage if either begin is not in the input image or dst not
+in the output image
+  @ingroup gImageIO
+  */
+  template<class S, class T> void copy(const BasicImage<S>& in, BasicImage<T>&
+out, ImageRef size=ImageRef(-1,-1), ImageRef begin = ImageRef(), ImageRef dst =
+ImageRef())
   {
     if (size.x == -1 && size.y == -1)
       size = in.size();
