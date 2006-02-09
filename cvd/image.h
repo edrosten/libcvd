@@ -209,11 +209,18 @@ namespace ImageUtil
 
 /// A generic image class to manage a block of data as an image. Provides
 /// basic image access such as accessing a particular pixel co-ordinate. 
+/// @param T The pixel type for this image. Typically either
+/// <code>CVD::byte</code> or <code>CVD::Rgb<CVD::byte> ></code> are used,
+/// but images could be constructed of any available type.
+/// 
 /// A BasicImage does not manage its own data, but provides access to an 
 /// arbitrary externally-managed block of data as though it were an image. Use
 /// the derived Image class if you want an image which also has its own data.
-/// @param T The pixel type for this image. Typically either <code>CVD::byte</code> or 
-/// <code>CVD::Rgb<CVD::byte> ></code> are used, but images could be constructed of any available type.
+/// 
+/// Loading and saving, format conversion and some copying functionality is
+/// provided by external functions rather than as part of this class. See
+/// the @ref gImageIO "Image loading and saving, and format conversion" module
+/// for documentation of these functions.
 /// @ingroup gImage
 template<class T> class BasicImage
 {
@@ -262,13 +269,28 @@ template<class T> class BasicImage
 			CVD_IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
 			return (my_data[pos.y*my_size.x + pos.x]);
 		}
+
+  /** A random-access iterator to read or write pixel values from the image.
+  This can be incremented, decremented and dereferenced. Incrementing this
+  iterator steps through pixels in the usual scanline order. */
   typedef T* iterator;
+  /** A random-access iterator to read pixel values from the image.
+  This can be incremented, decremented and dereferenced. Incrementing this
+  iterator steps through pixels in the usual scanline order. */
   typedef const T* const_iterator;
-  
+
+  /** Returns a const iterator referencing the first (top-left) pixel in the
+  image. */
   const_iterator begin() const { return my_data; }
+  /** Returns an iterator referencing the first (top-left) pixel in the
+  image. */
   iterator begin() { return my_data; }
 
+  /** Returns a const iterator referencing the <em>pixel immediately
+  after</em> the last (bottom-right) pixel in the image. */
   const_iterator end() const { return my_data+totalsize(); }
+  /** Returns an iterator referencing the <em>pixel immediately
+  after</em> the last (bottom-right) pixel in the image. */
   iterator end() { return my_data+totalsize(); }
 
 
@@ -355,13 +377,21 @@ template<class T> class BasicImage
 
 
 /// A full image which manages its own data.
+/// @param T The pixel type for this image. Typically either
+/// <code>CVD::byte</code> or <code>CVD::Rgb<CVD::byte> ></code> are used,
+/// but images could be constructed of any available type.
+///
 /// Images do reference counting on the data, so multiple images can point
-/// to one block of data. This means that copying an image is like copying a pointer
-/// (so use the same care); to further the analogy, operator[]() dereferences images. 
-/// Copy constructing is quite fast (a 16-byte copy and an increment), so images can be
-/// efficiently passed back in functions or used in containers like std::vector
-/// @param T The pixel type for this image. Typically either <code>CVD::byte</code> or 
-/// <code>CVD::Rgb<CVD::byte> ></code> are used, but images could be constructed of any available type.
+/// to one block of data. This means that copying an image is like copying a
+/// pointer (so use the same care); to further the analogy, operator[]()
+/// dereferences images. Copy constructing is quite fast (a 16-byte copy and
+/// an increment), so images can be efficiently passed back in functions or
+/// used in containers like std::vector
+///
+/// Loading and saving, format conversion and some copying functionality is
+/// provided by external functions rather than as part of this class. See
+/// the @ref gImageIO "Image loading and saving, and format conversion" module
+/// for documentation of these functions.
 /// @ingroup gImage
 template<class T> 
 class Image: public BasicImage<T>
