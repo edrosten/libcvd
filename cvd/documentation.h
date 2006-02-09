@@ -85,7 +85,7 @@ It is released under the LGPL License.
 // Modules classifying classes and functions
 
 /// @defgroup gImage Image storage and manipulation
-/// Basic image functionality. The CVD image classes provide fast and
+/// Basic image functionality. The %CVD image classes provide fast and
 /// flexible access to images.
 
 /// @defgroup gImageIO Image loading and saving, and format conversion
@@ -105,7 +105,7 @@ It is released under the LGPL License.
 /// All classes and functions relating to video frames (as opposed to video buffers)
 
 /// @defgroup gException Exceptions 
-/// Exceptions generated and thrown by CVD classes and functions
+/// Exceptions generated and thrown by %CVD classes and functions
 
 /// @defgroup gGraphics Computer graphics
 /// Classes and functions to support miscellaneous pixel operations
@@ -114,8 +114,8 @@ It is released under the LGPL License.
 /// Functions and classes to support common computer vision concepts and operations
 
 /// @defgroup gGL GL helper functions and classes.
-/// Overloaded versions of GL functions to use CVD classes and datatypes, and other
-/// helpful GL classes and functions.
+/// Overloaded versions of GL functions to use %CVD classes and datatypes, and
+/// other helpful GL classes and functions.
 
 /// @defgroup gMaths Mathematical operations
 /// Useful mathematical classes and functions
