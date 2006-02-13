@@ -27,8 +27,8 @@
 #include <fstream>
 #include <cstring>
 
-using namespace CVD;
 using namespace std;
+namespace CVD{
 
 Exceptions::Image_IO::ImageSizeMismatch::ImageSizeMismatch(const ImageRef& src, const ImageRef& dest)
 {
@@ -90,5 +90,26 @@ Exceptions::Image_IO::InternalLibraryError::InternalLibraryError(const std::stri
 	what = "Internal error in " + l + " library: " + e;
 }
 
+ImageType::ImageType string_to_image_type(const std::string& name)
+{ 
+	size_t dot = name.rfind('.');
+	if (dot == std::string::npos)
+		return  ImageType::PNM;
+	
+	std::string suffix = name.substr(dot+1,name.length()-dot-1);
+	for (size_t i=0; i<suffix.length(); i++)
+		suffix[i] = tolower(suffix[i]);
 
+	if (suffix == "jpg") 
+		return  ImageType::JPEG;
+	else if (suffix == "ps") 
+		return  ImageType::PS;
+	else if (suffix == "eps")
+		return  ImageType::EPS;
+	else if (suffix == "bmp") 
+		return  ImageType::BMP;
+	else 
+		return  ImageType::PNM;
+}
 
+}
