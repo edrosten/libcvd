@@ -154,6 +154,30 @@ namespace CVD
 	//
 
 
+	/// Deduce an image type from a filename suffix.
+	///	@param name The name of the image file
+	ImageType string_to_image_type(const std::string& name)
+	{ 
+	  	size_t dot = name.rfind('.');
+	  	if (dot == std::string::npos)
+	    	return  ImageType::PNM;
+		
+		std::string suffix = name.substr(dot+1,name.length()-dot-1);
+	  	for (size_t i=0; i<suffix.length(); i++)
+	    	suffix[i] = tolower(suffix[i]);
+
+	  	if (suffix == "jpg") 
+	   		return  ImageType::JPEG;
+		else if (suffix == "ps") 
+	    	return  ImageType::PS;
+		else if (suffix == "eps")
+	    	return  ImageType::EPS;
+		else if (suffix == "bmp") 
+	    	return  ImageType::BMP;
+		else 
+	    	return  ImageType::PNM;
+	}
+
 
 	/// Save an image to a stream. This function will convert types if necessary.
 	/// @param PixelType The pixel type of the image
@@ -187,27 +211,7 @@ namespace CVD
 
 	template<class PixelType> void img_save(const BasicImage<PixelType>& im, const std::string& name)
 	{
-	  size_t dot = name.rfind('.');
-	  if (dot == std::string::npos) {
-	    img_save(im, name, ImageType::PNM);
-	    return;
-	  }
-	  
-	  std::string suffix = name.substr(dot+1,name.length()-dot-1);
-	  for (size_t i=0; i<suffix.length(); i++)
-	    suffix[i] = tolower(suffix[i]);
-
-	  if (suffix == "jpg") {
-	    img_save(im, name, ImageType::JPEG);
-	  } else if (suffix == "ps") {
-	    img_save(im, name, ImageType::PS);
-	  } else if (suffix == "eps") {
-	    img_save(im, name, ImageType::EPS);
-	  } else if (suffix == "bmp") {
-	    img_save(im, name, ImageType::BMP);
-	  } else {
-	    img_save(im, name, ImageType::PNM);
-	  }
+	    img_save(im, name, string_to_image_type(name));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
