@@ -43,7 +43,7 @@ It is released under the LGPL License.
 \subsection Imaging
 
     - Type-safe easy to use images
-    - Flexible loading and saving from a variety of types: jpg, pnm, tiff(loading only)
+    - Flexible loading and saving from a variety of types: jpg, pnm, bmp, tiff (loading only), eps (saving only)
     - Image grabbing from video sources:
 		  - Linux
 		  		- Video for Linux devices
@@ -51,12 +51,18 @@ It is released under the LGPL License.
          	 	- Firewire cameras
 		  - IRIX
           		- dmedia video capture
+		  - OSX
+		  		- QuickTime video capture
 		  - All platforms
-          		- avi and mpegs files (all codecs supported by ffmpeg)
+          		- avi and mpegs file (all codecs supported by ffmpeg)
           		- list of images
           		- raw image streams(soon!!!) 
     - Colorspace conversions on images and video streams
     - Various image processing tools
+	      - FAST corner detection
+		  - Image interpolation
+		  - Convolutions
+		  - Interpolation, warping and resampling
     - %Camera calibration support: Linear, Cubic and Quintic 
 
 \subsection Mathematical
