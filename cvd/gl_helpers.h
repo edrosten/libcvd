@@ -51,6 +51,14 @@ namespace CVD
 		glVertex2i(i.x, i.y);
 	}
 
+	/// Specify the (s,t) texture co-ordinates
+	/// @param i The texture coordinates
+	///@ingroup gGL
+	inline void glTexCoord(const ImageRef& i)
+	{
+		glTexCoord2i(i.x, i.y);
+	}
+
 	/// Specify the (x,y) co-ordinates of the current raster position
 	/// @param i The raster position
 	///@ingroup gGL
@@ -84,6 +92,31 @@ namespace CVD
 	{
 		glVertex4d(v[0], v[1], v[2], v[3]);
 	}
+
+	/// Specify the (s,t) texture coordinates
+	/// @param v The texture coordinates
+	///@ingroup gGL
+	inline void glTexCoord(const TooN::Vector<2>& v)
+	{
+		glTexCoord2d(v[0], v[1]);
+	}
+
+	/// Specify the (s,t,r) texture coordinates
+	/// @param v The texture coordinates
+	///@ingroup gGL
+	inline void glTexCoord(const TooN::Vector<3>& v)
+	{
+		glTexCoord3d(v[0], v[1], v[2]);
+	}
+
+	/// Specify the (s,t,r,q) texture coordinates
+	/// @param v The texture coordinates
+	///@ingroup gGL
+	inline void glTexCoord(const TooN::Vector<4>& v)
+	{
+		glTexCoord4d(v[0], v[1], v[2], v[3]);
+	}
+
 
 	/// Specify the (x,y) co-ordinates of the current raster position
 	/// @param v The raster position
