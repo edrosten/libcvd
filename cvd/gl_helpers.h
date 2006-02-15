@@ -252,6 +252,14 @@ namespace CVD
 	         ::glOrtho(-0.375, size.x - 0.375, size.y - 0.375, -0.375, -1.0, 1.0);
 	}
 
+	/// Sets up an ortho projection from a simple Vector<6>
+        /// n.b. You first need to set up the matrix environment yourself,
+	/// e.g. glMatrixMode(GL_PROJECTION); glLoadIdentity();
+	/// @param param 6-vector containing the parameters of the projection
+	inline void glOrtho( const TooN::Vector<6> & param)
+	{
+		::glOrtho( param[0], param[1], param[2], param[3], param[4], param[5]);
+	}
 
 	/// sets a gl frustum from the linear camera parameters, image size and near and far plane.
 	/// The camera will be in OpenGL style with camera center in the origin and the viewing direction
@@ -288,6 +296,15 @@ namespace CVD
 		glFrustum( camera.get_parameters().template slice<0,4>(), width, height, near, far);
 	}
 
+	/// Sets up an ortho projection from a simple Vector<6>
+        /// n.b. You first need to set up the matrix environment yourself,
+	/// e.g. glMatrixMode(GL_PROJECTION); glLoadIdentity();
+	/// @param param 6-vector containing the parameters of the projection
+	inline void glFrustum( const TooN::Vector<6> & param)
+	{
+		::glFrustum( param[0], param[1], param[2], param[3], param[4], param[5]);
+	}
+
 	/// Set the new colour to the red, green and blue components given in the Vector
 	/// (where 0.0 represents zero intensity and 1.0 full intensity)
 	/// @param v The new colour
@@ -304,6 +321,19 @@ namespace CVD
 	inline void glColor(const TooN::Vector<4>& v)
 	{
 		glColor4d(v[0], v[1], v[2], v[3]);
+	}
+
+	/// glColor version for dynamic TooN::Vector, will test for 3 or 4 components
+	/// @param v The new colour
+	/// @ingroup gGL
+	inline void glColor(const TooN::Vector<-1> & v)
+	{
+		switch(v.size()){
+		case 3: glColor3d(v[0], v[1], v[2]);
+			break;
+		case 4: glColor4d(v[0], v[1], v[2], v[3]);
+			break;
+		}
 	}
 	#endif
 
