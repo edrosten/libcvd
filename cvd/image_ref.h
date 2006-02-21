@@ -105,9 +105,11 @@ public:
 	/// Logical not equals
 	/// @param ref The co-ordinate to compare with
 	inline bool 		operator!=(const ImageRef& ref) const;
-	/// Multiply both x and y co-ordinates by a scalar
-	/// @param scale The multiplier
-	inline ImageRef& 	operator*=(const double scale);
+  /// Unary minus. Negates both x and y components.
+  inline ImageRef  operator-() const;
+  /// Multiply both x and y co-ordinates by a scalar
+  /// @param scale The multiplier
+  inline ImageRef&  operator*=(const double scale);
 	/// Divide both x and y co-ordinates by a scalar
 	/// @param scale The factor
 	inline ImageRef&	operator/=(const double scale);

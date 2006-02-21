@@ -88,11 +88,17 @@ inline bool ImageRef::operator !=(const ImageRef& ref) const
 	return (x!=ref.x || y!=ref.y);
 }
 
+inline ImageRef ImageRef::operator-() const
+{
+  ImageRef v(-x, -y);
+  return v;
+}
+
 inline ImageRef& ImageRef::operator*=(const double scale)
 {
-	x=(int)(x*scale);
-	y=(int)(y*scale);
-	return *this;
+  x=(int)(x*scale);
+  y=(int)(y*scale);
+  return *this;
 }
 
 inline ImageRef& ImageRef::operator/=(const double scale)
