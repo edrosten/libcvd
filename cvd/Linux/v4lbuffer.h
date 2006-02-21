@@ -107,6 +107,7 @@ namespace V4L
 	Buffer getFrame();
 	void releaseFrame(int id);
 	double getRate();
+	bool pendingFrame();
 	virtual ~V4L2Client();
     private:
 	struct State; 
@@ -165,7 +166,7 @@ public:
 	    throw Exceptions::V4LBuffer::PutFrame(devname, "V4L1 not yet supported by V4LBuffer");
 	}
     }
-    virtual bool frame_pending() { return false; }
+    virtual bool frame_pending() { return v4l2->pendingFrame(); }
     virtual double frame_rate() { return v4l2 ? v4l2->getRate() : 0.0; }
     virtual ~V4LBuffer() {
 	if (v4l2)

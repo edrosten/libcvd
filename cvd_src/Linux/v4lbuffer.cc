@@ -197,7 +197,20 @@ namespace V4L { // V4L
     double V4L2Client::getRate() {
 	return state->frameRate;
     }
-    
+
+    bool V4L2Client::pendingFrame() {
+	fd_set fdsetRead;
+	fd_set fdsetOther;
+	struct timeval tv;
+ 
+	FD_SET(state->fd,&fdsetRead);
+	FD_ZERO(&fdsetOther);
+	tv.tv_sec=0;
+	tv.tv_usec=0;
+	if (select(state->fd+1,&fdsetRead,&fdsetOther,&fdsetOther,&tv)>0)
+		return true;
+	return false;
+    }
 
 };
 
