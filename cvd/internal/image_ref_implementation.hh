@@ -209,5 +209,6 @@ inline int& ImageRef::operator[](int i)
 
 inline unsigned int ImageRef::mag_squared() const
 {
-  return (unsigned int) (x*x + y*y);
+  typedef unsigned int uint;
+  return uint(x*x) + uint(y*y);
 }
