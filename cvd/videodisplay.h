@@ -178,8 +178,11 @@ namespace CVD {
 			/// before drawing to ensure you draw to the correct window.
 			void make_current();
 
-			/// What is my display?
-			Display* display() {return my_display;}
+      /// Swap the front and back GL buffers. This calls glXSwapBuffers for the
+      /// current context.
+      void swap_buffers();
+      /// What is my display?
+      Display* display() {return my_display;}
 			/// Which is my window?
 			Window window() {return my_window;}
 

@@ -354,6 +354,11 @@ void CVD::VideoDisplay::locate_video_pointer(double& x, double& y)
    display_to_video(dx, dy, x, y);
 }
 
+void CVD::VideoDisplay::swap_buffers()
+{
+  glXSwapBuffers(my_display, glXGetCurrentDrawable());
+}
+
 //} // namespace CVD
 
 
