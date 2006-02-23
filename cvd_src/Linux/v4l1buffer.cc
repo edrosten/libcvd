@@ -249,6 +249,7 @@ bool RawV4L1::frame_pending()
     fd_set fdsetOther;
     struct timeval tv;
 
+    FD_ZERO(&fdsetRead);
     FD_SET(myDevice,&fdsetRead);
     FD_ZERO(&fdsetOther);
     tv.tv_sec=0;

@@ -203,6 +203,7 @@ namespace V4L { // V4L
 	fd_set fdsetOther;
 	struct timeval tv;
  
+        FD_ZERO(&fdsetRead);
 	FD_SET(state->fd,&fdsetRead);
 	FD_ZERO(&fdsetOther);
 	tv.tv_sec=0;

@@ -366,6 +366,7 @@ bool V4L2Buffer_Base::frame_pending(){
   fd_set fdsetOther;
   struct timeval tv;
  
+  FD_ZERO(&fdsetRead);
   FD_SET(m_nVideoFileDesc,&fdsetRead);
   FD_ZERO(&fdsetOther);
   tv.tv_sec=0;
