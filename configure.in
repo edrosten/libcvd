@@ -692,8 +692,10 @@ echo -------------------------------
 
 
 AC_PATH_X
-echo "FIXME! check for OpenGL properly!"
-if test "x$ac_cv_have_x" != x
+
+AC_CHECK_LIB(GL,glDrawPixels)
+
+if test "x$ac_cv_have_x" != x && test "$ac_cv_lib_GL_glDrawPixels" != no
 then
 	AC_DEFINE(CVD_HAVE_VIDEODISPLAY)
 	options="$options videodisplay"
