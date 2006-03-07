@@ -70,7 +70,7 @@ extern cvd_timer timer;
 
 /// Same as the system call gettimeofday, but returns time since
 /// the epoch as a double.
-static double get_time_of_day();
+double get_time_of_day();
 
  
 }
