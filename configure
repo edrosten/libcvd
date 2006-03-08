@@ -3475,8 +3475,8 @@ echo "${ECHO_T}no" >&6
 		opt="-O3 $cpuopt"
 		if test "$cpuopt" = ""
 		then
-			{ echo "$as_me:$LINENO: WARNING: I do not know what the best flags are for this processor." >&5
-echo "$as_me: WARNING: I do not know what the best flags are for this processor." >&2;}
+			{ echo "$as_me:$LINENO: WARNING: I do not know what the best flags are for this processor ($cpu)." >&5
+echo "$as_me: WARNING: I do not know what the best flags are for this processor ($cpu)." >&2;}
 		fi
 		OFLAGS="$opt"
 	else

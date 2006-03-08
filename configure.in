@@ -264,7 +264,7 @@ then
 		opt="-O3 $cpuopt"
 		if test "$cpuopt" = ""
 		then
-			AC_MSG_WARN([I do not know what the best flags are for this processor.])
+			AC_MSG_WARN([I do not know what the best flags are for this processor ($cpu).])
 		fi
 		OFLAGS="$opt"
 	else
