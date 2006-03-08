@@ -724,21 +724,9 @@ then
 	fi
 fi
 
-AC_ARG_WITH(tiff, [  --without-tiff       compile without TIFF support],[if test "$withval" = no; then disable_tiff=yes; else disable_tiff=no; fi])
-if test "$disable_tiff" != yes 
-then
-	AC_CHECK_HEADERS(tiffio.h)
-	AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented)
-
-	if test "$ac_cv_header_tiffio_h" = yes && test "$ac_cv_lib_tiff_TIFFReadRGBAImageOriented" = yes
-	then
-		AC_DEFINE(CVD_IMAGE_HAVE_TIFF, [TIFF,])
-		AC_SUBST(have_tiff,yes)
-		options="$options tiff"
-	fi
-fi
-
-
+#Put this before TIFF. If libjpeg is static, then this will ensure
+#(hopefully) that it selected before libtiff is tested (libtiff may
+#depend on libjpeg)
 AC_ARG_WITH(jpeg, [  --without-jpeg	  compile without JPEG support],[if test "$withval" = no; then disable_jpeg=yes; else disable_jpeg=no; fi])
 if test "$disable_jpeg" != yes 
 then
@@ -751,6 +739,53 @@ then
 		options="$options jpeg"
 	fi
 fi
+
+AC_ARG_WITH(tiff, [  --without-tiff       compile without TIFF support],[if test "$withval" = no; then disable_tiff=yes; else disable_tiff=no; fi])
+if test "$disable_tiff" != yes 
+then
+	AC_CHECK_HEADERS(tiffio.h)
+	if test "$ac_cv_header_tiffio_h" = yes 
+	then
+	
+		foo_LIBS="$LIBS"
+		AC_CHECK_LIB(tiff, TIFFReadRGBAImage)
+		tiff_works_so_far=
+	
+		if test "$ac_cv_lib_tiff_TIFFReadRGBAImage" = yes
+		then
+			tiff_works_so_far=yes
+		else
+			AC_MSG_CHECKING([if perhaps libtiff requires zlib...])
+			AC_MSG_RESULT()
+
+			AC_CHECK_LIB(z, deflate)
+			unset ac_cv_lib_tiff_TIFFReadRGBAImage
+			AC_CHECK_LIB(tiff, TIFFReadRGBAImage)
+
+			if test "$ac_cv_lib_tiff_TIFFReadRGBAImage" = yes
+			then
+				AC_MSG_CHECKING([if perhaps libtiff requires zlib...])
+				AC_MSG_RESULT(yes)
+				tiff_works_so_far=yes
+			fi
+		fi
+
+		if test x$tiff_works_so_far = xyes
+		then
+			AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented)
+			if test "$ac_cv_lib_tiff_TIFFReadRGBAImageOriented" = yes
+			then
+				AC_DEFINE(CVD_IMAGE_HAVE_TIFF, [TIFF,])
+				AC_SUBST(have_tiff,yes)
+				options="$options tiff"
+			else
+				AC_MSG_WARN(libtiff is present but too old.)
+				LIBS="$foo_LIBS"
+			fi
+		fi
+	fi
+fi
+
 
 
 AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support],[if test "$withval" = no; then use_ffmpeg=no; else use_ffmpeg="$withval"; fi])
