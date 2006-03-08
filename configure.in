@@ -740,7 +740,23 @@ then
 	fi
 fi
 
-AC_ARG_WITH(tiff, [  --without-tiff       compile without TIFF support],[if test "$withval" = no; then disable_tiff=yes; else disable_tiff=no; fi])
+
+tiffarg=
+#AC_ARG_WITH(tiff, [  --without-tiff       compile without TIFF support],[if test "$withval" = no; then disable_tiff=yes; else disable_tiff=no; fi])
+AC_ARG_WITH(tiff, [  --without-tiff          compile without TIFF support],[tiffarg="$withval";])
+AC_ARG_WITH(tiff, [  --with-tiff=forceold    Debug only. Force use of older library facilities.],[tiffarg="$withval";])
+
+
+
+disable_tiff=no
+if test "$tiffarg" = no
+then
+	disable_tiff=yes
+elif test "$tiffarg" = forceold
+then
+	force_old_tiff=yes
+fi
+
 if test "$disable_tiff" != yes 
 then
 	AC_CHECK_HEADERS(tiffio.h)
@@ -749,13 +765,13 @@ then
 	
 		foo_LIBS="$LIBS"
 		AC_CHECK_LIB(tiff, TIFFReadRGBAImage)
-		tiff_works_so_far=
+		tiff_works=
 	
 		if test "$ac_cv_lib_tiff_TIFFReadRGBAImage" = yes
 		then
-			tiff_works_so_far=yes
+			tiff_works=yes
 		else
-			AC_MSG_CHECKING([if perhaps libtiff requires zlib...])
+			AC_MSG_CHECKING([if perhaps libtiff requires zlib])
 			AC_MSG_RESULT()
 
 			AC_CHECK_LIB(z, deflate)
@@ -764,23 +780,31 @@ then
 
 			if test "$ac_cv_lib_tiff_TIFFReadRGBAImage" = yes
 			then
-				AC_MSG_CHECKING([if perhaps libtiff requires zlib...])
+				AC_MSG_CHECKING([if perhaps libtiff requires zlib])
 				AC_MSG_RESULT(yes)
-				tiff_works_so_far=yes
+				tiff_works=yes
+			else
+				LIBS="$foo_LIBS"
 			fi
 		fi
 
-		if test x$tiff_works_so_far = xyes
+
+		if test x$tiff_works = xyes
 		then
-			AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented)
+			AC_DEFINE(CVD_IMAGE_HAVE_TIFF, [TIFF,])
+			AC_SUBST(have_tiff,yes)
+			options="$options tiff"
+			
+			if test "$force_old_tiff" != yes
+			then
+				AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented)
+			fi
+
 			if test "$ac_cv_lib_tiff_TIFFReadRGBAImageOriented" = yes
 			then
-				AC_DEFINE(CVD_IMAGE_HAVE_TIFF, [TIFF,])
-				AC_SUBST(have_tiff,yes)
-				options="$options tiff"
+				AC_DEFINE(CVD_INTERNAL_HAVE_TIFF_ORIENTED, [TIFF,])
 			else
-				AC_MSG_WARN(libtiff is present but too old.)
-				LIBS="$foo_LIBS"
+				AC_MSG_WARN(libtiff is present but old. Loading large TIFFs might be slow.)
 			fi
 		fi
 	fi

@@ -874,7 +874,8 @@ Optional Packages:
   --with-x                use the X Window System
   --without-threads       compile without PThread support
   --without-jpeg	  compile without JPEG support
-  --without-tiff       compile without TIFF support
+  --without-tiff          compile without TIFF support
+  --with-tiff=forceold    Debug only. Force use of older library facilities.
   --without-ffmpeg	  compile without FFMPEG support
   --with-fast-pointers=N  Number of pointers for FAST detectors. Answer: 2
   --with-fast-force=N  Force first question position for FAST. Answer: 0,1
@@ -6693,11 +6694,32 @@ _ACEOF
 fi
 
 
+tiffarg=
+#AC_ARG_WITH(tiff, [  --without-tiff       compile without TIFF support],[if test "$withval" = no; then disable_tiff=yes; else disable_tiff=no; fi])
+
 # Check whether --with-tiff or --without-tiff was given.
 if test "${with_tiff+set}" = set; then
   withval="$with_tiff"
-  if test "$withval" = no; then disable_tiff=yes; else disable_tiff=no; fi
+  tiffarg="$withval";
 fi;
+
+# Check whether --with-tiff or --without-tiff was given.
+if test "${with_tiff+set}" = set; then
+  withval="$with_tiff"
+  tiffarg="$withval";
+fi;
+
+
+
+disable_tiff=no
+if test "$tiffarg" = no
+then
+	disable_tiff=yes
+elif test "$tiffarg" = forceold
+then
+	force_old_tiff=yes
+fi
+
 if test "$disable_tiff" != yes
 then
 
@@ -6928,14 +6950,14 @@ _ACEOF
 
 fi
 
-		tiff_works_so_far=
+		tiff_works=
 
 		if test "$ac_cv_lib_tiff_TIFFReadRGBAImage" = yes
 		then
-			tiff_works_so_far=yes
+			tiff_works=yes
 		else
-			echo "$as_me:$LINENO: checking if perhaps libtiff requires zlib..." >&5
-echo $ECHO_N "checking if perhaps libtiff requires zlib...... $ECHO_C" >&6
+			echo "$as_me:$LINENO: checking if perhaps libtiff requires zlib" >&5
+echo $ECHO_N "checking if perhaps libtiff requires zlib... $ECHO_C" >&6
 			echo "$as_me:$LINENO: result: " >&5
 echo "${ECHO_T}" >&6
 
@@ -7091,16 +7113,29 @@ fi
 
 			if test "$ac_cv_lib_tiff_TIFFReadRGBAImage" = yes
 			then
-				echo "$as_me:$LINENO: checking if perhaps libtiff requires zlib..." >&5
-echo $ECHO_N "checking if perhaps libtiff requires zlib...... $ECHO_C" >&6
+				echo "$as_me:$LINENO: checking if perhaps libtiff requires zlib" >&5
+echo $ECHO_N "checking if perhaps libtiff requires zlib... $ECHO_C" >&6
 				echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
-				tiff_works_so_far=yes
+				tiff_works=yes
+			else
+				LIBS="$foo_LIBS"
 			fi
 		fi
 
-		if test x$tiff_works_so_far = xyes
+
+		if test x$tiff_works = xyes
 		then
+			cat >>confdefs.h <<\_ACEOF
+#define CVD_IMAGE_HAVE_TIFF TIFF,
+_ACEOF
+
+			have_tiff=yes
+
+			options="$options tiff"
+
+			if test "$force_old_tiff" != yes
+			then
 
 echo "$as_me:$LINENO: checking for TIFFReadRGBAImageOriented in -ltiff" >&5
 echo $ECHO_N "checking for TIFFReadRGBAImageOriented in -ltiff... $ECHO_C" >&6
@@ -7175,19 +7210,17 @@ _ACEOF
 
 fi
 
+			fi
+
 			if test "$ac_cv_lib_tiff_TIFFReadRGBAImageOriented" = yes
 			then
 				cat >>confdefs.h <<\_ACEOF
-#define CVD_IMAGE_HAVE_TIFF TIFF,
+#define CVD_INTERNAL_HAVE_TIFF_ORIENTED TIFF,
 _ACEOF
 
-				have_tiff=yes
-
-				options="$options tiff"
 			else
-				{ echo "$as_me:$LINENO: WARNING: libtiff is present but too old." >&5
-echo "$as_me: WARNING: libtiff is present but too old." >&2;}
-				LIBS="$foo_LIBS"
+				{ echo "$as_me:$LINENO: WARNING: libtiff is present but old. Loading large TIFFs might be slow." >&5
+echo "$as_me: WARNING: libtiff is present but old. Loading large TIFFs might be slow." >&2;}
 			fi
 		fi
 	fi

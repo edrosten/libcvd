@@ -20,8 +20,11 @@
 */
 #include "cvd/internal/io/tiff.h"
 #include "cvd/image_io.h"
+#include "cvd/config.h"
 #include <tiffio.h>
-#include <memory>
+#include <algorithm>
+#include <vector>
+#include <iostream>
 
 using namespace CVD;
 using namespace TIFF;
@@ -200,13 +203,34 @@ tiff_in::tiff_in(istream& is)
 		m_channels = spp;
 		inverted_grey = (photo == PHOTOMETRIC_MINISWHITE);
 	}
-	
+
 	if(use_cooked_rgba_interface)
 	{
 		raster_data = new uint32[xs*ys];
-		//Read the whole image
-		if(TIFFReadRGBAImageOriented(tif, xs, ys, raster_data, 0, ORIENTATION_TOPLEFT) == -1)
-			throw MalformedImage(error_msg);
+
+		#ifdef CVD_INTERNAL_HAVE_TIFF_ORIENTED
+			//Read the whole image
+			if(TIFFReadRGBAImageOriented(tif, xs, ys, raster_data, 0, ORIENTATION_TOPLEFT) == -1)
+				throw MalformedImage(error_msg);
+		#else
+			//Read the whole (upside-down) image
+			if(TIFFReadRGBAImage(tif, xs, ys, raster_data, 0) == -1)
+				throw MalformedImage(error_msg);
+			
+			//Flip the image, a row pair at a time
+			vector<uint32> buffer(xs);
+			for(int top=0, bot = ys-1; top < ys/2 && top != bot; top++,bot--)
+			{
+				uint32* bp, *tp;
+
+				tp = raster_data + top * xs;
+				bp = raster_data + bot * xs;
+
+				memcpy(&buffer[0], tp, xs*sizeof(uint32));
+				memcpy(tp, bp,  xs*sizeof(uint32));
+				memcpy(bp, &buffer[0], xs*sizeof(uint32));
+			}
+		#endif
 	}
 }
 
