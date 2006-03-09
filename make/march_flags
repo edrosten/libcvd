@@ -7,3 +7,4 @@ opteron opteron k8 i686
 opteron_64 opteron k8 i686 
 athlon64_64 k8 i686
 athlon athlon i686
+sparc ultrasparc3 ultrasparc

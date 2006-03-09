@@ -133,6 +133,9 @@ case "$host" in
 /AMD Athlon\(tm\)/					{print "athlon";exit}
 /AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
 	;;
+	sparc*)
+		cpu=sparc
+		;;
 esac
 
 AC_ARG_WITH(simd, [  --without-simd       disable SIMD code])
@@ -241,22 +244,25 @@ then
 		
 		#Test list in order to find the best compiler option
 		save_CXXFLAGS="$CXXFLAGS"
-		for i in $cpuoptlist
+		for mwhat in -march= -mcpu=
 		do
-			i="-march=$i"
-			AC_MSG_CHECKING([$CXX supports $i]) 
-			
-			CXXFLAGS="$save_CXXFLAGS $i" 
-			AC_COMPILE_IFELSE([int main(){}], [a=1], [a=0])
+			for i in $cpuoptlist
+			do
+				i="$mwhat$i"
+				AC_MSG_CHECKING([$CXX supports $i]) 
+				
+				CXXFLAGS="$save_CXXFLAGS $i" 
+				AC_COMPILE_IFELSE([int main(){}], [a=1], [a=0])
 
-			if test $a = 1
-			then
-				AC_MSG_RESULT([yes])
-				cpuopt=$i
-				break
-			else
-				AC_MSG_RESULT([no])
-			fi
+				if test $a = 1
+				then
+					AC_MSG_RESULT([yes])
+					cpuopt=$i
+					break
+				else
+					AC_MSG_RESULT([no])
+				fi
+			done
 		done
 		CXXFLAGS="$save_CXXFLAGS"
 		
@@ -347,7 +353,8 @@ will make a #define a b. AC_DEFINE_UNQUOTED is needed if b is a shell expansion
 changequote([,])
 
 all_options="videodisplay jpeg tiff ffmpeg toon lapack pthreads"
-
+all_dodginess_options="oldtiff broken_glob"
+dodginess_options=
 
 ################################################################################
 #
@@ -805,6 +812,7 @@ then
 				AC_DEFINE(CVD_INTERNAL_HAVE_TIFF_ORIENTED, [TIFF,])
 			else
 				AC_MSG_WARN(libtiff is present but old. Loading large TIFFs might be slow.)
+				dodginess_options="$dodginess_options oldtiff"
 			fi
 		fi
 	fi
@@ -841,6 +849,31 @@ then
 
 	LIBS="$save_LIBS"
 fi
+
+################################################################################
+#
+# platform compatibility
+echo
+echo ---------------------------------------
+echo Checking for platform compatibility 
+echo ---------------------------------------
+
+AC_MSG_CHECKING(for GLOB_BRACE and GLOB_TILDE in glob.h)
+a=
+AC_COMPILE_IFELSE([#include <glob.h>
+int main(){glob(0, GLOB_BRACE|GLOB_TILDE,0,0);}], [a=1]) 
+
+if test x$a = x1
+then
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+	AC_MSG_WARN(glob matching is only partly functional. Your existing globs may not work.)
+	AC_DEFINE(CVD_INTERNAL_GLOB_IS_BAD)
+	dodginess_options="$dodginess_options broken_glob"
+fi
+
+
 
 ################################################################################
 #
@@ -935,11 +968,14 @@ AC_OUTPUT(Makefile)
 cat << FOO > cvd/config.h
 #ifndef CVD_CONFIG_H
 #define CVD_CONFIG_H
-`echo '#define CVD_HAVE_CPU_'$host_cpu 1 | cat - confdefs.h | grep CVD_ | sort | sed -e's/#define CVD_.*HAVE_\(.*\) .*/#ifndef CVD_DISABLE_\1\\
-    &\\
-#endif/'`
-#endif
 FOO
+echo '#define CVD_HAVE_CPU_'$host_cpu 1 | cat - confdefs.h | grep CVD_ | sort | sed 's/#define CVD_.*HAVE_\(.*\) .*/#ifndef CVD_DISABLE_\1\
+    &\
+#endif/' >> cvd/config.h
+echo '#endif' >> cvd/config.h
+
+cp confdefs.h asshat
+
 
 AC_SUBST(debug_options,$options)
 all_opts="$all_options $os_options"
@@ -958,6 +994,10 @@ echo
 echo Missing options for $host_os:
 changequote(, )
 echo $options $all_options $os_options |  $AWK 'BEGIN{RS=" "}{a[$1]++}END{for(i in a)if(a[i]==1)printf(i" "); print""}'
+echo 
+echo Dodgy things:
+echo $dodginess_options $all_dodginess_options | $AWK 'BEGIN{RS=" "}{a[$1]++}END{for(i in a)if(a[i]>1)printf(i" "); print""}'
+
 changequote([,])
 
 echo

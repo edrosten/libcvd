@@ -3259,6 +3259,9 @@ case "$host" in
 /AMD Athlon\(tm\)/					{print "athlon";exit}
 /AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
 	;;
+	sparc*)
+		cpu=sparc
+		;;
 esac
 
 
@@ -3416,13 +3419,15 @@ echo "${ECHO_T}" >&6
 
 		#Test list in order to find the best compiler option
 		save_CXXFLAGS="$CXXFLAGS"
-		for i in $cpuoptlist
+		for mwhat in -march= -mcpu=
 		do
-			i="-march=$i"
-			echo "$as_me:$LINENO: checking $CXX supports $i" >&5
+			for i in $cpuoptlist
+			do
+				i="$mwhat$i"
+				echo "$as_me:$LINENO: checking $CXX supports $i" >&5
 echo $ECHO_N "checking $CXX supports $i... $ECHO_C" >&6
 
-			CXXFLAGS="$save_CXXFLAGS $i"
+				CXXFLAGS="$save_CXXFLAGS $i"
 
 cat >conftest.$ac_ext <<_ACEOF
 int main(){}
@@ -3458,16 +3463,17 @@ a=0
 fi
 rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 
-			if test $a = 1
-			then
-				echo "$as_me:$LINENO: result: yes" >&5
+				if test $a = 1
+				then
+					echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
-				cpuopt=$i
-				break
-			else
-				echo "$as_me:$LINENO: result: no" >&5
+					cpuopt=$i
+					break
+				else
+					echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
-			fi
+				fi
+			done
 		done
 		CXXFLAGS="$save_CXXFLAGS"
 
@@ -4093,7 +4099,8 @@ fi
 
 
 all_options="videodisplay jpeg tiff ffmpeg toon lapack pthreads"
-
+all_dodginess_options="oldtiff broken_glob"
+dodginess_options=
 
 ################################################################################
 #
@@ -7221,6 +7228,7 @@ _ACEOF
 			else
 				{ echo "$as_me:$LINENO: WARNING: libtiff is present but old. Loading large TIFFs might be slow." >&5
 echo "$as_me: WARNING: libtiff is present but old. Loading large TIFFs might be slow." >&2;}
+				dodginess_options="$dodginess_options oldtiff"
 			fi
 		fi
 	fi
@@ -7637,6 +7645,69 @@ _ACEOF
 
 	LIBS="$save_LIBS"
 fi
+
+################################################################################
+#
+# platform compatibility
+echo
+echo ---------------------------------------
+echo Checking for platform compatibility
+echo ---------------------------------------
+
+echo "$as_me:$LINENO: checking for GLOB_BRACE and GLOB_TILDE in glob.h" >&5
+echo $ECHO_N "checking for GLOB_BRACE and GLOB_TILDE in glob.h... $ECHO_C" >&6
+a=
+cat >conftest.$ac_ext <<_ACEOF
+#include <glob.h>
+int main(){glob(0, GLOB_BRACE|GLOB_TILDE,0,0);}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  a=1
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+
+if test x$a = x1
+then
+	echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+else
+	echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+	{ echo "$as_me:$LINENO: WARNING: glob matching is only partly functional. Your existing globs may not work." >&5
+echo "$as_me: WARNING: glob matching is only partly functional. Your existing globs may not work." >&2;}
+	cat >>confdefs.h <<\_ACEOF
+#define CVD_INTERNAL_GLOB_IS_BAD 1
+_ACEOF
+
+	dodginess_options="$dodginess_options broken_glob"
+fi
+
+
 
 ################################################################################
 #
@@ -8743,11 +8814,14 @@ fi
 cat << FOO > cvd/config.h
 #ifndef CVD_CONFIG_H
 #define CVD_CONFIG_H
-`echo '#define CVD_HAVE_CPU_'$host_cpu 1 | cat - confdefs.h | grep CVD_ | sort | sed -e's/#define CVD_.*HAVE_\(.*\) .*/#ifndef CVD_DISABLE_\1\\
-    &\\
-#endif/'`
-#endif
 FOO
+echo '#define CVD_HAVE_CPU_'$host_cpu 1 | cat - confdefs.h | grep CVD_ | sort | sed 's/#define CVD_.*HAVE_\(.*\) .*/#ifndef CVD_DISABLE_\1\
+    &\
+#endif/' >> cvd/config.h
+echo '#endif' >> cvd/config.h
+
+cp confdefs.h asshat
+
 
 debug_options=$options
 
@@ -8768,6 +8842,10 @@ echo
 echo Missing options for $host_os:
 
 echo $options $all_options $os_options |  $AWK 'BEGIN{RS=" "}{a[$1]++}END{for(i in a)if(a[i]==1)printf(i" "); print""}'
+echo
+echo Dodgy things:
+echo $dodginess_options $all_dodginess_options | $AWK 'BEGIN{RS=" "}{a[$1]++}END{for(i in a)if(a[i]>1)printf(i" "); print""}'
+
 
 
 echo

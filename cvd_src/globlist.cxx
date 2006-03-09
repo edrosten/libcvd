@@ -19,6 +19,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "cvd/diskbuffer2.h"
+#include "cvd/config.h"
 #include <glob.h>
 #include <string>
 #include <vector>
@@ -37,8 +38,12 @@ vector<string> CVD::globlist(const string& gl)
 	glob_t g;
 	unsigned int i;
 	
-	glob(gl.c_str(), GLOB_BRACE | GLOB_TILDE,  0 , &g);
-	
+	#ifdef CVD_INTERNAL_GLOB_IS_BAD
+		glob(gl.c_str(), 0 ,  0 , &g);
+	#else
+		glob(gl.c_str(), GLOB_BRACE | GLOB_TILDE,  0 , &g);
+	#endif
+
 	for(i=0; i < g.gl_pathc; i++)
 		ret.push_back(g.gl_pathv[i]);
 
