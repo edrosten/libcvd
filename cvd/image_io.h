@@ -174,7 +174,9 @@ namespace CVD
 	{
 	  switch (t) {
 	  case ImageType::PNM:  PNM::writePNM(im, o); break;
-	  case ImageType::JPEG: JPEG::writeJPEG(im,o); break;
+	  #ifdef CVD_IMAGE_HAVE_JPEG
+		  case ImageType::JPEG: JPEG::writeJPEG(im,o); break;
+	  #endif
 	  case ImageType::PS:   PS::writePS(im, o);  break;
 	  case ImageType::EPS:  PS::writeEPS(im,o);  break;
 	  case ImageType::BMP:  BMP::writeBMP(im,o);  break;
