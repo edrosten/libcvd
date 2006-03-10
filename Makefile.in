@@ -264,8 +264,9 @@ install: progs $(soname) libcvd.a
 	mkdir -p $(bindir)
 	cp -r cvd $(includedir)
 	cp $(soname2) $(libdir)
-	ln -f -s  $(libdir)/$(soname2) $(libdir)/$(soname1)
-	ln -f -s  $(libdir)/$(soname1) $(libdir)/$(soname)
+	rm -f  $(libdir)/$(soname1) $(libdir)/$(soname)
+	ln -s  $(libdir)/$(soname2) $(libdir)/$(soname1)
+	ln -s  $(libdir)/$(soname1) $(libdir)/$(soname)
 	cp libcvd.a $(libdir)
 	cp $(PROGS) $(bindir)
 	mkdir -p '$(mandir)'
