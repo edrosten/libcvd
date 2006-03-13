@@ -44,6 +44,14 @@ namespace CVD
 	{
 		return ImageRef((int)v[0], (int)v[1]);
 	}
+	
+	/// Convert a Vector into an image co-ordinate. Numbers are rounded
+	/// @param v The Vector to convert
+	/// @ingroup gImage
+	inline ImageRef ir_rounded(const TooN::Vector<2>& v)
+	{
+		return ImageRef((int)(v[0] + 0.5), (int)(v[1] + 0.5));
+	}
 }
 
 
