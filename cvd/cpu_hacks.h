@@ -21,9 +21,33 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+
+#include <cvd/config.h>
+
+#if CVD_HAVE_FENV_H
+	#include <fenv.h>
+#endif
+
 namespace CVD
 {
-	
+
+
+
+
+	#ifdef CVD_HAVE_FENV_H
+		inline void enableFPE() 
+		{ 
+			feclearexcept(FE_ALL_EXCEPT);
+			feenableexcept(FE_DIVBYZERO|FE_INVALID); 
+		}
+	#else
+		/// Enable floating point exceptions. This function may
+		/// do nothing, depending on the architecture
+		inline void enableFPE() 
+		{ 
+		}
+	#endif
+
 	/// Prefecth memory. This function might do nothing, depending on the
 	/// architecture, or it might prefetch memory. Either way it will have
 	/// no effect on the computation except to (possibly) speed it up.

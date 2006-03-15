@@ -353,7 +353,6 @@ will make a #define a b. AC_DEFINE_UNQUOTED is needed if b is a shell expansion
 changequote([,])
 
 all_options="videodisplay jpeg tiff ffmpeg toon lapack pthreads"
-all_dodginess_options="oldtiff broken_glob"
 dodginess_options=
 
 ################################################################################
@@ -873,7 +872,14 @@ else
 	dodginess_options="$dodginess_options broken_glob"
 fi
 
-
+a=
+AC_CHECK_HEADERS(fenv.h, [a=1])
+if test x$a = x1
+then
+	AC_DEFINE(CVD_HAVE_FENV_H)
+else
+	dodginess_options="$dodginess_options missing_c99_fenv.h"
+fi
 
 ################################################################################
 #
@@ -996,7 +1002,7 @@ changequote(, )
 echo $options $all_options $os_options |  $AWK 'BEGIN{RS=" "}{a[$1]++}END{for(i in a)if(a[i]==1)printf(i" "); print""}'
 echo 
 echo Dodgy things:
-echo $dodginess_options $all_dodginess_options | $AWK 'BEGIN{RS=" "}{a[$1]++}END{for(i in a)if(a[i]>1)printf(i" "); print""}'
+echo $dodginess_options 
 
 changequote([,])
 
