@@ -859,13 +859,13 @@ if test -n "$ac_init_help"; then
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --without-debug           compile without debug support
-  --with-debug=flags        compile with debug support
-  --with-profile=flags      compile with profile support
-  --without-simd       disable SIMD code
-  --without-optimize           compile without
-  --with-optimize=flags        compile with optimization flags
-  --with-TooN=directory  Specify location for TooN
+  --without-debug         compile without debug support
+  --with-debug=flags      compile with debug support
+  --with-profile=flags    compile with profile support
+  --without-simd          disable SIMD code
+  --without-optimize      compile without optimizations
+  --with-optimize=flags   compile with optimization flags
+  --with-TooN=directory   Specify location for TooN
   --without-firewire	  compile without firewire (dvbuffer) support
   --without-v4l1	  compile without v4l1 support
   --without-v4l2	  compile without v4l2 support
@@ -878,7 +878,7 @@ Optional Packages:
   --with-tiff=forceold    Debug only. Force use of older library facilities.
   --without-ffmpeg	  compile without FFMPEG support
   --with-fast-pointers=N  Number of pointers for FAST detectors. Answer: 2
-  --with-fast-force=N  Force first question position for FAST. Answer: 0,1
+  --with-fast-force=N     Force first question position for FAST. Answer: 0,1
 
 Some influential environment variables:
   CC          C compiler command
@@ -7649,9 +7649,9 @@ fi
 #
 # platform compatibility
 echo
-echo ---------------------------------------
+echo -----------------------------------
 echo Checking for platform compatibility
-echo ---------------------------------------
+echo -----------------------------------
 
 echo "$as_me:$LINENO: checking for GLOB_BRACE and GLOB_TILDE in glob.h" >&5
 echo $ECHO_N "checking for GLOB_BRACE and GLOB_TILDE in glob.h... $ECHO_C" >&6
@@ -7872,9 +7872,9 @@ fi
 # Fast options
 
 echo
-echo -------------------------------
+echo ----------------------
 echo Fast feature detection
-echo -------------------------------
+echo ----------------------
 
 
 fast_ptr=2

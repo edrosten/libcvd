@@ -58,9 +58,9 @@ fi
 
 
 
-AC_ARG_WITH(debug,   [  --without-debug           compile without debug support],[debug=no], [])
-AC_ARG_WITH(debug,   [  --with-debug=flags        compile with debug support],[debug="$withval"], [])
-AC_ARG_WITH(profile, [  --with-profile=flags      compile with profile support],[profile="$withval"], [profile=no])
+AC_ARG_WITH(debug,   [  --without-debug         compile without debug support],[debug=no], [])
+AC_ARG_WITH(debug,   [  --with-debug=flags      compile with debug support],[debug="$withval"], [])
+AC_ARG_WITH(profile, [  --with-profile=flags    compile with profile support],[profile="$withval"], [profile=no])
 
 ###################################################
 #
@@ -138,7 +138,7 @@ case "$host" in
 		;;
 esac
 
-AC_ARG_WITH(simd, [  --without-simd       disable SIMD code])
+AC_ARG_WITH(simd, [  --without-simd          disable SIMD code])
 
 if test "$with_simd" != "no"
 then
@@ -225,8 +225,8 @@ then
 fi
 
 
-AC_ARG_WITH(optimize,   [  --without-optimize           compile without ],[optimize=no],[])
-AC_ARG_WITH(optimize,   [  --with-optimize=flags        compile with optimization flags],[optimize="$withval"], [])
+AC_ARG_WITH(optimize,   [  --without-optimize      compile without optimizations ],[optimize=no],[])
+AC_ARG_WITH(optimize,   [  --with-optimize=flags   compile with optimization flags],[optimize="$withval"], [])
 
 if test "$optimize" != no
 then
@@ -394,7 +394,7 @@ echo -----------------------------
 #
 #Allow the user to specify the location of TooN
 #
-AC_ARG_WITH(TooN, [  --with-TooN=directory  Specify location for TooN ], [opt_toon_dir=$withval])
+AC_ARG_WITH(TooN, [  --with-TooN=directory   Specify location for TooN ], [opt_toon_dir=$withval])
 
 if test "$opt_toon_dir" = no
 then
@@ -853,9 +853,9 @@ fi
 #
 # platform compatibility
 echo
-echo ---------------------------------------
+echo -----------------------------------
 echo Checking for platform compatibility 
-echo ---------------------------------------
+echo -----------------------------------
 
 AC_MSG_CHECKING(for GLOB_BRACE and GLOB_TILDE in glob.h)
 a=
@@ -886,16 +886,16 @@ fi
 # Fast options
 
 echo
-echo -------------------------------
+echo ----------------------
 echo Fast feature detection
-echo -------------------------------
+echo ----------------------
 
 
 fast_ptr=2
 AC_ARG_WITH(TooN, [  --with-fast-pointers=N  Number of pointers for FAST detectors. Answer: 2 ], [fast_ptr=$withval])
 
 fast_force=1
-AC_ARG_WITH(TooN, [  --with-fast-force=N  Force first question position for FAST. Answer: 0,1 ], [fast_force=$withval])
+AC_ARG_WITH(TooN, [  --with-fast-force=N     Force first question position for FAST. Answer: 0,1 ], [fast_force=$withval])
 
 if test "$fast_force" != 0 && test "$fast_force" != 1
 then
