@@ -4,13 +4,13 @@
 // POSIX threads
 #include <pthread.h>
 
+namespace CVD {
+
 /** A Synchronized object encapsulates a basic mutex.
     Only one thread can own the lock at a time.
     Classes should subclass from Synchronized if they
     want to be able to lock themselves.
 */
-namespace CVD {
-
 class Synchronized
 {
  public:

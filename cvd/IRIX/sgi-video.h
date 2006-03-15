@@ -35,10 +35,14 @@ namespace CVD
 /// Internal O2Buffer helpers
 namespace SGI
 {
+	/// Set this dodgy flag for debugging
 	extern int debug;
+	/// Set this dodgy flag for debugging
 	extern int debug_sgi_events;
-
+	
+	/// Get current time since the epoch in SGI-time
 	unsigned long long 	current_time();
+	/// Divisor to turn current_time() in to seconds
 	extern const unsigned long long	time_div;
 	
 	/// Internal (non type-safe) class used by O2Buffer to do the actual interfacing with the
@@ -47,22 +51,39 @@ namespace SGI
 	{
 		public:
 			
-			RawSGIVideo(bool=false);
+			/// Construct SGI video grabber
+			/// @param use_frames Should the grabber use frames (true) or fields (false)
+			RawSGIVideo(bool use_frames=false);
 			~RawSGIVideo();
+			
 
+			///	Start capturing
 			void 	start();
+			/// Stop capturing
 			void 	stop();
 
+			/// Get data pointer to the next frame
 			unsigned char*	next_frame();
-
+			
+			/// Width of images returned by the buffer
 			int		x_size() const;
+			
+			/// Height of images returned by the buffer
 			int		y_size() const ;
+			
+			/// Number of bytes in a frame 
 			int		frame_size() const;
+
+			/// Frames per second of capture
 			float	frame_rate() const ;
+
+			/// Sequence number of frame captured
 			int		frame_number() const;
 
+			/// Pointer to most recently retrieved frame
 			unsigned char*	current_frame() const;	
-
+			
+			/// Time at which frame was captured
 			unsigned long long  frame_time() const;
 
 

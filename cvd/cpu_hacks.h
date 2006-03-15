@@ -62,8 +62,6 @@ namespace CVD
 	///					- *: nothing
 	template<int I> inline void prefetch(const void* ptr);
 	
-	/// Calls the default prefetch.
-	/// @param ptr The address to prefetch
 	inline void prefetch(const void* ptr);
 
 
