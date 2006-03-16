@@ -171,6 +171,8 @@ namespace Camera {
 	/// Returns the vector of camera parameters in the format
 	/// \f$ \begin{pmatrix}f_u & f_v & u_0 & v_0 & c & q\end{pmatrix} \f$
     inline const TooN::Vector<num_parameters>& get_parameters() const {return my_camera_parameters;}
+	/// Returns the vector of camera parameters in the format
+	/// \f$ \begin{pmatrix}f_u & f_v & u_0 & v_0 & c & q\end{pmatrix} \f$
     inline TooN::Vector<num_parameters>& get_parameters() {return my_camera_parameters;}
 
   private:

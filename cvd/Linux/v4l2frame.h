@@ -70,6 +70,7 @@ class V4L2FrameT : public VideoFrame<T>
 
 };
 
+/// Nontemplated video frame type for backwards compatibility
 typedef V4L2FrameT<unsigned char> V4L2Frame;
 
 

@@ -76,7 +76,17 @@ namespace CVD
 	void fast_nonmax_with_scores(
    const BasicImage<byte>& im, const std::vector<ImageRef>& corners,
    int barrier, std::vector<std::pair<ImageRef,int> >& nonmax_corners);
-	
+
+	/** Return the score for the corner as used by fast_nonmax
+		Note that this is not the same score as used in @ref fast_score .
+
+		NB: This function is DEPRECATED!
+
+		@param im The image.
+		@param c The location in the image to be scored
+		@param pointer_dir Integer offsets for each of the 16 pixels in the ring from the centre.
+		@param barrier Corner detection threshold
+	*/
 	int corner_score(const BasicImage<byte>& im, ImageRef c, const int *pointer_dir, int barrier);
 
 	/// Perform tree based 7 point FAST feature detection. This is more like an edge detector.

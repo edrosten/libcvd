@@ -24,7 +24,6 @@
 namespace CVD
 {
 	/// Local templated version of abs. Returns the absolute value of a variable.
-	/// @param T The type of the variable
 	/// @param t The input parameter
 	/// @ingroup gCPP
 	template <class T> 

@@ -32,20 +32,24 @@ namespace CVD
 {
 
 
+	/// Enable floating point exceptions. This function may
+	/// do nothing, depending on the architecture
+	inline void enableFPE();
 
-
-	#ifdef CVD_HAVE_FENV_H
-		inline void enableFPE() 
-		{ 
-			feclearexcept(FE_ALL_EXCEPT);
-			feenableexcept(FE_DIVBYZERO|FE_INVALID); 
-		}
-	#else
-		/// Enable floating point exceptions. This function may
-		/// do nothing, depending on the architecture
-		inline void enableFPE() 
-		{ 
-		}
+	#ifndef DOXYGEN_IGNORE_INTERNAL
+		#ifdef CVD_HAVE_FENV_H
+			inline void enableFPE() 
+			{ 
+				feclearexcept(FE_ALL_EXCEPT);
+				feenableexcept(FE_DIVBYZERO|FE_INVALID); 
+			}
+		#else
+			/// Enable floating point exceptions. This function may
+			/// do nothing, depending on the architecture
+			inline void enableFPE() 
+			{ 
+			}
+		#endif
 	#endif
 
 	/// Prefecth memory. This function might do nothing, depending on the

@@ -167,7 +167,7 @@ class V4L2BufferT : public VideoBuffer<T>,
 		virtual double frame_rate() {return V4L2Buffer_Base::frame_rate();}
 };
 
-
+/// Nontemplated V4L2Buffer type for backwards compatibility.
 typedef V4L2BufferT<unsigned char> V4L2Buffer;
 
 }
