@@ -212,3 +212,8 @@ inline unsigned int ImageRef::mag_squared() const
   typedef unsigned int uint;
   return uint(x*x) + uint(y*y);
 }
+
+inline int ImageRef::area() const
+{
+  return x * y;
+}

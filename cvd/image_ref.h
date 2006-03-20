@@ -149,6 +149,9 @@ public:
 	/// Magnitude-squared (x*x + y*y)
 	inline unsigned int     mag_squared() const;
 
+	/// Area (product of x and y; signed)
+	inline int area() const;
+
 	/// Square bracket subscripts for easy loops. 0=x 1=y other=error
 	inline int&             operator[](int i);
 
