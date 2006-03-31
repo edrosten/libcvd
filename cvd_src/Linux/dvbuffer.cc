@@ -21,9 +21,9 @@
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.11 $$Name:  $
-**       $Date: 2005/11/07 11:52:14 $
-**   Copyright: LGPL $Author: georgklein $
+**   $Revision: 1.12 $$Name:  $
+**       $Date: 2006/03/31 16:58:04 $
+**   Copyright: LGPL $Author: edrosten $
 ** Description:
 **
 **    Get one gray image using libdc1394 and store it as portable gray map
@@ -32,6 +32,9 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
+**  Revision 1.12  2006/03/31 16:58:04  edrosten
+**  Added some proper error handling.
+**
 **  Revision 1.11  2005/11/07 11:52:14  georgklein
 **  Added auto_on_off
 **
@@ -89,6 +92,9 @@
 #include <libdc1394/dc1394_control.h>
 #include <stdlib.h>
 
+#include <errno.h>
+#include <string.h>
+
 #include "cvd/config.h"
 
 
@@ -101,6 +107,7 @@
 
 #include <sys/ioctl.h>
 #include <iostream>
+#include <sstream>
 #include <unistd.h>
 
 #include <sys/types.h>
@@ -118,6 +125,52 @@
 using namespace std;
 namespace CVD
 {
+Exceptions::DVBuffer::DeviceOpen::DeviceOpen(string name)
+{
+	what = "DVBuffer2 couldn't open " + name + ": "+ strerror(errno);
+}
+
+Exceptions::DVBuffer::Raw1394Setup::Raw1394Setup(string action)
+{
+	what = "DVBuffer2 (in Raw1394 setup): " + action + ": " + strerror(errno);
+}
+
+Exceptions::DVBuffer::DC1394Setup::DC1394Setup(string action)
+{
+	what = "DVBuffer2 (in camera setup): " + action;// + ": " + strerror(errno);
+}
+
+
+Exceptions::DVBuffer::BadCameraSelection::BadCameraSelection(int nc, int cn)
+{
+	ostringstream o;
+	o << "DVBuffer2: Camera number " << cn << " requested, but there are only " << nc << " cameras plugged in.";
+	what = o.str();
+}
+
+Exceptions::DVBuffer::BusReset::BusReset()
+{
+
+  what =     "Sorry, your RawDCVideo is the highest numbered node\n"
+             "of the bus, and has therefore become the root node.\n"
+             "The root node is responsible for maintaining \n"
+             "the timing of isochronous transactions on the IEEE \n"
+             "1394 bus.  However, if the root node is not cycle master \n"
+             "capable (it doesn't have to be), then isochronous \n"
+             "transactions will not work.  The host controller card is \n"
+             "cycle master capable, however, most cameras are not.\n"
+             "\n"
+             "The quick solution is to add the parameter \n"
+             "attempt_root=1 when loading the OHCI driver as a \n"
+             "module.  So please do (as root):\n"
+             "\n"
+             "   rmmod ohci1394\n"
+             "   insmod ohci1394 attempt_root=1\n"
+             "\n"
+			 "A quicker solution is to unplug the camera and plug it back in again.\n"
+             "\n";
+}
+
 namespace DC
 {
 	const double cam_type<yuv411>::fps = 30;
@@ -394,6 +447,27 @@ double DC::RawDCVideo::frame_rate()
 	return true_fps;
 }
 
+
+class handleholder
+{
+	raw1394handle_t handle;
+
+	public:
+		handleholder(raw1394handle_t h)
+		:handle(h){}
+
+		void clear()
+		{
+			handle = 0;
+		}
+
+		~handleholder()
+		{
+			if(handle)
+				raw1394_destroy_handle(handle);
+		}
+};
+
 DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int exposure, int mode, double fps)
 {
 
@@ -407,7 +481,6 @@ DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int e
   int camera_quadlets_per_frame; // construction variable
   int numNodes; // local variable
   int numCameras; // local variable
-  int *myPort = new int;
   int port=0;
   int frame_rate;
 
@@ -431,77 +504,29 @@ DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int e
   if (!(my_handle= raw1394_new_handle()))
 #endif
   {
-    cerr << "Couldn't get raw1394 handle!" << endl;
-    my_handle=0;
+  	throw Exceptions::DVBuffer::Raw1394Setup("Couldn't get raw1394 handle (check for raw1394 and ohci1394 modules, and permissions on /dev/raw1394)");
   }
 
-  if (raw1394_set_port(my_handle, port) < 0) {
-    if (my_handle != NULL) {
-      raw1394_destroy_handle(my_handle);
-      cerr << "Couldn't raw1394_set_port!" << endl;
-      my_handle=0;
-    }
-  }
+  handleholder holder(my_handle);
 
-  *myPort = port;
-  raw1394_set_userdata( my_handle, myPort );
+  if (raw1394_set_port(my_handle, port) < 0) 
+	  throw Exceptions::DVBuffer::Raw1394Setup("Couldn't perform raw1394_set_port");
 
-  if (my_handle==NULL)
-  {
-    fprintf(stderr, "Unable to aquire a raw1394 handle\n\n"
-             "Please check \n"
-	     "  - if the kernel modules `ieee1394',`raw1394' and `ohci1394' are loaded \n"
-	     "  - if you have read/write access to /dev/raw1394\n\n");
-    exit(1);
-  }
-  
   /*-----------------------------------------------------------------------
    *  get the RawDCVideo nodes and describe them as we find them
    *-----------------------------------------------------------------------*/
   numNodes = raw1394_get_nodecount(my_handle);
   my_camera_nodes = dc1394_get_camera_nodes(my_handle,&numCameras,1); // keep this one too
-  fflush(stdout);
+
   if (numCameras<=camera_no)
-  {
-    fprintf( stderr, "not enough cameras found - only found %d :(\n", numCameras);
-    raw1394_destroy_handle(my_handle);
-    exit(1);
-  }
-  fprintf(stderr,"found %d cameras\n",numCameras);
+  	throw Exceptions::DVBuffer::BadCameraSelection(numCameras, camera_no);
 
   /*-----------------------------------------------------------------------
    *  to prevent the iso-transfer bug from raw1394 system, check if
-   *  RawDCVideo is highest node. For details see 
-   *  http://linux1394.sourceforge.net/faq.html#DCbusmgmt
-   *  and
-   *  http://sourceforge.net/tracker/index.php?func=detail&aid=435107&group_id=8157&atid=108157
+   *  RawDCVideo is highest node. 
    *-----------------------------------------------------------------------*/
   if( my_camera_nodes[camera_no] == numNodes-1)
-  {
-    fprintf( stderr, "\n"
-             "Sorry, your RawDCVideo is the highest numbered node\n"
-             "of the bus, and has therefore become the root node.\n"
-             "The root node is responsible for maintaining \n"
-             "the timing of isochronous transactions on the IEEE \n"
-             "1394 bus.  However, if the root node is not cycle master \n"
-             "capable (it doesn't have to be), then isochronous \n"
-             "transactions will not work.  The host controller card is \n"
-             "cycle master capable, however, most cameras are not.\n"
-             "\n"
-             "The quick solution is to add the parameter \n"
-             "attempt_root=1 when loading the OHCI driver as a \n"
-             "module.  So please do (as root):\n"
-             "\n"
-             "   rmmod ohci1394\n"
-             "   insmod ohci1394 attempt_root=1\n"
-             "\n"
-			 "A quicker solution is to unplug the camera and plug it back in again.\n"
-			 "\n"
-             "for more information see the FAQ at \n"
-             "http://linux1394.sourceforge.net/faq.html#DCbusmgmt\n"
-             "\n");
-    exit( 1);
-  }
+  	throw Exceptions::DVBuffer::BusReset();
   
   /*-----------------------------------------------------------------------
    *  setup capture
@@ -509,61 +534,38 @@ DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int e
 
   my_node = my_camera_nodes[camera_no];
 
- 
-  if( format == FORMAT_SCALABLE_IMAGE_SIZE) {
-    fprintf( stderr, "Wrong function: Use dc1394_dma_setup_format7_capture()\n");
-    exit(1);
-  }
+  if (dc1394_set_iso_channel_and_speed(my_handle,my_node,channel,speed) != DC1394_SUCCESS)
+	throw Exceptions::DVBuffer::DC1394Setup("dc1394_set_iso_channel_and_speed");
 
-  if (dc1394_set_iso_channel_and_speed(my_handle,my_node,channel,speed) != DC1394_SUCCESS) {
-    cerr << "dc1394_set_iso_channel_and_speed failed" << endl;
-    raw1394_destroy_handle(my_handle);
-    exit(1);
-  }
+  if (dc1394_set_video_format(my_handle,my_node,format) != DC1394_SUCCESS)
+    throw Exceptions::DVBuffer::DC1394Setup("dc1394_set_video_format failed");
 
-  if (dc1394_set_video_format(my_handle,my_node,format) != DC1394_SUCCESS) {
-    cerr << "dc1394_set_video_format failed" << endl;
-    raw1394_destroy_handle(my_handle);
-    exit(1);
-  }
+  if (dc1394_set_video_mode(my_handle, my_node,mode) != DC1394_SUCCESS)
+    throw Exceptions::DVBuffer::DC1394Setup("dc1394_set_video_mode failed");
 
-  if (dc1394_set_video_mode(my_handle, my_node,mode) != DC1394_SUCCESS) {
-    cerr << "dc1394_set_video_mode failed" << endl;
-    raw1394_destroy_handle(my_handle);
-    exit(1);
-  }
-
-  if (dc1394_set_video_framerate(my_handle,my_node,frame_rate) != DC1394_SUCCESS) {
-    cerr << "dc1394_set_video_framerate failed" << endl;
-    raw1394_destroy_handle(my_handle);
-    exit(1);
-  }
+  if (dc1394_set_video_framerate(my_handle,my_node,frame_rate) != DC1394_SUCCESS)
+    throw Exceptions::DVBuffer::DC1394Setup("dc1394_set_video_framerate failed");
 
   my_channel= channel;
   
-  if((camera_quadlets_per_frame= _dc1394_quadlets_from_format(format, mode)) < 0){
-    cerr << "_dc1394_quadlets_from_format failed" << endl;
-    raw1394_destroy_handle(my_handle);
-    exit(1);
-  }
+  if((camera_quadlets_per_frame= _dc1394_quadlets_from_format(format, mode)) < 0)
+    throw Exceptions::DVBuffer::DC1394Setup("_dc1394_quadlets_from_format failed");
   
-  // if (_dc1394_get_wh_from_format(format,mode,&(camera_frame_width), &(camera_frame_height)) == DC1394_FAILURE) {
-  if (_dc1394_get_wh_from_format(format,mode,&(my_size.x), &(my_size.y)) == DC1394_FAILURE) {
-    cerr << "_dc1394_get_wh_from_format failed" << endl;
-    raw1394_destroy_handle(my_handle);
-    exit(1);
-  }
+  if (_dc1394_get_wh_from_format(format,mode,&(my_size.x), &(my_size.y)) == DC1394_FAILURE)
+    throw Exceptions::DVBuffer::DC1394Setup("_dc1394_get_wh_from_format failed");
+
+
 
   // dma setup
   struct cvd_video1394_mmap vmmap;
   struct cvd_video1394_wait vwait;
   
-  if ( (my_fd = open(dma_device_file,O_RDONLY)) < 0 ) {
-    cerr << "unable to open video1394 device " << dma_device_file << endl;
-    tom_dc1394_dma_release_camera(my_handle,my_ring_buffer, my_frame_size*my_num_buffers, my_fd);
-    raw1394_destroy_handle(my_handle);
-    exit(1);
-  }
+  if ( (my_fd = open(dma_device_file,O_RDONLY)) < 0 )
+  	throw Exceptions::DVBuffer::DeviceOpen(dma_device_file);
+ 
+  //TODO Finish putting in exceptions
+  //then move this to the end of this function
+  holder.clear();
 
   vmmap.syncronization_tag= 1;
   vmmap.num_buffers= num_dma_buffers;

@@ -26,12 +26,64 @@
 #include <cvd/byte.h>
 #include <cvd/rgb.h>
 #include <cvd/colourspaces.h>
+#include <cvd/exceptions.h>
 #include <libraw1394/raw1394.h>
 #include <libdc1394/dc1394_control.h>
 #include <vector>
+#include <string>
 #include <utility>
 
 namespace CVD {
+
+namespace Exceptions
+{
+	/// %Exceptions specific to V4L2Buffer
+	/// @ingroup gException
+	namespace DVBuffer
+	{
+		/// Base class for all V4L2 exceptions
+		/// @ingroup gException
+		struct All: public CVD::Exceptions::VideoBuffer::All{};
+		
+		/// Error with RAW1394 setup
+		/// @ingroup gException
+		struct Raw1394Setup: public All {Raw1394Setup(std::string action); ///< Construct from action which failed
+		};
+
+		/// Error with DC1394 setup
+		/// @ingroup gException
+		struct DC1394Setup: public All {DC1394Setup(std::string action); ///< Construct from action which failed
+		};
+
+		/// Bad camera selection
+		/// @ingroup gException
+		struct BadCameraSelection: public All {	BadCameraSelection(int num_cameras, int camera_no); ///< Construct from the number of cameras found and the camera requested
+		};
+
+		/// Bus reset needed
+		/// @ingroup gException
+		struct BusReset: public All {BusReset(); ///< No arguments required
+		};
+		
+		/// Error opening the device
+		/// @ingroup gException
+		struct DeviceOpen: public All {DeviceOpen(std::string dev); ///< Construct from the device name
+		};
+		/// Error setting up the device
+		/// @ingroup gException
+		struct DeviceSetup: public All {DeviceSetup(std::string dev, std::string action);  ///< Construct from the device string and an error string
+		};
+		/// Error in a put_frame() call
+		/// @ingroup gException
+		struct PutFrame: public All {PutFrame(std::string dev); ///< Construct from the device name
+		};
+		/// Error in a get_frame() call
+		/// @ingroup gException
+		struct GetFrame: public All {GetFrame(std::string dev); ///< Construct from the device name
+		};
+	}
+}
+
 
 /// Internal DVBuffer2 helpers
 namespace DC
