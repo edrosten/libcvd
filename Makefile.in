@@ -106,6 +106,7 @@ CVD_OBJS=	cvd_src/cvd_timer.o 						\
 			cvd_src/fast/10_@fast_pointers@_@fast_force@.o							\
 			cvd_src/fast/11_@fast_pointers@_@fast_force@.o							\
 			cvd_src/fast/12_@fast_pointers@_@fast_force@.o							\
+			cvd_src/timeddiskbuffer.o
 
 ################################################################################
 #

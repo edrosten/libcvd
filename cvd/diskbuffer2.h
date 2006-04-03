@@ -118,7 +118,7 @@ namespace CVD
 				return frames_per_sec;
 			}
 
-		private:
+		protected:
 			ImageRef my_size;
 			int		 next_frame;
 			double   start_time;

@@ -43,6 +43,9 @@ namespace CVD
 			/// What is the filename for this image?
 			const std::string& name() {return frame_name;};
 
+			/// set the time stamp, required for TimedDiskBuffer2
+			void timestamp( double time ) { my_timestamp = time; }
+
 		private:
 			~DiskBuffer2Frame()
 			{
