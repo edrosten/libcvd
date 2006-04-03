@@ -78,7 +78,7 @@ namespace CVD {
 	template<class T>
 	inline CVD::DiskBuffer2Frame<T>* TimedDiskBuffer<T>::get_frame()
 	{
-		int current_frame = next_frame;
+		int current_frame = this->next_frame;
 		if(current_frame < 0)
 			current_frame = 0;
 		// get a frame from the super class
