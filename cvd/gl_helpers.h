@@ -273,7 +273,8 @@ namespace CVD
 	/// @param near near clipping plane
 	/// @param far far clipping plane
 	/// @ingroup gGL
-	inline void glFrustum( const TooN::Vector<4> & params, double width, double height, double near = 0.1, double far = 100)
+	template <class A>
+	inline void glFrustum( const TooN::FixedVector<4,A> & params, double width, double height, double near = 0.1, double far = 100)
 	{
 		GLdouble left, right, bottom, top;
 		left = -near * params[2] / params[0];
