@@ -34,13 +34,13 @@ namespace CVD
 	struct bayer
 	{
 		unsigned char val;
-                operator unsigned char(){
-                    return val;
-                };
-                bayer(unsigned char in) : val(in)
-                {}
-                bayer(void) : val(0)
-                {}
+		operator unsigned char() const {
+			return val;
+		}
+		template <typename T> bayer( T in ) : val((unsigned char) in)
+		{}
+		bayer(void) : val(0)
+		{}
 	};
 
 	/// A datatype to represent yuv411 (uyyvyy) data, typically from firewire
