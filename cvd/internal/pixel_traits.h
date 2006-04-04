@@ -181,6 +181,17 @@ namespace Pixel {
 		static const long double max_intensity; 
 	};
 
+  template<int LIFT> struct traits<bool, LIFT>
+  {
+      typedef int wider_type;  // int holds a sum of many bools
+      typedef float float_type; // which floating point type can hold them?
+      static const bool integral = true; // bool is integral
+      static const bool is_signed = false; // bool is unsigned
+      static const int bits_used = 1; // only one bit
+      static const bool max_intensity= true;  // the 'high' value
+  };
+
+
 
 
     template<int LIFT> const long double traits<long double, LIFT>::max_intensity = 1.0;
