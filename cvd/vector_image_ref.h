@@ -50,7 +50,9 @@ namespace CVD
 	/// @ingroup gImage
 	inline ImageRef ir_rounded(const TooN::Vector<2>& v)
 	{
-		return ImageRef((int)(v[0] + 0.5), (int)(v[1] + 0.5));
+		return ImageRef(
+      static_cast<int>(v[0] > 0.0 ? v[0] + 0.5 : v[0] - 0.5),
+      static_cast<int>(v[1] > 0.0 ? v[1] + 0.5 : v[1] - 0.5));
 	}
 }
 
