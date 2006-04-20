@@ -72,7 +72,7 @@ public:
 	/// @param max The size of the image
 	inline bool prev(const ImageRef& max);
 	/// Step to the next co-ordinate in the image (in horizontal scanline order),
-	/// for pixels within a rectangule window
+	/// for pixels within a rectangular window
 	/// Successive calls to this function will work backwards along each row of the image.
 	/// If the next co-ordinate is off the start of the image, it returns false.
 	/// @param min The minimum (x,y) co-ordinates in the window
@@ -143,8 +143,16 @@ public:
 	/// Bitwise left-shift operator
 	/// @param i The amount to shift
 	inline ImageRef		operator<<(int i) const;
-	/// simple lexical ordering to enable ImageRefs for sets, maps, multisets, multimaps etc.
-	inline bool operator<(const ImageRef & other) const;
+  /** An ImageRef is less than another ImageRef if it is earlier in the
+  standard horizontal scan-line order, i.e. has a smaller y-co-ordinate
+  or the same y-co-ordinate but a smaller x-co-ordinate. An ordering of
+  ImageRefs is needed to allow them to be used in STL for sets, maps,
+  multisets, multimaps etc. **/
+  inline bool operator<(const ImageRef & other) const;
+  /** An ImageRef is greater than another ImageRef if it is earlier in the
+  standard horizontal scan-line order, i.e. has a smaller y-co-ordinate
+  or the same y-co-ordinate but a smaller x-co-ordinate. **/
+  inline bool operator>(const ImageRef & other) const;
 
 	/// Magnitude-squared (x*x + y*y)
 	inline unsigned int     mag_squared() const;

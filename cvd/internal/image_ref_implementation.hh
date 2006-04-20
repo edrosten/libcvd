@@ -194,7 +194,12 @@ inline ImageRef operator*(const int scale, const ImageRef&  ref)
 
 inline bool ImageRef::operator<(const ImageRef & other) const
 {
-	return x < other.x || ( x == other.x && y < other.y);
+  return y < other.y || ( y == other.y && x < other.x);
+}
+
+inline bool ImageRef::operator>(const ImageRef & other) const
+{
+  return y > other.y || ( y == other.y && x > other.x);
 }
 
 
