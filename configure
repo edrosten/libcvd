@@ -8978,8 +8978,6 @@ echo '#define CVD_HAVE_CPU_'$host_cpu 1 | cat - confdefs.h | grep CVD_ | sort | 
 #endif/' >> cvd/config.h
 echo '#endif' >> cvd/config.h
 
-cp confdefs.h asshat
-
 
 debug_options=$options
 

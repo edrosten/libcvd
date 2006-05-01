@@ -980,8 +980,6 @@ echo '#define CVD_HAVE_CPU_'$host_cpu 1 | cat - confdefs.h | grep CVD_ | sort | 
 #endif/' >> cvd/config.h
 echo '#endif' >> cvd/config.h
 
-cp confdefs.h asshat
-
 
 AC_SUBST(debug_options,$options)
 all_opts="$all_options $os_options"
