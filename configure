@@ -6893,7 +6893,8 @@ done
 
 			if test "$force_old_tiff" != yes
 			then
-				echo "$as_me:$LINENO: checking for TIFFReadRGBAImageOriented in -ltiff" >&5
+
+echo "$as_me:$LINENO: checking for TIFFReadRGBAImageOriented in -ltiff" >&5
 echo $ECHO_N "checking for TIFFReadRGBAImageOriented in -ltiff... $ECHO_C" >&6
 if test "${ac_cv_lib_tiff_TIFFReadRGBAImageOriented+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -6958,14 +6959,21 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_tiff_TIFFReadRGBAImageOriented" >&5
 echo "${ECHO_T}$ac_cv_lib_tiff_TIFFReadRGBAImageOriented" >&6
 if test $ac_cv_lib_tiff_TIFFReadRGBAImageOriented = yes; then
-  tiff_works=yes
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBTIFF 1
+_ACEOF
+
+  LIBS="-ltiff $LIBS"
+
 fi
 
+				test x$ac_cv_lib_tiff_TIFFReadRGBAImageOriented == xyes && tiff_works=yes
 			fi
 
 			if test x$tiff_works == x
 			then
-				echo "$as_me:$LINENO: checking for TIFFReadRGBAImage in -ltiff" >&5
+
+echo "$as_me:$LINENO: checking for TIFFReadRGBAImage in -ltiff" >&5
 echo $ECHO_N "checking for TIFFReadRGBAImage in -ltiff... $ECHO_C" >&6
 if test "${ac_cv_lib_tiff_TIFFReadRGBAImage+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -7030,9 +7038,15 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_tiff_TIFFReadRGBAImage" >&5
 echo "${ECHO_T}$ac_cv_lib_tiff_TIFFReadRGBAImage" >&6
 if test $ac_cv_lib_tiff_TIFFReadRGBAImage = yes; then
-  tiff_works=old
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBTIFF 1
+_ACEOF
+
+  LIBS="-ltiff $LIBS"
+
 fi
 
+				test x$ac_cv_lib_tiff_TIFFReadRGBAImage== xyes && tiff_works=old
 			fi
 
 			if test x$tiff_works == x && test $i == 1

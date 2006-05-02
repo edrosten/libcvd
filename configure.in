@@ -781,12 +781,14 @@ then
 
 			if test "$force_old_tiff" != yes
 			then
-				AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented, tiff_works=yes)
+				AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented)
+				test x$ac_cv_lib_tiff_TIFFReadRGBAImageOriented == xyes && tiff_works=yes
 			fi
 
 			if test x$tiff_works == x
 			then
-				AC_CHECK_LIB(tiff, TIFFReadRGBAImage, tiff_works=old)
+				AC_CHECK_LIB(tiff, TIFFReadRGBAImage)
+				test x$ac_cv_lib_tiff_TIFFReadRGBAImage== xyes && tiff_works=old
 			fi 
 
 			if test x$tiff_works == x && test $i == 1
