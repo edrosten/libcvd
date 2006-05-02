@@ -750,7 +750,7 @@ fi
 tiffarg=
 #AC_ARG_WITH(tiff, [  --without-tiff       compile without TIFF support],[if test "$withval" = no; then disable_tiff=yes; else disable_tiff=no; fi])
 AC_ARG_WITH(tiff, [  --without-tiff          compile without TIFF support],[tiffarg="$withval";])
-AC_ARG_WITH(tiff, [  --with-tiff=forceold    Debug only. Force use of older library facilities.],[tiffarg="$withval";])
+AC_ARG_WITH(tiff, [  --with-tiff=forceold    Debug/wierd build environment only. Force use of older library facilities.],[tiffarg="$withval";])
 
 
 
@@ -770,48 +770,59 @@ then
 	then
 	
 		foo_LIBS="$LIBS"
-		AC_CHECK_LIB(tiff, TIFFReadRGBAImage)
 		tiff_works=
-	
-		if test "$ac_cv_lib_tiff_TIFFReadRGBAImage" = yes
-		then
-			tiff_works=yes
-		else
-			AC_MSG_CHECKING([if perhaps libtiff requires zlib])
-			AC_MSG_RESULT()
 
-			AC_CHECK_LIB(z, deflate)
-			unset ac_cv_lib_tiff_TIFFReadRGBAImage
-			AC_CHECK_LIB(tiff, TIFFReadRGBAImage)
+		#Repeat twice, once for normal checking
+		#and once with an additional check for zlib
+		for i in 1 2
+		do
 
-			if test "$ac_cv_lib_tiff_TIFFReadRGBAImage" = yes
+			#Check first for new style tiff
+
+			if test "$force_old_tiff" != yes
 			then
-				AC_MSG_CHECKING([if perhaps libtiff requires zlib])
-				AC_MSG_RESULT(yes)
-				tiff_works=yes
-			else
-				LIBS="$foo_LIBS"
+				AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented, tiff_works=yes)
 			fi
-		fi
 
+			if test x$tiff_works == x
+			then
+				AC_CHECK_LIB(tiff, TIFFReadRGBAImage, tiff_works=old)
+			fi 
 
-		if test x$tiff_works = xyes
-		then
+			if test x$tiff_works == x && test $i == 1
+			then	
+				AC_MSG_CHECKING([if perhaps libtiff requires zlib])
+				AC_MSG_RESULT()
+				AC_CHECK_LIB(z, deflate)
+				unset ac_cv_lib_tiff_TIFFReadRGBAImage
+				unset ac_cv_lib_tiff_TIFFReadRGBAImageOriented
+				tiff_needs_zlib=1
+			else
+				break
+			fi
+		done
+
+		if test x$tiff_works == x
+		then 
+			#This removes the extraneous zlib
+			LIBS=$foo_LIBS
+		else
 			AC_DEFINE(CVD_IMAGE_HAVE_TIFF, [TIFF,])
 			AC_SUBST(have_tiff,yes)
 			options="$options tiff"
-			
-			if test "$force_old_tiff" != yes
-			then
-				AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented)
-			fi
 
-			if test "$ac_cv_lib_tiff_TIFFReadRGBAImageOriented" = yes
+			if test x$tiff_works == xold
 			then
-				AC_DEFINE(CVD_INTERNAL_HAVE_TIFF_ORIENTED, [TIFF,])
-			else
 				AC_MSG_WARN(libtiff is present but old. Loading large TIFFs might be slow.)
 				dodginess_options="$dodginess_options oldtiff"
+			else
+				AC_DEFINE(CVD_INTERNAL_HAVE_TIFF_ORIENTED, [TIFF,])
+			fi
+
+			if test x$tiff_needs_zlib != x
+			then
+				AC_MSG_WARN(libtiff is present but requires zlib to be specified manually. Something is odd about your build system)
+				dodginess_options="$dodginess_options tiff_needs_zlib"
 			fi
 		fi
 	fi

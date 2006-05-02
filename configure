@@ -875,7 +875,7 @@ Optional Packages:
   --without-threads       compile without PThread support
   --without-jpeg	  compile without JPEG support
   --without-tiff          compile without TIFF support
-  --with-tiff=forceold    Debug only. Force use of older library facilities.
+  --with-tiff=forceold    Debug/wierd build environment only. Force use of older library facilities.
   --without-ffmpeg	  compile without FFMPEG support
   --with-fast-pointers=N  Number of pointers for FAST detectors. Answer: 2
   --with-fast-force=N     Force first question position for FAST. Answer: 0,1
@@ -6882,8 +6882,90 @@ done
 	then
 
 		foo_LIBS="$LIBS"
+		tiff_works=
 
-echo "$as_me:$LINENO: checking for TIFFReadRGBAImage in -ltiff" >&5
+		#Repeat twice, once for normal checking
+		#and once with an additional check for zlib
+		for i in 1 2
+		do
+
+			#Check first for new style tiff
+
+			if test "$force_old_tiff" != yes
+			then
+				echo "$as_me:$LINENO: checking for TIFFReadRGBAImageOriented in -ltiff" >&5
+echo $ECHO_N "checking for TIFFReadRGBAImageOriented in -ltiff... $ECHO_C" >&6
+if test "${ac_cv_lib_tiff_TIFFReadRGBAImageOriented+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-ltiff  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char TIFFReadRGBAImageOriented ();
+int
+main ()
+{
+TIFFReadRGBAImageOriented ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_tiff_TIFFReadRGBAImageOriented=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_tiff_TIFFReadRGBAImageOriented=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_tiff_TIFFReadRGBAImageOriented" >&5
+echo "${ECHO_T}$ac_cv_lib_tiff_TIFFReadRGBAImageOriented" >&6
+if test $ac_cv_lib_tiff_TIFFReadRGBAImageOriented = yes; then
+  tiff_works=yes
+fi
+
+			fi
+
+			if test x$tiff_works == x
+			then
+				echo "$as_me:$LINENO: checking for TIFFReadRGBAImage in -ltiff" >&5
 echo $ECHO_N "checking for TIFFReadRGBAImage in -ltiff... $ECHO_C" >&6
 if test "${ac_cv_lib_tiff_TIFFReadRGBAImage+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -6948,25 +7030,17 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_tiff_TIFFReadRGBAImage" >&5
 echo "${ECHO_T}$ac_cv_lib_tiff_TIFFReadRGBAImage" >&6
 if test $ac_cv_lib_tiff_TIFFReadRGBAImage = yes; then
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBTIFF 1
-_ACEOF
-
-  LIBS="-ltiff $LIBS"
-
+  tiff_works=old
 fi
 
-		tiff_works=
+			fi
 
-		if test "$ac_cv_lib_tiff_TIFFReadRGBAImage" = yes
-		then
-			tiff_works=yes
-		else
-			echo "$as_me:$LINENO: checking if perhaps libtiff requires zlib" >&5
+			if test x$tiff_works == x && test $i == 1
+			then
+				echo "$as_me:$LINENO: checking if perhaps libtiff requires zlib" >&5
 echo $ECHO_N "checking if perhaps libtiff requires zlib... $ECHO_C" >&6
-			echo "$as_me:$LINENO: result: " >&5
+				echo "$as_me:$LINENO: result: " >&5
 echo "${ECHO_T}" >&6
-
 
 echo "$as_me:$LINENO: checking for deflate in -lz" >&5
 echo $ECHO_N "checking for deflate in -lz... $ECHO_C" >&6
@@ -7041,97 +7115,19 @@ _ACEOF
 
 fi
 
-			unset ac_cv_lib_tiff_TIFFReadRGBAImage
-
-echo "$as_me:$LINENO: checking for TIFFReadRGBAImage in -ltiff" >&5
-echo $ECHO_N "checking for TIFFReadRGBAImage in -ltiff... $ECHO_C" >&6
-if test "${ac_cv_lib_tiff_TIFFReadRGBAImage+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-ltiff  $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char TIFFReadRGBAImage ();
-int
-main ()
-{
-TIFFReadRGBAImage ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_cxx_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_lib_tiff_TIFFReadRGBAImage=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_lib_tiff_TIFFReadRGBAImage=no
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_tiff_TIFFReadRGBAImage" >&5
-echo "${ECHO_T}$ac_cv_lib_tiff_TIFFReadRGBAImage" >&6
-if test $ac_cv_lib_tiff_TIFFReadRGBAImage = yes; then
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBTIFF 1
-_ACEOF
-
-  LIBS="-ltiff $LIBS"
-
-fi
-
-
-			if test "$ac_cv_lib_tiff_TIFFReadRGBAImage" = yes
-			then
-				echo "$as_me:$LINENO: checking if perhaps libtiff requires zlib" >&5
-echo $ECHO_N "checking if perhaps libtiff requires zlib... $ECHO_C" >&6
-				echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-				tiff_works=yes
+				unset ac_cv_lib_tiff_TIFFReadRGBAImage
+				unset ac_cv_lib_tiff_TIFFReadRGBAImageOriented
+				tiff_needs_zlib=1
 			else
-				LIBS="$foo_LIBS"
+				break
 			fi
-		fi
+		done
 
-
-		if test x$tiff_works = xyes
+		if test x$tiff_works == x
 		then
+			#This removes the extraneous zlib
+			LIBS=$foo_LIBS
+		else
 			cat >>confdefs.h <<\_ACEOF
 #define CVD_IMAGE_HAVE_TIFF TIFF,
 _ACEOF
@@ -7140,94 +7136,23 @@ _ACEOF
 
 			options="$options tiff"
 
-			if test "$force_old_tiff" != yes
+			if test x$tiff_works == xold
 			then
-
-echo "$as_me:$LINENO: checking for TIFFReadRGBAImageOriented in -ltiff" >&5
-echo $ECHO_N "checking for TIFFReadRGBAImageOriented in -ltiff... $ECHO_C" >&6
-if test "${ac_cv_lib_tiff_TIFFReadRGBAImageOriented+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-ltiff  $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char TIFFReadRGBAImageOriented ();
-int
-main ()
-{
-TIFFReadRGBAImageOriented ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_cxx_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_lib_tiff_TIFFReadRGBAImageOriented=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_lib_tiff_TIFFReadRGBAImageOriented=no
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_tiff_TIFFReadRGBAImageOriented" >&5
-echo "${ECHO_T}$ac_cv_lib_tiff_TIFFReadRGBAImageOriented" >&6
-if test $ac_cv_lib_tiff_TIFFReadRGBAImageOriented = yes; then
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBTIFF 1
-_ACEOF
-
-  LIBS="-ltiff $LIBS"
-
-fi
-
-			fi
-
-			if test "$ac_cv_lib_tiff_TIFFReadRGBAImageOriented" = yes
-			then
+				{ echo "$as_me:$LINENO: WARNING: libtiff is present but old. Loading large TIFFs might be slow." >&5
+echo "$as_me: WARNING: libtiff is present but old. Loading large TIFFs might be slow." >&2;}
+				dodginess_options="$dodginess_options oldtiff"
+			else
 				cat >>confdefs.h <<\_ACEOF
 #define CVD_INTERNAL_HAVE_TIFF_ORIENTED TIFF,
 _ACEOF
 
-			else
-				{ echo "$as_me:$LINENO: WARNING: libtiff is present but old. Loading large TIFFs might be slow." >&5
-echo "$as_me: WARNING: libtiff is present but old. Loading large TIFFs might be slow." >&2;}
-				dodginess_options="$dodginess_options oldtiff"
+			fi
+
+			if test x$tiff_needs_zlib != x
+			then
+				{ echo "$as_me:$LINENO: WARNING: libtiff is present but requires zlib to be specified manually. Something is odd about your build system" >&5
+echo "$as_me: WARNING: libtiff is present but requires zlib to be specified manually. Something is odd about your build system" >&2;}
+				dodginess_options="$dodginess_options tiff_needs_zlib"
 			fi
 		fi
 	fi
