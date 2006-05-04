@@ -23,6 +23,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector> 
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/image.h>
 #include <cvd/internal/load_and_save.h>
@@ -33,88 +34,106 @@ namespace CVD
   {
     class pnm_in
     {
-    public:
-      pnm_in(std::istream&);
-      bool is_2_byte()const {return m_is_2_byte;}
-      int channels(){return m_channels;}
-      long  x_size() const {return xs;}
-      long  y_size() const {return ys;}
-      long  elements_per_line() const {return xs * m_channels;}
-      void get_raw_pixel_lines(unsigned char*, unsigned long nlines);
-      void get_raw_pixel_lines(unsigned short*, unsigned long nlines);
+		public:
+		  pnm_in(std::istream&);
+		  bool is_2_byte()const {return m_is_2_byte;}
+		  int channels(){return m_channels;}
+		  long  x_size() const {return xs;}
+		  long  y_size() const {return ys;}
+		  long  elements_per_line() const {return xs * m_channels;}
+		  void get_raw_pixel_lines(unsigned char*, unsigned long nlines);
+		  void get_raw_pixel_lines(unsigned short*, unsigned long nlines);
 
-			
-    private:
-      std::istream&	i;
-      bool 	is_text;
-      int     type, maxval;
-      int     lines_so_far;
-      void	read_header();
-      bool    can_proc_lines(unsigned long);
-      long	xs, ys;
-      bool 	m_is_2_byte;
-      int	m_channels;
+				
+		private:
+		  std::istream&	i;
+		  bool 	is_text;
+		  int   type, maxval;
+		  int   lines_so_far;
+		  void	read_header();
+		  bool  can_proc_lines(unsigned long);
+		  long	xs, ys;
+		  bool 	m_is_2_byte;
+		  int	m_channels;
     };
 
-    template <class T, class S, int N> struct PNMReader;
-    template <class T, class S> struct PNMReader<T,S,3> {
-      typedef Rgb<S> array;
-      static void readPixels(BasicImage<T>& im, pnm_in& pnm) {
-	std::auto_ptr<array> rowbuf(new array[pnm.x_size()]);
-	for (int r=0; r<pnm.y_size(); r++) {
-	  pnm.get_raw_pixel_lines((S*)rowbuf.get(), 1);
-	  Pixel::ConvertPixels<array, T>::convert(rowbuf.get(), im[r], pnm.x_size());
-	}
-      }
-    };
+	template <class T, class S, int N> struct PNMReader;
+
+	template <class T, class S> struct PNMReader<T,S,3> 
+	{
+		typedef Rgb<S> array;
+		static void readPixels(BasicImage<T>& im, pnm_in& pnm) 
+		{
+ 			std::vector<array> rowbuf(pnm.x_size());
+			for (int r=0; r<pnm.y_size(); r++) 
+			{
+	  			pnm.get_raw_pixel_lines((S*) &rowbuf[0], 1);
+	  			Pixel::ConvertPixels<array, T>::convert(&rowbuf[0], im[r], pnm.x_size());
+			}
+		}
+	};
   
-    template <class T, class S> struct PNMReader<T,S,1> {
-      static void readPixels(BasicImage<T>& im, pnm_in& pnm) {
-	std::auto_ptr<S> rowbuf(new S[pnm.x_size()]);
-	for (int r=0; r<pnm.y_size(); r++) {
-	  pnm.get_raw_pixel_lines(rowbuf.get(), 1);
-	  Pixel::ConvertPixels<S, T>::convert(rowbuf.get(), im[r], pnm.x_size());
-	}
-      }
+    template <class T, class S> struct PNMReader<T,S,1> 
+	{
+      	static void readPixels(BasicImage<T>& im, pnm_in& pnm) 
+		{
+			std::vector<S> rowbuf(pnm.x_size());
+			for (int r=0; r<pnm.y_size(); r++) 
+			{
+	  			pnm.get_raw_pixel_lines(&rowbuf[0], 1);
+	  			Pixel::ConvertPixels<S, T>::convert(&rowbuf[0], im[r], pnm.x_size());
+			}
+      	}
     };
 
-    template <> struct PNMReader<Rgb<byte>,byte,3> {
-      static void readPixels(BasicImage<Rgb<byte> >& im, pnm_in& pnm) {
-	pnm.get_raw_pixel_lines((byte*)im.data(), pnm.y_size());
-      }
+    template <> struct PNMReader<Rgb<byte>,byte,3> 
+	{
+      	static void readPixels(BasicImage<Rgb<byte> >& im, pnm_in& pnm) 
+		{
+			pnm.get_raw_pixel_lines((byte*)im.data(), pnm.y_size());
+      	}
     };
 
-    template <> struct PNMReader<byte,byte,1> {
-      static void readPixels(BasicImage<byte>& im, pnm_in& pnm) {
-	pnm.get_raw_pixel_lines(im.data(), pnm.y_size());
-      }
+    template <> struct PNMReader<byte,byte,1> 
+	{
+      	static void readPixels(BasicImage<byte>& im, pnm_in& pnm) 
+		{
+			pnm.get_raw_pixel_lines(im.data(), pnm.y_size());
+      	}
     };
 
-    template <> struct PNMReader<Rgb<unsigned short>,unsigned short,3> {
-      static void readPixels(BasicImage<Rgb<unsigned short> >& im, pnm_in& pnm) {
-	pnm.get_raw_pixel_lines((unsigned short*)im.data(), pnm.y_size());
-      }
+    template <> struct PNMReader<Rgb<unsigned short>,unsigned short,3> 
+	{
+      	static void readPixels(BasicImage<Rgb<unsigned short> >& im, pnm_in& pnm) 
+		{
+			pnm.get_raw_pixel_lines((unsigned short*)im.data(), pnm.y_size());
+      	}
     };
 
-    template <> struct PNMReader<unsigned short,unsigned short,1> {
-      static void readPixels(BasicImage<unsigned short>& im, pnm_in& pnm) {
-	pnm.get_raw_pixel_lines(im.data(), pnm.y_size());
-      }
+    template <> struct PNMReader<unsigned short,unsigned short,1> 
+	{
+      	static void readPixels(BasicImage<unsigned short>& im, pnm_in& pnm) 
+		{
+			pnm.get_raw_pixel_lines(im.data(), pnm.y_size());
+      	}
     };
   
     template <class T> void readPNM(BasicImage<T>& im, pnm_in& pnm)
     {
-      if (pnm.is_2_byte()) {
-	if (pnm.channels() == 3)
-	  PNMReader<T,unsigned short,3>::readPixels(im, pnm);
-	else 
-	  PNMReader<T,unsigned short,1>::readPixels(im, pnm);
-      } else {
-	if (pnm.channels() == 3)
-	  PNMReader<T,unsigned char,3>::readPixels(im, pnm);
-	else 
-	  PNMReader<T,unsigned char,1>::readPixels(im, pnm);
-      }
+      	if (pnm.is_2_byte()) 
+	  	{
+			if (pnm.channels() == 3)
+	  			PNMReader<T,unsigned short,3>::readPixels(im, pnm);
+			else 
+	  			PNMReader<T,unsigned short,1>::readPixels(im, pnm);
+		}
+      	else 
+		{
+			if (pnm.channels() == 3)
+	  			PNMReader<T,unsigned char,3>::readPixels(im, pnm);
+			else
+				PNMReader<T,unsigned char,1>::readPixels(im, pnm);
+      	}
     }
 	
 	template <class T> void readPNM(BasicImage<T>&im, std::istream& in)
@@ -131,9 +150,9 @@ namespace CVD
 
 	template <class T> void readPNM(Image<T>&im, std::istream& in)
 	{
-      pnm_in pnm(in);
-      im.resize(ImageRef(pnm.x_size(), pnm.y_size()));
-	  readPNM(im, pnm);
+      	pnm_in pnm(in);
+      	im.resize(ImageRef(pnm.x_size(), pnm.y_size()));
+	  	readPNM(im, pnm);
 	}
 
 
