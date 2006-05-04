@@ -404,9 +404,9 @@ inline void fast_nonmax_t(const BasicImage<byte>& im, const vector<ImageRef>& co
   int point_above = 0;
   int point_below = 0;
   
+  const unsigned int sz = corners.size(); 
   
-  
-  for(unsigned int i=1; i < corners.size()-1; i++)
+  for(unsigned int i=1; i < sz-1; i++)
     {
       int score = scores[i];
       ImageRef pos = corners[i];
@@ -443,17 +443,16 @@ inline void fast_nonmax_t(const BasicImage<byte>& im, const vector<ImageRef>& co
 	}
       
       //Check below
-      if(pos.y != size.y-1 && row_start[pos.y + 1] != -1) //Nothing below
+      if(pos.y != size.y-1 && row_start[pos.y + 1] != -1 && point_below < sz) //Nothing below
 	{
 	  if(corners[point_below].y < pos.y + 1)
 	    point_below = row_start[pos.y+1];
 	  
 	  // Make point below point to one of the pixels belowthe current point, if it
-    // exists.
-	  for(; corners[point_below].y == pos.y+1 &&
-        corners[point_below].x < pos.x - 1; point_below++);
+	  // exists.
+	  for(; point_below < sz && corners[point_below].y == pos.y+1 && corners[point_below].x < pos.x - 1; point_below++);
 	  
-	  for(int i=point_below; corners[i].y == pos.y+1 && corners[i].x <= pos.x + 1; i++)
+	  for(int i=point_below; i < sz && corners[i].y == pos.y+1 && corners[i].x <= pos.x + 1; i++)
 	    {
 	      int x = corners[i].x;
 	      if( (x == pos.x - 1 || x ==pos.x || x == pos.x+1) && scores[i] > score)
