@@ -70,10 +70,43 @@ namespace CVD{namespace Pixel
 
   template <class Rgbish, class Scalar> struct CIE {
     static inline void convert(const Rgbish& from, Scalar& to) {
-      const double wr=0.299, wg=0.587, wb=0.114;
+      // "Correct" values are:
+	  // const double wr=0.299, wg=0.587, wb=0.114;
+	  // Since these are not representable as floating point values
+	  // They do not sum exactly to 1.
+	  // Instead, convert them using  floor(x *  0x10000 + 0.5)/0x10000
+	  // So that they use exactly 16 bits of precision.
+	  // This should be OK for pretty mych everything
+	  // 0.299 ~= 19595/0x10000  == 0x4c8bp-16  == 0.2989959716796875
+	  // 0.587 ~= 38470/0x10000  == 0x9646p-16  == 0.587005615234375
+	  // 0.114 ~= 7471/0x10000   == 0x1d2fp-16  == 0.1139984130859375
+	  // These will sum exactly to 1. C++ does not yet allow hex floating point
+	  // literals
+	  const double wr=0.2989959716796875, wg=0.587005615234375, wb=0.1139984130859375;
+	  
+	  /* 
+      The old method does not work properly because the conversion to double from int_type
+	  is inexact. Ttuncation of this causes errors. However, it is unnecessary to convert
+	  to the double pixel type first: the arithmetic merely needs to be done with doubles.
+	  
       to = scalar_convert<Scalar,double>(wr*scalar_convert<double,typename Pixel::Component<Rgbish>::type>(from.red) + 
 					 wg*scalar_convert<double,typename Pixel::Component<Rgbish>::type>(from.green) + 
 					 wb*scalar_convert<double,typename Pixel::Component<Rgbish>::type>(from.blue));
+					 
+	  Fortunately, we have forseen this eventuality, and scalar_convert can convert from
+	  type A, to type B when pixel type B is held in a variable of type C
+	  */
+	  to = scalar_convert<Scalar,typename Pixel::Component<Rgbish>::type,double>(wr*from.red + wg*from.green + wb*from.blue);
+
+	  /* The following method could be used (for speed):
+	  
+	  to = scalar_convert<Scalar,typename Pixel::Component<Rgbish>::type>(
+				static_cast<typename Pixel::Component<Rgbish>::type>(wr*from.red + wg*from.green + wb*from.blue));
+
+	  but this looses precision and may produce odd results for rgb(x,y,z) (x!=y!=z). Does this matter? Bear
+	  in mind that wr, wg, wb are only approximations of "average" human eye response anyway.
+	  */
+	
     }
   };
 
