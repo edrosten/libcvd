@@ -31,26 +31,69 @@ namespace Pixel
 
 	namespace Internal
 	{
+
+		//When we convert, we want the following thing to happen:
+		//conv(max_low_precision_number) == max_high_precision_number
+		//Since max is all ones, rightshifting truncates, resulting in all ones
+		//Left shifting is more tricky.
+		//All remaining empty bits need to be filled with the higest bits of the low precision number
+		//That applies recursively (consider converting byte to ulong)
+		//As an illustration, imagine converting the 4 bit umber 1011 to  a 10 bit number. The
+		//result should be:
+		//1011 -> 1011 1011 10
+		//
+		// In other words, it's:
+		// truncate( 1011 * 1000100010.00100010001000100010001000...
+		// 
+		// Which is equal to multiplying by (high_precision_max + 1)/(low_precision_max)
+		// Where strict rruncation occurs, ie 1.1111111... trucates to 1
+		//
 		template<class To, class From> struct int_info {
 		  //Difference in number of bits used
 		  static const int diff=traits<To>::bits_used - traits<From>::bits_used;
+
+		  //Extra bits required to fill the space bits
+		  //Number of complete copies required
+		  static const int chunks=traits<To>::bits_used / traits<From>::bits_used;
+		  //Number of extra bits
+		  static const int extra_bits  =traits<To>::bits_used % traits<From>::bits_used;
+		  //Right shift required to leave extra bits behind:
+		  static const int final_rshift = traits<From>::bits_used - extra_bits;
 		  
 		  //Which way do we need to shift
 		  static const int shift_dir =   (diff == 0)?0:((diff > 0)?1:-1);
 		};
 		
+		template<class To, int num, int shift, int bits, int r_shift> struct upshift
+		{
+			static To aggregate(To i)
+			{
+				return i << shift | upshift<To,num-1,shift-bits,bits, r_shift>::aggregate(i);
+			}
+		};
+		template<class To, int shift, int bits, int r_shift> struct upshift<To,0,shift,bits,r_shift>
+		{
+			static To aggregate(To i)
+			{
+				return i >> r_shift;
+			}
+		};
+	
 		template<class To, class From, int i=int_info<To,From>::shift_dir> struct shift_convert {
 		  template <class D> static To from(D f) {
 		    return static_cast<To>(f);
 		  }		  
 		};
 
-		template<class To, class From> struct shift_convert<To, From, 1> {
+		template<class To, class From> struct shift_convert<To, From, 1> 
+		{
+		  typedef int_info<To,From> info;
 		  template <class D> static To from(D f) {
-		    return static_cast<To>(f) << int_info<To,From>::diff;
+		    //return static_cast<To>(f) << int_info<To,From>::diff;
+			return upshift<To,info::chunks, info::diff, traits<From>::bits_used, info::final_rshift>::aggregate(static_cast<To>(f));
 		  }
 		};
-
+		
 		template<class To, class From> struct shift_convert<To, From,-1> {	
 		  template <class D> static To from(D f)  {
 		    return static_cast<To>(f >> -int_info<To,From>::diff);
