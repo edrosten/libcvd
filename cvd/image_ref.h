@@ -188,8 +188,6 @@ namespace Exceptions
 }
 
 
-struct foo {foo(){}};
-
 #include <cvd/internal/image_ref_implementation.hh>
 
 // Streams stuff for ImageRef class //
