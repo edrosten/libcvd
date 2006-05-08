@@ -886,7 +886,7 @@ else
 fi
 
 a=
-AC_CHECK_HEADERS(fenv.h, [a=1])
+AC_CHECK_DECL(feenableexcept, [a=1], [a= ], [#include <fenv.h>])
 if test x$a = x1
 then
 	AC_DEFINE(CVD_HAVE_FENV_H)
