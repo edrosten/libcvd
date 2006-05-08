@@ -891,7 +891,7 @@ if test x$a = x1
 then
 	AC_DEFINE(CVD_HAVE_FENV_H)
 else
-	dodginess_options="$dodginess_options missing_c99_fenv.h"
+	dodginess_options="$dodginess_options missing_c99_feenableexcept"
 fi
 
 ################################################################################

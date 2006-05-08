@@ -7716,7 +7716,7 @@ then
 _ACEOF
 
 else
-	dodginess_options="$dodginess_options missing_c99_fenv.h"
+	dodginess_options="$dodginess_options missing_c99_feenableexcept"
 fi
 
 ################################################################################
