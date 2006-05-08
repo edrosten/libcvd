@@ -38,7 +38,7 @@
 
 #if defined( __GNUC__) && defined(CVD_HAVE_SSE2)
 #ifndef __SSE2__
-#warning CVD was configured with SSE2 but SSE2 isn't enabled on this compile (-msse2); expect breakage.
+#warning CVD was configured with SSE2 but SSE2 is not enabled on this compile (-msse2); expect breakage.
 #endif
 #include <emmintrin.h>
 #endif
