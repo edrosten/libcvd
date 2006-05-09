@@ -430,6 +430,17 @@ namespace CVD
 	{
 		::glReadPixels(origin.x, origin.y, i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
 	}
+	
+ 	/// Read the current image from the colour buffer specified by glReadBuffer
+	/// @param size   The size of the area to read.
+	/// @param origin The window co-ordinate of the first pixel to be read from the frame buffer
+	///@ingroup gGL
+	template<class C> inline Image<C> glReadPixels(ImageRef size, ImageRef origin=ImageRef(0,0))
+	{
+		Image<C> i(size);
+		::glReadPixels(origin.x, origin.y, i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
+		return i;
+	}
 
 };
 
