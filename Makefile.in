@@ -286,6 +286,9 @@ depend:
 	rm -f .deps
 	bash generate_dependencies.bash "-I. $(CPPFLAGS)" > .deps
 
+ChangeLog:
+	cvs log | gawk -f make/log_to_changelog.awk > ChangeLog
+
 .PRECIOUS: %.o
 
 %.o: %.cc
