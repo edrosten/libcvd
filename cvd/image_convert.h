@@ -108,7 +108,17 @@ namespace CVD
     return to;
   }
   
-  template<class D1, class D2, class C> std::pair<Image<D1>, Image<D2> > convert_image(const BasicImage<C>& from)
+  // Function name changed from 'convert_image' to prevent compile-time
+  // error arising from the clash with a function of same name declared above.
+
+  /// Convert an image from one type to another using the default, returning a pair of images.
+  /// @param D1 The first destination image pixel type
+  /// @param D2 The second destination image pixel type
+  /// @param C The source image pixel type
+  /// @param from The image to convert from
+  /// @ingroup gImageIO
+
+  template<class D1, class D2, class C> std::pair<Image<D1>, Image<D2> > convert_image_pair(const BasicImage<C>& from)
   {
     std::pair<Image<D1>, Image<D2> > to(Image<D1>(from.size()), Image<D2>(from.size()));
     convert_image(from, to.first);

@@ -64,7 +64,9 @@ namespace CVD
     ColourSpace::yuv422_to_grey(reinterpret_cast<const byte*>(from.data()), to.data(), from.size().x, from.size().y);
   }
 
-  template<> std::pair<Image<byte>,Image<Rgb<byte> > > convert_image(const BasicImage<yuv411>& from)
+  // Name changed from 'convert_image' to prevent conflict with previous convert_image
+  // with same method signature.
+  template<> std::pair<Image<byte>,Image<Rgb<byte> > > convert_image_pair(const BasicImage<yuv411>& from)
   {
     Image<byte> rety(from.size());
     Image<Rgb<byte> > retc(from.size());
