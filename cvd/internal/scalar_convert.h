@@ -131,13 +131,36 @@ namespace Pixel
 		    return byte_to_float(from);
 		  }
 		};
-		
 		template <class D> struct ScalarConvert<byte,double,D,false> {
 		  static inline double from(const D& from) {
 		    return byte_to_double(from);
 		  }
 		};
 		
+		inline double byte_float_to_float(double d) { 
+		  return d * traits<double>::max_intensity/traits<byte>::max_intensity; 
+		}
+
+		template <> struct ScalarConvert<byte,float,float,false> {
+		  static inline float from(const float& from) {
+		    return byte_float_to_float(from);
+		  }
+		};
+		template <> struct ScalarConvert<byte,double,float,false> {
+		  static inline double from(const float& from) {
+		    return byte_float_to_float(from);
+		  }
+		};
+		template <> struct ScalarConvert<byte,float,double,false> {
+		  static inline float from(const double& from) {
+		    return byte_float_to_float(from);
+		  }
+		};
+		template <> struct ScalarConvert<byte,double,double,false> {
+		  static inline double from(const double& from) {
+		    return byte_float_to_float(from);
+		  }
+		};
 
 	}
 	
