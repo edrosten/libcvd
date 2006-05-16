@@ -71,7 +71,7 @@ namespace CVD {
     private:
 	VideoBuffer<T>& vbuffer;
 	size_t maxRA;
-	deque<VideoFrame<T>*> q, putq;
+	std::deque<VideoFrame<T>*> q, putq;
 	Synchronized vblock;
 	EventObject qevent;
 	Thread thread;
@@ -140,7 +140,7 @@ namespace CVD {
 	    Lock vbl(vblock);
 	    Lock ql(qevent);
 	    for (size_t i=0; i<q.size(); i++)
-		put_frame(q[i]);
+		putq.push_back(q[i]);
 	    q.resize(0);
 	    qevent.triggerAll();
 	    vbuffer.seek_to(t);
