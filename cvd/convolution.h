@@ -135,61 +135,69 @@ namespace Exceptions {
 //void convolveGaussian5_1(BasicImage<byte>& I);
 
 /// convolves an image with a box of given size.
-  /// @param I input image, modified in place
-  /// @param hwin window size, this is half of the box size
-  /// @ingroup gVision
-  template <class T> void convolveWithBox(const BasicImage<T>& I, BasicImage<T>& J, int hwin)
-  {
+/// @param I input image, modified in place
+/// @param hwin window size, this is half of the box size
+/// @ingroup gVision
+template <class T> void convolveWithBox(const BasicImage<T>& I, BasicImage<T>& J, ImageRef hwin)
+{
     typedef typename Pixel::traits<T>::wider_type sum_type;
     if (I.size() != J.size()) {
-      throw Exceptions::Convolution::IncompatibleImageSizes("convolveWithBox");
+	throw Exceptions::Convolution::IncompatibleImageSizes("convolveWithBox");
     }
     int w = I.size().x;
     int h = I.size().y;
-    int win = 2*hwin+1;
-    const double factor = 1.0/(win*win);
-    std::auto_ptr<sum_type> buffer(new sum_type[w*win]);
-    std::auto_ptr<sum_type> sums_auto(new sum_type[w]);
-    sum_type* sums = sums_auto.get();
-    sum_type* next_row = buffer.get();
-    sum_type* oldest_row = buffer.get();
+    ImageRef win = 2*hwin+ImageRef(1,1);
+    const double factor = 1.0/(win.x*win.y);
+    std::vector<sum_type> buffer(w*win.y);
+    std::vector<sum_type> sums_v(w);
+    sum_type* sums = &sums_v[0];
+    sum_type* next_row = &buffer[0];
+    sum_type* oldest_row = &buffer[0];
     zeroPixels(sums, w);
     const T* input = I.data();
-    T* output = J[hwin] - hwin;
+    T* output = J[hwin.y] - hwin.x;
     for (int i=0; i<h; i++) {
-      sum_type hsum=sum_type();
-      const T* back = input;
-      int j;
-      for (j=0; j<win-1; j++)
-	hsum += input[j];
-      for (; j<w; j++) {
-	hsum += input[j];
-	next_row[j] = hsum;
-	sums[j] += hsum;
-	hsum -= *(back++);
-      }
-      if (i >= win-1) {
-	for (j=win-1; j<w; j++) {
-	  output[j] = static_cast<T>(sums[j]*factor);
-	  //sums[j] -= oldest_row[j];
+	sum_type hsum=sum_type();
+	const T* back = input;
+	int j;
+	for (j=0; j<win.x-1; j++)
+	    hsum += input[j];
+	for (; j<w; j++) {
+	    hsum += input[j];
+	    next_row[j] = hsum;
+	    sums[j] += hsum;
+	    hsum -= *(back++);
 	}
-	differences(oldest_row+win-1, sums+win-1, sums+win-1, w-win+1);
-	output += w;
-	oldest_row += w;
-	if (oldest_row == buffer.get() + w*win)
-	  oldest_row = buffer.get();
-      }    
-      input += w;
-      next_row += w;
-      if (next_row == buffer.get() + w*win)
-	next_row = buffer.get();
+	if (i >= win.y-1) {
+	    for (j=win.x-1; j<w; j++) {
+		output[j] = static_cast<T>(sums[j]*factor);
+		//sums[j] -= oldest_row[j];
+	    }
+	    differences(oldest_row+win.x-1, sums+win.x-1, sums+win.x-1, w-win.x+1);
+	    output += w;
+	    oldest_row += w;
+	    if (oldest_row == &buffer[0] + w*win.y)
+		oldest_row = &buffer[0];
+	}    
+	input += w;
+	next_row += w;
+	if (next_row == &buffer[0] + w*win.y)
+	    next_row = &buffer[0];
     }
-  }
-
-template <class T> inline void convolveWithBox(BasicImage<T>& I, int hwin) {
-  convolveWithBox(I,I,hwin);
 }
 
+template <class T> inline void convolveWithBox(const BasicImage<T>& I, BasicImage<T>& J, int hwin)
+{
+    convolveWithBox(I, J, ImageRef(hwin,hwin));
+}
+
+template <class T> inline void convolveWithBox(BasicImage<T>& I, int hwin) {
+    convolveWithBox(I,I,hwin);
+}
+
+template <class T> inline void convolveWithBox(BasicImage<T>& I, ImageRef hwin) {
+    convolveWithBox(I,I,hwin);
+}
     
 
 template <class T, int A, int B, int C> void convolveSymmetric(Image<T>& I)
@@ -517,6 +525,23 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
   Internal::aligned_mem<sum_type,16>::release(buffer);
   Internal::aligned_mem<sum_type,16>::release(rowbuf);
   Internal::aligned_mem<sum_type,16>::release(outbuf);
+}
+
+template <class T, class O, class K> void convolve_gaussian_3(const BasicImage<T>& I, BasicImage<O>& out, K k1, K k2)
+{    
+    assert(I.size() == out.size());
+    const T* a=I.data();
+    const int w = I.size().x;
+    O* o = out.data()+w+1;
+    int total = I.totalsize() - 2*w-2;
+    const double cross = k1*k2;
+    k1 *= k1;
+    k2 *= k2;
+    while (total--) {
+	const double sum = k1*(a[0] + a[2] + a[w*2] + a[w*2+2]) + cross*(a[1] + a[w*2+1] + a[w] + a[w+2]) + k2*a[w+1];
+	*o++ = Pixel::scalar_convert<O,T,double>(sum);
+	++a;
+    }
 }
 
 } // namespace CVD
