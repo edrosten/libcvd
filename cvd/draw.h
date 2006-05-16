@@ -87,22 +87,28 @@ template <class T> struct color<T,1> {
 /// @ingroup gGraphics
 template <class T> struct color<T,3> {
     typedef typename Pixel::Component<T>::type TComp;
-    static const TComp hi = Pixel::traits<TComp>::max_intensity;
-    inline static const T&   black() { static T c; zeroPixel(c); return c;}
-    inline static const T&   white() { TComp s[3]={hi,hi,hi}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
-    inline static const T&     red() { TComp s[3]={hi, 0, 0}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
-    inline static const T&   green() { TComp s[3]={ 0,hi, 0}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
-    inline static const T&    blue() { TComp s[3]={ 0, 0,hi}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
-    inline static const T&    cyan() { TComp s[3]={ 0,hi,hi}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
-    inline static const T& magenta() { TComp s[3]={hi, 0,hi}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
-    inline static const T&  yellow() { TComp s[3]={hi,hi, 0}; static T c; Pixel::DefaultConversion<TComp[3],T>::convert(s,c); return c;}
-    inline static const T& shade(const T& c, double b) {
-        TComp s[3] = {(TComp)(c[0]*b), (TComp)(c[1]*b), (TComp)(c[2]*b) };
-        static T shaded;
-        Pixel::DefaultConversion<TComp[3],T>::convert(s,shaded);
-        return shaded;
+    static const TComp hi;
+    inline static T make(const TComp& a, const TComp& b, const TComp& c) { 
+	T t; 
+	Pixel::Component<T>::get(t,0)=a;
+	Pixel::Component<T>::get(t,1)=b;
+	Pixel::Component<T>::get(t,2)=c;
+	return t;
+    }
+    inline static const T&   black() { static const T c = make(0,0,0); return c;}
+    inline static const T&   white() { static const T c = make(hi,hi,hi); return c;}
+    inline static const T&     red() { static const T c = make(hi,0,0); return c;}
+    inline static const T&   green() { static const T c = make(0,hi,0); return c;}
+    inline static const T&    blue() { static const T c = make(0,0,hi); return c;}
+    inline static const T&    cyan() { static const T c = make(0,hi,hi); return c; }
+    inline static const T& magenta() { static const T c = make(hi,0,hi); return c;}
+    inline static const T&  yellow() { static const T c = make(hi,hi,0); return c;}
+    inline const T& shade(const T& c, double b) {
+	return make((TComp)(Pixel::Component<T>::get(c,0)*b), (TComp)(Pixel::Component<T>::get(c,1)*b), (TComp)(Pixel::Component<T>::get(c,2)*b));
     }
 };
+ template <class T> const typename color<T,3>::TComp color<T,3>::hi = Pixel::traits<TComp>::max_intensity;
+
 
 /// draws a line defined by start and end coordinates with given color into an image.
 /// @param im image to draw in
