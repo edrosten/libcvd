@@ -147,6 +147,16 @@ namespace Camera {
     /// Fast linear projection for working out what's there
     inline TooN::Vector<2> linearproject(const TooN::Vector<2>& camframe, double scale=1) const ;
 	/// Project from Euclidean camera frame to image plane
+
+	inline TooN::Vector<2> project_vector(const TooN::Vector<2>& d) const {
+	    return diagmult(my_camera_parameters.slice<0,2>(), d);
+	}
+	inline TooN::Vector<2> unproject_vector(const TooN::Vector<2>& d) const {
+	    TooN::Vector<2> v;
+	    v[0] = d[0]/my_camera_parameters[0];
+	    v[1] = d[1]/my_camera_parameters[1];
+	    return v;
+	}
     inline TooN::Vector<2> project(const TooN::Vector<2>& camframe) const; 
 	/// Project from image plane to a Euclidean camera
     inline TooN::Vector<2> unproject(const TooN::Vector<2>& imframe) const;
@@ -154,6 +164,7 @@ namespace Camera {
     /// Get the derivative of image frame wrt camera frame at the last computed projection
     /// in the form \f$ \begin{bmatrix} \frac{\partial \text{im1}}{\partial \text{cam1}} & \frac{\partial \text{im1}}{\partial \text{cam2}} \\ \frac{\partial \text{im2}}{\partial \text{cam1}} & \frac{\partial \text{im2}}{\partial \text{cam2}} \end{bmatrix} \f$
     inline TooN::Matrix<2,2> get_derivative() const;
+    inline TooN::Matrix<2,2> get_derivative(const TooN::Vector<2>& x) const;
 
     /// Get the motion of a point with respect to each of the internal camera parameters
     inline TooN::Matrix<num_parameters,2> get_parameter_derivs() const ;
@@ -399,6 +410,17 @@ TooN::Matrix<2,2> Camera::Quintic::get_derivative() const {
   result[0] *= my_camera_parameters[0];
   result[1] *= my_camera_parameters[1];
   return result;
+}
+
+TooN::Matrix<2,2> Camera::Quintic::get_derivative(const TooN::Vector<2>& x) const {
+    TooN::Matrix<2,2> result;
+    double temp1=x*x;
+    double temp2=my_camera_parameters[5]*temp1;
+    Identity(result,1+temp1*(my_camera_parameters[4]+temp2));
+    result += (2*(my_camera_parameters[4]+2*temp2)*x.as_col()) * x.as_row();
+    result[0] *= my_camera_parameters[0];
+    result[1] *= my_camera_parameters[1];
+    return result;
 }
 
 TooN::Matrix<Camera::Quintic::num_parameters,2> Camera::Quintic::get_parameter_derivs() const {
