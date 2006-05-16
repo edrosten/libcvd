@@ -114,33 +114,47 @@ namespace Pixel
 		inline float byte_to_float(int b) { return float_for_byte[b+255]; }
 		inline double byte_to_double(int b) { return double_for_byte[b+255]; }
 		
-		template <class From, class To, class D=From, bool int_to_int = traits<To>::integral && traits<From>::integral && traits<D>::integral> struct ScalarConvert {
-		  static inline To from(const D& from) {
-		    return static_cast<To>(from*traits<To>::max_intensity/traits<From>::max_intensity);
-		  }
+		template <class From, class To, class D=From, bool int1 = traits<To>::integral && traits<From>::integral, bool int2 =traits<D>::integral> struct ScalarConvert {
+		    static inline To from(const D& from) {
+			static const double factor = double(traits<To>::max_intensity)/traits<From>::max_intensity; 
+			return static_cast<To>(from*factor);
+		    }
 		};
 		
-		template <class From, class To, class D> struct ScalarConvert<From,To,D,true> {
-		  static inline To from(const D& f) {
-		    return shift_convert<To, From, int_info<To,From>::shift_dir>::from(f);
-		  }
+		template <class From, class To, class D> struct ScalarConvert<From,To,D,true, true> {
+		    static inline To from(const D& f) {
+			return shift_convert<To, From, int_info<To,From>::shift_dir>::from(f);
+		    }
+		};
+
+		template <class D> struct ScalarConvert<byte,float,D,false,true> {
+		    static inline float from(const D& from) {
+			return byte_to_float(from);
+		    }
 		};
 		
-		template <class D> struct ScalarConvert<byte,float,D,false> {
-		  static inline float from(const D& from) {
-		    return byte_to_float(from);
-		  }
+		template <class D> struct ScalarConvert<byte,float,D,false,false> {
+		    static inline float from(const D& from) {
+			return from * (1.0/255.0);
+		    }
 		};
-		template <class D> struct ScalarConvert<byte,double,D,false> {
+
+		template <class D> struct ScalarConvert<byte,double,D,false, true> {
 		  static inline double from(const D& from) {
 		    return byte_to_double(from);
 		  }
+		};
+		template <class D> struct ScalarConvert<byte,double,D,false, false> {
+		    static inline double from(const D& from) {
+		      return from * (1.0/255.0);
+		    }
 		};
 		
 		inline double byte_float_to_float(double d) { 
 		  return d * traits<double>::max_intensity/traits<byte>::max_intensity; 
 		}
 
+#if 0
 		template <> struct ScalarConvert<byte,float,float,false> {
 		  static inline float from(const float& from) {
 		    return byte_float_to_float(from);
@@ -161,6 +175,7 @@ namespace Pixel
 		    return byte_float_to_float(from);
 		  }
 		};
+#endif
 
 	}
 	
