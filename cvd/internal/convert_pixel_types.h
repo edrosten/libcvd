@@ -133,6 +133,18 @@ namespace CVD{namespace Pixel
     }
   };  
 
+  template <class P, class Scalar> struct AverageAbs {
+    static inline void convert(const P& from, Scalar& to) {
+      typedef typename Pixel::Component<P>::type T;
+      typedef typename Pixel::traits<T>::wider_type sum_type;
+      sum_type sum = CVD::abs(Pixel::Component<P>::get(from,0));
+      for (unsigned int i=1; i<Pixel::Component<P>::count; i++) {
+	  sum += CVD::abs(Pixel::Component<P>::get(from,i));
+      }
+      to = scalar_convert<Scalar,T,sum_type>(sum/Pixel::Component<P>::count);
+    }
+  };  
+
   template <class P, class Scalar> struct L2Norm {
     static inline void convert(const P& from, Scalar& to) {
       typedef typename Pixel::Component<P>::type T;
