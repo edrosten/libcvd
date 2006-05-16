@@ -24,6 +24,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <vector>
 
 #include <cvd/image.h>
 #include <cvd/byte.h>
@@ -39,35 +40,35 @@ namespace CVD {
 
     template <class T> struct BMPReader<T,1> {
       static void read(Image<T>& im, std::istream& in) {
-	std::auto_ptr<Rgb<byte> > palette(new Rgb<byte>[256]);
+	std::vector<Rgb<byte> > palette(256);
 	bool notgray = false;
 	for (int i=0; i<256; i++) {
 	  byte buf[4];
 	  in.read((char*)buf,4);
-	  palette.get()[i].red = buf[2];
-	  palette.get()[i].green = buf[1];
-	  palette.get()[i].blue = buf[0];
+	  palette[i].red = buf[2];
+	  palette[i].green = buf[1];
+	  palette[i].blue = buf[0];
 	  if (buf[0] != i || buf[0] != buf[1] || buf[1] != buf[2])
 	    notgray = true;
 	}
 	size_t rowSize = im.size().x;
 	if (rowSize % 4)
 	  rowSize += 4 - (rowSize%4);
-	std::auto_ptr<byte> rowbuf(new byte[rowSize]);
+	std::vector<byte> rowbuf(rowSize);
 	
 	if (notgray) {
 	  std::cerr << "not gray" << std::endl;
-	  std::auto_ptr<T> cvt(new T[256]);
-	  Pixel::ConvertPixels<Rgb<byte>,T>::convert(palette.get(), cvt.get(), 256);
+	  std::vector<T> cvt(256);
+	  Pixel::ConvertPixels<Rgb<byte>,T>::convert(&palette[0], &cvt[0], 256);
 	  for (int r=im.size().y-1; r>=0; r--) {
-	    in.read((char*)rowbuf.get(), rowSize);
+	    in.read((char*)&rowbuf[0], rowSize);
 	    for (int c=0; c<im.size().x; c++)
-	      im[r][c] = cvt.get()[rowbuf.get()[c]];
+	      im[r][c] = cvt[rowbuf[c]];
 	  } 
 	} else {	  
 	  for (int r=im.size().y-1; r>=0; r--) {
-	    in.read((char*)rowbuf.get(), rowSize);
-	    Pixel::ConvertPixels<byte,T>::convert(rowbuf.get(), im[r], im.size().x);
+	    in.read((char*)&rowbuf[0], rowSize);
+	    Pixel::ConvertPixels<byte,T>::convert(&rowbuf[0], im[r], im.size().x);
 	  }
 	}
       }
@@ -77,15 +78,15 @@ namespace CVD {
 	size_t rowSize = im.size().x*3;
 	if (rowSize % 4)
 	  rowSize += 4 - (rowSize%4);
-	std::auto_ptr<byte> rowbuf(new byte[rowSize]);
+	std::vector<byte> rowbuf(rowSize);
 	for (int r=im.size().y-1; r>=0; r--) {
-	  in.read((char*)rowbuf.get(), rowSize);
+	  in.read((char*)&rowbuf[0], rowSize);
 	  for (int c=0; c<im.size().x*3; c+=3) {
-	    byte tmp = rowbuf.get()[c];
-	    rowbuf.get()[c] = rowbuf.get()[c+2];
-	    rowbuf.get()[c+2] = tmp;
+	    byte tmp = rowbuf[c];
+	    rowbuf[c] = rowbuf[c+2];
+	    rowbuf[c+2] = tmp;
 	  }
-	  Pixel::ConvertPixels<Rgb<byte>, T>::convert((Rgb<byte>*)rowbuf.get(), im[r], im.size().x);
+	  Pixel::ConvertPixels<Rgb<byte>, T>::convert((Rgb<byte>*)&rowbuf[0], im[r], im.size().x);
 	}
       }
     };
@@ -125,10 +126,10 @@ namespace CVD {
 	int rowSize = im.size().x;
 	if (rowSize % 4)
 	  rowSize += 4 - (rowSize % 4);
-	std::auto_ptr<byte> rowbuf(new byte[rowSize]);
+	std::vector<byte> rowbuf(rowSize);
 	for (int r=im.size().y-1; r>=0; r--) {
-	  Pixel::ConvertPixels<T,byte>::convert(im[r], rowbuf.get(), im.size().x);
-	  out.write((const char*)rowbuf.get(), rowSize);
+	  Pixel::ConvertPixels<T,byte>::convert(im[r], &rowbuf[0], im.size().x);
+	  out.write((const char*)&rowbuf[0], rowSize);
 	}
       }
     };
@@ -151,15 +152,15 @@ namespace CVD {
 	int rowSize = im.size().x*3;
 	if (rowSize % 4)
 	  rowSize += 4 - (rowSize % 4);
-	std::auto_ptr<byte> rowbuf(new byte[rowSize]);
+	std::vector<byte> rowbuf(rowSize);
 	for (int r=im.size().y-1; r>=0; r--) {
-	  Pixel::ConvertPixels<T,Rgb<byte> >::convert(im[r], (Rgb<byte>*)rowbuf.get(), im.size().x);
+	  Pixel::ConvertPixels<T,Rgb<byte> >::convert(im[r], (Rgb<byte>*)&rowbuf[0], im.size().x);
 	  for (int c=0; c<im.size().x*3; c+=3) {
-	    byte tmp = rowbuf.get()[c];
-	    rowbuf.get()[c] = rowbuf.get()[c+2];
-	    rowbuf.get()[c+2] = tmp;
+	    byte tmp = rowbuf[c];
+	    rowbuf[c] = rowbuf[c+2];
+	    rowbuf[c+2] = tmp;
 	  }
-	  out.write((const char*)rowbuf.get(), rowSize);
+	  out.write((const char*)&rowbuf[0], rowSize);
 	}
       }
     };
