@@ -3304,6 +3304,89 @@ _ACEOF
 				fi
 
 
+cat >conftest.$ac_ext <<_ACEOF
+#include <mmintrin.h>
+ int main(){ __m64 a,b,c; a = _m_punpckhbw(b,c); }
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  a=1
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+a=0
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+				if test $a = 1
+				then
+					cat >>confdefs.h <<\_ACEOF
+#define CVD_HAVE_MMINTRIN 1
+_ACEOF
+
+				fi
+				cat >conftest.$ac_ext <<_ACEOF
+#include <xmmintrin.h>
+ int main(){ __m128 a,b,c; a = _mm_add_ps(b,c); }
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  a=1
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+a=0
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+				if test $a = 1
+				then
+					cat >>confdefs.h <<\_ACEOF
+#define CVD_HAVE_XMMINTRIN 1
+_ACEOF
+
+				fi
+
 			else
 				echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
@@ -3325,6 +3408,47 @@ _ACEOF
 				if test x$GXX = xyes
 				then
 					CXXFLAGS="$CXXFLAGS -mmmx -m3dnow"
+				fi
+				cat >conftest.$ac_ext <<_ACEOF
+#include <mmintrin.h>
+ int main(){ __m64 a,b,c; a = _m_punpckhbw(b,c); }
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  a=1
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+a=0
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+				if test $a = 1
+				then
+					cat >>confdefs.h <<\_ACEOF
+#define CVD_HAVE_MMINTRIN 1
+_ACEOF
+
 				fi
 
 			else
@@ -3348,6 +3472,47 @@ _ACEOF
 				if test x$GXX = xyes
 				then
 					CXXFLAGS="$CXXFLAGS -msse2"
+				fi
+				cat >conftest.$ac_ext <<_ACEOF
+#include <emmintrin.h>
+ int main(){ __m128d a,b,c; a = _mm_add_pd(b,c); }
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  a=1
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+a=0
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+				if test $a = 1
+				then
+					cat >>confdefs.h <<\_ACEOF
+#define CVD_HAVE_EMMINTRIN 1
+_ACEOF
+
 				fi
 			else
 				echo "$as_me:$LINENO: result: no" >&5
@@ -3428,8 +3593,7 @@ echo "${ECHO_T}" >&6
 echo $ECHO_N "checking $CXX supports $i... $ECHO_C" >&6
 
 				CXXFLAGS="$save_CXXFLAGS $i"
-
-cat >conftest.$ac_ext <<_ACEOF
+				cat >conftest.$ac_ext <<_ACEOF
 int main(){}
 _ACEOF
 rm -f conftest.$ac_objext

@@ -162,6 +162,18 @@ then
 					CXXFLAGS="$CXXFLAGS -mmmx -msse"
 				fi
 
+				AC_COMPILE_IFELSE([#include <mmintrin.h>
+ int main(){ __m64 a,b,c; a = _m_punpckhbw(b,c); }], [a=1], [a=0])
+				if test $a = 1
+				then
+					AC_DEFINE(CVD_HAVE_MMINTRIN)
+				fi
+				AC_COMPILE_IFELSE([#include <xmmintrin.h>
+ int main(){ __m128 a,b,c; a = _mm_add_ps(b,c); }], [a=1], [a=0])
+				if test $a = 1
+				then
+					AC_DEFINE(CVD_HAVE_XMMINTRIN)
+				fi
 
 			else
 				AC_MSG_RESULT(no)
@@ -178,6 +190,12 @@ then
 				then
 					CXXFLAGS="$CXXFLAGS -mmmx -m3dnow"
 				fi
+				AC_COMPILE_IFELSE([#include <mmintrin.h>
+ int main(){ __m64 a,b,c; a = _m_punpckhbw(b,c); }], [a=1], [a=0])
+				if test $a = 1
+				then
+					AC_DEFINE(CVD_HAVE_MMINTRIN)
+				fi
 
 			else
 				AC_MSG_RESULT(no)
@@ -193,6 +211,12 @@ then
 				if test x$GXX = xyes
 				then
 					CXXFLAGS="$CXXFLAGS -msse2"
+				fi
+				AC_COMPILE_IFELSE([#include <emmintrin.h>	
+ int main(){ __m128d a,b,c; a = _mm_add_pd(b,c); }], [a=1], [a=0])
+				if test $a = 1
+				then
+					AC_DEFINE(CVD_HAVE_EMMINTRIN)
 				fi
 			else
 				AC_MSG_RESULT(no)
