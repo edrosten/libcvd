@@ -46,7 +46,7 @@ namespace CVD {
       {
 	char* start = new char[count*sizeof(T) + N];
 	size_t val = (size_t)start;
-	T* astart = (T*)(start + (N-(val % N)));
+	T* astart = new (start + (N-(val % N))) T[count];
 	entry e = {start, count};
 	buffers[astart] = e;
 	return astart;
