@@ -235,8 +235,8 @@ namespace CVD
 	/// @ingroup gGL
 	inline void glMultMatrix( const CVD::SE3 & se3 )
 	{
-		glMultMatrix( se3.get_rotation());
 		glTranslate( se3.get_translation());
+		glMultMatrix( se3.get_rotation());
 	}
 
 
