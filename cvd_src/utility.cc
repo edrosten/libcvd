@@ -23,7 +23,11 @@ namespace  // anonymous, to hide symbols
     using CVD::steps_to_align;
     template <class F, class T1, class T2, int A, int M> inline void maybe_aligned_differences(const T1* a, const T1* b, T2* c, unsigned int count)
     {
-	if (!is_aligned<A>(a)) {      
+	if (count < M*2) {
+	    F::unaligned_differences(a,b,c,count);
+	    return;
+	}
+	if (!is_aligned<A>(a)) {	    
 	    unsigned int steps = steps_to_align<A>(a);
 	    F::unaligned_differences(a,b,c,steps);
 	    count -= steps;
@@ -31,18 +35,23 @@ namespace  // anonymous, to hide symbols
 	    b += steps;
 	    c += steps;
 	}
-	if (!is_aligned<A>(c)) {
+	if (!is_aligned<A>(c) || count < M) {
 	    F::unaligned_differences(a,b,c,count);
 	    return;
 	}	
 	unsigned int block = (count/M)*M;
 	F::aligned_differences(a,b,c,block);
-	if (count > block)
+	if (count > block) {
 	    F::unaligned_differences(a+block,b+block,c+block,count-block);
+	}
     }    
     
     template <class F, class T1, class T2, int A, int M> inline void maybe_aligned_add_mul_add(const T1* a, const T1* b, const T1& c, T2* out, unsigned int count)
     {
+	if (count < M*2) {
+	    F::unaligned_add_mul_add(a,b,c,out,count);
+	    return;
+	}
 	if (!is_aligned<A>(a)) {      
 	    unsigned int steps = steps_to_align<A>(a);
 	    F::unaligned_add_mul_add(a,b,c,out,steps);
@@ -50,6 +59,10 @@ namespace  // anonymous, to hide symbols
 	    a += steps;
 	    b += steps;
 	    out += steps;
+	    if (count < M) {
+		F::unaligned_add_mul_add(a,b,c,out,count);
+		return;
+	    }
 	}
 	unsigned int block = (count/M)*M;
 	F::aligned_add_mul_add(a,b,c,out,block);
@@ -59,12 +72,20 @@ namespace  // anonymous, to hide symbols
 
     template <class F, class T1, class T2, int A, int M> inline void maybe_aligned_assign_mul(const T1* a, const T1& c, T2* out, unsigned int count)
     {
+	if (count < M*2) {
+	    F::unaligned_assign_mul(a,c,out,count);
+	    return;
+	}
 	if (!is_aligned<A>(a)) {      
 	    unsigned int steps = steps_to_align<A>(a);
 	    F::unaligned_assign_mul(a,c,out,steps);
 	    count -= steps;
 	    a += steps;
 	    out += steps;
+	    if (count < M) {
+		F::unaligned_assign_mul(a,c,out,count);
+		return;
+	    }
 	}
 	unsigned int block = (count/M)*M;
 	F::aligned_assign_mul(a,c,out,block);
@@ -74,6 +95,9 @@ namespace  // anonymous, to hide symbols
 
     template <class F, class R, class T1, int A, int M> inline R maybe_aligned_inner_product(const T1* a, const T1* b, unsigned int count)
     {
+	if (count < M*2) {
+	    return F::unaligned_inner_product(a,b,count);
+	}
 	R sum = 0;
 	if (!is_aligned<A>(a)) {      
 	    unsigned int steps = steps_to_align<A>(a);
@@ -81,6 +105,9 @@ namespace  // anonymous, to hide symbols
 	    count -= steps;
 	    a += steps;
 	    b += steps;
+	    if (count < M) {
+		return sum + F::unaligned_inner_product(a,b,count);
+	    }
 	}
 	unsigned int block = (count/M)*M;
 	sum += F::aligned_inner_product(a,b,block);
@@ -91,6 +118,9 @@ namespace  // anonymous, to hide symbols
 
     template <class F, class R, class T1, int A, int M> inline R maybe_aligned_ssd(const T1* a, const T1* b, unsigned int count)
     {
+	if (count < M*2) {
+	    return F::unaligned_ssd(a,b,count);
+	}
 	R sum = 0;
 	if (!is_aligned<A>(a)) {      
 	    unsigned int steps = steps_to_align<A>(a);
@@ -98,6 +128,9 @@ namespace  // anonymous, to hide symbols
 	    count -= steps;
 	    a += steps;
 	    b += steps;
+	    if (count < M) {
+		return sum + F::unaligned_ssd(a,b,count);
+	    }
 	}
 	unsigned int block = (count/M)*M;
 	sum += F::aligned_ssd(a,b,block);
