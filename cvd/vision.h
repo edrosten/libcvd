@@ -203,7 +203,7 @@ template <class S, class T> void gradient(const BasicImage<S>& im, BasicImage<T>
   Gradient<S,T>::gradient(im,out);
 }
 
-#if defined( __GNUC__) && defined(CVD_HAVE_SSE2)
+#if defined(CVD_HAVE_SSE2) && defined(CVD_HAVE_EMMINTRIN)
 
  void gradient(const byte* in, short (*out)[2], int w, int h);
 
@@ -211,11 +211,11 @@ template <class S, class T> void gradient(const BasicImage<S>& im, BasicImage<T>
  {
      if( im.size() != out.size())
 	 throw Exceptions::Vision::IncompatibleImageSizes("gradient");
-     if (is_aligned<16>(im.data()) && is_aligned<16>(out.data())) {
+     if (is_aligned<16>(im.data()) && is_aligned<16>(out.data()))
 	 gradient(im.data(), out.data(), im.size().x, im.size().y);
-	 zeroBorders(out);
-     } else
+     else
 	 gradient<byte,short[2]>(im,out);
+     zeroBorders(out);
  }
 
 static inline __m128i zero_si128() { __m128i x; asm ( "pxor %0, %0  \n\t" : "=x"(x) ); return x; }
