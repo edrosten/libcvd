@@ -234,7 +234,7 @@ namespace CVD {
     template <bool Aligned_b> double float_inner_product(const __m128* a, const __m128* b, unsigned int count)
     {
 	float sums_store[4];
-	const size_t BLOCK = 1<<10;
+	const unsigned int BLOCK = 1<<10;
 	double dot = 0;
 	while (count) {
 	    size_t pass = std::min(count, BLOCK);
@@ -398,7 +398,7 @@ namespace CVD {
     template <bool Aligned_b> double double_inner_product(const __m128d* a, const __m128d* b, unsigned int count)
     {
 	double sums_store[2];
-	const size_t BLOCK = 1<<16;
+	const unsigned int BLOCK = 1<<16;
 	double dot = 0;
 	while (count) {
 	    size_t pass = std::min(count, BLOCK);
@@ -414,9 +414,9 @@ namespace CVD {
 	return dot;
     }
 
-    template <bool Aligned_b> long long byte_sum_squared_differences(const __m128i* a, const __m128i* b, size_t count) {
+    template <bool Aligned_b> long long byte_sum_squared_differences(const __m128i* a, const __m128i* b, unsigned int count) {
 	unsigned long sums_store[4];	
-	const size_t BLOCK = 1<<15;
+	const unsigned int BLOCK = 1<<15;
 	long long ssd = 0;
 	while (count) {
 	    size_t pass = std::min(count, BLOCK);
@@ -441,10 +441,10 @@ namespace CVD {
 	return ssd;
     }
 
-    template <bool Aligned_b> inline double double_sum_squared_differences(const __m128d* a, const __m128d* b, size_t count) 
+    template <bool Aligned_b> inline double double_sum_squared_differences(const __m128d* a, const __m128d* b, unsigned int count) 
     {
 	double sums_store[2];
-	const size_t BLOCK = 1<<10;
+	const unsigned int BLOCK = 1<<10;
 	double ssd = 0;
 	while (count) {
 	    size_t pass = std::min(count, BLOCK);
