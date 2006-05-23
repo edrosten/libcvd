@@ -21,6 +21,15 @@
 // Paul Smith 1 March 2005
 // Uses ffmpeg libraries to play most types of video file
 
+
+// ************************************************************
+// As RawVideoFileBuffer is now a templated class, the 
+// code in this file has been moved to cvd/videofilebuffer.h.
+// Thus this file is now deprecated, and is no longer required.
+// ************************************************************
+#if 0
+
+
 #include <string>
 #include <sstream>
 
@@ -86,18 +95,18 @@ RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, bool rgbp) :
 	{
 		// Register the formats and codecs
 		av_register_all();
-	
+		
 		// Now open the video file (and read the header, if present)
 		if(av_open_input_file(&pFormatContext, file.c_str(), NULL, 0, NULL) != 0)
 			throw FileOpen(file, "File could not be opened.");
-		
+
 		// Read the beginning of the file to get stream information (in case there is no header)
 		if(av_find_stream_info(pFormatContext) < 0)
 			throw FileOpen(file, "Stream information could not be read.");
-		
+
 		// Dump details of the video to standard error
 		dump_format(pFormatContext, 0, file.c_str(), false);
-		
+
 		// We shall just use the first video stream
 		video_stream = -1;
 		for(int i=0; i < pFormatContext->nb_streams && video_stream == -1; i++)
@@ -119,7 +128,7 @@ RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, bool rgbp) :
 		#else
 		pCodecContext = &pFormatContext->streams[video_stream]->codec;
 		#endif
-		
+
 		// Find the decoder for the video stream
 		AVCodec* pCodec = avcodec_find_decoder(pCodecContext->codec_id);
 		if(pCodec == NULL)
@@ -141,12 +150,11 @@ RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, bool rgbp) :
 			pCodecContext->frame_rate_base = 1000;
 		#endif
 		
-		
 		// Allocate video frame
 		pFrame = avcodec_alloc_frame();
 		if(pFrame == NULL)
 			throw BadFrameAlloc();
-		
+
 		// And a frame to hold the RGB version
 		pFrameRGB = avcodec_alloc_frame();
 		if(pFrameRGB == NULL)
@@ -211,12 +219,25 @@ RawVideoFileBuffer::~RawVideoFileBuffer()
 bool RawVideoFileBuffer::read_next_frame()
 {
 	//Make next_frame point to a new block of data, getting the sizes correct.
+  
 	if(is_rgb)
 	{
+	  printf("Before creating tmp\n");
+
+
+
 		Image<Rgb<byte> > tmp(my_size);
-		next_frame = (reinterpret_cast<Image<byte>&>(tmp));
+		//next_frame = (reinterpret_cast<Image<byte>&>(tmp));
+		next_frame = tmp;
+
+		printf("RawVideoFileBuffer::read_next_frame(): tmp = %p\n", (void *) &tmp);
+
+		std::cout << next_frame.size() << " " << my_size << std::endl;
+		std::cout << sizeof(tmp) << " " << sizeof(next_frame) << std::endl;
+		printf("RawVideoFileBuffer::read_next_frame(): next_frame = %p\n", (void *) &next_frame);		
 	}
 	else
+  
 	{
 		Image<byte> tmp(my_size);
 		next_frame = tmp;
@@ -285,7 +306,9 @@ bool RawVideoFileBuffer::read_next_frame()
 //
 // GET FRAME
 //
-VideoFileFrame<byte>* RawVideoFileBuffer::get_frame()
+//CCS36
+//VideoFileFrame<byte>* RawVideoFileBuffer::get_frame()
+VideoFileFrame<T>* RawVideoFileBuffer::get_frame()
 {
 
 	if(!frame_pending())
@@ -294,7 +317,11 @@ VideoFileFrame<byte>* RawVideoFileBuffer::get_frame()
 // 	Don't use - pCC->frame_number doesn't reset after a seek!
 //  Instead, we ask the packet its time when we decode it
 //	double time = start_time + pCodecContext->frame_number * pCodecContext->frame_rate_base / static_cast<double>(pCodecContext->frame_rate);
-	VideoFileFrame<byte>* vf = new VideoFileFrame<byte>(frame_time, next_frame);
+	puts("get_frame: before vf");
+	//CCS36
+	//VideoFileFrame<byte>* vf = new VideoFileFrame<byte>(frame_time, next_frame);
+	VideoFileFrame<T>* vf = new VideoFileFrame<T>(frame_time, next_frame);
+	printf("get_frame: after vf; vf = %p\n", (void *) vf);
 
 	if(!read_next_frame())
 	{
@@ -306,9 +333,11 @@ VideoFileFrame<byte>* RawVideoFileBuffer::get_frame()
 				// I can return it next time as well
 				if(is_rgb)
 				{
-					Image<Rgb<byte> > tmp = reinterpret_cast<Image<Rgb<byte> >&>(next_frame);
-					tmp.copy_from(reinterpret_cast<VideoFileFrame<Rgb<byte> >&>(*vf));
-					next_frame = (reinterpret_cast<Image<byte>&>(tmp));
+				        //CCS36
+				        //Image<Rgb<byte> > tmp = reinterpret_cast<Image<Rgb<byte> >&>(next_frame);
+					//tmp.copy_from(reinterpret_cast<VideoFileFrame<Rgb<byte> >&>(*vf));
+					//next_frame = (reinterpret_cast<Image<byte>&>(tmp));
+				  next_frame.copy_from(*vf);
 				}
 				else
 				{
@@ -332,9 +361,13 @@ VideoFileFrame<byte>* RawVideoFileBuffer::get_frame()
 //
 // PUT FRAME
 //
-void RawVideoFileBuffer::put_frame(VideoFrame<byte>* f)
+//CCS36
+//void RawVideoFileBuffer::put_frame(VideoFrame<byte>* f)
+void RawVideoFileBuffer::put_frame(VideoFrame<T>* f)
 {
-	VideoFileFrame<byte>* vff  = dynamic_cast<VideoFileFrame<byte> *>(f);
+  //CCS36
+  //VideoFileFrame<byte>* vff  = dynamic_cast<VideoFileFrame<byte> *>(f);
+  VideoFileFrame<T>* vff = dynamic_cast(VideoFileFrame<T> *>(f);
 
 	if(!vff)
 		throw Exceptions::VideoBuffer::BadPutFrame();
@@ -412,3 +445,7 @@ void RawVideoFileBuffer::seek_to(double t)
 
 }
 } // namespace CVD
+
+
+
+#endif // #if 0
