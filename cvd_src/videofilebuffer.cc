@@ -222,19 +222,9 @@ bool RawVideoFileBuffer::read_next_frame()
   
 	if(is_rgb)
 	{
-	  printf("Before creating tmp\n");
-
-
-
 		Image<Rgb<byte> > tmp(my_size);
-		//next_frame = (reinterpret_cast<Image<byte>&>(tmp));
+		next_frame = (reinterpret_cast<Image<byte>&>(tmp));
 		next_frame = tmp;
-
-		printf("RawVideoFileBuffer::read_next_frame(): tmp = %p\n", (void *) &tmp);
-
-		std::cout << next_frame.size() << " " << my_size << std::endl;
-		std::cout << sizeof(tmp) << " " << sizeof(next_frame) << std::endl;
-		printf("RawVideoFileBuffer::read_next_frame(): next_frame = %p\n", (void *) &next_frame);		
 	}
 	else
   
@@ -306,9 +296,7 @@ bool RawVideoFileBuffer::read_next_frame()
 //
 // GET FRAME
 //
-//CCS36
-//VideoFileFrame<byte>* RawVideoFileBuffer::get_frame()
-VideoFileFrame<T>* RawVideoFileBuffer::get_frame()
+VideoFileFrame<byte>* RawVideoFileBuffer::get_frame()
 {
 
 	if(!frame_pending())
@@ -317,11 +305,7 @@ VideoFileFrame<T>* RawVideoFileBuffer::get_frame()
 // 	Don't use - pCC->frame_number doesn't reset after a seek!
 //  Instead, we ask the packet its time when we decode it
 //	double time = start_time + pCodecContext->frame_number * pCodecContext->frame_rate_base / static_cast<double>(pCodecContext->frame_rate);
-	puts("get_frame: before vf");
-	//CCS36
-	//VideoFileFrame<byte>* vf = new VideoFileFrame<byte>(frame_time, next_frame);
-	VideoFileFrame<T>* vf = new VideoFileFrame<T>(frame_time, next_frame);
-	printf("get_frame: after vf; vf = %p\n", (void *) vf);
+	VideoFileFrame<byte>* vf = new VideoFileFrame<byte>(frame_time, next_frame);
 
 	if(!read_next_frame())
 	{
@@ -333,11 +317,9 @@ VideoFileFrame<T>* RawVideoFileBuffer::get_frame()
 				// I can return it next time as well
 				if(is_rgb)
 				{
-				        //CCS36
-				        //Image<Rgb<byte> > tmp = reinterpret_cast<Image<Rgb<byte> >&>(next_frame);
-					//tmp.copy_from(reinterpret_cast<VideoFileFrame<Rgb<byte> >&>(*vf));
-					//next_frame = (reinterpret_cast<Image<byte>&>(tmp));
-				  next_frame.copy_from(*vf);
+				        Image<Rgb<byte> > tmp = reinterpret_cast<Image<Rgb<byte> >&>(next_frame);
+					tmp.copy_from(reinterpret_cast<VideoFileFrame<Rgb<byte> >&>(*vf));
+					next_frame = (reinterpret_cast<Image<byte>&>(tmp));
 				}
 				else
 				{
@@ -361,13 +343,9 @@ VideoFileFrame<T>* RawVideoFileBuffer::get_frame()
 //
 // PUT FRAME
 //
-//CCS36
-//void RawVideoFileBuffer::put_frame(VideoFrame<byte>* f)
-void RawVideoFileBuffer::put_frame(VideoFrame<T>* f)
+void RawVideoFileBuffer::put_frame(VideoFrame<byte>* f)
 {
-  //CCS36
-  //VideoFileFrame<byte>* vff  = dynamic_cast<VideoFileFrame<byte> *>(f);
-  VideoFileFrame<T>* vff = dynamic_cast(VideoFileFrame<T> *>(f);
+  VideoFileFrame<byte>* vff  = dynamic_cast<VideoFileFrame<byte> *>(f);
 
 	if(!vff)
 		throw Exceptions::VideoBuffer::BadPutFrame();
