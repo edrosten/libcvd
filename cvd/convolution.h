@@ -169,11 +169,8 @@ template <class T> void convolveWithBox(const BasicImage<T>& I, BasicImage<T>& J
 	    hsum -= *(back++);
 	}
 	if (i >= win.y-1) {
-	    for (j=win.x-1; j<w; j++) {
-		output[j] = static_cast<T>(sums[j]*factor);
-		//sums[j] -= oldest_row[j];
-	    }
-	    differences(oldest_row+win.x-1, sums+win.x-1, sums+win.x-1, w-win.x+1);
+	    assign_multiple(sums+win.x-1, factor, output+win.x-1, w-win.x+1);
+	    differences(sums+win.x-1, oldest_row+win.x-1, sums+win.x-1, w-win.x+1);
 	    output += w;
 	    oldest_row += w;
 	    if (oldest_row == &buffer[0] + w*win.y)
@@ -412,12 +409,11 @@ template <class T,class S> inline const T* convolveMiddle(const T* input, const 
 #else
 
 template <class T,class S> const T* convolveMiddle(const T* input, const S& factor, const S* kernel, int ksize, int n, T* output) {
-  for (int j=0; j<n; j++)
-    output[j] = factor * input[j];
-  for (int r=0; r <ksize; r++) {
-    add_multiple_of_sum<sum_type, sum_comp_type>(input-r-1, input+r+1, kernel[r], output, n);
-  }
-  return input + n;
+    assign_multiple(input, factor, output, n);    
+    for (int r=0; r <ksize; r++) {
+	add_multiple_of_sum(input-r-1, input+r+1, kernel[r], output, n);
+    }
+    return input + n;
 }
 
 #endif
@@ -478,24 +474,24 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
     // vertical
     if (i >= swin) {
       const sum_type* middle_row = rows[ksize];
-      assign_multiple<sum_type, sum_type>(middle_row, factor, outbuf, w);
+      assign_multiple(middle_row, factor, outbuf, w);
       for (int k=0; k<ksize; k++) {
 	const sum_comp_type m = kernel[k];
 	const sum_type* row1 = rows[ksize-k-1];
 	const sum_type* row2 = rows[ksize+k+1];	
-	add_multiple_of_sum<sum_type, sum_comp_type>(row1, row2, m, outbuf, w);
+	add_multiple_of_sum(row1, row2, m, outbuf, w);
       }
       cast_copy(outbuf, output, w);
       output += w;
       if (i == h-1) {
 	for (int r=0; r<ksize; r++) {
 	  const sum_type* middle_row = rows[ksize+r+1];
-	  assign_multiple<sum_type, sum_type>(middle_row, factor, outbuf, w);
+	  assign_multiple(middle_row, factor, outbuf, w);
 	  for (int k=0; k<ksize; k++) {
 	    const sum_comp_type m = kernel[k];
 	    const sum_type* row1 = rows[ksize+r-k];
 	    const sum_type* row2 = rows[ksize+r+k+2 > swin ? 2*swin - (ksize+r+k+2) : ksize+r+k+2];
-	    add_multiple_of_sum<sum_type, sum_comp_type>(row1, row2, m, outbuf, w);
+	    add_multiple_of_sum(row1, row2, m, outbuf, w);
 	  }
 	  cast_copy(outbuf, output, w);
 	  output += w;
@@ -504,12 +500,12 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
     } else if (i == swin-1) {
       for (int r=0; r<ksize; r++) {
 	const sum_type* middle_row = rows[r+1];
-	assign_multiple<sum_type, sum_type>(middle_row, factor, outbuf, w);
+	assign_multiple(middle_row, factor, outbuf, w);
 	for (int k=0; k<ksize; k++) {
 	  const sum_comp_type m = kernel[k];
 	  const sum_type* row1 = rows[abs(r-k-1)+1];
 	  const sum_type* row2 = rows[r+k+2];	
-	  add_multiple_of_sum<sum_type, sum_comp_type>(row1, row2, m, outbuf, w);
+	  add_multiple_of_sum(row1, row2, m, outbuf, w);
 	}
 	cast_copy(outbuf, output, w);
 	output += w;
