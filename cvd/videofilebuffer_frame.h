@@ -32,36 +32,37 @@ struct AVCodecContext;
 
 namespace CVD
 {
-  namespace VFB
-    {
-      template<typename T>
-	class RawVideoFileBuffer;
-    }
-  
-  /// A frame from a VideoFileBuffer.
-  /// @ingroup gVideoFrame	
-  /// @param T The pixel type of the video frames. Currently only <code>CVD::Rgb<CVD::byte> ></code> and 
-  /// <code>CVD::byte></code> are supported.
-  template<class T> 
-    class VideoFileFrame: public CVD::LocalVideoFrame<T>
-    {
-      friend class VFB::RawVideoFileBuffer<T>;
-      
-    protected:
-      ~VideoFileFrame()
+	namespace VFB
 	{
+		class RawVideoFileBuffer;
 	}
-      
-      /// Construct a video frame from an Image and a timestamp
-      /// @param time The timestamp of this frame
-      /// @param local The Image to use for this frame
-      VideoFileFrame(double time, CVD::Image<T>& local)
-	:LocalVideoFrame<T>(time, local)
+
+	/// A frame from a VideoFileBuffer.
+	/// @ingroup gVideoFrame	
+	/// @param T The pixel type of the video frames. Currently only <code>CVD::Rgb<CVD::byte> ></code> and 
+	/// <code>CVD::byte></code> are supported.
+	template<class T> 
+	class VideoFileFrame: public CVD::LocalVideoFrame<T>
 	{
-	}	
-      
-    private:
-    };
+		friend class VFB::RawVideoFileBuffer;
+
+	        public:
+		        inline void delete_self() {  delete this; }
+		protected:
+			~VideoFileFrame()
+			{
+			}
+
+			/// Construct a video frame from an Image and a timestamp
+			/// @param time The timestamp of this frame
+			/// @param local The Image to use for this frame
+			VideoFileFrame(double time, CVD::Image<T>& local)
+			:LocalVideoFrame<T>(time, local)
+			{
+			}	
+
+		private:
+	};
 }
 
 

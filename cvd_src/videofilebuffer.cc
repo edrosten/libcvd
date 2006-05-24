@@ -21,15 +21,6 @@
 // Paul Smith 1 March 2005
 // Uses ffmpeg libraries to play most types of video file
 
-
-// ************************************************************
-// As RawVideoFileBuffer is now a templated class, the 
-// code in this file has been moved to cvd/videofilebuffer.h.
-// Thus this file is now deprecated, and is no longer required.
-// ************************************************************
-#if 0
-
-
 #include <string>
 #include <sstream>
 
@@ -95,18 +86,18 @@ RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, bool rgbp) :
 	{
 		// Register the formats and codecs
 		av_register_all();
-		
+	
 		// Now open the video file (and read the header, if present)
 		if(av_open_input_file(&pFormatContext, file.c_str(), NULL, 0, NULL) != 0)
 			throw FileOpen(file, "File could not be opened.");
-
+		
 		// Read the beginning of the file to get stream information (in case there is no header)
 		if(av_find_stream_info(pFormatContext) < 0)
 			throw FileOpen(file, "Stream information could not be read.");
-
+		
 		// Dump details of the video to standard error
-		dump_format(pFormatContext, 0, file.c_str(), false);
-
+		//dump_format(pFormatContext, 0, file.c_str(), false);
+		
 		// We shall just use the first video stream
 		video_stream = -1;
 		for(int i=0; i < pFormatContext->nb_streams && video_stream == -1; i++)
@@ -128,7 +119,7 @@ RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, bool rgbp) :
 		#else
 		pCodecContext = &pFormatContext->streams[video_stream]->codec;
 		#endif
-
+		
 		// Find the decoder for the video stream
 		AVCodec* pCodec = avcodec_find_decoder(pCodecContext->codec_id);
 		if(pCodec == NULL)
@@ -150,11 +141,12 @@ RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, bool rgbp) :
 			pCodecContext->frame_rate_base = 1000;
 		#endif
 		
+		
 		// Allocate video frame
 		pFrame = avcodec_alloc_frame();
 		if(pFrame == NULL)
 			throw BadFrameAlloc();
-
+		
 		// And a frame to hold the RGB version
 		pFrameRGB = avcodec_alloc_frame();
 		if(pFrameRGB == NULL)
@@ -218,23 +210,23 @@ RawVideoFileBuffer::~RawVideoFileBuffer()
 //
 bool RawVideoFileBuffer::read_next_frame()
 {
+	uint8_t* data;
+
 	//Make next_frame point to a new block of data, getting the sizes correct.
-  
+	//Resize always causes seperation of data.
 	if(is_rgb)
 	{
-		Image<Rgb<byte> > tmp(my_size);
-		next_frame = (reinterpret_cast<Image<byte>&>(tmp));
-		next_frame = tmp;
+		next_frame_rgb.resize(my_size);
+		data = reinterpret_cast<uint8_t*>(next_frame_rgb.data());
 	}
 	else
-  
 	{
-		Image<byte> tmp(my_size);
-		next_frame = tmp;
+		next_frame.resize(my_size);
+		data = reinterpret_cast<uint8_t*>(next_frame.data());
 	}
 
 	//Assign this new memory block 
-	avpicture_fill((AVPicture *)pFrameRGB, reinterpret_cast<uint8_t*>(next_frame.data()), is_rgb?PIX_FMT_RGB24:PIX_FMT_GRAY8, pCodecContext->width, pCodecContext->height);
+	avpicture_fill((AVPicture *)pFrameRGB, data, is_rgb?PIX_FMT_RGB24:PIX_FMT_GRAY8, pCodecContext->width, pCodecContext->height);
 
 
     AVPacket packet;
@@ -296,7 +288,7 @@ bool RawVideoFileBuffer::read_next_frame()
 //
 // GET FRAME
 //
-VideoFileFrame<byte>* RawVideoFileBuffer::get_frame()
+void* RawVideoFileBuffer::get_frame()
 {
 
 	if(!frame_pending())
@@ -305,7 +297,15 @@ VideoFileFrame<byte>* RawVideoFileBuffer::get_frame()
 // 	Don't use - pCC->frame_number doesn't reset after a seek!
 //  Instead, we ask the packet its time when we decode it
 //	double time = start_time + pCodecContext->frame_number * pCodecContext->frame_rate_base / static_cast<double>(pCodecContext->frame_rate);
-	VideoFileFrame<byte>* vf = new VideoFileFrame<byte>(frame_time, next_frame);
+
+	VideoFileFrame<byte> *vfb = NULL;
+	VideoFileFrame<Rgb<byte> > *vfrgb = NULL;
+	
+	if(is_rgb)
+		vfrgb = new VideoFileFrame<Rgb<byte> >(frame_time, next_frame_rgb);
+	else
+		vfb = new VideoFileFrame<byte>(frame_time, next_frame);
+	
 
 	if(!read_next_frame())
 	{
@@ -316,15 +316,9 @@ VideoFileFrame<byte>* RawVideoFileBuffer::get_frame()
 				// I'll copy the one that I'm about to return so that
 				// I can return it next time as well
 				if(is_rgb)
-				{
-				        Image<Rgb<byte> > tmp = reinterpret_cast<Image<Rgb<byte> >&>(next_frame);
-					tmp.copy_from(reinterpret_cast<VideoFileFrame<Rgb<byte> >&>(*vf));
-					next_frame = (reinterpret_cast<Image<byte>&>(tmp));
-				}
+					next_frame_rgb.copy_from(*vfrgb);
 				else
-				{
-					next_frame.copy_from(*vf);
-				}
+					next_frame.copy_from(*vfb);
 				break;
 			
 			case VideoBufferFlags::UnsetPending:
@@ -336,21 +330,34 @@ VideoFileFrame<byte>* RawVideoFileBuffer::get_frame()
 				break;
 		}
 	}
+
+	if(vfb)
+		return vfb;
+	else
+		return vfrgb;
+}
+
+
+template<class C> void delete_frame_or_throw(void* f)
+{
+	VideoFrame<C>* vf = reinterpret_cast<VideoFrame<C>*>(f);
+	VideoFileFrame<C>* vff  = dynamic_cast<VideoFileFrame<C>*>(vf);
 	
-	return vf;	
+	if(!vff)
+		throw Exceptions::VideoBuffer::BadPutFrame();
+	else
+	        vff->delete_self();
 }
 
 //
 // PUT FRAME
 //
-void RawVideoFileBuffer::put_frame(VideoFrame<byte>* f)
+void RawVideoFileBuffer::put_frame(void* f)
 {
-  VideoFileFrame<byte>* vff  = dynamic_cast<VideoFileFrame<byte> *>(f);
-
-	if(!vff)
-		throw Exceptions::VideoBuffer::BadPutFrame();
+	if(is_rgb)
+		delete_frame_or_throw<Rgb<byte> >(f);
 	else
-		delete vff;
+		delete_frame_or_throw<byte>(f);
 }
 
 //
@@ -423,7 +430,3 @@ void RawVideoFileBuffer::seek_to(double t)
 
 }
 } // namespace CVD
-
-
-
-#endif // #if 0
