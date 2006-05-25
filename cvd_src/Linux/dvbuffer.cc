@@ -21,9 +21,9 @@
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.12 $$Name:  $
-**       $Date: 2006/03/31 16:58:04 $
-**   Copyright: LGPL $Author: edrosten $
+**   $Revision: 1.13 $$Name:  $
+**       $Date: 2006/05/25 12:33:24 $
+**   Copyright: LGPL $Author: georgklein $
 ** Description:
 **
 **    Get one gray image using libdc1394 and store it as portable gray map
@@ -32,6 +32,9 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
+**  Revision 1.13  2006/05/25 12:33:24  georgklein
+**  Highly dubious fix without which my DVBuffer doesn't work (??)
+**
 **  Revision 1.12  2006/03/31 16:58:04  edrosten
 **  Added some proper error handling.
 **
@@ -511,6 +514,11 @@ DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int e
 
   if (raw1394_set_port(my_handle, port) < 0) 
 	  throw Exceptions::DVBuffer::Raw1394Setup("Couldn't perform raw1394_set_port");
+
+  // Without the following two lines dvbuffer can't set_iso_channel_and_speed
+  // on my system for some reason (GK)	 
+  int *strange = new int; 	 
+  raw1394_set_userdata( my_handle, strange );
 
   /*-----------------------------------------------------------------------
    *  get the RawDCVideo nodes and describe them as we find them
