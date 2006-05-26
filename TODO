@@ -5,9 +5,7 @@ In no particular order
 
 	More helper functions for diskbuffer
 
-	Colourspace buffer
 	mplayerbuffer
-	Templated v4l2buffer
 
 
 	Ethan's algorithms stuff
@@ -19,7 +17,6 @@ In no particular order
 
 	move EndOfBufferBehaviour in to LocalVideoBuffer base class
 
-	There is a FIXME in videofilebuffer.cc to be fixed
 
 	Make imagestreambuffer
 
@@ -28,6 +25,9 @@ In no particular order
 	Fix alpha loading in TIFF images. Currently, the loading loads precomposited and noncomposited images in the same way. Also, it loads alpha as an opacity (1 = opaque) value, whereas the convert_pixel stuff treats aplha as transparency (0 = opaque). This needs to be fixed.
 
 Done
+	There is a FIXME in videofilebuffer.cc to be fixed
+	Colourspace buffer
+	Templated v4l2buffer
 	Working v4l2buffer for 2.6
 	Prevent JPEG loader from trashing the next one in the stream
 	Auto configuration
