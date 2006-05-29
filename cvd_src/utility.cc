@@ -44,7 +44,7 @@ using namespace std;
 	}
     }    
     
-    template <class F, class T1, class T2, int A, int M> inline void maybe_aligned_add_mul_add(const T1* a, const T1* b, T1 c, T2* out, unsigned int count)
+    template <class F, class T1, class T2, int A, int M> inline void maybe_aligned_add_mul_add(const T1* a, const T1* b, const T1& c, T2* out, unsigned int count)
     {
 	if (count < M*2) {
 	    F::unaligned_add_mul_add(a,b,c,out,count);
@@ -62,13 +62,17 @@ using namespace std;
 		return;
 	    }
 	}
+	else if (count < M || !is_aligned<16>(out)) {
+	    F::unaligned_add_mul_add(a,b,c,out,count);
+	    return;
+	}
 	unsigned int block = (count/M)*M;
 	F::aligned_add_mul_add(a,b,c,out,block);
 	if (count > block)
 	    F::unaligned_add_mul_add(a+block,b+block,c, out+block,count-block);
     }    
 
-    template <class F, class T1, class T2, int A, int M> inline void maybe_aligned_assign_mul(const T1* a, T1 c, T2* out, unsigned int count)
+    template <class F, class T1, class T2, int A, int M> inline void maybe_aligned_assign_mul(const T1* a, const T1& c, T2* out, unsigned int count)
     {
 	if (count < M*2) {
 	    F::unaligned_assign_mul(a,c,out,count);
@@ -207,14 +211,14 @@ namespace CVD {
     template <bool Aligned> inline void store_ps(__m128 m, void* addr) { return _mm_storeu_ps((float*)addr, m); }
     template <> inline void store_ps<true>(__m128 m, void* addr) { return _mm_store_ps((float*)addr, m); }
 
-    template <bool Aligned_b> void float_differences(const __m128* a, const __m128* b, __m128* diff, unsigned int count)
+    template <bool Aligned_b> inline void float_differences(const __m128* a, const __m128* b, __m128* diff, unsigned int count)
     {
 	while (count--) {
 	    *(diff++) = _mm_sub_ps(*(a++), load_ps<Aligned_b>(b++));
 	}
     }
     
-    template <bool Aligned_b> void float_add_multiple_of_sum(const __m128* a, const __m128* b, float c, __m128* out, unsigned int count)
+    template <bool Aligned_b> void float_add_multiple_of_sum(const __m128* a, const __m128* b, const float& c, __m128* out, unsigned int count)
     {
 	__m128 cccc = _mm_set1_ps(c);
 	while (count--) {
@@ -223,7 +227,7 @@ namespace CVD {
 	}
     }
 
-    template <bool Aligned_out> inline void float_assign_multiple(const __m128* a, float c, __m128* out, unsigned int count)
+    template <bool Aligned_out> inline void float_assign_multiple(const __m128* a, const float& c, __m128* out, unsigned int count)
     {
 	const __m128 cccc = _mm_set1_ps(c);
 	while (count--)
@@ -281,20 +285,20 @@ namespace CVD {
 		float_differences<false>((const __m128*)a, (const __m128*)b, (__m128*)diff, count>>2);
 	}
 
-	template <class T1, class T2> static inline void unaligned_add_mul_add(const T1* a, const T1* b, T1 c, T2* out, size_t count) {
+	template <class T1, class T2> static inline void unaligned_add_mul_add(const T1* a, const T1* b, const T1& c, T2* out, size_t count) {
 	    add_multiple_of_sum<T1,T2>(a,b,c,out,count);
 	}
-	static inline void aligned_add_mul_add(const float* a, const float* b, float c, float* out, size_t count) {
+	static inline void aligned_add_mul_add(const float* a, const float* b, const float& c, float* out, size_t count) {
 	    if (is_aligned<16>(b))
 		float_add_multiple_of_sum<true>((const __m128*)a, (const __m128*)b, c, (__m128*)out, count>>2);
 	    else
 		float_add_multiple_of_sum<false>((const __m128*)a, (const __m128*)b, c, (__m128*)out, count>>2);
 	}	
 
-	template <class T1, class T2> static inline void unaligned_assign_mul(const T1* a, T1 c, T2* out, size_t count) {
+	template <class T1, class T2> static inline void unaligned_assign_mul(const T1* a, const T1& c, T2* out, size_t count) {
 	    assign_multiple<T1,T2>(a,c,out,count);
 	}
-	static inline void aligned_assign_mul(const float* a, float c, float* out, size_t count) {
+	static inline void aligned_assign_mul(const float* a, const float& c, float* out, size_t count) {
 	    if (is_aligned<16>(out)) 
 		float_assign_multiple<false>((const __m128*)a, c, (__m128*)out, count>>2);
 	    else		
@@ -331,12 +335,12 @@ namespace CVD {
 	maybe_aligned_differences<SSE_funcs, float, float, 16, 4>(a,b,diff,size);
     }
     
-    void add_multiple_of_sum(const float* a, const float* b, float c,  float* out, unsigned int count)
+    void add_multiple_of_sum(const float* a, const float* b, const float& c,  float* out, unsigned int count)
     {
 	maybe_aligned_add_mul_add<SSE_funcs,float,float,16,4>(a,b,c,out,count);
     }
     
-    void assign_multiple(const float* a, float c,  float* out, unsigned int count) 
+    void assign_multiple(const float* a, const float& c,  float* out, unsigned int count) 
     {
 	maybe_aligned_assign_mul<SSE_funcs,float,float,16,4>(a,c,out,count);
     }
@@ -380,7 +384,7 @@ namespace CVD {
 	}
     }
 
-    template <bool Aligned_b> void double_add_multiple_of_sum(const __m128d* a, const __m128d* b, double c, __m128d* out, unsigned int count)
+    template <bool Aligned_b> void double_add_multiple_of_sum(const __m128d* a, const __m128d* b, const double& c, __m128d* out, unsigned int count)
     {
 	__m128d cc = _mm_set1_pd(c);
 	while (count--) {
@@ -389,7 +393,7 @@ namespace CVD {
 	}
     }
 
-    template <bool Aligned_out> void double_assign_multiple(const __m128d* a, double c, __m128d* out, unsigned int count)
+    template <bool Aligned_out> void double_assign_multiple(const __m128d* a, const double& c, __m128d* out, unsigned int count)
     {
 	__m128d cc = _mm_set1_pd(c);
 	while (count--)
@@ -481,11 +485,11 @@ namespace CVD {
 		double_differences<false>((const __m128d*)a,(const __m128d*)b,(__m128d*)diff,count>>1);
 	}
 
-	template <class T1, class T2> static inline void unaligned_add_mul_add(const T1* a, const T1* b, T1 c, T2* out, size_t count) {
+	template <class T1, class T2> static inline void unaligned_add_mul_add(const T1* a, const T1* b, const T1& c, T2* out, size_t count) {
 	    add_multiple_of_sum<T1,T2>(a,b,c,out,count);
 	}
 	
-	static inline void aligned_add_mul_add(const double* a, const double* b, double c, double* out, unsigned int count)
+	static inline void aligned_add_mul_add(const double* a, const double* b, const double& c, double* out, unsigned int count)
 	{
 	    if (is_aligned<16>(b))
 		double_add_multiple_of_sum<true>((const __m128d*)a, (const __m128d*)b, c, (__m128d*)out, count>>1);
@@ -493,11 +497,11 @@ namespace CVD {
 		double_add_multiple_of_sum<false>((const __m128d*)a, (const __m128d*)b, c, (__m128d*)out, count>>1);
 	}
 	
-	template <class T1, class T2> static inline void unaligned_assign_mul(const T1* a, T1 c, T2* out, size_t count) {
+	template <class T1, class T2> static inline void unaligned_assign_mul(const T1* a, const T1& c, T2* out, size_t count) {
 	    assign_multiple<T1,T2>(a,c,out,count);
 	}
 
-	static inline void aligned_assign_mul(const double* a, double c, double* out, unsigned int count)
+	static inline void aligned_assign_mul(const double* a, const double& c, double* out, unsigned int count)
 	{
 	    if (is_aligned<16>(out))
 		double_assign_multiple<true>((const __m128d*)a, c, (__m128d*)out, count>>1);
@@ -552,12 +556,12 @@ namespace CVD {
 	maybe_aligned_differences<SSE2_funcs, double, double, 16, 2>(a,b,diff,size);
     }
 
-    void add_multiple_of_sum(const double* a, const double* b, double c,  double* out, unsigned int count)
+    void add_multiple_of_sum(const double* a, const double* b, const double& c,  double* out, unsigned int count)
     {
 	maybe_aligned_add_mul_add<SSE2_funcs, double, double, 16, 2>(a,b,c,out,count);
     }
 
-    void assign_multiple(const double* a, double c,  double* out, unsigned int count)
+    void assign_multiple(const double* a, const double& c,  double* out, unsigned int count)
     {
 	maybe_aligned_assign_mul<SSE2_funcs, double, double, 16, 2>(a,c,out,count);
     }
