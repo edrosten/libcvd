@@ -180,8 +180,8 @@ namespace CVD
 	{
 	  switch (t) {
 	  case ImageType::PNM:  
-	  case Automatic:
-	  case Unknown:
+	  case ImageType::Automatic:
+	  case ImageType::Unknown:
 	  	PNM::writePNM(im, o); break;
 	  #ifdef CVD_IMAGE_HAVE_JPEG
 		  case ImageType::JPEG: JPEG::writeJPEG(im,o); break;
