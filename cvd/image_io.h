@@ -179,7 +179,10 @@ namespace CVD
 	void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t)
 	{
 	  switch (t) {
-	  case ImageType::PNM:  PNM::writePNM(im, o); break;
+	  case ImageType::PNM:  
+	  case Automatic:
+	  case Unknown:
+	  	PNM::writePNM(im, o); break;
 	  #ifdef CVD_IMAGE_HAVE_JPEG
 		  case ImageType::JPEG: JPEG::writeJPEG(im,o); break;
 	  #endif
