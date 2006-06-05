@@ -108,8 +108,10 @@ ImageType::ImageType string_to_image_type(const std::string& name)
 		return  ImageType::EPS;
 	else if (suffix == "bmp") 
 		return  ImageType::BMP;
-	else 
+	else if (suffix == "pnm" || suffix == "ppm" || suffix == "pgm" || suffix == "pbm") 
 		return  ImageType::PNM;
+	else
+		return ImageType::Unknown;
 }
 
 }

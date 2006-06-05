@@ -61,7 +61,9 @@ namespace CVD
 	{
 		enum ImageType
 		{
-			PNM,
+			Automatic= -2,
+			Unknown = -1,
+			PNM=0,
 			PS,
 			EPS,
 			BMP,
@@ -78,7 +80,11 @@ namespace CVD
 	{
 		/// Possible image types
 		enum ImageType
-		{
+		{	
+			/// Placeholder type telling @ref save_image to deduce the type from the filename
+			Automatic,
+			/// Unknown image type (can be returned by @ref string_to_image_type
+			Unknown,
 			/// PNM image format (PBM, PGM or PPM). This is a raw image format.
 			PNM, 
 			/// JPEG image format. This is a compressed (lossy) image format, but defaults to 95% quality, which has very few compression artefacts. This image type is only present if libjpeg is available.
@@ -183,17 +189,25 @@ namespace CVD
 	  }
 	}
 
-	template<class PixelType> void img_save(const BasicImage<PixelType>& im, const std::string& name, ImageType::ImageType t)
+	template<class PixelType> void img_save(const BasicImage<PixelType>& im, const std::string& name, ImageType::ImageType t, ImageType::ImageType d = ImageType::PNM)
 	{
 	  std::ofstream out(name.c_str(), std::ios::out|std::ios::binary);
 	  if(!out.good())
 	    throw Exceptions::Image_IO::OpenError(name, "for writing", errno);
+
+	  if(t = ImageType::Automatic)
+	  {
+		t = string_to_image_type(name);
+		if(t == ImageType::Unknown)
+			t = d;
+	  }
+
 	  img_save(im, out, t);
 	}
 
 	template<class PixelType> void img_save(const BasicImage<PixelType>& im, const std::string& name)
 	{
-	    img_save(im, name, string_to_image_type(name));
+	    img_save(im, name, name, ImageType::Automatic);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
