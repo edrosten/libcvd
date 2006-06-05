@@ -198,7 +198,7 @@ namespace CVD
 	  if(!out.good())
 	    throw Exceptions::Image_IO::OpenError(name, "for writing", errno);
 
-	  if(t = ImageType::Automatic)
+	  if(t == ImageType::Automatic)
 	  {
 		t = string_to_image_type(name);
 		if(t == ImageType::Unknown)
