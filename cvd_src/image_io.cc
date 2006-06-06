@@ -100,10 +100,13 @@ ImageType::ImageType string_to_image_type(const std::string& name)
 	for (size_t i=0; i<suffix.length(); i++)
 		suffix[i] = tolower(suffix[i]);
 
-	if (suffix == "jpg") 
-		return  ImageType::JPEG;
-	else if (suffix == "ps") 
-		return  ImageType::PS;
+
+	if (suffix == "ps") 
+	        return  ImageType::PS;
+#ifdef CVD_IMAGE_HAVE_JPEG
+ 	else if (suffix == "jpg") 
+	         return  ImageType::JPEG;
+#endif
 	else if (suffix == "eps")
 		return  ImageType::EPS;
 	else if (suffix == "bmp") 
