@@ -210,7 +210,7 @@ namespace CVD
 
 	template<class PixelType> void img_save(const BasicImage<PixelType>& im, const std::string& name)
 	{
-	    img_save(im, name, name, ImageType::Automatic);
+	    img_save(im, name, ImageType::Automatic);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
