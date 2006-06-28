@@ -207,40 +207,99 @@ namespace ImageUtil
 	}
 }
 
-/// A generic image class to manage a block of data as an image. Provides
-/// basic image access such as accessing a particular pixel co-ordinate. 
-/// @param T The pixel type for this image. Typically either
-/// <code>CVD::byte</code> or <code>CVD::Rgb<CVD::byte> ></code> are used,
-/// but images could be constructed of any available type.
-/// 
-/// A BasicImage does not manage its own data, but provides access to an 
-/// arbitrary externally-managed block of data as though it were an image. Use
-/// the derived Image class if you want an image which also has its own data.
-/// 
-/// Loading and saving, format conversion and some copying functionality is
-/// provided by external functions rather than as part of this class. See
-/// the @ref gImageIO "Image loading and saving, and format conversion" module
-/// for documentation of these functions.
-/// @ingroup gImage
-template<class T> class BasicImage
+template<class T> class SubImageIteratorEnd;
+template<class T> class SubImage;
+
+template<class T> class SubImageIterator
+{
+	public:
+		void operator++()
+		{
+			ptr++;
+			if(ptr == row_end)
+			{
+				ptr += row_increment;
+				row_end += total_width;
+
+				if(ptr >= end)
+					end = NULL;
+			}
+		}
+
+		void operator++(int)
+		{
+			operator++();
+		}
+	
+		T* operator->() { return ptr; }
+		const T* operator->() const { return ptr; }
+
+		T& operator*(){ return *ptr;}
+		const T& operator*() const { return *ptr;}
+
+		bool operator<(const SubImageIterator& s) const { return ptr < s.ptr; }
+		bool operator==(const SubImageIterator& s) const { return ptr == s.ptr; }
+		bool operator!=(const SubImageIterator& s) const { return ptr != s.ptr; }
+
+
+		bool operator!=(const SubImageIteratorEnd<T>& s) const
+		{
+			return end != NULL;
+		}
+
+		bool operator<(const SubImageIteratorEnd<T>& s) const
+		{
+			//It's illegal to iterate _past_ end(), so < is equivalent to !=
+			return end != NULL;
+		}
+
+		SubImageIterator()
+		{}
+
+		SubImageIterator(T* start, int image_width, int row_stride, T* off_end)
+		:ptr(start),
+		 row_end(start + image_width), 
+		 end(off_end), 
+		 row_increment(row_stride-image_width), 
+		 total_width(row_stride)
+		{ }
+
+		SubImageIterator(T* end) :ptr(end){ }
+
+	private:
+		T* ptr, *row_end, *end;
+		int row_increment, total_width;
+};
+
+
+template<class T> class SubImageIteratorEnd
+{
+	public:
+		SubImageIteratorEnd(SubImage<T>* p)
+		:i(p){}
+
+		operator SubImageIterator<T>()
+		{
+			return i->end();
+		}
+
+	private:
+		SubImage<T>* i;
+};
+
+
+template<class T> class SubImage
 {
 	public:
 		/// Construct an image from a block of data.
 		/// @param data The image data in horizontal scanline order
 		/// @param size The size of the image
-		BasicImage(T* data, const ImageRef& size)
-		:my_data(data),my_size(size)
+		/// @param stride The row stride (or width, including the padding)
+		SubImage(T* data, const ImageRef& size, int stride)
+		:my_data(data),my_size(size),my_stride(stride)
 		{
 		}
 
-		/// Copy constructor
-		/// @param copyof The image to copy
-		BasicImage(const BasicImage& copyof)
-		{
-		  my_size = copyof.my_size;
-		  my_data = copyof.my_data;
-		}
-	
 		/// Is this pixel co-ordinate inside the image?
 		/// @param ir The co-ordinate to test
 		bool in_image(const ImageRef& ir) const
@@ -249,7 +308,7 @@ template<class T> class BasicImage
 		}
 
 		/// The image data is not destroyed when a BasicImage is destroyed.
-		~BasicImage()
+		~SubImage()
 		{}
 
 		/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
@@ -258,7 +317,7 @@ template<class T> class BasicImage
 		inline T& operator[](const ImageRef& pos)
 		{
 			CVD_IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
-			return (my_data[pos.y*my_size.x + pos.x]);
+			return (my_data[pos.y*my_stride + pos.x]);
 		}
 		
 		/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
@@ -267,32 +326,8 @@ template<class T> class BasicImage
 		inline const T& operator[](const ImageRef& pos) const 
 		{
 			CVD_IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
-			return (my_data[pos.y*my_size.x + pos.x]);
+			return (my_data[pos.y*my_stride + pos.x]);
 		}
-
-  /** A random-access iterator to read or write pixel values from the image.
-  This can be incremented, decremented and dereferenced. Incrementing this
-  iterator steps through pixels in the usual scanline order. */
-  typedef T* iterator;
-  /** A random-access iterator to read pixel values from the image.
-  This can be incremented, decremented and dereferenced. Incrementing this
-  iterator steps through pixels in the usual scanline order. */
-  typedef const T* const_iterator;
-
-  /** Returns a const iterator referencing the first (top-left) pixel in the
-  image. */
-  const_iterator begin() const { return my_data; }
-  /** Returns an iterator referencing the first (top-left) pixel in the
-  image. */
-  iterator begin() { return my_data; }
-
-  /** Returns a const iterator referencing the <em>pixel immediately
-  after</em> the last (bottom-right) pixel in the image. */
-  const_iterator end() const { return my_data+totalsize(); }
-  /** Returns an iterator referencing the <em>pixel immediately
-  after</em> the last (bottom-right) pixel in the image. */
-  iterator end() { return my_data+totalsize(); }
-
 
         /// Access pointer to pixel row. Returns the pointer to the first element of the passed row.
         /// Allows to use [y][x] on images to access a pixel. Bounds checking is only performed if the library is compiled
@@ -301,7 +336,7 @@ template<class T> class BasicImage
         inline T* operator[](int row)
         {
             CVD_IMAGE_ASSERT(in_image(ImageRef(0,row)), ImageError::AccessOutsideImage);
-            return my_data+row*my_size.x;
+            return my_data+row*my_stride;
         }
 
         /// Access pointer to pixel row. Returns the pointer to the first element of the passed row.
@@ -318,7 +353,7 @@ template<class T> class BasicImage
 		inline ImageRef pos(const T* ptr) const
 		{
 			int diff = ptr - data();
-			return ImageRef(diff % my_size.x, diff / my_size.x);
+			return ImageRef(diff % my_stride, diff / my_size.x);
 		}
 
 		/// Returns the raw image data
@@ -333,16 +368,37 @@ template<class T> class BasicImage
 			return my_data;
 		}
 
+		typedef SubImageIterator<T> iterator;
+		
+		/// Returns an iterator referencing the first (top-left) pixel in the image
+		inline SubImageIterator<T> begin()
+		{
+			return SubImageIterator<T>(data(), size().x, my_stride, operator[](my_size.y));
+		}
+
+		/// Returns an iterator pointing to one past the end of the image
+		inline SubImageIterator<T> end()
+		{
+			return SubImageIterator<T>(operator[](my_size.y));
+		}
+
+		/// Returns an object corresponding to end(), which should eliminate a test.
+		inline SubImageIteratorEnd<T> fastend()
+		{
+			return SubImageIteratorEnd<T>(this);
+		}
+
+
 		/// What is the size of this image?
 		inline ImageRef size() const
 		{
 			return my_size;
 		}
 
-		/// What is the total number of pixels in the image (i.e. <code>size().x * size().y</code>).
+		/// What is the total number of elements in the image (i.e. <code>size().x * size().y</code>), including padding
 		inline int totalsize() const
 		{
-			return my_size.x * my_size.y;
+			return my_stride * my_size.y;
 		}
 
 		/// Set all the pixels in the image to zero. This is a relatively fast operation, using <code>memset</code>.
@@ -358,20 +414,116 @@ template<class T> class BasicImage
 			ImageUtil::memfill(my_data, totalsize(), d);
 		}
 
+		/// Copy constructor
+		/// @param copyof The image to copy
+		SubImage(const SubImage& copyof)
+		{
+		  my_size = copyof.my_size;
+		  my_data = copyof.my_data;
+		  my_stride = copyof.my_stride;
+		}
+		
+
+		/// Return a sub image
+		/// @param start Top left pixel of the sub image
+		/// @param size width and  height of the sub image
+		SubImage sub_image(const ImageRef& start, const ImageRef& size)
+		{
+			return SubImage( &operator[](start), size, my_stride);
+		}
+
+		/// Return const a sub image
+		/// @param start Top left pixel of the sub image
+		/// @param size width and  height of the sub image
+		const SubImage sub_image(const ImageRef& start, const ImageRef& size) const
+		{
+			return SubImage( &operator[](start), size, my_stride);
+		}
+
+	protected:
+		T* my_data;       ///< The raw image data
+		ImageRef my_size; ///< The size of the image
+		int my_stride;    ///< The row stride
+
+		SubImage()
+		{}
+
+};
+
+
+/// A generic image class to manage a block of data as an image. Provides
+/// basic image access such as accessing a particular pixel co-ordinate. 
+/// @param T The pixel type for this image. Typically either
+/// <code>CVD::byte</code> or <code>CVD::Rgb<CVD::byte> ></code> are used,
+/// but images could be constructed of any available type.
+/// 
+/// A BasicImage does not manage its own data, but provides access to an 
+/// arbitrary externally-managed block of data as though it were an image. Use
+/// the derived Image class if you want an image which also has its own data.
+/// 
+/// Loading and saving, format conversion and some copying functionality is
+/// provided by external functions rather than as part of this class. See
+/// the @ref gImageIO "Image loading and saving, and format conversion" module
+/// for documentation of these functions.
+/// @ingroup gImage
+template<class T> class BasicImage: public SubImage<T>
+{
+	public:
+		/// Construct an image from a block of data.
+		/// @param data The image data in horizontal scanline order
+		/// @param size The size of the image
+		BasicImage(T* data, const ImageRef& size)
+		:SubImage<T>(data, size, size.x)
+		{
+		}
+
+		/// Copy constructor
+		/// @param copyof The image to copy
+		BasicImage(const BasicImage& copyof)
+		{
+		  SubImage<T>::my_size = copyof.my_size;
+		  SubImage<T>::my_data = copyof.my_data;
+		  SubImage<T>::my_stride = copyof.my_stride;
+		}
+	
+		/// The image data is not destroyed when a BasicImage is destroyed.
+		~BasicImage()
+		{}
+
+		/** A random-access iterator to read or write pixel values from the image.
+		This can be incremented, decremented and dereferenced. Incrementing this
+		iterator steps through pixels in the usual scanline order. */
+		typedef T* iterator;
+		/** A random-access iterator to read pixel values from the image.
+		This can be incremented, decremented and dereferenced. Incrementing this
+		iterator steps through pixels in the usual scanline order. */
+		typedef const T* const_iterator;
+
+		/** Returns a const iterator referencing the first (top-left) pixel in the
+		image. */
+		const_iterator begin() const { return SubImage<T>::my_data; }
+		/** Returns an iterator referencing the first (top-left) pixel in the
+		image. */
+		iterator begin() { return SubImage<T>::my_data; }
+
+		/** Returns a const iterator referencing the <em>pixel immediately
+		after</em> the last (bottom-right) pixel in the image. */
+		const_iterator end() const { return SubImage<T>::my_data+SubImage<T>::totalsize(); }
+		/** Returns an iterator referencing the <em>pixel immediately
+		after</em> the last (bottom-right) pixel in the image. */
+		iterator end() { return SubImage<T>::my_data+SubImage<T>::totalsize(); }
+
+
 
 	protected:
 		/// The default constructor does nothing
 		BasicImage()
 		{}
-
-		T* my_data;       ///< The raw image data
-		ImageRef my_size; ///< The size of the image
-
 	private:
 		void operator=(const BasicImage&copyof)
 		{
-			my_size = copyof.my_size;
-			my_data = copyof.my_data;
+			//my_size = copyof.my_size;
+			//my_data = copyof.my_data;
 		}
 };
 
@@ -451,6 +603,7 @@ class Image: public BasicImage<T>
 			num_copies = new int;
 			*num_copies = 1;
  			this->my_size = size;
+ 			this->my_stride = size.x;
 			this->my_data = Internal::aligned_mem<T,16>::alloc(this->totalsize());
 		}
 		
@@ -488,6 +641,7 @@ class Image: public BasicImage<T>
 			if(copyof != NULL && copyof->my_data != NULL)
 			{
 				this->my_size = copyof->my_size;
+				this->my_stride = copyof->my_stride;
 				this->my_data = copyof->my_data;
 				num_copies = copyof->num_copies;
 				(*num_copies)++;
@@ -495,6 +649,7 @@ class Image: public BasicImage<T>
 			else
 			{
 				this->my_size.home();
+				this->my_stride=0;
 				this->my_data = 0;
 				num_copies = 0;
 			}
