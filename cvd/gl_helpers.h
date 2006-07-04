@@ -142,6 +142,14 @@ namespace CVD
 		glRasterPos4d(v[0], v[1], v[2], v[3]);
 	}
 
+	/// Specify the current vertex normal
+	/// @param n The normal vector
+	///@ingroup gGL
+	inline void glNormal(const TooN::Vector<3>& n)
+	{
+	        glNormal3d(n[0], n[1], n[2]);
+	}
+
     /// add a translation specified by an ImageRef
     /// @param v the translation ImageRef
     /// @ingroup gGL
