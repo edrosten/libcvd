@@ -25,11 +25,11 @@ CC = @CC@
 CXX=@CXX@
 RANLIB=@RANLIB@
 CPPFLAGS = @CPPFLAGS@
-CFLAGS = $(CPPFLAGS) @CFLAGS@
-CXXFLAGS = $(CPPFLAGS) @CXXFLAGS@
+CFLAGS = @CFLAGS@
+CXXFLAGS = @CXXFLAGS@
 OFLAGS=@OFLAGS@
 LDFLAGS = @LDFLAGS@
-LIBS = @LIBS@ -lm @LDFLAGS@
+LOADLIBES = @LIBS@
 INSTALL = @INSTALL@
 AR=ar
 
@@ -231,7 +231,7 @@ all: libcvd.a $(soname) progs
 
 $(soname): $(OBJS)
 	rm -f $(sos)
-	$(CXX) $(CXXFLAGS) $(shared) -o $(soname2) $(OBJS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(shared) -o $(soname2) $(OBJS) $(LDFLAGS) $(LOADLIBES)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
@@ -240,7 +240,13 @@ libcvd.a: $(OBJS)
 	$(RANLIB) libcvd.a
 
 
-LDFLAGS=-I. -L. -lcvd $(LIBS)
+# Before we compile the test programs we need to augment the
+# search paths with the path to libcvd, and also add libcvd to the
+# libraries to use
+CPPFLAGS = -I. @CPPFLAGS@
+LDFLAGS = -L. -Wl,-R. @LDFLAGS@
+LOADLIBES = -lcvd @LIBS@
+
 PROGS=@progs@
 TESTPROGS=@testprogs@
 
@@ -293,8 +299,8 @@ ChangeLog:
 
 .PRECIOUS: %.o
 
-%.o: %.cc
-	$(CXX) -I. $(OFLAGS)  $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+%.o : %.cc
+	$(CXX) -I. $(OFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 %.o: %.cpp
 	$(CXX) -I. $(OFLAGS)  $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
@@ -306,7 +312,7 @@ ChangeLog:
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 %: %.o
-	$(CXX) -o $@ $< $(LDFLAGS)
+	$(CXX) -o $@ $< $(LDFLAGS) $(LOADLIBES)
 
 
 include .deps
