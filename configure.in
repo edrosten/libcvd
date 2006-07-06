@@ -743,6 +743,26 @@ then
 
 	if test "$ac_cv_header_pthread_h" = yes && test "$ac_cv_lib_pthread_pthread_create" = yes
 	then
+		
+		AC_MSG_CHECKING([if compiler supports -pthreads])
+		save_LIBS="$LIBS"	
+		save_CXXFLAGS="$CXXFLAGS"
+		pthread_flag=yay
+		CXXFLAGS="$CXXFLAGS -pthread"
+		LIBS="$LIBS -pthread"
+		AC_COMPILE_IFELSE([int main(){return 0;}], [], [pthread_flag=no])
+		AC_LINK_IFELSE([int main(){return 0;}], [], [pthread_flag=no])
+
+		if test $pthread_flag = no
+		then
+			AC_MSG_RESULT(no)
+			LIBS="$save_LIBS"
+			CXXFLAGS="$save_CXXFLAGS"
+		else
+			AC_MSG_RESULT(yes)
+		fi
+
+
 		AC_DEFINE(CVD_HAVE_PTHREAD, 1)
 		AC_SUBST(have_pthread,yes)
 		options="$options pthreads"

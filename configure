@@ -6393,6 +6393,94 @@ fi
 
 	if test "$ac_cv_header_pthread_h" = yes && test "$ac_cv_lib_pthread_pthread_create" = yes
 	then
+
+		echo "$as_me:$LINENO: checking if compiler supports -pthreads" >&5
+echo $ECHO_N "checking if compiler supports -pthreads... $ECHO_C" >&6
+		save_LIBS="$LIBS"
+		save_CXXFLAGS="$CXXFLAGS"
+		pthread_flag=yay
+		CXXFLAGS="$CXXFLAGS -pthread"
+		LIBS="$LIBS -pthread"
+		cat >conftest.$ac_ext <<_ACEOF
+int main(){return 0;}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  :
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+pthread_flag=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+		cat >conftest.$ac_ext <<_ACEOF
+int main(){return 0;}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  :
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+pthread_flag=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+
+		if test $pthread_flag = no
+		then
+			echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+			LIBS="$save_LIBS"
+			CXXFLAGS="$save_CXXFLAGS"
+		else
+			echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+		fi
+
+
 		cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_PTHREAD 1
 _ACEOF
