@@ -414,10 +414,12 @@ namespace CVD
 	/// Use glRasterPos to set the current raster position
 	/// @param i The image to draw
 	///@ingroup gGL
-	template<class C> inline void glDrawPixels(const BasicImage<C>& i)
+	template<class C> inline void glDrawPixels(const SubImage<C>& i)
 	{
 		::glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		::glPixelStorei(GL_UNPACK_ROW_LENGTH, i.row_stride());
 		::glDrawPixels(i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
+		::glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 	}
 
 	/// Sets an image as a texture sub region.
