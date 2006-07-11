@@ -4524,12 +4524,13 @@ echo "${ECHO_T}no" >&6
 fi
 
 
+
 if test "$toon" = yes && test "$lapack" = no
 then
 
-  #This built-in autoconf macro finds the linker flags needed to
-  #link with Fortran libraries and sets FCLIBS accordingly
-  ac_ext=${FC_SRCEXT-f}
+	#This built-in autoconf macro finds the linker flags needed to
+	#link with Fortran libraries and sets FCLIBS accordingly
+	ac_ext=${FC_SRCEXT-f}
 ac_compile='$FC -c $FCFLAGS $FCFLAGS_SRCEXT conftest.$ac_ext >&5'
 ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $FCFLAGS_SRCEXT conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_fc_compiler_gnu
@@ -4621,7 +4622,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:4624:" \
+echo "$as_me:4625:" \
      "checking for Fortran compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -4816,7 +4817,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FCFLAGS
 FCFLAGS="$FCFLAGS $ac_verb"
-(eval echo $as_me:4819: \"$ac_link\") >&5
+(eval echo $as_me:4820: \"$ac_link\") >&5
 ac_fc_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_fc_v_output" >&5
 FCFLAGS=$ac_save_FFLAGS
@@ -4894,7 +4895,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FCFLAGS
 FCFLAGS="$FCFLAGS $ac_cv_prog_fc_v"
-(eval echo $as_me:4897: \"$ac_link\") >&5
+(eval echo $as_me:4898: \"$ac_link\") >&5
 ac_fc_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_fc_v_output" >&5
 FCFLAGS=$ac_save_FFLAGS
@@ -5066,14 +5067,147 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-  # TODO: We may also need to use AC_FC_DUMMY_MAIN to see whether a dummy
-  # Fortran main is needed (see the Autoconf manual). Currently, no machines
-  # we compile on seem to need this.
+	# TODO: We may also need to use AC_FC_DUMMY_MAIN to see whether a dummy
+	# Fortran main is needed (see the Autoconf manual). Currently, no machines
+	# we compile on seem to need this.
 
-  LIBS="$LIBS $FCLIBS"
+	save_LIBS="$LIBS"
+	LIBS="$LIBS $FCLIBS"
 
-  #NB, the AC_CHECK_LIB function automatically sets up $LIBS so that it contains
-  #the library just checked for. Which is quite handy.
+
+	echo "$as_me:$LINENO: checking quality of Ac_FC_LIBRARY_LDFLAGS" >&5
+echo $ECHO_N "checking quality of Ac_FC_LIBRARY_LDFLAGS... $ECHO_C" >&6
+	cat >conftest.$ac_ext <<_ACEOF
+int main(){return 0;}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  fc=good
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fc=b0rked
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext;
+	echo "$as_me:$LINENO: result: $fc" >&5
+echo "${ECHO_T}$fc" >&6
+
+	f2c="Missing"
+	if test $fc == b0rked
+	then
+		{ echo "$as_me:$LINENO: Reverting to old fortran library test." >&5
+echo "$as_me: Reverting to old fortran library test." >&6;}
+
+		echo "$as_me:$LINENO: checking for C to fortran library" >&5
+echo $ECHO_N "checking for C to fortran library... $ECHO_C" >&6
+
+		#The linking testing function AC_LINK_IFELSE uses LIBS in the
+		#linking stage, so we communicate our requirements by using this
+		LIBS="$save_LIBS -lf2c"
+		cat >conftest.$ac_ext <<_ACEOF
+int main(){return 0;}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  f2c=f2c
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+
+		LIBS="$save_LIBS -lg2c"
+		cat >conftest.$ac_ext <<_ACEOF
+int main(){return 0;}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  f2c=g2c
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+
+		echo "$as_me:$LINENO: result: $f2c" >&5
+echo "${ECHO_T}$f2c" >&6
+
+		if test $f2c != Missing
+		then
+			dodginess_options="$dodginess_options broken_Ac_FC_LIBRARY_LDFLAGS"
+		fi
+	fi
+
+	if test $fc$f2c != b0rkedMissing
+	then
+		#$LIBS should either havf FCLIBS or -l$f2c present
+
 
 echo "$as_me:$LINENO: checking for dgemm_ in -lblas" >&5
 echo $ECHO_N "checking for dgemm_ in -lblas... $ECHO_C" >&6
@@ -5148,11 +5282,11 @@ _ACEOF
 
 fi
 
-  if test x$ac_cv_lib_blas_dgemm_ != xyes
-  then
-    { echo "$as_me:$LINENO: WARNING: BLAS is missing. Get it from www.netlib.org/blas" >&5
+		if test x$ac_cv_lib_blas_dgemm_ != xyes
+		then
+			{ echo "$as_me:$LINENO: WARNING: BLAS is missing. Get it from www.netlib.org/blas" >&5
 echo "$as_me: WARNING: BLAS is missing. Get it from www.netlib.org/blas" >&2;};
-  else
+		else
 
 echo "$as_me:$LINENO: checking for dgesvd_ in -llapack" >&5
 echo $ECHO_N "checking for dgesvd_ in -llapack... $ECHO_C" >&6
@@ -5227,30 +5361,28 @@ _ACEOF
 
 fi
 
-    if test x$ac_cv_lib_lapack_dgesvd_ != xyes
-    then
-      { echo "$as_me:$LINENO: WARNING: LAPACK is missing. Get it from www.netlib.org/lapack" >&5
+			if test x$ac_cv_lib_lapack_dgesvd_ != xyes
+			then
+				  { echo "$as_me:$LINENO: WARNING: LAPACK is missing. Get it from www.netlib.org/lapack" >&5
 echo "$as_me: WARNING: LAPACK is missing. Get it from www.netlib.org/lapack" >&2;};
-    else
-      options="$options lapack"
-      lapack=yes
-    fi
-  fi
+			else
+			  options="$options lapack"
+			  lapack=yes
+			fi
+		fi
+	fi
 
-  if test "$lapack" = no
-  then
-    TOON_LIBS=""
-  else
-    TOON_LIBS="-lblas -llapack $FCLIBS"
-    have_lapack=yes
+	if test "$lapack" = no
+	then
+		LIBS="$save_LIBS"
+	else
+		have_lapack=yes
 
-    cat >>confdefs.h <<\_ACEOF
+		cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_LAPACK 1
 _ACEOF
 
-  fi
-  LIBS="$TOON_LIBS $save_LIBS"
-
+	fi
 fi
 
 

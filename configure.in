@@ -511,46 +511,76 @@ int main(){TooN::Matrix<2> m;TooN::SVD<2> svdm(m);return 0;}], [a=1])
 	fi
 fi
 
+define([ER_M4_PASTE], [$1$2])
 
 if test "$toon" = yes && test "$lapack" = no
 then
 
-  #This built-in autoconf macro finds the linker flags needed to
-  #link with Fortran libraries and sets FCLIBS accordingly
-  AC_FC_LIBRARY_LDFLAGS
-  # TODO: We may also need to use AC_FC_DUMMY_MAIN to see whether a dummy
-  # Fortran main is needed (see the Autoconf manual). Currently, no machines
-  # we compile on seem to need this.
+	#This built-in autoconf macro finds the linker flags needed to
+	#link with Fortran libraries and sets FCLIBS accordingly
+	AC_FC_LIBRARY_LDFLAGS
+	# TODO: We may also need to use AC_FC_DUMMY_MAIN to see whether a dummy
+	# Fortran main is needed (see the Autoconf manual). Currently, no machines
+	# we compile on seem to need this.
 
-  LIBS="$LIBS $FCLIBS"
+	save_LIBS="$LIBS"
+	LIBS="$LIBS $FCLIBS"
 
-  #NB, the AC_CHECK_LIB function automatically sets up $LIBS so that it contains
-  #the library just checked for. Which is quite handy.
-  AC_CHECK_LIB(blas,  dgemm_)
-  if test x$ac_cv_lib_blas_dgemm_ != xyes
-  then
-    AC_MSG_WARN(BLAS is missing. Get it from www.netlib.org/blas);
-  else
-    AC_CHECK_LIB(lapack,  dgesvd_)
-    if test x$ac_cv_lib_lapack_dgesvd_ != xyes
-    then
-      AC_MSG_WARN(LAPACK is missing. Get it from www.netlib.org/lapack);
-    else
-      options="$options lapack"
-      lapack=yes
-    fi
-  fi
 
-  if test "$lapack" = no
-  then
-    TOON_LIBS=""
-  else
-    TOON_LIBS="-lblas -llapack $FCLIBS"
-    AC_SUBST(have_lapack,yes)
-    AC_DEFINE(CVD_HAVE_LAPACK)
-  fi
-  LIBS="$TOON_LIBS $save_LIBS"
+	AC_MSG_CHECKING([quality of Ac_FC_LIBRARY_LDFLAGS])
+	AC_LINK_IFELSE([int main(){return 0;}], [fc=good],[fc=b0rked]);
+	AC_MSG_RESULT($fc)
 
+	f2c="Missing"
+	if test $fc == b0rked
+	then
+		AC_MSG_NOTICE(Reverting to old fortran library test.)
+
+		AC_MSG_CHECKING([for C to fortran library])
+
+		#The linking testing function AC_LINK_IFELSE uses LIBS in the 
+		#linking stage, so we communicate our requirements by using this
+		LIBS="$save_LIBS -lf2c"
+		AC_LINK_IFELSE([int main(){return 0;}], [f2c=f2c])
+
+		LIBS="$save_LIBS -lg2c"
+		AC_LINK_IFELSE([int main(){return 0;}], [f2c=g2c])
+
+		AC_MSG_RESULT($f2c)
+
+		if test $f2c != Missing
+		then
+			dodginess_options="$dodginess_options broken_Ac_FC_LIBRARY_LDFLAGS"
+		fi
+	fi
+	
+	if test $fc$f2c != b0rkedMissing
+	then
+		#$LIBS should either havf FCLIBS or -l$f2c present
+
+		AC_CHECK_LIB(blas,  dgemm_)
+		if test x$ac_cv_lib_blas_dgemm_ != xyes
+		then
+			AC_MSG_WARN(BLAS is missing. Get it from www.netlib.org/blas);
+		else
+			AC_CHECK_LIB(lapack,  dgesvd_)
+			if test x$ac_cv_lib_lapack_dgesvd_ != xyes
+			then
+				  AC_MSG_WARN(LAPACK is missing. Get it from www.netlib.org/lapack);
+			else
+			  options="$options lapack"
+			  lapack=yes
+			fi
+		fi
+	fi
+
+	if test "$lapack" = no
+	then
+		LIBS="$save_LIBS"
+	else
+		AC_SUBST(have_lapack,yes)
+		AC_DEFINE(CVD_HAVE_LAPACK)
+	fi
 fi
 
 
