@@ -101,8 +101,8 @@ namespace Pixel
 		};
 		
 		
-		static float float_for_byte[511];
-		static double double_for_byte[511];
+		static float float_for_byte[512];
+		static double double_for_byte[512];
 		
 		template <class S> bool buildLookupTable(S table[]) {
 		  for (int i=0; i<=511; i++)
