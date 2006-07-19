@@ -8,7 +8,7 @@
     #ifndef CVD_HAVE_PTHREAD
     	#error "CVD is not compiled with thread support. This code is not thread safe."
     #else 
-	#include <pthread.h>
+	#include <cvd/synchronized.h>
     #endif
 #endif
 
@@ -55,7 +55,9 @@ namespace CVD {
 	};
 	static std::map<T*, entry> buffers;
 
-	static pthread_mutex_t mutex;
+	#if defined(CVD_HAVE_PTHREAD) && defined(_REENTRANT)
+	    static Synchronized mutex;
+	#endif
 
 
 	static T* alloc(size_t count)
@@ -67,21 +69,18 @@ namespace CVD {
 
 
 	    #if defined(CVD_HAVE_PTHREAD) && defined(_REENTRANT)
-	    pthread_mutex_lock(&mutex);
+	    Lock lock(mutex);
 	    #endif
 
 	    buffers[astart] = e;
 
-	    #if defined(CVD_HAVE_PTHREAD) && defined(_REENTRANT)
-	    pthread_mutex_unlock(&mutex);
-	    #endif
-
 	    return astart;
 	}
+
 	static void release(T* ptr) 
 	{
 	    #if defined(CVD_HAVE_PTHREAD) && defined(_REENTRANT)
-	    pthread_mutex_lock(&mutex);
+	    Lock lock(mutex);
 	    #endif
 
 	    typename std::map<T*,entry>::iterator it = buffers.find(ptr);
@@ -91,17 +90,11 @@ namespace CVD {
 
 
 	    buffers.erase(it);
-
-	    #if defined(CVD_HAVE_PTHREAD) && defined(_REENTRANT)
-	    pthread_mutex_unlock(&mutex);
-	    #endif
 	}
     };
-
-    template<class T, int N> pthread_mutex_t aligned_mem<T,N>::mutex = PTHREAD_MUTEX_INITIALIZER;
+    template<class T, int N> Synchronized aligned_mem<T,N>::mutex;
 
     template <class T, int N> std::map<T*,typename aligned_mem<T,N>::entry> aligned_mem<T,N>::buffers;
-
 
   }
 }
