@@ -198,7 +198,7 @@ template<class T> class SubImageIterator: public ConstSubImageIterator<T>
 		{}
 		
 		SubImageIterator(T* end) 
-		:ConstSubImageIteratorEnd<T>::ptr(end)
+		:ConstSubImageIterator<T>(end)
 		{ }
 
 		SubImageIterator()
@@ -243,6 +243,16 @@ template<class T> class ConstSubImageIteratorEnd
 };
 
 
+/// A generic image class to manage a block of srbitrarily padded data as an image. Provides
+/// basic image access such as accessing a particular pixel co-ordinate. 
+/// @param T The pixel type for this image. Typically either
+/// <code>CVD::byte</code> or <code>CVD::Rgb<CVD::byte> ></code> are used,
+/// but images could be constructed of any available type.
+/// 
+/// A BasicImage does not manage its own data, but provides access to an 
+/// arbitrary externally-managed block of data as though it were an image. Use
+/// the derived Image class if you want an image which also has its own data.
+/// @ingroup gImage
 template<class T> class SubImage
 {
 	public:
