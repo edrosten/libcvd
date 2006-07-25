@@ -360,7 +360,7 @@ int corner_score(const BasicImage<byte>& im, ImageRef c, const int *pointer_dir,
 template<class ReturnType, class Collector>
 inline void fast_nonmax_t(const BasicImage<byte>& im, const vector<ImageRef>& corners, int barrier, vector<ReturnType>& nonmax_corners)
 {
-  if(corners.size() < 5)
+  if(corners.size() < 1)
     return;
   
   ImageRef size = im.size();
@@ -406,18 +406,20 @@ inline void fast_nonmax_t(const BasicImage<byte>& im, const vector<ImageRef>& co
   
   const unsigned int sz = corners.size(); 
   
-  for(unsigned int i=1; i < sz-1; i++)
+  for(unsigned int i=0; i < sz; i++)
     {
       int score = scores[i];
       ImageRef pos = corners[i];
       
       //Check left
-      if(corners[i-1] == pos-ImageRef(1,0) && scores[i-1] > score)
-	continue;
+      if(i > 0)
+	if(corners[i-1] == pos-ImageRef(1,0) && scores[i-1] > score)
+	  continue;
       
       //Check right
-      if(corners[i+1] == pos+ImageRef(1,0) && scores[i+1] > score)
-	continue;
+      if(i < (sz - 1))
+	if(corners[i+1] == pos+ImageRef(1,0) && scores[i+1] > score)
+	  continue;
       
       //Check above
       if(pos.y != 0 && row_start[pos.y - 1] != -1) 
@@ -426,9 +428,8 @@ inline void fast_nonmax_t(const BasicImage<byte>& im, const vector<ImageRef>& co
 	    point_above = row_start[pos.y-1];
 	  
 	  //Make point above point to the first of the pixels above the current point,
-    //if it exists.
-	  for(; corners[point_above].y < pos.y &&
-        corners[point_above].x < pos.x - 1; point_above++);
+	  //if it exists.
+	  for(; corners[point_above].y < pos.y && corners[point_above].x < pos.x - 1; point_above++);
 	  
 	  
 	  for(int i=point_above; corners[i].y < pos.y && corners[i].x <= pos.x + 1; i++)
@@ -451,7 +452,7 @@ inline void fast_nonmax_t(const BasicImage<byte>& im, const vector<ImageRef>& co
 	  // Make point below point to one of the pixels belowthe current point, if it
 	  // exists.
 	  for(; point_below < sz && corners[point_below].y == pos.y+1 && corners[point_below].x < pos.x - 1; point_below++);
-	  
+
 	  for(int i=point_below; i < sz && corners[i].y == pos.y+1 && corners[i].x <= pos.x + 1; i++)
 	    {
 	      int x = corners[i].x;
