@@ -319,7 +319,11 @@ template <class T, class S> inline void sample(const BasicImage<S>& im, double x
   int ly = (int)y;
   x -= lx;
   y -= ly;
-  result = static_cast<T>((1-y)*((1-x)*im[ly][lx] + x*im[ly][lx+1]) + y * ((1-x)*im[ly+1][lx] + x*im[ly+1][lx+1]));
+  for(unsigned int i = 0; i < Pixel::Component<T>::count; i++){
+    Pixel::Component<T>::get(result,i) = static_cast<typename Pixel::Component<T>::type>(
+        (1-y)*((1-x)*Pixel::Component<S>::get(im[ly][lx],i) + x*Pixel::Component<S>::get(im[ly][lx+1], i)) +
+          y * ((1-x)*Pixel::Component<S>::get(im[ly+1][lx],i) + x*Pixel::Component<S>::get(im[ly+1][lx+1],i)));
+  }
   }
 
 inline void sample(const BasicImage<float>& im, double x, double y, float& result)
