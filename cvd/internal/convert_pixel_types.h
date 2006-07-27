@@ -158,6 +158,19 @@ namespace CVD{namespace Pixel
     }
   };  
 
+  template <class P, class Scalar> struct SumOfSquares {
+    static inline void convert(const P& from, Scalar& to) {
+      typedef typename Pixel::Component<P>::type T;
+      double sum = Pixel::Component<P>::get(from,0);
+      sum *= sum;
+      for (unsigned int i=1; i<Pixel::Component<P>::count; i++) {
+    double w = Pixel::Component<P>::get(from,i);
+    sum += w*w;
+      }
+      to = scalar_convert<Scalar,T,double>(sum);
+    }
+  };
+
   template <class Scalar, class Vec> struct Replicate {
     static inline void convert(const Scalar& from, Vec& to) {
       typedef typename Pixel::Component<Vec>::type T;
