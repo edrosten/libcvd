@@ -156,7 +156,8 @@ endif
 
 ifeq (@have_v4l2buffer@,yes)
 	CVD_OBJS+=cvd_src/Linux/v4l2buffer.o \
-		  cvd_src/Linux/v4lbuffer.o
+		cvd_src/Linux/v4lbuffer.o \
+		cvd_src/Linux/v4lcontrol.o
 endif
 
 ifeq (@have_v4l1buffer@,yes)
