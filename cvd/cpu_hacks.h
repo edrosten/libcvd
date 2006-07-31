@@ -52,7 +52,7 @@ namespace CVD
 		#endif
 	#endif
 
-	/// Prefecth memory. This function might do nothing, depending on the
+	/// Prefetch memory. This function might do nothing, depending on the
 	/// architecture, or it might prefetch memory. Either way it will have
 	/// no effect on the computation except to (possibly) speed it up.
 	/// @param ptr The address of the memory to prefetch.
