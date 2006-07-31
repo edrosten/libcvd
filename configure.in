@@ -518,20 +518,21 @@ then
 
 	#This built-in autoconf macro finds the linker flags needed to
 	#link with Fortran libraries and sets FCLIBS accordingly
-	AC_FC_LIBRARY_LDFLAGS
+	#AC_FC_LIBRARY_LDFLAGS
 	# TODO: We may also need to use AC_FC_DUMMY_MAIN to see whether a dummy
 	# Fortran main is needed (see the Autoconf manual). Currently, no machines
 	# we compile on seem to need this.
 
 	save_LIBS="$LIBS"
-	LIBS="$LIBS $FCLIBS"
+	#LIBS="$LIBS $FCLIBS"
 
 
-	AC_MSG_CHECKING([quality of Ac_FC_LIBRARY_LDFLAGS])
-	AC_LINK_IFELSE([int main(){return 0;}], [fc=good],[fc=b0rked]);
-	AC_MSG_RESULT($fc)
+#	AC_MSG_CHECKING([quality of Ac_FC_LIBRARY_LDFLAGS])
+#	AC_LINK_IFELSE([int main(){return 0;}], [fc=good],[fc=b0rked]);
+#	AC_MSG_RESULT($fc)
 
 	f2c="Missing"
+	fc="b0rked"
 	if test $fc == b0rked
 	then
 		AC_MSG_NOTICE(Reverting to old fortran library test.)
@@ -546,16 +547,12 @@ then
 		LIBS="$save_LIBS -lg2c"
 		AC_LINK_IFELSE([int main(){return 0;}], [f2c=g2c])
 
-		AC_MSG_RESULT($f2c)
+		LIBS="$save_LIBS -lgfortran"
+		AC_LINK_IFELSE([int main(){return 0;}], [f2c=gfortran])
 
-		if test $f2c != Missing
-		then
-			dodginess_options="$dodginess_options broken_Ac_FC_LIBRARY_LDFLAGS"
-		fi
-	fi
-	
-	if test $fc$f2c != b0rkedMissing
-	then
+		AC_MSG_RESULT($f2c)
+		LIBS="$save_LIBS -l$f2c"
+
 		#$LIBS should either havf FCLIBS or -l$f2c present
 
 		AC_CHECK_LIB(blas,  dgemm_)
@@ -754,39 +751,29 @@ fi
 AC_ARG_WITH(threads, [  --without-threads       compile without PThread support],[if test "$withval" = no; then disable_threads=yes; else disable_threads=no; fi])
 if test "$disable_threads" != yes 
 then
-	AC_CHECK_HEADERS(pthread.h)
-	AC_CHECK_LIB(pthread, pthread_create)
 
-	if test "$ac_cv_header_pthread_h" = yes && test "$ac_cv_lib_pthread_pthread_create" = yes
+	AC_MSG_CHECKING(for working pthreads)
+	save_CXXFLAGS="$CXXFLAGS"
+	CXXFLAGS="$CXXFLAGS -pthread"
+	a=0
+	AC_COMPILE_IFELSE([#include <pthread.h>
+						void*foo(void*){}
+						int main(){pthread_create(0,0,foo,0);return 0;}],[a=1])
+	if test $a == 1
 	then
-		
-		AC_MSG_CHECKING([if compiler supports -pthreads])
-		save_LIBS="$LIBS"	
-		save_CXXFLAGS="$CXXFLAGS"
-		pthread_flag=yay
-		CXXFLAGS="$CXXFLAGS -pthread"
-		LIBS="$LIBS -pthread"
-		AC_COMPILE_IFELSE([int main(){return 0;}], [], [pthread_flag=no])
-		AC_LINK_IFELSE([int main(){return 0;}], [], [pthread_flag=no])
-
-		if test $pthread_flag = no
-		then
-			AC_MSG_RESULT(no)
-			LIBS="$save_LIBS"
-			CXXFLAGS="$save_CXXFLAGS"
-		else
-			AC_MSG_RESULT(yes)
-		fi
-
-
+		AC_MSG_RESULT(yes)
 		AC_DEFINE(CVD_HAVE_PTHREAD, 1)
 		AC_SUBST(have_pthread,yes)
+		LIBS="$LIBS -pthread"
 		options="$options pthreads"
 
 		# check for existence of pthread_yield
 		# Mac OS X only has pthread_yield_np
 		AC_CHECK_FUNCS(pthread_yield, AC_DEFINE(CVD_HAVE_PTHREAD_YIELD))
 		AC_CHECK_FUNCS(pthread_yield_np, AC_DEFINE(CVD_HAVE_PTHREAD_YIELD_NP))
+	else
+		AC_MSG_RESULT(no)
+		CXXFLAGS="$save_CXXFLAGS"
 	fi
 fi
 
@@ -848,7 +835,7 @@ then
 			if test x$tiff_works == x
 			then
 				AC_CHECK_LIB(tiff, TIFFReadRGBAImage)
-				test x$ac_cv_lib_tiff_TIFFReadRGBAImage== xyes && tiff_works=old
+				test x$ac_cv_lib_tiff_TIFFReadRGBAImage == xyes && tiff_works=old
 			fi 
 
 			if test x$tiff_works == x && test $i == 1
