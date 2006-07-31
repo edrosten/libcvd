@@ -736,16 +736,25 @@ echo -------------------------------
 
 AC_PATH_X
 
-AC_CHECK_LIB(GL,glDrawPixels)
-
-if test "x$ac_cv_have_x" != x && test "$ac_cv_lib_GL_glDrawPixels" != no
+save_CXXFLAGS="$CXXFLAGS"
+save_LIBS="$LIBS"
+if test "x$ac_cv_have_x" != x
 then
-	AC_DEFINE(CVD_HAVE_VIDEODISPLAY)
-	options="$options videodisplay"
-	AC_SUBST(have_videodisplay, yes)
-	LIBS="-lX11 -lGL $LIBS"
-	test -n "$x_libraries" && LIBS="-L$x_libraries $LIBS"
-	test -n "$x_includes" && CPPFLAGS="$CPPFLAGS -I$x_includes"
+	LIBS="-L$x_libraries -lX11 -lXext $LIBS"
+	CXXFLAGS="$CXXFLAGS -I$x_includes"
+
+	AC_CHECK_LIB(GL,glDrawPixels)
+
+	if test "$ac_cv_lib_GL_glDrawPixels" != no
+	then
+		AC_DEFINE(CVD_HAVE_VIDEODISPLAY)
+		options="$options videodisplay"
+		AC_SUBST(have_videodisplay, yes)
+		LIBS="-lGL $LIBS"
+	else
+		LIBS="$save_LIBS"
+		CXXFLAGS="$CXXFLAGS"
+	fi
 fi
 
 AC_ARG_WITH(threads, [  --without-threads       compile without PThread support],[if test "$withval" = no; then disable_threads=yes; else disable_threads=no; fi])

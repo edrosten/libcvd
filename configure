@@ -6114,6 +6114,13 @@ echo "${ECHO_T}libraries $x_libraries, headers $x_includes" >&6
 fi
 
 
+save_CXXFLAGS="$CXXFLAGS"
+save_LIBS="$LIBS"
+if test "x$ac_cv_have_x" != x
+then
+	LIBS="-L$x_libraries -lX11 -lXext $LIBS"
+	CXXFLAGS="$CXXFLAGS -I$x_includes"
+
 
 echo "$as_me:$LINENO: checking for glDrawPixels in -lGL" >&5
 echo $ECHO_N "checking for glDrawPixels in -lGL... $ECHO_C" >&6
@@ -6189,18 +6196,20 @@ _ACEOF
 fi
 
 
-if test "x$ac_cv_have_x" != x && test "$ac_cv_lib_GL_glDrawPixels" != no
-then
-	cat >>confdefs.h <<\_ACEOF
+	if test "$ac_cv_lib_GL_glDrawPixels" != no
+	then
+		cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_VIDEODISPLAY 1
 _ACEOF
 
-	options="$options videodisplay"
-	have_videodisplay=yes
+		options="$options videodisplay"
+		have_videodisplay=yes
 
-	LIBS="-lX11 -lGL $LIBS"
-	test -n "$x_libraries" && LIBS="-L$x_libraries $LIBS"
-	test -n "$x_includes" && CPPFLAGS="$CPPFLAGS -I$x_includes"
+		LIBS="-lGL $LIBS"
+	else
+		LIBS="$save_LIBS"
+		CXXFLAGS="$CXXFLAGS"
+	fi
 fi
 
 
