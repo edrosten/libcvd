@@ -92,7 +92,9 @@ namespace CVD {
 	    buffers.erase(it);
 	}
     };
-    template<class T, int N> Synchronized aligned_mem<T,N>::mutex;
+	#if defined(CVD_HAVE_PTHREAD) && defined(_REENTRANT)
+		template<class T, int N> Synchronized aligned_mem<T,N>::mutex;
+	#endif
 
     template <class T, int N> std::map<T*,typename aligned_mem<T,N>::entry> aligned_mem<T,N>::buffers;
 
