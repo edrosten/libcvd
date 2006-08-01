@@ -3,6 +3,7 @@
 
 #include <TooN/TooN.h>
 #include <cvd/internal/pixel_operations.h>
+#include <cvd/internal/rgb_components.h>
 #include <math.h>
 
 namespace CVD
@@ -109,6 +110,7 @@ namespace CVD
 				return ImageRef(round(v[0]), round(v[1]));
 			}
 
+			typedef typename Pixel::traits<C>::float_type FT;
 	
 		public:
 			image_interpolate(const BasicImage<C>& i)
@@ -120,7 +122,7 @@ namespace CVD
 				return im->in_image(to_ir(pos));
 			}
 
-			C operator[](const TooN::Vector<2>& pos)
+			FT operator[](const TooN::Vector<2>& pos)
 			{
 				return (*im)[to_ir(pos)];
 			}
@@ -148,6 +150,8 @@ namespace CVD
 				return (TooN::make_Vector, ::floor(v[0]), ::floor(v[1]));
 			}
 
+			typedef typename Pixel::traits<T>::float_type FT;
+
 		public:
 			image_interpolate(const BasicImage<T>& i)
 			:im(&i)
@@ -158,7 +162,7 @@ namespace CVD
 				return im->in_image(ir(floor(pos)));
 			}
 
-			T operator[](const TooN::Vector<2>& pos)
+			FT operator[](const TooN::Vector<2>& pos)
 			{
 				TooN::Vector<2> delta =  pos - floor(pos);
 
@@ -171,7 +175,7 @@ namespace CVD
 					double x = delta[0];
 					double y = delta[1];
 
-					T ret;
+					FT ret;
 
 					for(unsigned int i=0; i < Pixel::Component<T>::count; i++)
 					{
@@ -182,7 +186,7 @@ namespace CVD
 						c = Pixel::Component<T>::get((*im)[p + ImageRef(0,1)], i);
 						d = Pixel::Component<T>::get((*im)[p + ImageRef(1,1)], i);
 						
-						Pixel::Component<T>::get(ret, i) = (typename Pixel::Component<T>::type)  ((a*(1-x) + b*x)*(1-y) + (c*(1-x) + d*x)*y);
+						Pixel::Component<FT>::get(ret, i) = (typename Pixel::Component<T>::type)  ((a*(1-x) + b*x)*(1-y) + (c*(1-x) + d*x)*y);
 					}
 
 					return ret;
@@ -217,6 +221,8 @@ namespace CVD
 				return (  pow(p(x+2), 3) - 4 * pow(p(x+1),3) + 6 * pow(p(x), 3) - 4* pow(p(x-1),3))/6;
 			}
 
+			typedef typename Pixel::traits<T>::float_type FT;
+
 		public:
 			image_interpolate(const BasicImage<T>& i)
 			:im(&i)
@@ -227,7 +233,7 @@ namespace CVD
 				return pos[0] >= 1 && pos[1] >=1 && pos[0] < im->size().x-2 && pos[1] < im->size().y - 2;
 			}
 
-			T operator[](const TooN::Vector<2>& pos)
+			FT operator[](const TooN::Vector<2>& pos)
 			{
 				int x = (int)floor(pos[0]);
 				int y = (int)floor(pos[1]);
@@ -235,7 +241,7 @@ namespace CVD
 				float dy = pos[1] - y;
 
 				//Algorithm as described in http://astronomy.swin.edu.au/~pbourke/colour/bicubic/
-				T ret;
+				FT ret;
 				for(unsigned int i=0; i < Pixel::Component<T>::count; i++)
 				{
 					float s=0;
