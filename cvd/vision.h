@@ -107,6 +107,19 @@ void halfSample(const BasicImage<T>& in, BasicImage<T>& out)
  void halfSample(const BasicImage<byte>& in, BasicImage<byte>& out);
 #endif
 
+/// subsamples an image to half its size by averaging 2x2 pixel blocks
+/// @param in input image
+/// @return The output image
+/// @throw IncompatibleImageSizes if out does not have half the dimensions of in
+/// @ingroup gVision
+template <class T>
+Image<T> halfSample(const BasicImage<T>& in)
+{
+	Image<T> out(in.size()/2);
+	halfSample(in, out);
+	return out;
+}
+
 
 /// thresholds an image by setting all pixel values below a minimum to 0 and all values above to a given maximum
 /// @param im input image changed in place
