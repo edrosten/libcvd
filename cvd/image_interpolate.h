@@ -186,7 +186,7 @@ namespace CVD
 						c = Pixel::Component<T>::get((*im)[p + ImageRef(0,1)], i);
 						d = Pixel::Component<T>::get((*im)[p + ImageRef(1,1)], i);
 						
-						Pixel::Component<FT>::get(ret, i) = (typename Pixel::Component<T>::type)  ((a*(1-x) + b*x)*(1-y) + (c*(1-x) + d*x)*y);
+						Pixel::Component<FT>::get(ret, i) = ((a*(1-x) + b*x)*(1-y) + (c*(1-x) + d*x)*y);
 					}
 
 					return ret;
@@ -250,7 +250,7 @@ namespace CVD
 						for(int n = -1; n < 3; n++)
 							s += Pixel::Component<T>::get((*im)[y+n][x+m], i) * r(m - dx) * r(dy-n);
 						
-					Pixel::Component<T>::get(ret, i)= (typename Pixel::Component<T>::type) s;
+					Pixel::Component<FT>::get(ret, i)= s;
 				}
 
 				return ret;
