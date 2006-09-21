@@ -426,9 +426,9 @@ template<class T> class SubImage
 		/// Return const a sub image
 		/// @param start Top left pixel of the sub image
 		/// @param size width and  height of the sub image
-		const SubImage sub_image(const ImageRef& start, const ImageRef& size) const
+		const SubImage<const T> sub_image(const ImageRef& start, const ImageRef& size) const
 		{
-			return SubImage( &operator[](start), size, my_stride);
+			return SubImage<const T>( &operator[](start), size, my_stride);
 		}
 
 	protected:
