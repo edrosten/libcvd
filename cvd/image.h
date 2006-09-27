@@ -272,6 +272,14 @@ template<class T> class SubImage
 			return ir.x >=0 && ir.y >=0 && ir.x < my_size.x && ir.y < my_size.y;
 		}
 
+		/// Is this pixel co-ordinate inside the image, and not too close to the edges?
+		/// @param ir The co-ordinate to test
+		/// @param border The size of the border: positive points inside the image.
+		bool in_image_with_border(const ImageRef& ir, int border) const
+		{
+			return ir.x >=border && ir.y >=border && ir.x < my_size.x - border && ir.y < my_size.y - border;
+		}
+
 		/// The image data is not destroyed when a BasicImage is destroyed.
 		~SubImage()
 		{}
