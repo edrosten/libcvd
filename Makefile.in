@@ -134,6 +134,11 @@ ifeq (@have_jpeg@,yes)
 	CVD_OBJS+=pnm_src/jpeg.o
 endif
 
+
+ifeq (@have_png@,yes)
+	CVD_OBJS+=pnm_src/png.o
+endif
+
 ifeq (@have_ffmpeg@,yes)
 	CVD_OBJS+=cvd_src/videofilebuffer.o
 endif

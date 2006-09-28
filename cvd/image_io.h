@@ -46,6 +46,11 @@
 	#include <cvd/internal/io/tiff.h>
 #endif
 
+
+#ifdef CVD_IMAGE_HAVE_PNG
+	#include <cvd/internal/io/png.h>
+#endif
+
 namespace CVD
 {
 	
@@ -188,7 +193,7 @@ namespace CVD
 	  
 	  if(!i.good())
 	    throw Exceptions::Image_IO::EofBeforeImage();
-	  	  
+
 	  if(c == 'P')
 	    PNM::readPNM(im, i);
 #ifdef CVD_IMAGE_HAVE_JPEG
@@ -198,6 +203,12 @@ namespace CVD
 #ifdef CVD_IMAGE_HAVE_TIFF
 	  else if(c == 'I')
 	    TIFF::readTIFF(im, i);
+#endif
+#ifdef CVD_IMAGE_HAVE_PNG
+	  else if(c == 0x89)
+	  {
+	    PNG::readPNG(im, i);
+	}
 #endif
 	  else if(c == 'B')
 	    BMP::readBMP(im, i);

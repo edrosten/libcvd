@@ -376,7 +376,7 @@ will make a #define a b. AC_DEFINE_UNQUOTED is needed if b is a shell expansion
 >>)
 changequote([,])
 
-all_options="videodisplay jpeg tiff ffmpeg toon lapack pthreads"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthreads"
 dodginess_options=
 
 ################################################################################
@@ -888,6 +888,22 @@ fi
 
 
 
+#Put this before TIFF. If libjpeg is static, then this will ensure
+#(hopefully) that it selected before libtiff is tested (libtiff may
+#depend on libjpeg)
+AC_ARG_WITH(png, [  --without-png           compile without PNG support],[if test "$withval" = no; then disable_png=yes; else disable_png=no; fi])
+if test "$disable_png" != yes 
+then
+	AC_CHECK_HEADERS(png.h)
+	AC_CHECK_LIB(png, png_init_io)
+	if test "$ac_cv_header_png_h" = yes && test "$ac_cv_lib_png_png_init_io" = yes
+	then
+		AC_DEFINE(CVD_IMAGE_HAVE_PNG, [PNG,])
+		AC_SUBST(have_png,yes)
+		options="$options png"
+	fi
+fi
+
 AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support],[if test "$withval" = no; then use_ffmpeg=no; else use_ffmpeg="$withval"; fi])
 if test "$use_ffmpeg" != no
 then
@@ -1011,6 +1027,7 @@ D_PROGS='progs/se3_exp             toon
 		progs/se3_post_mul         toon                 
 		progs/se3_inv              toon                 
 		progs/img_play             videodisplay         
+		progs/cvd_display_image    videodisplay         
 		progs/img_play_bw          videodisplay         
 		progs/img_play_deinterlace videodisplay         
 		progs/video_play           videodisplay  ffmpeg 
