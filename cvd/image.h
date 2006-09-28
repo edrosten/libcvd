@@ -71,6 +71,13 @@ namespace Exceptions {
     }
 }
 
+#ifndef DOXYGEN_IGNORE_INTERNAL
+namespace Internal
+{
+	template<class C> class ImagePromise
+	{};
+};
+#endif
 
 #ifdef CVD_IMAGE_DEBUG
 	#define CVD_IMAGE_ASSERT(X,Y)  if(!(X)) throw Y()
@@ -694,6 +701,20 @@ class Image: public BasicImage<T>
 			dup_from(&copyof);
 			return *this;
 		}
+		
+		#ifndef DOXYGEN_IGNORE_INTERNAL
+		template<class C> const Image& operator=(Internal::ImagePromise<C> p)
+		{
+			p.execute(*this);
+			return *this;
+		}
+
+		template<class C> Image(Internal::ImagePromise<C> p)
+		{
+			dup_from(NULL);
+			p.execute(*this);
+		}
+		#endif
 		
 		///Default constructor
 		Image()

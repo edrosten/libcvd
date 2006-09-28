@@ -70,6 +70,35 @@ namespace CVD
 			CVD_IMAGE_HAVE_JPEG  //This is a macro, ending in ,
 		};
 	}
+
+	namespace Internal
+	{
+		class ImageLoaderIstream{};
+		template<> struct ImagePromise<ImageLoaderIstream>
+		{
+			ImagePromise(std::istream& is)
+			:i(is){}
+
+			std::istream& i;
+			template<class C> void execute(Image<C>& im)
+			{
+				img_load(im, i);
+			}
+		};
+
+		class ImageLoaderString{};
+		template<> struct ImagePromise<ImageLoaderString>
+		{
+			ImagePromise(const std::string& ss)
+			:s(ss){}
+
+			const std::string& s;
+			template<class C> void execute(Image<C>& im)
+			{
+				img_load(im, s);
+			}
+		};
+	};
 	#endif
 
 	#ifdef DOXYGEN_INCLUDE_ONLY_FOR_DOCS
@@ -102,7 +131,40 @@ namespace CVD
 		};
 	}
 	#endif
+
+	#ifndef DOXYGEN_IGNORE_INTERNAL
+
+	Internal::ImagePromise<Internal::ImageLoaderIstream> img_load(std::istream& i);
+	Internal::ImagePromise<Internal::ImageLoaderString> img_load(const std::string &s);
+	#endif
+
+	#if DOXYGEN_INCLUDE_ONLY_FOR_DOCS
 	
+	/// Load an image from an istream, and return the image.
+	/// The template type is deduced automatically, and must not be specified.
+	///
+	/// The type deduction is performed using lazy evaluation, so the load operation 
+	/// is only performed if an image is assigned from this.
+	///
+	/// @param i The istream to load from
+	/// @ingroup gImageIO
+	template<class C> Image<C> img_load(std::istream& i);
+	
+	/// Load an image from a file, and return the image.
+	/// The template type is deduced automatically, and must not be specified.
+	///
+	/// The type deduction is performed using lazy evaluation, so the load operation 
+	/// is only performed if an image is assigned from this.
+	///
+	/// @param i The istream to load from
+	/// @ingroup gImageIO
+	template<class C> Image<C> img_load(std::string& i);
+
+
+
+	#endif	
+
+
 	/// Load an image from a stream. This function resizes the Image as necessary.
 	/// It will also perform image type conversion (e.g. colour to greyscale)
 	/// according the Pixel:::CIE conversion.
