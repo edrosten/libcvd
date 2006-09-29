@@ -86,7 +86,8 @@ png_in::png_in(std::istream& in)
 :i(in)
 {
 	unsigned char header[8];
-	fread(header, 1, 8, stdin);
+
+	in.read((char*)header, 8);
 
 	if(png_sig_cmp(header, 0, 8))
 	{
