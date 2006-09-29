@@ -341,15 +341,15 @@ template <class T> void readPNG(Image<T>& im, std::istream& in)
 //
 
 template<int Components, bool use_16bit> struct PNGType;
-template<> struct PNGType<1,0>{ typedef byte type; typedef enum { Colour = png_out::Grey, Depth=8} col;};
-template<> struct PNGType<1,1>{ typedef unsigned short type; typedef enum { Colour = png_out::Grey, Depth=16} col;};
-template<> struct PNGType<3,0>{ typedef Rgb<byte> type; typedef enum { Colour = png_out::Rgb, Depth=8} col;};
-template<> struct PNGType<3,1>{ typedef Rgb<unsigned short> type; typedef enum { Colour = png_out::Rgb, Depth=16} col;};
-template<> struct PNGType<4,0>{ typedef Rgba<byte> type; typedef enum { Colour = png_out::RgbAlpha, Depth=8} col;};
-template<> struct PNGType<4,1>{ typedef Rgba<unsigned short> type; typedef enum { Colour = png_out::RgbAlpha, Depth=16} col;};
+template<> struct PNGType<1,0>{ typedef byte type; static const png_out::colour_type Colour = png_out::Grey; static const int Depth=8;};
+template<> struct PNGType<1,1>{ typedef unsigned short type; static const png_out::colour_type Colour = png_out::Grey; static const int Depth=16;};
+template<> struct PNGType<3,0>{ typedef Rgb<byte> type; static const png_out::colour_type Colour = png_out::Rgb; static const int Depth=8;};
+template<> struct PNGType<3,1>{ typedef Rgb<unsigned short> type; static const png_out::colour_type Colour = png_out::Rgb; static const int Depth=16;};
+template<> struct PNGType<4,0>{ typedef Rgba<byte> type; static const png_out::colour_type Colour = png_out::RgbAlpha; static const int Depth=8;};
+template<> struct PNGType<4,1>{ typedef Rgba<unsigned short> type; static const png_out::colour_type Colour = png_out::RgbAlpha; static const int Depth=16;};
 
 
-template<class T> class PNGWriter
+template<class T> struct PNGWriter
 {
 	static void write(const SubImage<T>& i, std::ostream& o)
 	{
@@ -358,7 +358,7 @@ template<class T> class PNGWriter
 		typedef typename PNGInfo::type Out;
 		typedef typename Pixel::Component<Out>::type Comp;
 		
-		png_out po(i.size().x, i.size().y, PNGInfo::Colour, PNGInfo::Depth, o);
+		png_out po(i.size().x, i.size().y, (png_out::colour_type)PNGInfo::Colour, PNGInfo::Depth, o);
 		std::vector<Out> row_buf(i.size().x);
 		std::vector<const Comp*> rows;
 		rows.push_back(reinterpret_cast<const Comp*>(&row_buf[0]));
