@@ -73,6 +73,7 @@ namespace CVD
 			EPS,
 			BMP,
 			CVD_IMAGE_HAVE_JPEG  //This is a macro, ending in ,
+			CVD_IMAGE_HAVE_PNG
 		};
 	}
 
@@ -108,7 +109,7 @@ namespace CVD
 
 	#ifdef DOXYGEN_INCLUDE_ONLY_FOR_DOCS
 	// This is not the real definition, but this is what it would look like if all
-	// the macros were expanded. The real definition is in internal/disk_image.h
+	// the macros were expanded. The real definition is above
 	/// Contains the enumeration of possible image types
 	namespace ImageType
 	{
@@ -119,10 +120,17 @@ namespace CVD
 			Automatic,
 			/// Unknown image type (can be returned by @ref string_to_image_type
 			Unknown,
-			/// PNM image format (PBM, PGM or PPM). This is a raw image format.
+			/// PNM image format (PBM, PGM or PPM).
+			/// This writes 8 or 16 bit raw PGMs or PPMs. PBM is not currently supported
 			PNM, 
 			/// JPEG image format. This is a compressed (lossy) image format, but defaults to 95% quality, which has very few compression artefacts. This image type is only present if libjpeg is available.
+			/// RGB and Greyscale JPEGs are supported
 			JPEG,
+			/// Windows BMP (or DIB) format. Uncompressed 8 bit grey scale and 24 bit RGB are supported.
+			BMP,
+			/// PNG imager format. 1, 8 and 16 bit, Greyscale, RGB and RGBA images are supported.
+			/// This image type is only present if libpng is available.
+			PNG,
 			/// Postscript  format. This outputs a bare PostScript image with the coordinate system set up 
 			/// to that (x,y) corresponds to pixel (x,y), with (0,0) being at the top left of the pixel (0,0).
 			/// The Y axis is therefore inverted compared to normal postscript drawing, but is image aligned.
@@ -258,6 +266,9 @@ namespace CVD
 	  	PNM::writePNM(im, o); break;
 	  #ifdef CVD_IMAGE_HAVE_JPEG
 		  case ImageType::JPEG: JPEG::writeJPEG(im,o); break;
+	  #endif
+	  #ifdef CVD_IMAGE_HAVE_PNG
+		  case ImageType::PNG: PNG::writePNG(im,o); break;
 	  #endif
 	  case ImageType::PS:   PS::writePS(im, o);  break;
 	  case ImageType::EPS:  PS::writeEPS(im,o);  break;

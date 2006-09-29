@@ -31,7 +31,7 @@ static void read_fn(png_structp png_ptr, unsigned char*  data, size_t numbytes)
 
 
 
-/*
+
 static void write_fn(png_structp png_ptr, unsigned char*  data, size_t numbytes)
 {
 	ostream* o = (ostream*)png_get_io_ptr(png_ptr);
@@ -43,7 +43,10 @@ static void flush_fn(png_structp png_ptr)
 	ostream* o = (ostream*)png_get_io_ptr(png_ptr);
 	(*o) << flush;
 }
-*/
+
+
+
+
 
 void png_in::unpack_to_bytes()
 {
@@ -179,3 +182,92 @@ png_in::~png_in()
 }
 
 
+
+
+png_out::png_out(int w, int h, colour_type t, int depth, std::ostream& out)
+:o(out)
+{
+	//Create required structs
+	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, &error_string, error_fn, warn_fn);
+	if(!png_ptr)
+		throw Exceptions::OutOfMemory();
+
+	info_ptr = png_create_info_struct(png_ptr);
+	if (!info_ptr)     
+	{        
+		png_destroy_write_struct(&png_ptr,NULL);
+		throw Exceptions::OutOfMemory();
+	}
+
+	//Set up error handling
+	if(setjmp(png_jmpbuf(png_ptr)))     
+	{         
+		png_destroy_write_struct(&png_ptr, &info_ptr);
+		throw Exceptions::Image_IO::MalformedImage(error_string);
+	}
+
+	//Set up stream IO
+	png_set_write_fn(png_ptr, &o, write_fn, flush_fn);
+
+	int c_type;
+	switch(t)
+	{
+		case Grey: c_type = PNG_COLOR_TYPE_GRAY; break;
+		case GreyAlpha: c_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
+		case Rgb: c_type = PNG_COLOR_TYPE_RGB; break;
+		case RgbAlpha: c_type = PNG_COLOR_TYPE_RGB_ALPHA; break;
+	}
+
+
+	//Set up the image type
+	png_set_IHDR(png_ptr, info_ptr, w, h, depth, c_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+	
+	#ifdef CVD_ARCH_LITTLE_ENDIAN
+		if (depth > 8)
+			png_set_swap(png_ptr);
+	#endif
+
+	//Write the header 
+	png_write_info(png_ptr, info_ptr);
+}
+
+void png_out::pack()
+{
+	png_set_packing(png_ptr);
+}
+
+void png_out::rgbx()
+{
+	png_set_filler(png_ptr, 0, PNG_FILLER_AFTER);
+}
+
+void png_out::write_raw_pixel_lines(const std::vector<const unsigned char*>& p)
+{
+	//Set up error handling
+	if(setjmp(png_jmpbuf(png_ptr)))     
+	{         
+		png_destroy_write_struct(&png_ptr, &info_ptr);
+		throw Exceptions::Image_IO::MalformedImage(error_string);
+	}
+
+	png_write_rows(png_ptr, const_cast<unsigned char**>(&p[0]), p.size());
+}
+
+void png_out::write_raw_pixel_lines(const std::vector<const unsigned short*>& p)
+{
+	//Set up error handling
+	if(setjmp(png_jmpbuf(png_ptr)))     
+	{         
+		png_destroy_write_struct(&png_ptr, &info_ptr);
+		throw Exceptions::Image_IO::MalformedImage(error_string);
+	}
+
+	png_write_rows(png_ptr, reinterpret_cast<unsigned char**>(const_cast<unsigned short**>(&p[0])), p.size());
+
+}
+
+png_out::~png_out()
+{
+	png_write_end(png_ptr, info_ptr);
+	png_destroy_write_struct(&png_ptr, &info_ptr);
+}
