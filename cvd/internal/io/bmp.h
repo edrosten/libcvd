@@ -30,6 +30,7 @@
 #include <cvd/byte.h>
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/internal/load_and_save.h>
+#include <cvd/internal/simple_vector.h>
 
 namespace CVD {
   namespace BMP {
@@ -40,7 +41,7 @@ namespace CVD {
 
     template <class T> struct BMPReader<T,1> {
       static void read(Image<T>& im, std::istream& in) {
-	std::vector<Rgb<byte> > palette(256);
+	Internal::simple_vector<Rgb<byte> > palette(256);
 	bool notgray = false;
 	for (int i=0; i<256; i++) {
 	  byte buf[4];
@@ -54,11 +55,11 @@ namespace CVD {
 	size_t rowSize = im.size().x;
 	if (rowSize % 4)
 	  rowSize += 4 - (rowSize%4);
-	std::vector<byte> rowbuf(rowSize);
+	Internal::simple_vector<byte> rowbuf(rowSize);
 	
 	if (notgray) {
 	  std::cerr << "not gray" << std::endl;
-	  std::vector<T> cvt(256);
+	  Internal::simple_vector<T> cvt(256);
 	  Pixel::ConvertPixels<Rgb<byte>,T>::convert(&palette[0], &cvt[0], 256);
 	  for (int r=im.size().y-1; r>=0; r--) {
 	    in.read((char*)&rowbuf[0], rowSize);
@@ -78,7 +79,7 @@ namespace CVD {
 	size_t rowSize = im.size().x*3;
 	if (rowSize % 4)
 	  rowSize += 4 - (rowSize%4);
-	std::vector<byte> rowbuf(rowSize);
+	Internal::simple_vector<byte> rowbuf(rowSize);
 	for (int r=im.size().y-1; r>=0; r--) {
 	  in.read((char*)&rowbuf[0], rowSize);
 	  for (int c=0; c<im.size().x*3; c+=3) {
@@ -126,7 +127,7 @@ namespace CVD {
 	int rowSize = im.size().x;
 	if (rowSize % 4)
 	  rowSize += 4 - (rowSize % 4);
-	std::vector<byte> rowbuf(rowSize);
+	Internal::simple_vector<byte> rowbuf(rowSize);
 	for (int r=im.size().y-1; r>=0; r--) {
 	  Pixel::ConvertPixels<T,byte>::convert(im[r], &rowbuf[0], im.size().x);
 	  out.write((const char*)&rowbuf[0], rowSize);
@@ -152,7 +153,7 @@ namespace CVD {
 	int rowSize = im.size().x*3;
 	if (rowSize % 4)
 	  rowSize += 4 - (rowSize % 4);
-	std::vector<byte> rowbuf(rowSize);
+	Internal::simple_vector<byte> rowbuf(rowSize);
 	for (int r=im.size().y-1; r>=0; r--) {
 	  Pixel::ConvertPixels<T,Rgb<byte> >::convert(im[r], (Rgb<byte>*)&rowbuf[0], im.size().x);
 	  for (int c=0; c<im.size().x*3; c+=3) {
