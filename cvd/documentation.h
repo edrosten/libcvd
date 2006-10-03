@@ -43,25 +43,37 @@ It is released under the LGPL License.
 \subsection Imaging
 
     - Type-safe easy to use images
-    - Flexible loading and saving from a variety of types: jpg, pnm, bmp, tiff (loading only), eps (saving only)
+    - Flexible loading and saving from a variety of types:
+		- Native
+			- PNM 
+			- BMP
+			- PS   (saving only)
+			- EPS  (saving only)
+		- External libraries required
+			- JPEG
+			- TIFF (loading only)
+			- PNG
+		- Optimum bit depth and colour depth selected automatically
     - Image grabbing from video sources:
 		  - Linux
 		  		- Video for Linux devices
           		- Video for Linux 2 devices
          	 	- Firewire cameras
 		  - IRIX
-          		- dmedia video capture
+          		- DMedia video capture
 		  - OSX
 		  		- QuickTime video capture
 		  - All platforms
-          		- avi and mpegs file (all codecs supported by ffmpeg)
+          		- AVI and MPEG file (all codecs supported by ffmpeg)
           		- list of images
-          		- raw image streams(soon!!!) 
+		  - Convinient run-time selection using a URL liek syntax
     - Colorspace conversions on images and video streams
     - Various image processing tools
 	      - FAST corner detection
 		  - Image interpolation
 		  - Convolutions
+		  - Drawing in to images
+		  - Flipping, pasting, etc
 		  - Interpolation, warping and resampling
     - %Camera calibration support: Linear, Cubic and Quintic 
 
@@ -69,12 +81,14 @@ It is released under the LGPL License.
 
     - Lie Group(S03, SE3) algebra
     - Iterative and reweighted least-squares 
+	- Random numbers
 
-\subsection Portability
+\section Portability
 
     - Linux
     - IRIX (SGI O2)
     - FreeBSD
+	- OpenBSD
     - Mac OS X
 		- Supports the OS X build environment including
 			- Frameworks
