@@ -66,7 +66,7 @@ It is released under the LGPL License.
 		  - All platforms
           		- AVI and MPEG file (all codecs supported by ffmpeg)
           		- list of images
-		  - Convinient run-time selection using a URL liek syntax
+		  - Convenient run-time selection using a URL-like syntax
     - Colorspace conversions on images and video streams
     - Various image processing tools
 	      - FAST corner detection
