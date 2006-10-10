@@ -72,8 +72,12 @@ namespace CVD
 			PS,
 			EPS,
 			BMP,
-			CVD_IMAGE_HAVE_JPEG  //This is a macro, ending in ,
-			CVD_IMAGE_HAVE_PNG
+			#ifdef CVD_IMAGE_HAVE_JPEG
+				JPEG,
+			#endif
+			#ifdef CVD_IMAGE_HAVE_PNG
+				PNG,
+			#endif
 		};
 	}
 
