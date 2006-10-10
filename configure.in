@@ -419,53 +419,52 @@ echo -----------------------------
 #Allow the user to specify the location of TooN
 #
 AC_ARG_WITH(TooN, [  --with-TooN=directory   Specify location for TooN ], [opt_toon_dir=$withval])
-
-if test "$opt_toon_dir" = no
-then
-	AC_MSG_ERROR("TooN is not optional. Use --with-TooN=dir to specify where it can be found.")
-fi
-
-#Yes is not a useful answer. We know the answer is yes.
-if test "$opt_toon_dir" = yes
-then
-	opt_toon_dir=
-fi
-
-#Check for TooN
-AC_MSG_CHECKING([for TooN])
-
-#Check for TooN in a bunch of places
-save_CPPFLAGS="$CPPFLAGS"
 toondir="Missing"
-for dir in  $opt_toon_dir "" "$HOME/usr/include" "$HOME/code/TooN" "$HOME/Src/TooN" "../TooN" ".."
-do
-	a=
-	if test "$dir" = ""
-	then
-		CPPFLAGS="$save_CPPFLAGS"
-	else
-		CPPFLAGS="$save_CPPFLAGS -I$dir"
-	fi
 
-	AC_COMPILE_IFELSE([#include <TooN/TooN.h>
-int main(){TooN::Vector<2> v;return 0;}], [a=1]) 
-
-	AC_COMPILE_IFELSE([#include <numerics.h>
-int main(){Vector<2> v;return 0;}], [old_toon="$old_toon $dir"]) 
-	
-	if test x$a = x1
-	then
-		toondir=$dir
-		break
-	fi
-done
-
-if test "$toondir" = ""
+if test "$opt_toon_dir" != no
 then
-	AC_MSG_RESULT(yes)
-else
-	AC_MSG_RESULT($toondir)
-fi
+
+	#Yes is not a useful answer. We know the answer is yes.
+	if test "$opt_toon_dir" = yes
+	then
+		opt_toon_dir=
+	fi
+
+	#Check for TooN
+	AC_MSG_CHECKING([for TooN])
+
+	#Check for TooN in a bunch of places
+	save_CPPFLAGS="$CPPFLAGS"
+	for dir in  $opt_toon_dir "" "$HOME/usr/include" "$HOME/code/TooN" "$HOME/Src/TooN" "../TooN" ".."
+	do
+		a=
+		if test "$dir" = ""
+		then
+			CPPFLAGS="$save_CPPFLAGS"
+		else
+			CPPFLAGS="$save_CPPFLAGS -I$dir"
+		fi
+
+		AC_COMPILE_IFELSE([#include <TooN/TooN.h>
+	int main(){TooN::Vector<2> v;return 0;}], [a=1]) 
+
+		AC_COMPILE_IFELSE([#include <numerics.h>
+	int main(){Vector<2> v;return 0;}], [old_toon="$old_toon $dir"]) 
+		
+		if test x$a = x1
+		then
+			toondir=$dir
+			break
+		fi
+	done
+
+	if test "$toondir" = ""
+	then
+		AC_MSG_RESULT(yes)
+	else
+		AC_MSG_RESULT($toondir)
+	fi
+fi 
 
 if test "$toondir" = Missing
 then
