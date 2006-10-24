@@ -740,7 +740,12 @@ save_LIBS="$LIBS"
 if test "x$ac_cv_have_x" != x
 then
 	LIBS="-L$x_libraries -lX11 -lXext $LIBS"
-	CXXFLAGS="$CXXFLAGS -I$x_includes"
+	if test "x$x_includes" != x
+	then
+		CXXFLAGS="$CXXFLAGS -I$x_includes"
+	fi
+echo LIBS is $LIBS
+echo CXXFLAGS is $CXXFLAGS
 
 	AC_CHECK_LIB(GL,glDrawPixels)
 
