@@ -6121,8 +6121,6 @@ then
 	then
 		CXXFLAGS="$CXXFLAGS -I$x_includes"
 	fi
-echo LIBS is $LIBS
-echo CXXFLAGS is $CXXFLAGS
 
 
 echo "$as_me:$LINENO: checking for glDrawPixels in -lGL" >&5

@@ -744,8 +744,6 @@ then
 	then
 		CXXFLAGS="$CXXFLAGS -I$x_includes"
 	fi
-echo LIBS is $LIBS
-echo CXXFLAGS is $CXXFLAGS
 
 	AC_CHECK_LIB(GL,glDrawPixels)
 
