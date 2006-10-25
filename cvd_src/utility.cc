@@ -142,6 +142,47 @@ using namespace std;
 	return sum;
     }    
 
+template <class F, class T1, class T2, int A, int M> inline void maybe_aligned_square(const T1* in, T2* out, size_t count)
+{
+    if (count < M*2) {
+	return F::unaligned_square(in,out,count);
+    }
+    if (!is_aligned<A>(in)) {
+	unsigned int steps = steps_to_align<A>(in);
+	F::unaligned_square(in,out,steps);
+	count -= steps;
+	in += steps;
+	out += steps;
+	if (count < M) {
+	    F::unaligned_square(in,out,count);
+	}
+    }
+    size_t block = (count/M)*M;
+    F::aligned_square(in,out,block);
+    if (count > block)
+	F::unaligned_square(in+block,out+block,count-block);
+}    
+
+template <class F, class T1, class T2, int A, int M> inline void maybe_aligned_subtract_square(const T1* in, T2* out, size_t count)
+{
+    if (count < M*2) {
+	return F::unaligned_subtract_square(in,out,count);
+    }
+    if (!is_aligned<A>(in)) {
+	unsigned int steps = steps_to_align<A>(in);
+	F::unaligned_subtract_square(in,out,steps);
+	count -= steps;
+	in += steps;
+	out += steps;
+	if (count < M) {
+	    F::unaligned_subtract_square(in,out,count);
+	}
+    }
+    size_t block = (count/M)*M;
+    F::aligned_subtract_square(in,out,block);
+    if (count > block)
+	F::unaligned_subtract_square(in+block,out+block,count-block);
+}    
 
 
 namespace CVD {
@@ -211,10 +252,13 @@ namespace CVD {
     template <bool Aligned> inline void store_ps(__m128 m, void* addr) { return _mm_storeu_ps((float*)addr, m); }
     template <> inline void store_ps<true>(__m128 m, void* addr) { return _mm_store_ps((float*)addr, m); }
 
-    template <bool Aligned_b> inline void float_differences(const __m128* a, const __m128* b, __m128* diff, unsigned int count)
+    template <bool Aligned_b> void float_differences(const __m128* a, const __m128* b, __m128* diff, unsigned int count)
     {
 	while (count--) {
-	    *(diff++) = _mm_sub_ps(*(a++), load_ps<Aligned_b>(b++));
+	    _mm_stream_ps((float*)diff, _mm_sub_ps(load_ps<true>(a), load_ps<Aligned_b>(b)));
+	    ++diff;
+	    ++a;
+	    ++b;
 	}
     }
     
@@ -222,8 +266,10 @@ namespace CVD {
     {
 	__m128 cccc = _mm_set1_ps(c);
 	while (count--) {
-	    *out = _mm_add_ps(_mm_mul_ps(_mm_add_ps(*(a++), load_ps<Aligned_b>(b++)), cccc), *out);
+	    *out = _mm_add_ps(_mm_mul_ps(_mm_add_ps(load_ps<true>(a), load_ps<Aligned_b>(b)), cccc), *out);
 	    ++out;
+	    ++a;
+	    ++b;
 	}
     }
 
@@ -271,6 +317,25 @@ namespace CVD {
 	    ssd += sums_store[0] + sums_store[1] + sums_store[2] + sums_store[3];
 	}
 	return ssd;
+    }
+    
+    template <bool Aligned_out> void float_square(const __m128* in, __m128* out, size_t count) {
+	while (count--) {
+	    __m128 x = load_ps<true>(in);
+	    store_ps<Aligned_out>(_mm_mul_ps(x, x), out);
+	    ++in;
+	    ++out;
+	}
+    }
+
+    template <bool Aligned_out> void float_subtract_square(const __m128* in, __m128* out, size_t count) {
+	while (count--) {
+	    __m128 x = load_ps<true>(in);
+	    __m128 y = load_ps<Aligned_out>(out);
+	    store_ps<Aligned_out>(_mm_sub_ps(y, _mm_mul_ps(x, x)), out);
+	    ++in;
+	    ++out;
+	}
     }
 
     struct SSE_funcs {
@@ -328,6 +393,27 @@ namespace CVD {
 	    else
 		return float_sum_squared_differences<false>((const __m128*) a, (const __m128*) b, count>>2);
 	}	
+	
+	template <class T1, class T2> static inline void unaligned_square(const T1* in, T2* out, size_t count) {
+	    square<T1,T2>(in, out, count);
+	}
+
+	static inline void aligned_square(const float* in, float* out, size_t count) {
+	    if (is_aligned<16>(out))
+		float_square<true>((const __m128*)in, (__m128*)out, count >> 2);
+	    else
+		float_square<false>((const __m128*)in, (__m128*)out, count >> 2);		
+	}
+	template <class T1, class T2> static inline void unaligned_subtract_square(const T1* in, T2* out, size_t count) {
+	    subtract_square<T1,T2>(in, out, count);
+	}
+
+	static inline void aligned_subtract_square(const float* in, float* out, size_t count) {
+	    if (is_aligned<16>(out))
+		float_subtract_square<true>((const __m128*)in, (__m128*)out, count >> 2);
+	    else
+		float_subtract_square<false>((const __m128*)in, (__m128*)out, count >> 2);		
+	}
     };
     
     void differences(const float* a, const float* b, float* diff, unsigned int size)
@@ -354,6 +440,16 @@ namespace CVD {
     double sum_squared_differences(const float* a, const float* b, size_t count)
     {
 	return maybe_aligned_ssd<SSE_funcs,double,float,16,4>(a,b,count);
+    }
+    
+    void square(const float* in, float* out, size_t count) 
+    {
+	maybe_aligned_square<SSE_funcs,float,float,16,4>(in, out, count);
+    }
+
+    void subtract_square(const float* in, float* out, size_t count) 
+    {
+	maybe_aligned_subtract_square<SSE_funcs,float,float,16,4>(in, out, count);
     }
 
 #endif

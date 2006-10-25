@@ -24,9 +24,7 @@ default the upper left corner of the output image
 in the output image
   @ingroup gImageIO
   */
-  template<class S, class T> void copy(const BasicImage<S>& in, BasicImage<T>&
-out, ImageRef size=ImageRef(-1,-1), ImageRef begin = ImageRef(), ImageRef dst =
-ImageRef())
+  template<class S, class T> void copy(const BasicImage<S>& in, BasicImage<T>& out, ImageRef size=ImageRef(-1,-1), ImageRef begin = ImageRef(), ImageRef dst = ImageRef())
   {
     if (size.x == -1 && size.y == -1)
       size = in.size();
@@ -119,10 +117,10 @@ ImageRef())
   /// Compute pointwise a_i * c and store in out_i
   /// This is accelerated using SIMD for some platforms and data types (alignment is checked at runtime)
   /// Do not specify template parameters explicitly so that overloading can choose the right implementation
-  template <class A, class B> inline void assign_multiple(const A* a, const A& c,  B* out, unsigned int count)
+      template <class A, class B, class C> inline void assign_multiple(const A* a, const B& c,  C* out, unsigned int count)
   {
       while (count--)
-	  *(out++) = *(a++) * c;
+	  *(out++) = static_cast<C>(*(a++) * c);
   }
 
   /// Compute sum(a_i*b_i)
@@ -145,7 +143,23 @@ ImageRef())
 	  return ssd;
       }
   };
- 
+
+  template <class T1, class T2> inline void square(const T1* in, T2* out, size_t count) 
+  {
+      while (count--) {
+	  *(out++) = static_cast<T2>(*in * *in);
+	  ++in;
+      }
+  }
+
+  template <class T1, class T2> inline void subtract_square(const T1* in, T2* out, size_t count) 
+  {
+      while (count--) {
+	  *(out++) -= static_cast<T2>(*in * *in);
+	  ++in;
+      }
+  }
+
   /// Compute sum of (a_i - b_i)^2 (the SSD)
   /// This is accelerated using SIMD for some platforms and data types (alignment is checked at runtime)
   /// Do not specify template parameters explicitly so that overloading can choose the right implementation
@@ -176,6 +190,8 @@ ImageRef())
   void assign_multiple(const float* a, const float& c,  float* out, unsigned int count);
   double inner_product(const float* a, const float* b, unsigned int count);
   double sum_squared_differences(const float* a, const float* b, size_t count);
+  void square(const float* in, float* out, size_t count);
+  void subtract_square(const float* in, float* out, size_t count);
 #endif
 
 #if defined (CVD_HAVE_SSE2) && defined(CVD_HAVE_EMMINTRIN)
