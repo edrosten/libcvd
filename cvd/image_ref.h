@@ -192,13 +192,13 @@ namespace Exceptions
 
 // Streams stuff for ImageRef class //
 
-/// Write an ImageRef to a stream in the format "(x,y)"
+/// Write an ImageRef to a stream in the format "[x y]"
 /// @param os The stream
 /// @param ref The co-ordinate
 /// @relates ImageRef
 inline std::ostream& operator<<(std::ostream& os, const ImageRef& ref)
 {
-	return os << "(" << ref.x << "," << ref.y << ")";
+	return os << "[" << ref.x << " " << ref.y << "]";
 }
 
 /// Read an ImageRef from a stream. Any format with two successive numbers will work
@@ -206,7 +206,7 @@ inline std::ostream& operator<<(std::ostream& os, const ImageRef& ref)
 inline std::istream& operator>>(std::istream& is, ImageRef& ref)
 {
 	//Full parsing for ImageRefs, to allow it to accept the
-	//output produced above.
+	//output produced above, as well as the older (x,y) format
 	is >> std::ws;
 
 	unsigned char c = is.get();
@@ -224,6 +224,12 @@ inline std::istream& operator>>(std::istream& is, ImageRef& ref)
 		is >> std::ws >> ref.y >> std::ws;
 
 		if(is.get() != ')')
+			goto bad;
+	}
+	else if(c == '[' )
+	{
+		is >> std::ws >> ref.x >> std::ws >> ref.y >> std::ws;
+		if(is.get() != ']')
 			goto bad;
 	}
 	else if(isdigit(c))
