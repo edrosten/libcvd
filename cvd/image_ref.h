@@ -161,7 +161,10 @@ public:
 	inline int area() const;
 
 	/// Square bracket subscripts for easy loops. 0=x 1=y other=error
-	inline int&             operator[](int i);
+	inline int& operator[](int i);
+
+	/// Square bracket const subscripts for easy loops. 0=x 1=y other=error
+	inline int operator[](int i) const;
 
 	//Why do these exist?
 	///@overload

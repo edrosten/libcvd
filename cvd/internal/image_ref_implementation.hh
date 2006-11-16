@@ -212,6 +212,15 @@ inline int& ImageRef::operator[](int i)
   throw Exceptions::BadSubscript();
 }
 
+inline int ImageRef::operator[](int i) const
+{
+  if(i==0)
+    return x;
+  if(i==1)
+    return y;
+  throw Exceptions::BadSubscript();
+}
+
 inline unsigned int ImageRef::mag_squared() const
 {
   typedef unsigned int uint;
