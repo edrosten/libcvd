@@ -744,27 +744,21 @@ class Image: public BasicImage<T>
 		}
 
 
-		///Create a filled image of a given size
-		///This function allows a filled image to be constructed from a single value.
-		///This is useful for the following code:
-		/// @code
-		///	vector<Image<byte> > images(10, Image<byte>::CreateNew(ImageRef(100,100), 255));
-		/// @endcode
-		/// See also @ref CreateNew, which is a synonym for make_pair
-		///@param im The size and fill for the image to be created
-		Image(const std::pair<ImageRef, T>& im)
-		{
-			Image<T> tmp(im.first);
-			tmp.fill(im.second);
-			dup_from(&tmp);
-		}
-
-		
 		///Resize the image (destroying the data). The image is resized even if the new size is the same as the old one.
 		///@param size The new size of the image
 		void resize(const ImageRef& size)
 		{
 			Image<T> new_im(size);
+			*this = new_im;
+		}
+
+		///Resize the image (destroying the data). The image is resized even if the new size is the same as the old one.
+		//The resized image is filled with val
+		///@param size The new size of the image
+		///@param val  The value to fill the image with
+		void resize(const ImageRef& size, const T& val)
+		{
+			Image<T> new_im(size, val);
 			*this = new_im;
 		}
 
