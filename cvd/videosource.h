@@ -148,14 +148,82 @@ namespace CVD {
 #endif
 				       "files");
     }
-    
+
+/**
+opens a video device described by a video source url given from an input stream. See
+@ref open_video_source(const std::string &) for details on the url syntax.
+
+@ingroup gVideo
+*/
     template <class T> VideoBuffer<T>* open_video_source(std::istream& in)
     {
 	VideoSource vs;
 	parse(in, vs);
 	return open_video_source<T>(vs);
     }
-    
+
+/**
+opens a video device described by a video source url. This allows to decide at
+runtime what kind of video input your program is using. Basic use is to call
+open_video_source<T>(url) to get a VideoBuffer<T>*.
+
+The url syntax is the following:
+@verbatim
+url      := protocol ':' [ '[' options ']' ] // identifier
+protocol := "files" | "file" | "v4l2" | "dc1394"
+options  := option [ ',' options ]
+option   := name [ '=' value ]
+@endverbatim
+
+identifier and values can be quoted literals with escapes, all other text is unquoted.
+Some Examples:
+
+@verbatim
+Open a DiskBuffer2 for *.pgm in /local/capture/:
+files:///local/capture/*.pgmKilled by signal 2.
+files:///local/capture/*.pgm
+Open a DiskBuffer2 that loops and uses a ReadAheadVideoBuffer wrapper with
+40 frame buffer, with 30 fps:
+files:[read_ahead=40, fps=30, on_end=loop]///local/capture/*.pgm
+
+Open a V4L2 device at /dev/video0:
+v4l2:///dev/video0
+
+Open a V4L2 device with fields on input 2:
+v4l2:[input=2,fields]\///dev/video0
+
+Open firewire camera 1 with 3 dma bufs and default brightness/exposure and fps:
+dc1394:[dma_bufs=3]//1
+
+Open an avi file relative to the current directory:
+file://../../stuff/movie.avi
+@endverbatim
+
+Options supported by the various protocols are:
+@verbatim
+'files' protocol (DiskBuffer2):  identifier is glob pattern
+        fps = <number>
+        read_ahead [= <number>] (default is 50 if specified without value)
+        on_end = repeat_last | unset_pending | loop (default is repeat_last)
+
+'file' protocol (VideoFileBuffer): identifier is path to file
+       read_ahead  [= <number>] (default is 50 if specified without value)
+       on_end = repeat_last | unset_pending | loop (default is repeat_last)
+
+'v4l2' protocol (V4LBuffer): identifier is device name
+       size = vga | qvga | pal | ntsc | <width>x<height>  (default vga)
+       input = <number>
+       interlaced | fields [= true | false | yes | no]
+
+'dc1394' protocol (DVBuffer): identifier is camera number
+       fps = <number> (default 30)
+       dma_bufs | dma_buffers = <number> (default 3)
+       brightness | bright = <number> (default -1)
+       exposure | exp = <number> (default -1)
+@endverbatim
+
+@ingroup gVideo
+*/
     template <class T> VideoBuffer<T>* open_video_source(const std::string& src)
     {
 	std::istringstream in(src);
