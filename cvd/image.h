@@ -354,23 +354,25 @@ template<class T> class SubImage
 		/// Returns an iterator referencing the first (top-left) pixel in the image
 		inline iterator begin()
 		{
-			return SubImageIterator<T>(data(), size().x, my_stride, operator[](my_size.y));
+			return SubImageIterator<T>(data(), size().x, my_stride, end_ptr());
 		}
 		/// Returns a const iterator referencing the first (top-left) pixel in the image
 		inline const_iterator begin() const
 		{
-			return ConstSubImageIterator<T>(data(), size().x, my_stride, operator[](my_size.y));
+			return ConstSubImageIterator<T>(data(), size().x, my_stride, end_ptr());
 		}
 
 		/// Returns an iterator pointing to one past the end of the image
 		inline iterator end()
 		{
-			return SubImageIterator<T>(operator[](my_size.y));
+			//Operator [] would always throw here!
+			return SubImageIterator<T>(end_ptr());
 		}
 		/// Returns a const iterator pointing to one past the end of the image
 		inline const_iterator end() const
 		{
-			return ConstSubImageIterator<T>(operator[](my_size.y));
+			//Operator [] would always throw here!
+			return ConstSubImageIterator<T>(end_ptr());
 		}
 
 		/// Returns an object corresponding to end(), which should eliminate a test.
@@ -452,6 +454,12 @@ template<class T> class SubImage
 		T* my_data;       ///< The raw image data
 		ImageRef my_size; ///< The size of the image
 		int my_stride;    ///< The row stride
+		
+		///Return an off-the-end pointer without ever throwing AccessOutsideImage
+		T* end_ptr() { return my_data+my_size.y*my_stride; }
+
+		///Return an off-the-end pointer without ever throwing AccessOutsideImage
+		const T* end_ptr() const { return my_data+my_size.y*my_stride; }
 
 		SubImage()
 		{}
