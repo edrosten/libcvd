@@ -444,7 +444,7 @@ template<class T> class SubImage
 		const SubImage<const T> sub_image(const ImageRef& start, const ImageRef& size) const
 		{	
 			CVD_IMAGE_ASSERT(in_image(start), ImageError::AccessOutsideImage);
-			CVD_IMAGE_ASSERT(in_image(start + size - ImageRef(1,1), ImageError::AccessOutsideImage));
+			CVD_IMAGE_ASSERT(in_image(start + size - ImageRef(1,1)), ImageError::AccessOutsideImage);
 			return SubImage<const T>( &operator[](start), size, my_stride);
 		}
 
