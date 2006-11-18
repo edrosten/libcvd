@@ -743,6 +743,15 @@ class Image: public BasicImage<T>
 			dup_from(&tmp);
 		}
 
+		///Create a filled image of a given size
+		///@param p std::pair<ImageRef, T> containing the size and fill value.
+		///Useful for creating containers of images with ImageCreationIterator
+		Image(const std::pair<ImageRef, T>& p)
+		{
+			Image<T> tmp(p.first);
+			tmp.fill(p.second);
+			dup_from(&tmp);
+		}
 
 		///Resize the image (destroying the data). The image is resized even if the new size is the same as the old one.
 		///@param size The new size of the image
