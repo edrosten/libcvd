@@ -49,5 +49,8 @@ vector<string> CVD::globlist(const string& gl)
 
 	globfree(&g);
 
+	if(ret.size() == 1 && ret[0] == "")
+		ret.resize(0);
+
 	return ret;
 }
