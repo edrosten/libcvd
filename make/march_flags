@@ -3,6 +3,8 @@ p4 pentium4 i686
 p4_64 nocona i686
 xeon pentium4 i686
 pM pentium-m pentium4 i686
+core2 pentium-m pentium4 i686
+core2_64 nocona i686
 opteron opteron k8 i686 
 opteron_64 opteron k8 i686 
 athlon64_64 k8 i686

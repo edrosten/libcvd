@@ -127,6 +127,7 @@ case "$host" in
 /Pentium III/						{print "p3";exit}
 /Intel\(R\) Pentium\(R\) 4/			{print "p4";exit}
 /Intel\(R\) Pentium\(R\) M/			{print "pM";exit}
+/Intel\(R\) Core\(TM\)2/			{print "core2";exit}
 /Intel\(R\) Xeon\(TM\)/				{print "xeon";exit}
 /Intel\(R\) XEON\(TM\)/				{print "xeon";exit}
 /AMD Athlon\(tm\) 64 Processor/		{print "athlon64";exit}
