@@ -21,6 +21,7 @@
 #ifndef CVD_GL_HELPERS_H
 #define CVD_GL_HELPERS_H
 
+#include <iostream>
 #include <vector>
 
 #include <cvd/image_ref.h>
@@ -32,6 +33,7 @@
 #include <cvd/rgba.h>
 #include <cvd/config.h>
 #include <GL/gl.h>
+#include <GL/glu.h>
 #include <cvd/internal/gl_types.h>
 
 #ifdef CVD_HAVE_TOON
@@ -451,6 +453,15 @@ namespace CVD
 		::glReadPixels(origin.x, origin.y, i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
 		return i;
 	}
+
+    /// Prints the current errors on the gl error stack
+    ///@ingroup gGL
+    inline void glPrintErrors(void){
+        GLenum code;
+        while((code = glGetError()) != GL_NO_ERROR){
+            std::cout << "GL:" << code << ":" << gluGetString(code) << std::endl;
+        }
+    }
 
 };
 

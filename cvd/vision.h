@@ -337,7 +337,13 @@ template <class T, class S> inline void sample(const BasicImage<S>& im, double x
         (1-y)*((1-x)*Pixel::Component<S>::get(im[ly][lx],i) + x*Pixel::Component<S>::get(im[ly][lx+1], i)) +
           y * ((1-x)*Pixel::Component<S>::get(im[ly+1][lx],i) + x*Pixel::Component<S>::get(im[ly+1][lx+1],i)));
   }
-  }
+ }
+
+template <class T, class S> inline T sample(const BasicImage<S>& im, double x, double y){
+    T result;
+    sample( im, x, y, result);
+    return result;
+}
 
 inline void sample(const BasicImage<float>& im, double x, double y, float& result)
   {
