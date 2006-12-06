@@ -113,13 +113,28 @@ void halfSample(const BasicImage<T>& in, BasicImage<T>& out)
 /// @throw IncompatibleImageSizes if out does not have half the dimensions of in
 /// @ingroup gVision
 template <class T>
-Image<T> halfSample(const BasicImage<T>& in)
+inline Image<T> halfSample(const BasicImage<T>& in)
 {
 	Image<T> out(in.size()/2);
 	halfSample(in, out);
 	return out;
 }
 
+/// subsamples an image repeatedly by half its size by averaging 2x2 pixel blocks.
+/// This version will not create a copy for 0 octaves because it receives already
+/// an Image and will reuse the data.
+/// @param in input image
+/// @param octaves number of halfsamplings 
+/// @return The output image
+/// @throw IncompatibleImageSizes if out does not have half the dimensions of in
+/// @ingroup gVision
+template <class T>
+inline Image<T> halfSample( Image<T> in, unsigned int octaves){
+    for( ;octaves > 0; --octaves){
+        in = halfSample(in);
+    }
+    return in;
+}
 
 /// thresholds an image by setting all pixel values below a minimum to 0 and all values above to a given maximum
 /// @param im input image changed in place
