@@ -334,6 +334,26 @@ namespace CVD
 		glColor4d(v[0], v[1], v[2], v[3]);
 	}
 
+	/// Set the new clear colour to the red, green, blue and alpha components given in the Vector
+	/// (where 0.0 represents zero intensity and 1.0 full intensity)
+	/// @param v The new colour
+	///@ingroup gGL
+	inline void glClearColor(const TooN::Vector<4>& v)
+	{
+		::glClearColor((GLclampf)v[0], (GLclampf)v[1], (GLclampf)v[2], (GLclampf)v[3]);
+	}
+
+	/// Set the new clear colour to the red, green, blue components given in the Vector
+	/// alpha is set to 0
+	/// @param v The new colour
+	///@ingroup gGL
+	inline void glClearColor(const TooN::Vector<3>& v)
+	{
+		::glClearColor((GLclampf)v[0], (GLclampf)v[1], (GLclampf)v[2], 0);
+	}
+
+
+
 	/// glColor version for dynamic TooN::Vector, will test for 3 or 4 components
 	/// @param v The new colour
 	/// @ingroup gGL
