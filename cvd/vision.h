@@ -377,54 +377,56 @@ inline void sample(const BasicImage<float>& im, double x, double y, float& resul
   }
 
 #if defined (CVD_HAVE_TOON)
-template <class T> void transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<2>& M, const TooN::Vector<2>& inOrig, const TooN::Vector<2>& outOrig)
-  {
-    int i,j;
-    int w = out.size().x, iw = in.size().x;
-    int h = out.size().y, ih = in.size().y;
-    TooN::Vector<2> upperLeft = M * -outOrig + inOrig;
-    double lo_x=upperLeft[0], lo_y=upperLeft[1], hi_x=lo_x, hi_y=lo_y;
-    if (M.T()[0][0] < 0)
-	lo_x += w*M.T()[0][0];
-    else
-	hi_x += w*M.T()[0][0];
-    if (M.T()[1][0] < 0)
-	lo_x += h*M.T()[1][0];
-    else
-	hi_x += h*M.T()[1][0];
-    if (M.T()[0][1] < 0)
-	lo_y += w*M.T()[0][1];
-    else
-	hi_y += w*M.T()[0][1];
-    if (M.T()[1][1] < 0)
-	lo_y += h*M.T()[1][1];
-    else
-	hi_y += h*M.T()[1][1];
-    
-    TooN::Vector<2> p, row = upperLeft;
-    if (lo_x >= 0 && hi_x < iw-1 && lo_y >= 0 && hi_y < ih-1) {
-	for (i=0;i<h;i++) {
-	    p = row;
-	    for (j=0;j<w;j++) {
-		sample(in,p[0],p[1],out[i][j]);
-		p += M.T()[0];
-	    }
-	    row += M.T()[1];
-	}	
-    } else {
-	for (i=0;i<h;i++) {
-	    p = row;
-	    for (j=0;j<w;j++) {
-		if (p[0] < 0 || p[0]>= iw-1 || p[1] < 0 || p[1] >= ih-1)
-		    zeroPixel(out[i][j]);
-		else
-		    sample(in,p[0],p[1],out[i][j]);
-		p += M.T()[0];
-	    }
-	    row += M.T()[1];
-	}
-    }
-  }
+
+/**
+  * a normal member taking two arguments and returning an integer value.
+  * @param in a image containing the information to be extracted.
+  * @param out the image to be filled.  The whole image out image is filled by the in image.
+  * @param M the matrix used to map point in the out matrix to those in the in matrix
+  * @param inOrig origin in the in image
+  * @param outOrig origin in the out image
+  * @Note: this will collide with transform in the std namespace
+  */
+template <class T> 
+void transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<2>& M, const TooN::Vector<2>& inOrig, const TooN::Vector<2>& outOrig)
+{
+   int i,j;
+   int w = out.size().x, h = out.size().y, iw = in.size().x, ih = in.size().y; 
+   TooN::Vector<2> base = M * -outOrig  + inOrig; //one corner in the input image
+   TooN::Vector<2> p;
+   p = (double)out.size().x,(double)out.size().y;
+   p = M * (p-outOrig)  + inOrig;                 //the other corner
+
+   TooN::Vector<2> across = M.T()[0];
+   TooN::Vector<2> down =   M.T()[1];
+
+   //If the patch being extracted is completely in the image then no 
+   //check is needed with each point.
+   if (    p[0] >=0 &&    p[1] >=0 &&    p[0] < iw &&    p[1] < ih &&
+        base[0] >=0 && base[1] >=0 && base[0] < iw && base[1] < ih)
+   {
+      
+      for (j=0;j<h;++j,base+=down) 
+      {
+         p = base;    
+         for (i=0;i<w;++i,p+=across) 
+           sample(in,p[0],p[1],out[j][i]);
+      }
+   } else {
+
+      for (j=0;j<h;++j,base+=down) 
+      {
+         p = base;    
+         for (i=0;i<w;++i, p+=across) 
+            //Make sure that we are extracting pixels in the image
+            if ( p[0] >=0 &&  p[1] >=0 &&  p[0] < iw &&  p[1] < ih)
+            {
+               zeroPixel(out[j][i]);
+            } else
+               sample(in,p[0],p[1],out[j][i]);
+      }
+   }
+}
 
   template <class T>  void transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<3>& Minv /* <-- takes points in "out" to points in "in" */)
   {
