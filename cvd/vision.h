@@ -392,20 +392,29 @@ void transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<2
 {
    int i,j;
    int w = out.size().x, h = out.size().y, iw = in.size().x, ih = in.size().y; 
-   TooN::Vector<2> base = M * -outOrig  + inOrig; //one corner in the input image
+   TooN::Vector<2> base; 
    TooN::Vector<2> p;
-   p = (double)out.size().x,(double)out.size().y;
-   p = M * (p-outOrig)  + inOrig;                 //the other corner
 
    TooN::Vector<2> across = M.T()[0];
    TooN::Vector<2> down =   M.T()[1];
+   
+   //min and max x and y
+   base[0] = std::min( across[0]*(-outOrig[0]), across[0]*(-outOrig[0]+(double)w) ) +           
+             std::min( down[0]*(-outOrig[1]), down[0]*(-outOrig[1]+(double)h) ) + inOrig[0];
+   base[1] = std::min( across[1]*(-outOrig[0]), across[1]*(-outOrig[0]+(double)w) ) +           
+             std::min( down[1]*(-outOrig[1]), down[1]*(-outOrig[1]+(double)h) ) + inOrig[1];
+   p[0]    = std::max( across[0]*(-outOrig[0]), across[0]*(-outOrig[0]+(double)w) ) +           
+             std::max( down[0]*(-outOrig[1]), down[0]*(-outOrig[1]+(double)h) ) + inOrig[0];
+   p[1]    = std::max( across[1]*(-outOrig[0]), across[1]*(-outOrig[0]+(double)w) ) +           
+             std::max( down[1]*(-outOrig[1]), down[1]*(-outOrig[1]+(double)h) ) + inOrig[1];
+
+   
 
    //If the patch being extracted is completely in the image then no 
    //check is needed with each point.
-   if (    p[0] >=0 &&    p[1] >=0 &&    p[0] < iw &&    p[1] < ih &&
-        base[0] >=0 && base[1] >=0 && base[0] < iw && base[1] < ih)
+   if ( p[0] < iw && p[1] < ih && base[0] >=0 && base[1] >=0 )
    {
-      
+      base = M * -outOrig  + inOrig;
       for (j=0;j<h;++j,base+=down) 
       {
          p = base;    
@@ -413,17 +422,19 @@ void transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<2
            sample(in,p[0],p[1],out[j][i]);
       }
    } else {
-
+	  base = M * -outOrig  + inOrig;
       for (j=0;j<h;++j,base+=down) 
       {
          p = base;    
          for (i=0;i<w;++i, p+=across) 
+		 {
             //Make sure that we are extracting pixels in the image
-            if ( p[0] >=0 &&  p[1] >=0 &&  p[0] < iw &&  p[1] < ih)
+            if ( p[0] < 0 ||  p[1] < 0 || p[0] >= iw ||  p[1] >= ih)
             {
                zeroPixel(out[j][i]);
             } else
                sample(in,p[0],p[1],out[j][i]);
+         }
       }
    }
 }
