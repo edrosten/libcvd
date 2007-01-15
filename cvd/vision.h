@@ -385,13 +385,14 @@ inline void sample(const BasicImage<float>& im, double x, double y, float& resul
   * @param M the matrix used to map point in the out matrix to those in the in matrix
   * @param inOrig origin in the in image
   * @param outOrig origin in the out image
+  * @return the number of pixels not in the in image 
   * @Note: this will collide with transform in the std namespace
   */
 template <class T> 
-void transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<2>& M, const TooN::Vector<2>& inOrig, const TooN::Vector<2>& outOrig)
+int transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<2>& M, const TooN::Vector<2>& inOrig, const TooN::Vector<2>& outOrig)
 {
    int i,j;
-   int w = out.size().x, h = out.size().y, iw = in.size().x, ih = in.size().y; 
+   const int w = out.size().x, h = out.size().y, iw = in.size().x, ih = in.size().y; 
    TooN::Vector<2> base; 
    TooN::Vector<2> p;
 
@@ -412,7 +413,7 @@ void transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<2
 
    //If the patch being extracted is completely in the image then no 
    //check is needed with each point.
-   if ( p[0] < iw && p[1] < ih && base[0] >=0 && base[1] >=0 )
+   if ( p[0] < iw-1 && p[1] < ih-1 && base[0] >=0 && base[1] >=0 )
    {
       base = M * -outOrig  + inOrig;
       for (j=0;j<h;++j,base+=down) 
@@ -422,6 +423,7 @@ void transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<2
            sample(in,p[0],p[1],out[j][i]);
       }
    } else {
+      int tmp = 0;
 	  base = M * -outOrig  + inOrig;
       for (j=0;j<h;++j,base+=down) 
       {
@@ -429,14 +431,17 @@ void transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<2
          for (i=0;i<w;++i, p+=across) 
 		 {
             //Make sure that we are extracting pixels in the image
-            if ( p[0] < 0 ||  p[1] < 0 || p[0] >= iw ||  p[1] >= ih)
+            if ( p[0] < 0 ||  p[1] < 0 || p[0] >= iw-1 ||  p[1] >= ih-1)
             {
                zeroPixel(out[j][i]);
+			   tmp++;
             } else
                sample(in,p[0],p[1],out[j][i]);
          }
       }
+	  return tmp;
    }
+   return 0;
 }
 
   template <class T>  void transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<3>& Minv /* <-- takes points in "out" to points in "in" */)
