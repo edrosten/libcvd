@@ -273,6 +273,7 @@ template<class T> class SubImage
 		{
 		}
 
+
 		/// Is this pixel co-ordinate inside the image?
 		/// @param ir The co-ordinate to test
 		bool in_image(const ImageRef& ir) const
@@ -444,11 +445,13 @@ template<class T> class SubImage
 		/// Return const a sub image
 		/// @param start Top left pixel of the sub image
 		/// @param size width and  height of the sub image
-		const SubImage<const T> sub_image(const ImageRef& start, const ImageRef& size) const
+		const SubImage sub_image(const ImageRef& start, const ImageRef& size) const
 		{	
 			CVD_IMAGE_ASSERT(in_image(start), ImageError::AccessOutsideImage);
 			CVD_IMAGE_ASSERT(in_image(start + size - ImageRef(1,1)), ImageError::AccessOutsideImage);
-			return SubImage<const T>( &operator[](start), size, my_stride);
+
+			T*ptr = my_data + start.y * my_stride + start.x;
+			return SubImage(ptr, size, my_stride);
 		}
 
 	protected:
