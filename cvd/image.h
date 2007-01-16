@@ -439,6 +439,8 @@ template<class T> class SubImage
 		/// @param size width and  height of the sub image
 		SubImage sub_image(const ImageRef& start, const ImageRef& size)
 		{
+			CVD_IMAGE_ASSERT(in_image(start), ImageError::AccessOutsideImage);
+			CVD_IMAGE_ASSERT(in_image(start + size - ImageRef(1,1)), ImageError::AccessOutsideImage);
 			return SubImage( &operator[](start), size, my_stride);
 		}
 
