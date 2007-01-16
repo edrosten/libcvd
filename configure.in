@@ -663,20 +663,6 @@ case "$host" in
 			fi
 		fi
 	
-		AC_MSG_CHECKING(for posix_memalign)
-		a=0
-		AC_COMPILE_IFELSE([#include <stdlib.h>
-						int main(){void* mem; posix_memalign(&mem,16,100); return 0;}],[a=1])
-		if test $a == 1
-		then
-			AC_MSG_RESULT(yes)
-			AC_DEFINE(CVD_HAVE_MEMALIGN, 1)
-			AC_SUBST(have_memalign,yes)
-		else
-			AC_MSG_RESULT(no)
-			AC_SUBST(have_memalign,no)
-		fi		
-
 		AC_MSG_CHECKING([kernel major number])
 		kernel_major=[`uname -r | $AWK -F'[.-]' '{print $1}'`]
 		AC_MSG_RESULT($kernel_major)
@@ -981,6 +967,21 @@ then
 else
 	dodginess_options="$dodginess_options missing_c99_feenableexcept"
 fi
+
+AC_MSG_CHECKING(for posix_memalign)
+a=0
+AC_COMPILE_IFELSE([#include <stdlib.h>
+				int main(){void* mem; posix_memalign(&mem,16,100); return 0;}],[a=1])
+if test $a == 1
+then
+	AC_MSG_RESULT(yes)
+	AC_DEFINE(CVD_HAVE_MEMALIGN, 1)
+	AC_SUBST(have_memalign,yes)
+else
+	AC_MSG_RESULT(no)
+	AC_SUBST(have_memalign,no)
+	dodginess_options="$dodginess_options no_posix_memalign"
+fi		
 
 ################################################################################
 #
