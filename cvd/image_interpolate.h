@@ -150,6 +150,11 @@ namespace CVD
 				return (TooN::make_Vector, ::floor(v[0]), ::floor(v[1]));
 			}
 
+			TooN::Vector<2> ceil(const TooN::Vector<2>& v)
+			{
+				return (TooN::make_Vector, ::ceil(v[0]), ::ceil(v[1]));
+			}
+
 			typedef typename Pixel::traits<T>::float_type FT;
 
 		public:
@@ -159,7 +164,7 @@ namespace CVD
 
 			bool in_image(const TooN::Vector<2>& pos)
 			{
-				return im->in_image(ir(floor(pos)));
+				return im->in_image(ir(floor(pos))) && im->in_image(ir(ceil(pos)));
 			}
 
 			FT operator[](const TooN::Vector<2>& pos)
@@ -168,29 +173,30 @@ namespace CVD
 
 				ImageRef p = ir(floor(pos));
 
-				if(delta[0] == 0 && delta[1] == 0)
-					return (*im)[p];
-				else
-				{	
-					double x = delta[0];
-					double y = delta[1];
+				double x = delta[0];
+				double y = delta[1];
 
-					FT ret;
+				FT ret;
 
-					for(unsigned int i=0; i < Pixel::Component<T>::count; i++)
-					{
-						float a, b, c, d;
+				for(unsigned int i=0; i < Pixel::Component<T>::count; i++)
+				{
+					float a, b=0, c=0, d=0;
 
-						a = Pixel::Component<T>::get((*im)[p + ImageRef(0,0)], i);
-						b = Pixel::Component<T>::get((*im)[p + ImageRef(1,0)], i);
-						c = Pixel::Component<T>::get((*im)[p + ImageRef(0,1)], i);
-						d = Pixel::Component<T>::get((*im)[p + ImageRef(1,1)], i);
-						
-						Pixel::Component<FT>::get(ret, i) = ((a*(1-x) + b*x)*(1-y) + (c*(1-x) + d*x)*y);
-					}
+					a = Pixel::Component<T>::get((*im)[p + ImageRef(0,0)], i) * (1-x) * (1-y);
 
-					return ret;
+					if(x != 0)
+						b = Pixel::Component<T>::get((*im)[p + ImageRef(1,0)], i) * x * (1-y);
+					
+					if(y != 0)
+					c = Pixel::Component<T>::get((*im)[p + ImageRef(0,1)], i) * (1-x) * y;
+
+					if(x !=0 && y != 0)
+						d = Pixel::Component<T>::get((*im)[p + ImageRef(1,1)], i) * x * y;
+					
+					Pixel::Component<FT>::get(ret, i) = a + b + c + d;
 				}
+
+				return ret;
 			}
 
 			TooN::Vector<2> min()
