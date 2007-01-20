@@ -153,6 +153,9 @@ namespace CVD
 	void fast_corner_detect_12(const BasicImage<byte>& im, std::vector<ImageRef>& corners, int barrier);
 
 
+#if (CVD_HAVE_EMMINTRIN && CVD_HAVE_SSE2)
+	void faster_corner_detect_12(const BasicImage<byte>& I, std::vector<ImageRef>& corners, int barrier);
+#endif
 
 
 	/// Score corners detected by FAST as the maximum barrier at which the corner is still a corner.

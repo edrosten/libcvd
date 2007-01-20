@@ -99,6 +99,7 @@ CVD_OBJS=	cvd_src/cvd_timer.o 						\
 			pnm_src/bmp.o							\
 			pnm_src/save_postscript.o					\
 			cvd_src/fast_corner.o                       \
+			cvd_src/faster_corner.o                       \
 			cvd_src/convolution.o						\
 			cvd_src/fast/7_@fast_pointers@_@fast_force@.o							\
 			cvd_src/fast/8_@fast_pointers@_@fast_force@.o							\
