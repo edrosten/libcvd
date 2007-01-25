@@ -13,69 +13,10 @@ using namespace std;
 namespace CVD
 {
 
-
+    #include <cvd_src/corner_12.h>    
 
     struct Less { template <class T1, class T2> static bool eval(const T1 a, const T2 b) { return a < b; }};
     struct Greater { template <class T1, class T2> static bool eval(const T1 a, const T2 b) { return b < a; }};
-
-    template <class C> inline bool is_corner_12(const byte* p, int w, int t) {
-	const int w3 = 3*w;
-	if (!C::eval(p[-3],t)) {
-	    if (!C::eval(p[-w3],t) || !C::eval(p[1-w3],t) || !C::eval(p[2-2*w],t) || !C::eval(p[3-w],t) || !C::eval(p[3],t) || !C::eval(p[3+w],t) || !C::eval(p[2+2*w],t) || !C::eval(p[1+w3],t) || !C::eval(p[w3],t))
-		return false;
-	    if (!C::eval(p[-1-w3],t))
-		return (C::eval(p[-1+w3],t) && C::eval(p[-2+2*w],t) && C::eval(p[-3+w],t));
-	    if (!C::eval(p[-2-2*w],t))
-		return (C::eval(p[-1+w3],t) && C::eval(p[-2+2*w],t));
-	    if (!C::eval(p[-3-w],t))
-		return (C::eval(p[-1+w3],t));
-	    return true;
-	}
-	if (!C::eval(p[-3-w],t)) {
-	    if (!C::eval(p[1-w3],t) || !C::eval(p[2-2*w],t) || !C::eval(p[3-w],t) || !C::eval(p[3],t) || !C::eval(p[3+w],t) || !C::eval(p[2+2*w],t) || !C::eval(p[1+w3],t) || !C::eval(p[w3],t) || !C::eval(p[-1+w3],t))
-		return false;
-	    if (!C::eval(p[-w3],t)  || !C::eval(p[-1-w3],t))
-		return (C::eval(p[-2+2*w],t) && C::eval(p[-3+w],t));
-	    if (!C::eval(p[-2-2*w],t))
-		return (C::eval(p[-2+2*w],t));
-	    return true;
-	}
-	if (!C::eval(p[-2-2*w],t)) {
-	    if (!C::eval(p[2-2*w],t) || !C::eval(p[3-w],t) || !C::eval(p[3],t) || !C::eval(p[3+w],t) || !C::eval(p[2+2*w],t) || !C::eval(p[1+w3],t) || !C::eval(p[w3],t) || !C::eval(p[-1+w3],t) || !C::eval(p[-2+2*w],t))
-		return false;
-	    if (C::eval(p[-3+w],t)) return true;
-	    return (C::eval(p[1-w3],t)  && C::eval(p[-w3],t) && C::eval(p[-1-w3],t));
-	}
-	if (!C::eval(p[-1-w3],t)) {
-	    return (C::eval(p[3-w],t) && C::eval(p[3],t) && C::eval(p[3+w],t) && C::eval(p[2+2*w],t) && C::eval(p[1+w3],t) && C::eval(p[w3],t) && C::eval(p[-1+w3],t) && C::eval(p[-2+2*w],t));
-	}
-	if (!C::eval(p[-w3],t)) {
-	    return (C::eval(p[3],t) && C::eval(p[3+w],t) && C::eval(p[2+2*w],t) && C::eval(p[1+w3],t) && C::eval(p[w3],t) && C::eval(p[-1+w3],t) && C::eval(p[-2+2*w],t) && C::eval(p[-3+w],t));
-	}
-	if (!C::eval(p[1-w3],t)) {
-	    return (C::eval(p[3+w],t) && C::eval(p[2+2*w],t) && C::eval(p[1+w3],t) && C::eval(p[w3],t) && C::eval(p[-1+w3],t) && C::eval(p[-2+2*w],t) && C::eval(p[-3+w],t));
-	}
-	if (!C::eval(p[2-2*w],t)) {
-	    return (C::eval(p[2+2*w],t) && C::eval(p[1+w3],t) && C::eval(p[w3],t) && C::eval(p[-1+w3],t) && C::eval(p[-2+2*w],t) && C::eval(p[-3+w],t));
-	}
-	if (!C::eval(p[3-w],t)) {
-	    return (C::eval(p[1+w3],t) && C::eval(p[w3],t) && C::eval(p[-1+w3],t) && C::eval(p[-2+2*w],t) && C::eval(p[-3+w],t));
-	}
-	if (!C::eval(p[3],t)) {
-	    return (C::eval(p[w3],t) && C::eval(p[-1+w3],t) && C::eval(p[-2+2*w],t) && C::eval(p[-3+w],t));
-	}
-	if (!C::eval(p[3+w],t)) {
-	    return (C::eval(p[-1+w3],t) && C::eval(p[-2+2*w],t) && C::eval(p[-3+w],t));
-	}
-	if (!C::eval(p[2+2*w],t)) {
-	    return (C::eval(p[-2+2*w],t) && C::eval(p[-3+w],t));
-	}
-	if (!C::eval(p[1+w3],t)) {
-	    return (C::eval(p[-3+w],t));
-	}
-	return true;
-    }
-
 
     template <int I, int N> struct BitCheck {
 	template <class C> static inline void eval(unsigned int three, const byte* p, const int w, const int barrier, C& corners) {
@@ -110,14 +51,16 @@ namespace CVD
 	}
     }
 
-#define CHECK_BARRIER(here, other, flags)				\
+#define CHECK_BARRIER(lo, hi, other, flags)				\
     {									\
-	__m128i diff = _mm_subs_epu8(here, other);			\
-	__m128i diff2 = _mm_subs_epu8(other, here);			\
-	asm( "pcmpgtb %%xmm7, %0  \n\t" : : "x"(diff2));		\
-	asm( "pcmpgtb %%xmm7, %0  \n\t" : : "x"(diff));			\
-	flags = _mm_movemask_epi8(diff) | (_mm_movemask_epi8(diff2) << 16); \
+	__m128i diff = _mm_subs_epu8(lo, other);			\
+	__m128i diff2 = _mm_subs_epu8(other, hi);			\
+	__m128i z = _mm_setzero_si128();				\
+	diff = _mm_cmpeq_epi8(diff, z);					\
+	diff2 = _mm_cmpeq_epi8(diff2, z);				\
+	flags = ~(_mm_movemask_epi8(diff) | (_mm_movemask_epi8(diff2) << 16)); \
     }
+    
     
     template <bool Aligned> inline __m128i load_si128(const void* addr) { return _mm_loadu_si128((const __m128i*)addr); }
     template <> inline __m128i load_si128<true>(const void* addr) { return _mm_load_si128((const __m128i*)addr); }
@@ -129,33 +72,38 @@ namespace CVD
 	typedef std::list<const byte*> Passed;
 	Passed passed;
     
-	// Put the barrier in xmm7, which the compiler 
-	// does not seem to allocate
-	{   const __m128i barriers = _mm_set1_epi8((byte)barrier);
-	    asm( "movdqa %0, %%xmm7  \n\t" : : "x"(barriers));  }
+	// The compiler refuses to reserve a register for this,
+	// even though xmm6 and xmm7 go unused.
+	// It loads it from memory each time.  I am stymied.
+	register const __m128i barriers = _mm_set1_epi8((byte)barrier);
 
 	for (int i=3; i<I.size().y-3; ++i) {
 	    const byte* p = I[i];
 	    for (int j=0; j<w/16; ++j, p+=16) {
-		const __m128i here = load_si128<Aligned>((const __m128i*)(p));
+		__m128i lo, hi;
+		{
+		    const __m128i here = load_si128<Aligned>((const __m128i*)(p));
+		    lo = _mm_subs_epu8(here, barriers);
+		    hi = _mm_adds_epu8(barriers, here);
+		}
 		const __m128i above = load_si128<Aligned>((const __m128i*)(p-stride));
 		const __m128i below = load_si128<Aligned>((const __m128i*)(p+stride));
 		unsigned int up_flags, down_flags;
-		CHECK_BARRIER(here, above, up_flags);
-		CHECK_BARRIER(here, below, down_flags);
+		CHECK_BARRIER(lo, hi, above, up_flags);
+		CHECK_BARRIER(lo, hi, below, down_flags);
 		const unsigned int either_ud = up_flags | down_flags;
 		if (either_ud) {
 		    unsigned int left_flags;
 		    {
 			const __m128i other = _mm_loadu_si128((const __m128i*)(p-3));
-			CHECK_BARRIER(here, other, left_flags);
+			CHECK_BARRIER(lo, hi, other, left_flags);
 		    }
 		    const unsigned int both_ud = up_flags & down_flags;
 		    if (both_ud | (either_ud&left_flags)) {
 			unsigned int right_flags;
 			{
 			    const __m128i other = _mm_loadu_si128((const __m128i*)(p+3));
-			    CHECK_BARRIER(here, other, right_flags);
+			    CHECK_BARRIER(lo, hi, other, right_flags);
 			}
 			const unsigned int at_least_three = (either_ud & (left_flags & right_flags)) | (both_ud & (left_flags | right_flags));
 			if (at_least_three) {
