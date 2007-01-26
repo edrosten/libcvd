@@ -155,6 +155,8 @@ namespace CVD
 
 #if (CVD_HAVE_EMMINTRIN && CVD_HAVE_SSE2)
 	void faster_corner_detect_12(const BasicImage<byte>& I, std::vector<ImageRef>& corners, int barrier);
+	void faster_corner_detect_10(const BasicImage<byte>& I, std::vector<ImageRef>& corners, int barrier);
+	void faster_corner_detect_9(const BasicImage<byte>& I, std::vector<ImageRef>& corners, int barrier);
 #endif
 
 
