@@ -148,6 +148,14 @@ namespace Camera {
     inline TooN::Vector<2> linearproject(const TooN::Vector<2>& camframe, double scale=1) const ;
 	/// Project from Euclidean camera frame to image plane
 
+	inline TooN::Vector<2> project_vector(const TooN::Vector<2>& x, const TooN::Vector<2>& d) const {
+	    const double xsq = x*x;
+	    const double& a = my_camera_parameters[4];
+	    const double& b = my_camera_parameters[5];
+	    return (2 * (a + 2*b*xsq) * (x*d) * TooN::diagmult(my_camera_parameters.slice<0,2>(), x) +
+		    (1 + a*xsq + b*xsq*xsq)*TooN::diagmult(my_camera_parameters.slice<0,2>(), d));
+	}
+
 	inline TooN::Vector<2> project_vector(const TooN::Vector<2>& d) const {
 	    return diagmult(my_camera_parameters.slice<0,2>(), d);
 	}
@@ -158,8 +166,12 @@ namespace Camera {
 	    return v;
 	}
     inline TooN::Vector<2> project(const TooN::Vector<2>& camframe) const; 
+    inline std::pair<TooN::Vector<2>, TooN::Matrix<2> > project(const TooN::Vector<2>& camframe, const TooN::Matrix<2>& R) const;
+
 	/// Project from image plane to a Euclidean camera
     inline TooN::Vector<2> unproject(const TooN::Vector<2>& imframe) const;
+
+    inline std::pair<TooN::Vector<2>, TooN::Matrix<2> > unproject(const TooN::Vector<2>& imframe, const TooN::Matrix<2>& R) const;
     
     /// Get the derivative of image frame wrt camera frame at the last computed projection
     /// in the form \f$ \begin{bmatrix} \frac{\partial \text{im1}}{\partial \text{cam1}} & \frac{\partial \text{im1}}{\partial \text{cam2}} \\ \frac{\partial \text{im2}}{\partial \text{cam1}} & \frac{\partial \text{im2}}{\partial \text{cam2}} \end{bmatrix} \f$
@@ -379,6 +391,15 @@ inline TooN::Vector<2> Camera::Quintic::project(const TooN::Vector<2>& camframe)
   return TooN::Vector<2>(diagmult(mod_camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
 }
 
+inline std::pair<TooN::Vector<2>, TooN::Matrix<2> > Camera::Quintic::project(const TooN::Vector<2>& camframe, const TooN::Matrix<2>& R) const
+{
+    std::pair<TooN::Vector<2>, TooN::Matrix<2> > result;
+    result.first = this->project(camframe);
+    const TooN::Matrix<2> J = this->get_derivative();
+    result.second = J * R * J.T();
+    return result;
+}
+
 inline TooN::Vector<2> Camera::Quintic::unproject(const TooN::Vector<2>& imframe) const {
   TooN::Vector<2> mod_camframe;
   mod_camframe[0] = (imframe[0]-my_camera_parameters[2])/my_camera_parameters[0];
@@ -400,6 +421,22 @@ inline TooN::Vector<2> Camera::Quintic::unproject(const TooN::Vector<2>& imframe
 
   return my_last_camframe;
 }
+
+inline std::pair<TooN::Vector<2>, TooN::Matrix<2> > Camera::Quintic::unproject(const TooN::Vector<2>& imframe, const TooN::Matrix<2>& R) const
+{
+    std::pair<TooN::Vector<2>, TooN::Matrix<2> > result;
+    result.first = this->unproject(imframe);
+    TooN::Matrix<2> J = get_derivative();
+    double rdet = 1.0/ (J[0][0] * J[1][1] - J[0][1] * J[1][0]);
+    TooN::Matrix<2> Jinv;
+    Jinv[0][0] = rdet * J[1][1];
+    Jinv[1][1] = rdet * J[0][0];
+    Jinv[0][1] = -rdet * J[0][1];
+    Jinv[1][0] = -rdet * J[1][0];    
+    result.second = Jinv * R * Jinv.T();
+    return result;
+}
+
 
 TooN::Matrix<2,2> Camera::Quintic::get_derivative() const {
   TooN::Matrix<2,2> result;
