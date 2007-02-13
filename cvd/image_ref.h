@@ -160,6 +160,9 @@ public:
 	/// Area (product of x and y; signed)
 	inline int area() const;
 
+	/// The equivalent of doing .* in matlab
+	inline ImageRef dot_times(const ImageRef &ref) const;
+
 	/// Square bracket subscripts for easy loops. 0=x 1=y other=error
 	inline int& operator[](int i);
 

@@ -231,3 +231,8 @@ inline int ImageRef::area() const
 {
   return x * y;
 }
+
+inline ImageRef ImageRef::dot_times(const ImageRef &ref) const
+{
+  return ImageRef(x * ref.x, y * ref.y);
+}
