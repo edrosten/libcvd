@@ -150,6 +150,7 @@ endif
 
 ifeq (@have_videodisplay@,yes)
 	CVD_OBJS+=cvd_src/videodisplay.o
+	CVD_OBJS+=cvd_src/glwindow.o
 endif
 
 ################################################################################
