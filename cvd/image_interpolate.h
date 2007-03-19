@@ -66,7 +66,7 @@ namespace CVD
 		  public:
 			///Construct the class.
 			///@param i The image to be interpolated.
-			image_interpolate(const BasicImage<byte>& i);
+			image_interpolate(const BasicImage<P>& i);
 
 			///Is this pixel inside the image?
 			///@param pos The coordinate to test.
@@ -75,7 +75,7 @@ namespace CVD
 			///Access the pixel at pos, with interpolation.
 			///Bounds checking is the same as for CVD::Image.
 			///@param pos The pixel to access
-			P operator[](const TooN::Vector<2>& pos);
+			float_type operator[](const TooN::Vector<2>& pos);
 
 			///Return the minimum value for which in_image returns true.
 			TooN::Vector<2> min();
