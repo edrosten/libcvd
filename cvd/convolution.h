@@ -521,6 +521,8 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
   Internal::aligned_mem<sum_type,16>::release(buffer);
   Internal::aligned_mem<sum_type,16>::release(rowbuf);
   Internal::aligned_mem<sum_type,16>::release(outbuf);
+  delete[] kernel;
+  delete[] rows;
 }
 
 template <class T, class O, class K> void convolve_gaussian_3(const BasicImage<T>& I, BasicImage<O>& out, K k1, K k2)
