@@ -429,7 +429,7 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
   typedef typename Pixel::traits<T>::float_type sum_type;
   assert(out.size() == I.size());
   int ksize = (int)(sigmas*sigma + 0.5);
-  sum_comp_type kernel[ksize];
+  sum_comp_type *kernel = new sum_comp_type[ksize];
   sum_comp_type ksum = sum_comp_type();
   for (int i=1; i<=ksize; i++)
     ksum += (kernel[i-1] = static_cast<sum_comp_type>(exp(-i*i/(2*sigma*sigma))));
@@ -444,7 +444,7 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
   sum_type* rowbuf = Internal::aligned_mem<sum_type,16>::alloc(w);
   sum_type* outbuf = Internal::aligned_mem<sum_type,16>::alloc(w);
 
-  sum_type* rows[swin+1];
+  sum_type** rows = new sum_type*[swin+1];
   for (int k=0;k<swin+1;k++)
     rows[k] = buffer + k*w;
 
