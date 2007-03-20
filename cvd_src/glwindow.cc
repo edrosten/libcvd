@@ -28,7 +28,7 @@ struct GLWindow::State {
     int font;	
 };
     
-CVD::GLWindow::GLWindow(const ImageRef& size, int bpp, const std::string& title)
+void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title)
 {
     Display* display = XOpenDisplay(0);
     if (display == 0)

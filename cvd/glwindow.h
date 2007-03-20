@@ -86,7 +86,13 @@ namespace CVD {
 
 	/// Construct a GLWindow of the given size and colour depth, with the given title.
 	/// A double-buffered GL context is associated with the window.
-	GLWindow(const ImageRef& size, int bpp, const std::string& title="GLWindow");
+	GLWindow(const ImageRef& size, int bpp=24, const std::string& title="GLWindow") {
+	  init(size, bpp, title);
+	}
+	GLWindow(const ImageRef& size, const std::string& title, int bpp=24) {
+	  init(size, bpp, title);
+	}
+
 	~GLWindow();
 	/// Get the size
 	ImageRef size() const;
@@ -119,6 +125,7 @@ namespace CVD {
     private:
 	struct State;
 	State* state;
+	void init(const ImageRef& size, int bpp, const std::string& title);
     };
 
     
