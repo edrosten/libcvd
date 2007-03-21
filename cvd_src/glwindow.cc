@@ -25,7 +25,6 @@ struct GLWindow::State {
     Atom delete_atom;
     Cursor null_cursor;
     GLXContext context;
-    int font;	
 };
     
 void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title)
@@ -99,11 +98,9 @@ void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title
     glOrtho(0, size.x, size.y, 0, -1 , 1);
     glPixelZoom(1,-1);
 
-    int font = glGenLists(256);
     XColor black = {0, 0, 0, 0, 0, 0};
     XFontStruct* fixed = XLoadQueryFont(display, "-misc-fixed-medium-r-*-*-12-*-*-*-*-*-*-1" );
     Cursor null_cursor = XCreateGlyphCursor(display, fixed->fid, fixed->fid, ' ', ' ', &black, &black);
-    glXUseXFont(fixed->fid, 0, 256, font);
     XFreeFont(display, fixed);
 
     state = new State();
@@ -114,17 +111,16 @@ void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title
     state->delete_atom = delete_atom;
     state->null_cursor = null_cursor;
     state->context = context;
-    state->font = font;
 }
 
 CVD::GLWindow::~GLWindow()
 {
-    activate();
-    glDeleteLists(state->font,256);
+    glXMakeCurrent(state->display, None, 0);
     glXDestroyContext(state->display, state->context);
+    
+    XUnmapWindow(state->display, state->window);
     XDestroyWindow(state->display, state->window);
     XCloseDisplay(state->display);
-
     delete state;
 }
 
