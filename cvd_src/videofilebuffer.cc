@@ -431,8 +431,6 @@ void RawVideoFileBuffer::seek_to(double t)
 
 		start_time = 0;
 		frame_ready = true;
-		
-		puts("done");
 
 		// REOPENED FILE OK
 	}
