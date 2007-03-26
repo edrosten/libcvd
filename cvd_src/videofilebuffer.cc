@@ -365,10 +365,28 @@ void RawVideoFileBuffer::put_frame(void* f)
 //
 void RawVideoFileBuffer::seek_to(double t)
 {	
+	// The call to av_seek_frame only searches to the nearest keyframe. To continue from there, we
+	// must decode and read one frame at a time until we get to the desired point.
+
+	// Hack: I do not know how to obtain the current frame number or timestamp after the call to 
+	// av_seek_frame without performing another read_frame. This will obviously read one extra frame.
+	// So we must subtract one frame from the position we are actually searching for.
+	// t is defined as frame_number * frame_rate.
+
+ 	double frame_rate = av_q2d(pFormatContext->streams[video_stream]->r_frame_rate);
+	int frame_num = static_cast<int>(t * frame_rate + 0.5);
+	t = (frame_num - 1) / frame_rate;
+
+	int64_t targetPts = static_cast<int64_t>(t * AV_TIME_BASE + 0.5);
+	// Handling the case where t == 0.
+	int64_t seekToPts = targetPts < 0 ? 0 : targetPts;
+
 	#if LIBAVFORMAT_BUILD >= 4623
-	if(av_seek_frame(pFormatContext, -1, static_cast<int64_t>(t*AV_TIME_BASE+0.5), AVSEEK_FLAG_ANY) < 0)
+	// The flag AVSEEK_FLAG_ANY will seek to the specified frame, but we cannot decode from there because
+	// we do not have the info from the previous frames and keyframe, hence the BACKWARD flag.
+	if (av_seek_frame(pFormatContext, -1, seekToPts, AVSEEK_FLAG_BACKWARD) < 0)
 	#else
-	if(av_seek_frame(pFormatContext, -1, static_cast<int64_t>(t*AV_TIME_BASE+0.5)) < 0)
+	if (av_seek_frame(pFormatContext, -1, seekToPts < 0)
 	#endif
 	{
 		cerr << "av_seek_frame not supported by this codec: performing (slow) manual seek" << endl;
@@ -381,11 +399,11 @@ void RawVideoFileBuffer::seek_to(double t)
 		
 		// Now open the video file (and read the header, if present)
 		if(av_open_input_file(&pFormatContext, file.c_str(), NULL, 0, NULL) != 0)
-			throw FileOpen(file, "File could not be opened.");
+		  throw FileOpen(file, "File could not be opened.");
 		
 		// Read the beginning of the file to get stream information (in case there is no header)
 		if(av_find_stream_info(pFormatContext) < 0)
-			throw FileOpen(file, "Stream information could not be read.");
+		  throw FileOpen(file, "Stream information could not be read.");
 		
 		// No need to find the stream--we know which one it is (in video_stream)
 		
@@ -410,23 +428,47 @@ void RawVideoFileBuffer::seek_to(double t)
 			pCodecContext = 0; // Since it's not been opened yet
 			throw FileOpen(file, string(pCodec->name) + " codec could not be initialised.");
 		}
-		
+
 		start_time = 0;
 		frame_ready = true;
 		
+		puts("done");
+
 		// REOPENED FILE OK
-		// Now read frames until we get to the time we want
-		
-		int frames = static_cast<int>((t * frames_per_second() + 0.5));
-		for(int i = 0; i < frames; i++)
-		{
-			read_next_frame();
-		}
 	}
-	
-	if(!read_next_frame())
-			throw BadSeek(t);
+
+	// Special case
+	if (targetPts < 0) {
+	  read_next_frame();
+	  return;
+	}
+
+	// Now read frames until we get to the time we want
+
+	AVPacket packet;
+	int gotFrame;
+	int64_t pts;	      
+	      
+	// Decode frame by frame until we reach the desired point.
+	do {
+		av_read_frame(pFormatContext, &packet);
+		
+		// Decode only video packets
+		if (packet.stream_index != video_stream)
+		  continue;
+		
+		// Timestamp of the decoded frame.
+		pts = static_cast<int64_t>(packet.pts / packet.duration * AV_TIME_BASE / frame_rate + 0.5);
+
+		avcodec_decode_video(pCodecContext, pFrame, &gotFrame, packet.data, packet.size);
+		av_free_packet(&packet);
+	} while (pts < targetPts);
+
+	// This read_frame is necessary to ensure that the first frame read by the calling program
+	// is actually the seeked-to frame.
+	read_next_frame();
 }
+
 
 }
 } // namespace CVD
