@@ -776,22 +776,31 @@ class Image: public BasicImage<T>
 			dup_from(&tmp);
 		}
 
-		///Resize the image (destroying the data). The image is resized even if the new size is the same as the old one.
+		///Resize the image (destroying the data).
+		///This does not affect any other images pointing to this data.
 		///@param size The new size of the image
 		void resize(const ImageRef& size)
-		{
-			Image<T> new_im(size);
-			*this = new_im;
+		{	
+			if(size != BasicImage<T>::my_size || *num_copies > 1)
+			{
+				Image<T> new_im(size);
+				*this = new_im;
+			}
 		}
 
-		///Resize the image (destroying the data). The image is resized even if the new size is the same as the old one.
-		//The resized image is filled with val
+		///Resize the image (destroying the data). 
+		///This does not affect any other images pointing to this data.
+		//The resized image is filled with val.
 		///@param size The new size of the image
 		///@param val  The value to fill the image with
 		void resize(const ImageRef& size, const T& val)
 		{
-			Image<T> new_im(size, val);
-			*this = new_im;
+			if(*num_copies > 1 || size != BasicImage<T>::my_size)
+			{
+				Image<T> new_im(size, val);
+				*this = new_im;
+			}
+				else fill(val);
 		}
 
 		///The destructor removes the image data
