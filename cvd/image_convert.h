@@ -80,7 +80,6 @@ namespace CVD
   /// @param Conv The conversion to use
   /// @param from The image to convert from
   /// @ingroup gImageIO
-  
   template<class D, class Conv, class C> Image<D> convert_image(const BasicImage<C>& from)
   {
     Image<D> to(from.size());
@@ -100,7 +99,6 @@ namespace CVD
   /// @param C The source image pixel type
   /// @param from The image to convert from
   /// @ingroup gImageIO
-  
   template<class D, class C> Image<D> convert_image(const BasicImage<C>& from)
   {
     Image<D> to(from.size());
@@ -117,7 +115,6 @@ namespace CVD
   /// @param C The source image pixel type
   /// @param from The image to convert from
   /// @ingroup gImageIO
-
   template<class D1, class D2, class C> std::pair<Image<D1>, Image<D2> > convert_image_pair(const BasicImage<C>& from)
   {
     std::pair<Image<D1>, Image<D2> > to(Image<D1>(from.size()), Image<D2>(from.size()));
@@ -125,7 +122,49 @@ namespace CVD
     convert_image(from, to.second);
     return to;
   }  
-	
+
+
+  #ifndef DOXYGEN_IGNORE_INTERNAL
+  namespace Internal
+  {
+  	template<class C> class ImageConverter{};
+	template<class C>  struct ImagePromise<ImageConverter<C> >
+	{
+		ImagePromise(const BasicImage<C>& im)
+		:i(im)
+		{}
+
+		const BasicImage<C>& i;
+		template<class D> void execute(Image<D>& j)
+		{
+			j.resize(i.size());
+			convert_image(i, j);
+		}
+	};
+  };
+  template<class C> Internal::ImagePromise<Internal::ImageConverter<C> > convert_image(const BasicImage<C>& c)
+  {
+    return Internal::ImagePromise<Internal::ImageConverter<C> >(c);
+  }
+  #else
+  	///Convert an image from one type to another using the default.
+	///Type deduction is automatic, and D does not need to be specified. The following usage will work:
+	///
+	/// \code
+	/// Image<byte> a;
+	/// Image<byte> b;
+	/// ...
+	/// b = convert_image(a);
+	/// \endcode
+	/// Note that this is performed using lazy evaluation, so convertion happens on evaluation of assignment.
+    /// @param D The destination image pixel type
+    /// @param C The source image pixel type
+    /// @param from The image to convert from
+	/// @return The converted image
+    /// @ingroup gImageIO
+  	template<class D> Image<D> convert_image(const BasicImage<C>& from);
+
+  #endif
 }
 
 #endif
