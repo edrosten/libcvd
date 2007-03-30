@@ -32,12 +32,15 @@
 
 namespace CVD {
 
-void cvd_timer::reset() 
+double cvd_timer::reset() 
 {
   struct timeval tv;
 
   gettimeofday(&tv,NULL);
-  startTime=(unsigned long long)tv.tv_sec*1000000+tv.tv_usec;
+  unsigned long long temp = (unsigned long long)tv.tv_sec*1000000+tv.tv_usec;
+  double elapsed =  (temp - startTime) / 1000000.0;
+  startTime = temp;
+  return elapsed;
 }
 
 double cvd_timer::get_time() 

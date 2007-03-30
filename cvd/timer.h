@@ -57,7 +57,7 @@ class cvd_timer
 		double conv_ntime(const struct timeval& tv);
 		
 		/// Sets the start time to the current time
-		void reset();                       
+		double reset();                       
 
 
 	private:
