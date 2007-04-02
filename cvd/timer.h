@@ -55,7 +55,13 @@ class cvd_timer
 		/// for the start time
 		/// @param tv The current time as a timeval
 		double conv_ntime(const struct timeval& tv);
-		
+
+		/// Convert current time given as double by correcting for the start time
+		/// @param time current time as double
+		double conv_ntime(const double time) const {
+			return time - startTime * 1.e-6;
+		}
+
 		/// Sets the start time to the current time
 		double reset();                       
 
