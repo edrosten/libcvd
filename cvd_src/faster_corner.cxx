@@ -9,7 +9,6 @@ using namespace std;
 #if (CVD_HAVE_EMMINTRIN && CVD_HAVE_SSE2)
 #include <emmintrin.h>
 
-
 namespace CVD
 {
 
@@ -291,7 +290,7 @@ namespace CVD
 	// Check last 16
 	{
 	    row_start = I[I.size().y-4];
-	    for (int j=w-16; j<w; ++j)
+	    for (int j=w-16; j<w-3; ++j)
 		if (is_corner_10<Less>(row_start + j, w, row_start[j]-barrier) || 
 		    is_corner_10<Greater>(row_start + j, w, row_start[j]+barrier))
 		    corners.push_back(ImageRef(j,I.size().y-4));
@@ -512,7 +511,7 @@ namespace CVD
 	// Check last 16
 	{
 	    row_start = I[I.size().y-4];
-	    for (int j=w-16; j<w; ++j)
+	    for (int j=w-16; j<w-3; ++j)
 		if (is_corner_9<Less>(row_start + j, w, row_start[j]-barrier) || 
 		    is_corner_9<Greater>(row_start + j, w, row_start[j]+barrier))
 		    corners.push_back(ImageRef(j,I.size().y-4));
