@@ -732,33 +732,6 @@ echo -------------------------------
 echo Checking for optional libraries
 echo -------------------------------
 
-
-AC_PATH_X
-
-save_CXXFLAGS="$CXXFLAGS"
-save_LIBS="$LIBS"
-if test "x$ac_cv_have_x" != x
-then
-	LIBS="-L$x_libraries -lX11 -lXext $LIBS"
-	if test "x$x_includes" != x
-	then
-		CXXFLAGS="$CXXFLAGS -I$x_includes"
-	fi
-
-	AC_CHECK_LIB(GL,glDrawPixels)
-
-	if test "$ac_cv_lib_GL_glDrawPixels" != no
-	then
-		AC_DEFINE(CVD_HAVE_VIDEODISPLAY)
-		options="$options videodisplay"
-		AC_SUBST(have_videodisplay, yes)
-		LIBS="-lGL $LIBS"
-	else
-		LIBS="$save_LIBS"
-		CXXFLAGS="$CXXFLAGS"
-	fi
-fi
-
 AC_ARG_WITH(threads, [  --without-threads       compile without PThread support],[if test "$withval" = no; then disable_threads=yes; else disable_threads=no; fi])
 if test "$disable_threads" != yes 
 then
@@ -785,6 +758,32 @@ then
 	else
 		AC_MSG_RESULT(no)
 		CXXFLAGS="$save_CXXFLAGS"
+	fi
+fi
+
+AC_PATH_X
+
+save_CXXFLAGS="$CXXFLAGS"
+save_LIBS="$LIBS"
+if test "x$ac_cv_have_x" != x
+then
+	LIBS="-L$x_libraries -lX11 -lXext $LIBS"
+	if test "x$x_includes" != x
+	then
+		CXXFLAGS="$CXXFLAGS -I$x_includes"
+	fi
+
+	AC_CHECK_LIB(GL,glDrawPixels)
+
+	if test "$ac_cv_lib_GL_glDrawPixels" != no
+	then
+		AC_DEFINE(CVD_HAVE_VIDEODISPLAY)
+		options="$options videodisplay"
+		AC_SUBST(have_videodisplay, yes)
+		LIBS="-lGL $LIBS"
+	else
+		LIBS="$save_LIBS"
+		CXXFLAGS="$CXXFLAGS"
 	fi
 fi
 
