@@ -42,22 +42,22 @@ inline ImageRef::ImageRef(std::istream& is)
 
 inline bool ImageRef::next(const ImageRef& max)	// move on to the next value
 {
-	return(++x != max.x || (x=0, ++y != max.y) || (y=0, false));
+	return(++x < max.x || (x=0, ++y < max.y) || (y=0, false));
 }
 
 inline bool ImageRef::next(const ImageRef& min, const ImageRef& max)
 {
-	return (++x != max.x || (x=min.x, ++y != max.y) || (y=min.y, false));
+	return (++x < max.x || (x=min.x, ++y < max.y) || (y=min.y, false));
 }
 
 inline bool ImageRef::prev(const ImageRef& max)	// move back to the previous value
 {
-	return(--x != -1 || (x=max.x-1, --y != -1) || (y=max.y-1, false));
+	return(--x > -1 || (x=max.x-1, --y > -1) || (y=max.y-1, false));
 }
 
 inline bool ImageRef::prev(const ImageRef& min, const ImageRef& max)
 {
-	return (--x != min.x-1 || (x=max.x-1, --y != min.y-1) || (y=max.y-1, false));
+	return (--x > min.x-1 || (x=max.x-1, --y > min.y-1) || (y=max.y-1, false));
 }
 
 inline void ImageRef::home()
