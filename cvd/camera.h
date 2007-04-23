@@ -178,7 +178,7 @@ namespace Camera {
     inline TooN::Matrix<2,2> get_derivative() const;
     inline TooN::Matrix<2,2> get_derivative(const TooN::Vector<2>& x) const;
 
-    inline TooN::Matrix<2,2> Camera::Quintic::get_inv_derivative() const; 
+    inline TooN::Matrix<2,2> get_inv_derivative() const;
     /// Get the motion of a point with respect to each of the internal camera parameters
     inline TooN::Matrix<num_parameters,2> get_parameter_derivs() const ;
 
