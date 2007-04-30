@@ -179,6 +179,8 @@ namespace Camera {
     inline TooN::Matrix<2,2> get_derivative(const TooN::Vector<2>& x) const;
 
     inline TooN::Matrix<2,2> get_inv_derivative() const;
+    inline TooN::Matrix<2,2> get_inv_derivative(const TooN::Vector<2>& x) const;
+
     /// Get the motion of a point with respect to each of the internal camera parameters
     inline TooN::Matrix<num_parameters,2> get_parameter_derivs() const ;
 
@@ -451,6 +453,7 @@ TooN::Matrix<2,2> Camera::Quintic::get_derivative() const {
 }
 
 
+
 TooN::Matrix<2,2> Camera::Quintic::get_inv_derivative() const {
   TooN::Matrix<2,2> result;
   double temp1=my_last_camframe*my_last_camframe;
@@ -473,6 +476,30 @@ TooN::Matrix<2,2> Camera::Quintic::get_inv_derivative() const {
   return result;
 }
 
+TooN::Matrix<2,2> Camera::Quintic::get_inv_derivative(const TooN::Vector<2>& x) const
+{
+
+  TooN::Matrix<2,2> result;
+  double temp1=x*x;
+  double temp2=my_camera_parameters[5]*temp1;
+  double temp3=2.0*(my_camera_parameters[4]+2.0*temp2);
+
+  Identity(result,1+temp1*(my_camera_parameters[4]+temp2));
+
+  result[0][0] +=  x[1]*x[1]*temp3;
+  result[0][1]  =-(temp3*x[0]*x[1]);
+  
+  result[1][1] +=  x[0]*x[0]*temp3;
+  result[1][0]  =-(temp3*x[0]*x[1]);
+  
+  (result.T())[0] *= my_camera_parameters[1];
+  (result.T())[1] *= my_camera_parameters[0];
+
+  result /= (result[0][0]*result[1][1] - result[1][0]*result[0][1]);
+  
+  return result;
+
+}
 
 TooN::Matrix<2,2> Camera::Quintic::get_derivative(const TooN::Vector<2>& x) const {
     TooN::Matrix<2,2> result;
