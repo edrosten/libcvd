@@ -7,7 +7,7 @@
 #include <cvd/image_ref.h>
 
 namespace CVD {
-    
+
     namespace Exceptions
     {
 	/// %Exceptions specific to CVD::GLWindow
@@ -18,14 +18,14 @@ namespace CVD {
 	    /// @ingroup gException
 	    struct All: public CVD::Exceptions::All{
 	    };
-	    
+
 	    /// An exception occurred during initialisation
 	    /// @ingroup gException
 	    struct CreationError: public All
 	    {
 		CreationError(std::string w); ///< Construct from error string
 	    };
-	    
+
 	    /// An exception occurred during run-time
 	    /// @ingroup gException
 	    struct RuntimeError: public All
@@ -34,7 +34,7 @@ namespace CVD {
 	    };
 	}
     }
-    
+
     /// An object that creates a window and a GL context attached to that window, and manages its events.
     class GLWindow {
     public:
@@ -74,6 +74,7 @@ namespace CVD {
 	struct EventSummary {
 	    /// key->frequency mapping for key presses and releases
 	    std::map<int,int> key_down, key_up;
+	    typedef std::map<int,int>::const_iterator key_iterator;
 	    /// button->frequency mapping for mouse presses and releases
 	    std::map<int,std::pair<ImageRef,int> > mouse_down, mouse_up;
 	    /// Generic window events -> frequency
@@ -128,7 +129,7 @@ namespace CVD {
 	void init(const ImageRef& size, int bpp, const std::string& title);
     };
 
-    
+
 }
 
 
