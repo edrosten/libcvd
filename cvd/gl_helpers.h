@@ -22,7 +22,7 @@
 #define CVD_GL_HELPERS_H
 
 #include <iostream>
-#include <vector>
+#include <map>
 
 #include <cvd/image_ref.h>
 #include <cvd/image.h>
@@ -372,10 +372,10 @@ namespace CVD
 	/// glVertex helpers defined in this header file.
 	/// @param list the list of vertices
 	/// @ingroup gGL
-	template<class T> inline void glVertex( const std::vector<T> & list )
+	template<class C> inline void glVertex( const C & list )
 	{
-		for(unsigned int i=0; i < list.size(); i++)
-			glVertex(list[i]);
+		for(typename C::const_iterator v = list.begin(); v != list.end(); ++v)
+			glVertex(*v);
 	}
 
 	/// Set the new colour to the red, green, blue components given
@@ -444,16 +444,6 @@ namespace CVD
 		::glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 	}
 
-	/// Sets an image as a texture sub region.
-	/// note the reordering of the various parameters to make better use of default parameters
-	/// @param i the image to set as texture
-	/// @ingroup gGL
-	template<class C> inline void glTexSubImage2D( const BasicImage<C> &i, GLint xoffset = 0, GLint yoffset = 0, GLenum target = GL_TEXTURE_2D, GLint level = 0)
-	{
-		::glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		::glTexSubImage2D(target, level, xoffset, yoffset, i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
-	}
-
  	/// Read the current image from the colour buffer specified by glReadBuffer
 	/// @param i The image to write the image data into. This must already be initialised to be an BasicImage (or Image) of the right size.
 	/// @param origin The window co-ordinate of the first pixel to be read from the frame buffer
@@ -472,6 +462,79 @@ namespace CVD
 		Image<C> i(size);
 		::glReadPixels(origin.x, origin.y, i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
 		return i;
+	}
+
+	/// Sets an image as a texture sub region.
+	/// note the reordering of the various parameters to make better use of default parameters
+	/// @param i the image to set as texture
+	/// @ingroup gGL
+	template<class C> inline void glTexSubImage2D( const BasicImage<C> &i, GLint xoffset = 0, GLint yoffset = 0, GLenum target = GL_TEXTURE_2D, GLint level = 0)
+	{
+		::glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		::glTexSubImage2D(target, level, xoffset, yoffset, i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
+	}
+
+	/// Sets an image as a texture.
+	/// note the reordering of the various parameters to make better use of default parameters
+	/// @param i the image to set as texture
+	/// @ingroup gGL
+	template<class C> inline void glTexImage2D( const BasicImage<C> &i, GLint border = 0, GLenum target = GL_TEXTURE_2D, GLint level = 0)
+	{
+		::glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		::glTexImage2D(target, level, gl::data<C>::format, i.size().x, i.size().y, border, gl::data<C>::format, gl::data<C>::type, i.data());
+	}
+
+	#ifndef DOXYGEN_IGNORE_INTERNAL
+	/// internal struct to keep the map of the image addresses to texture ids
+	template <int LIFT = 1>
+	struct TextureStore {
+		static std::map<const void *, GLuint> texIds;
+
+		template <class C>
+		static void bindTexture(const BasicImage<C> & i){
+			std::map<const void *, GLuint>::iterator id = texIds.find(&i);
+			if(id != texIds.end()){
+				glBindTexture(GL_TEXTURE_2D, id->second);
+			} else{
+				GLuint newId;
+				glGenTextures(1, &newId);
+				texIds[&i] = newId;
+				glBindTexture(GL_TEXTURE_2D, newId);
+       				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        			glTexImage2D(i);
+			}
+		}
+
+		template <class C>
+		static void deleteTexture(const BasicImage<C> & i){
+			std::map<const void *, GLuint>::iterator id = texIds.find(&i);
+			if(id != texIds.end()){
+				glDeleteTextures(1, &id->second);
+				texIds.erase(id);
+			}
+		}
+	};
+
+	template<int LIFT> std::map<const void *, GLuint> TextureStore<LIFT>::texIds;
+	#endif
+
+	/// stores an image as a GL texture. The image address
+	/// is used as a token in an internal store of texture ids. It only uploads the
+	/// texture automatically upon first use, after that it only rebinds the id.
+	/// use glTexImage2D to upload a new texture after this call.
+	/// @param i the image to upload
+	/// @ingroup gGL
+	template<class C> inline void glBindTexture(const BasicImage<C> & i){
+		TextureStore<>::bindTexture(i);
+	}
+
+	/// deletes a texture, frees the underlying texture id and removes the
+	/// images address from the store
+	/// @param i the image to delete
+	/// @ingroup gGL
+	template<class C> inline void glDeleteTextures(const BasicImage<C> & i){
+		TextureStore<>::deleteTexture(i);
 	}
 
     /// Prints the current errors on the gl error stack
