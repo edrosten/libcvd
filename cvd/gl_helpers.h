@@ -484,59 +484,6 @@ namespace CVD
 		::glTexImage2D(target, level, gl::data<C>::format, i.size().x, i.size().y, border, gl::data<C>::format, gl::data<C>::type, i.data());
 	}
 
-	#ifndef DOXYGEN_IGNORE_INTERNAL
-	/// internal struct to keep the map of the image addresses to texture ids
-	template <int LIFT = 1>
-	struct TextureStore {
-		static std::map<const void *, GLuint> texIds;
-
-		template <class C>
-		static void bindTexture(const BasicImage<C> & i){
-			std::map<const void *, GLuint>::iterator id = texIds.find(&i);
-			if(id != texIds.end()){
-				glBindTexture(GL_TEXTURE_2D, id->second);
-			} else{
-				GLuint newId;
-				glGenTextures(1, &newId);
-				texIds[&i] = newId;
-				glBindTexture(GL_TEXTURE_2D, newId);
-       				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        			glTexImage2D(i);
-			}
-		}
-
-		template <class C>
-		static void deleteTexture(const BasicImage<C> & i){
-			std::map<const void *, GLuint>::iterator id = texIds.find(&i);
-			if(id != texIds.end()){
-				glDeleteTextures(1, &id->second);
-				texIds.erase(id);
-			}
-		}
-	};
-
-	template<int LIFT> std::map<const void *, GLuint> TextureStore<LIFT>::texIds;
-	#endif
-
-	/// stores an image as a GL texture. The image address
-	/// is used as a token in an internal store of texture ids. It only uploads the
-	/// texture automatically upon first use, after that it only rebinds the id.
-	/// use glTexImage2D to upload a new texture after this call.
-	/// @param i the image to upload
-	/// @ingroup gGL
-	template<class C> inline void glBindTexture(const BasicImage<C> & i){
-		TextureStore<>::bindTexture(i);
-	}
-
-	/// deletes a texture, frees the underlying texture id and removes the
-	/// images address from the store
-	/// @param i the image to delete
-	/// @ingroup gGL
-	template<class C> inline void glDeleteTextures(const BasicImage<C> & i){
-		TextureStore<>::deleteTexture(i);
-	}
-
     /// Prints the current errors on the gl error stack
     ///@ingroup gGL
     inline void glPrintErrors(void){
