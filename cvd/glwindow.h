@@ -39,7 +39,7 @@ namespace CVD {
     class GLWindow {
     public:
 	/// Symbols for mouse buttons and modifiers
-	enum MouseButton { BUTTON_LEFT=1, BUTTON_MIDDLE=2, BUTTON_RIGHT=4, BUTTON_MOD_CTRL=8, BUTTON_MOD_SHIFT=0x10 };
+	enum MouseButton { BUTTON_LEFT=1, BUTTON_MIDDLE=2, BUTTON_RIGHT=4, BUTTON_MOD_CTRL=8, BUTTON_MOD_SHIFT=0x10, BUTTON_WHEEL_UP=0x20, BUTTON_WHEEL_DOWN=0x40 };
 	/// Symbols for window events
 	enum EventType { EVENT_CLOSE };
 
@@ -77,12 +77,15 @@ namespace CVD {
 	    typedef std::map<int,int>::const_iterator key_iterator;
 	    /// button->frequency mapping for mouse presses and releases
 	    std::map<int,std::pair<ImageRef,int> > mouse_down, mouse_up;
+	    typedef std::map<int,std::pair<ImageRef,int> >::const_iterator mouse_iterator;
 	    /// Generic window events -> frequency
 	    std::map<int,int> events;
 	    /// Reset the summary
 	    void clear() { *this = EventSummary(); }
 	    /// Has escape been pressed or the close button pressed?
 	    bool should_quit() const;
+	    /// last seen cursor position from mouse_move
+	    ImageRef cursor;
 	};
 
 	/// Construct a GLWindow of the given size and colour depth, with the given title.

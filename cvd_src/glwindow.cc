@@ -171,6 +171,8 @@ inline int convertButton(unsigned int button)
   case Button1: return GLWindow::BUTTON_LEFT;
   case Button2: return GLWindow::BUTTON_MIDDLE;
   case Button3: return GLWindow::BUTTON_RIGHT;
+  case Button4: return GLWindow::BUTTON_WHEEL_UP;
+  case Button5: return GLWindow::BUTTON_WHEEL_DOWN;
   }
   return 0;
 }
@@ -312,6 +314,7 @@ public:
 
     void on_key_down(GLWindow& win, int key) {	++summary.key_down[key]; }
     void on_key_up(GLWindow& win, int key) { ++summary.key_up[key]; }
+    void on_mouse_move(GLWindow& win, ImageRef where, int state) { summary.cursor = where; }
     void on_mouse_down(GLWindow& win, ImageRef where, int state, int button) { summary.mouse_down[button] = std::make_pair(where,state); }
     void on_mouse_up(GLWindow& win, ImageRef where, int state, int button) { summary.mouse_up[button] = std::make_pair(where,state); }
     void on_event(GLWindow& win, int event) { ++summary.events[event]; }
