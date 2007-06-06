@@ -914,6 +914,12 @@ then
 		LIBS="$LIBS -L $use_ffmpeg"
 	fi
 
+	gxx_version=`$CXX -dumpversion`
+	if test $gxx_version = 4.1.0
+	then
+		CXXFLAGS="$CXXFLAGS -D__STDC_CONSTANT_MACROS"
+	fi
+
 	a=
 	AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h, [], [break])
 	AC_CHECK_LIB(avutil, main)
