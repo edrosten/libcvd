@@ -35,8 +35,10 @@
 #include <cvd/byte.h>
 #include <cvd/rgb.h>
 
+extern "C" {
 #include <ffmpeg/avcodec.h>
 #include <ffmpeg/avformat.h>
+}
 
 struct AVFormatContext;
 struct AVFrame; 
