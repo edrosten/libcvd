@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX build build_cpu build_vendor build_os host host_cpu host_vendor host_os have_sse have_mmxext have_sse2 have_64bit OFLAGS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB CXXCPP EGREP osx_hacks have_toon have_lapack major minor have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer have_qtbuffer have_pthread have_videodisplay have_jpeg have_tiff have_png have_ffmpeg have_memalign fast_pointers fast_force docs cpu progs testprogs LIBOBJS LTLIBOBJS debug_options debug_all_options'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX build build_cpu build_vendor build_os host host_cpu host_vendor host_os have_sse have_mmxext have_sse2 have_64bit OFLAGS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB CXXCPP EGREP osx_hacks have_toon have_lapack have_acml major minor have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer have_qtbuffer have_pthread have_videodisplay have_jpeg have_tiff have_png have_ffmpeg have_memalign fast_pointers fast_force docs cpu progs testprogs LIBOBJS LTLIBOBJS debug_options debug_all_options'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -866,6 +866,7 @@ Optional Packages:
   --without-optimize      compile without optimizations
   --with-optimize=flags   compile with optimization flags
   --with-TooN=directory   Specify location for TooN
+  --with-acml[=directory] Use BLAS and LAPACK routines from the ACML library [located in the specified directory]
   --without-firewire	  compile without firewire (dvbuffer) support
   --without-v4l1	  compile without v4l1 support
   --without-v4l2	  compile without v4l2 support
@@ -4264,7 +4265,7 @@ fi
 
 
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthreads"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthreads acml"
 dodginess_options=
 
 ################################################################################
@@ -4454,6 +4455,7 @@ fi
 # Check for BLAS and LAPACK support
 #
 lapack=no
+acml=no
 
 if test "$toon" = yes && test "$host_vendor" == apple
 then
@@ -4655,6 +4657,16 @@ echo "${ECHO_T}$f2c" >&6
 
 		#$LIBS should either havf FCLIBS or -l$f2c present
 
+		opt_acml_dir="no"
+
+# Check whether --with-acml or --without-acml was given.
+if test "${with_acml+set}" = set; then
+  withval="$with_acml"
+  opt_acml_dir=$withval
+fi;
+
+		if test x$opt_acml_dir == xno
+		then
 
 echo "$as_me:$LINENO: checking for dgemm_ in -lblas" >&5
 echo $ECHO_N "checking for dgemm_ in -lblas... $ECHO_C" >&6
@@ -4817,6 +4829,178 @@ echo "$as_me: WARNING: LAPACK is missing. Get it from www.netlib.org/lapack" >&2
 			  lapack=yes
 			fi
 		fi
+		else
+			{ echo "$as_me:$LINENO: Compiling with acml" >&5
+echo "$as_me: Compiling with acml" >&6;}
+
+			if test x$opt_acml_dir != xyes
+			then
+				LDFLAGS="$LDFLAGS -L$opt_acml_dir"
+			else
+				LDFLAGS="$LDFLAGS -L/opt/acml/gnu64/lib"
+			fi
+
+			LIBS="$LIBS -lacml_mv"
+
+
+echo "$as_me:$LINENO: checking for dgemm_ in -lacml" >&5
+echo $ECHO_N "checking for dgemm_ in -lacml... $ECHO_C" >&6
+if test "${ac_cv_lib_acml_dgemm_+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lacml  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char dgemm_ ();
+int
+main ()
+{
+dgemm_ ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_acml_dgemm_=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_acml_dgemm_=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_acml_dgemm_" >&5
+echo "${ECHO_T}$ac_cv_lib_acml_dgemm_" >&6
+if test $ac_cv_lib_acml_dgemm_ = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBACML 1
+_ACEOF
+
+  LIBS="-lacml $LIBS"
+
+fi
+
+
+echo "$as_me:$LINENO: checking for dgesvd_ in -lacml" >&5
+echo $ECHO_N "checking for dgesvd_ in -lacml... $ECHO_C" >&6
+if test "${ac_cv_lib_acml_dgesvd_+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lacml  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char dgesvd_ ();
+int
+main ()
+{
+dgesvd_ ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_acml_dgesvd_=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_acml_dgesvd_=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_acml_dgesvd_" >&5
+echo "${ECHO_T}$ac_cv_lib_acml_dgesvd_" >&6
+if test $ac_cv_lib_acml_dgesvd_ = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBACML 1
+_ACEOF
+
+  LIBS="-lacml $LIBS"
+
+fi
+
+
+			if test x$ac_cv_lib_acml_dgemm_$ac_cv_lib_acml_dgesvd_ != xyesyes
+			then
+				{ echo "$as_me:$LINENO: WARNING: ACML is missing. Get it from www.amd.com/acml" >&5
+echo "$as_me: WARNING: ACML is missing. Get it from www.amd.com/acml" >&2;};
+			else
+				options="$options acml lapack"
+				lapack=yes
+				acml=yes
+			fi
+		fi
 	fi
 
 	if test "$lapack" = no
@@ -4829,6 +5013,16 @@ echo "$as_me: WARNING: LAPACK is missing. Get it from www.netlib.org/lapack" >&2
 #define CVD_HAVE_LAPACK 1
 _ACEOF
 
+
+		if test "$acml" = yes
+		then
+			have_acml=yes
+
+			cat >>confdefs.h <<\_ACEOF
+#define CVD_HAVE_ACML 1
+_ACEOF
+
+		fi
 	fi
 fi
 
@@ -8947,6 +9141,7 @@ s,@EGREP@,$EGREP,;t t
 s,@osx_hacks@,$osx_hacks,;t t
 s,@have_toon@,$have_toon,;t t
 s,@have_lapack@,$have_lapack,;t t
+s,@have_acml@,$have_acml,;t t
 s,@major@,$major,;t t
 s,@minor@,$minor,;t t
 s,@have_dvbuffer@,$have_dvbuffer,;t t

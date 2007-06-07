@@ -377,7 +377,7 @@ will make a #define a b. AC_DEFINE_UNQUOTED is needed if b is a shell expansion
 >>)
 changequote([,])
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthreads"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthreads acml"
 dodginess_options=
 
 ################################################################################
@@ -487,6 +487,7 @@ fi
 # Check for BLAS and LAPACK support
 #
 lapack=no
+acml=no
 
 if test "$toon" = yes && test "$host_vendor" == apple
 then
@@ -555,6 +556,11 @@ then
 
 		#$LIBS should either havf FCLIBS or -l$f2c present
 
+		opt_acml_dir="no"
+		AC_ARG_WITH(acml, [  --with-acml[[=directory]] Use BLAS and LAPACK routines from the ACML library [[located in the specified directory]] ], [opt_acml_dir=$withval])
+
+		if test x$opt_acml_dir == xno
+		then
 		AC_CHECK_LIB(blas,  dgemm_)
 		if test x$ac_cv_lib_blas_dgemm_ != xyes
 		then
@@ -569,6 +575,30 @@ then
 			  lapack=yes
 			fi
 		fi
+		else
+			AC_MSG_NOTICE(Compiling with acml)
+
+			if test x$opt_acml_dir != xyes
+			then
+				LDFLAGS="$LDFLAGS -L$opt_acml_dir"
+			else
+				LDFLAGS="$LDFLAGS -L/opt/acml/gnu64/lib"
+			fi
+
+			LIBS="$LIBS -lacml_mv"
+
+			AC_CHECK_LIB(acml, dgemm_)
+			AC_CHECK_LIB(acml, dgesvd_)
+
+			if test x$ac_cv_lib_acml_dgemm_$ac_cv_lib_acml_dgesvd_ != xyesyes
+			then
+				AC_MSG_WARN(ACML is missing. Get it from www.amd.com/acml);
+			else
+				options="$options acml lapack"
+				lapack=yes
+				acml=yes
+			fi
+		fi
 	fi
 
 	if test "$lapack" = no
@@ -577,6 +607,12 @@ then
 	else
 		AC_SUBST(have_lapack,yes)
 		AC_DEFINE(CVD_HAVE_LAPACK)
+
+		if test "$acml" = yes
+		then
+			AC_SUBST(have_acml,yes)
+			AC_DEFINE(CVD_HAVE_ACML)
+		fi
 	fi
 fi
 
