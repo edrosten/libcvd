@@ -41,7 +41,7 @@ namespace CVD {
 	/// Symbols for mouse buttons and modifiers
 	enum MouseButton { BUTTON_LEFT=1, BUTTON_MIDDLE=2, BUTTON_RIGHT=4, BUTTON_MOD_CTRL=8, BUTTON_MOD_SHIFT=0x10, BUTTON_WHEEL_UP=0x20, BUTTON_WHEEL_DOWN=0x40 };
 	/// Symbols for window events
-	enum EventType { EVENT_CLOSE };
+	enum EventType { EVENT_CLOSE, EVENT_EXPOSE };
 
 	/// Abstract base class for event handlers.  Subclass this and override to implement a handler.
 	class EventHandler {

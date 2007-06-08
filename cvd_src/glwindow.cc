@@ -56,7 +56,7 @@ void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title
     XSetWindowAttributes attributes;
     attributes.border_pixel = 0;
     attributes.colormap = XCreateColormap(display, rootWindow, visualInfo->visual, AllocNone);
-    attributes.event_mask = KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
+    attributes.event_mask = KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask | ExposureMask;
 	
     Window window = XCreateWindow(display, 
 				  rootWindow, 
@@ -223,6 +223,9 @@ void CVD::GLWindow::handle_events(EventHandler& handler)
 		handler.on_resize(*this, state->size);
 	    }
 	    break;
+	case Expose:    
+		handler.on_event(*this, EVENT_EXPOSE);
+		break;
 	case ClientMessage:    
 	    if (event.xclient.data.l[0] == (int)state->delete_atom)
 		handler.on_event(*this, EVENT_CLOSE);
