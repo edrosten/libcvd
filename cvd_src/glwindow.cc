@@ -191,6 +191,7 @@ inline int convertButtonState(unsigned int state)
 void CVD::GLWindow::handle_events(EventHandler& handler)
 {
     XEvent event;
+	KeySym k;
     while (XPending(state->display)) {
 	XNextEvent(state->display, &event);
 	switch (event.type) {
@@ -206,10 +207,14 @@ void CVD::GLWindow::handle_events(EventHandler& handler)
 	    handler.on_mouse_move(*this, ImageRef(event.xmotion.x, event.xmotion.y), convertButtonState(event.xbutton.state));
 	    break;
 	case KeyPress:
-	    handler.on_key_down(*this, XLookupKeysym(&event.xkey, 0));
+		{	
+		XLookupString(&event.xkey, 0, 0, &k, 0);
+	    handler.on_key_down(*this, k);
 	    break;
+		}
 	case KeyRelease:
-	    handler.on_key_up(*this, XLookupKeysym(&event.xkey, 0));
+		XLookupString(&event.xkey, 0, 0, &k, 0);
+	    handler.on_key_up(*this, k);
 	    break;
 	    //case UnmapNotify: active = 0; break;
 	    //case MapNotify: active = 1; break;
