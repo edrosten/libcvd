@@ -156,22 +156,28 @@ then
 
 				save_CPPFLAGS="$CPPFLAGS"
 
-		
-				save_CXXFLAGS="$CXXFLAGS"
-				CXXFLAGS="$CXXFLAGS -mmmx"
-				CPPFLAGS="$CPPFLAGS -mmmx"
-				AC_CHECK_HEADERS(mmintrin.h, [], [])
-				AC_MSG_CHECKING(for MMX support)
-				AC_RUN_IFELSE([
-					#include <mmintrin.h>
-					int main()
-					{
-						__m64 a;
-						a = _mm_setzero_si64();
-						a = _m_pand(a, a);
-						return 0;
-					}], [mmx=yes], [mmx=no])
-				AC_MSG_RESULT($mmx)
+				AC_ARG_WITH(mmx, [    --with-mmx            force presence or absence of MMX  (x86 only)])	
+				if test "$with_mmx" != yes && test "$with_mmx" != no 
+				then
+					save_CXXFLAGS="$CXXFLAGS"
+					CXXFLAGS="$CXXFLAGS -mmmx"
+					CPPFLAGS="$CPPFLAGS -mmmx"
+					AC_CHECK_HEADERS(mmintrin.h, [], [])
+					AC_MSG_CHECKING(for MMX support)
+					AC_RUN_IFELSE([
+						#include <mmintrin.h>
+						int main()
+						{
+							__m64 a;
+							a = _mm_setzero_si64();
+							a = _m_pand(a, a);
+							return 0;
+						}], [mmx=yes], [mmx=no])
+					AC_MSG_RESULT($mmx)
+				else
+					mmx="$with_mmx"
+				fi
+
 				if test $mmx = no
 				then
 					CXXFLAGS="$save_CXXFLAGS"
@@ -188,18 +194,25 @@ then
 				save_CXXFLAGS="$CXXFLAGS"
 				CXXFLAGS="$CXXFLAGS -msse"
 				CPPFLAGS="$CPPFLAGS -msse"
-				AC_CHECK_HEADERS(xmmintrin.h, [], [])
-				AC_MSG_CHECKING(for MMXEXT support)
-				AC_RUN_IFELSE([
-					#include <xmmintrin.h>
-					int main()
-					{
-						__m64 a;
-						a = _mm_setzero_si64();
-						a = _m_pshufw(a, 0);
-						return 0;
-					}], [mmxext=yes], [mmxext=no])
-				AC_MSG_RESULT($mmxext)
+				AC_ARG_WITH(mmxext, [    --with-mmxext         force presence or absence of MMXEXT (x86 only) ])	
+				if test "$with_mmxext" != yes && test "$with_mmxext" != no 
+				then
+					AC_CHECK_HEADERS(xmmintrin.h, [], [])
+					AC_MSG_CHECKING(for MMXEXT support)
+					AC_RUN_IFELSE([
+						#include <xmmintrin.h>
+						int main()
+						{
+							__m64 a;
+							a = _mm_setzero_si64();
+							a = _m_pshufw(a, 0);
+							return 0;
+						}], [mmxext=yes], [mmxext=no])
+					AC_MSG_RESULT($mmxext)
+				else
+					mmxext="$with_mmxext"
+				fi
+
 				if test $mmxext = no
 				then
 					CXXFLAGS="$save_CXXFLAGS"
@@ -209,17 +222,25 @@ then
 					AC_DEFINE(CVD_HAVE_MMXEXT)
 					simd_options="$simd_options mmxext"
 				fi
-				AC_MSG_CHECKING(for SSE support)
-				AC_RUN_IFELSE([
-					#include <xmmintrin.h>
-					int main()
-					{
-						__m128 a;
-						a = _mm_setzero_ps();
-						a = _mm_add_ps(a, a);
-						return 0;
-					}], [sse=yes], [sse=no])
-				AC_MSG_RESULT($sse)
+
+				AC_ARG_WITH(sse, [    --with-sse            force presence or absence of SSE  (x86 only)])	
+				if test "$with_sse" != yes && test "$with_sse" != no 
+				then
+					AC_MSG_CHECKING(for SSE support)
+					AC_RUN_IFELSE([
+						#include <xmmintrin.h>
+						int main()
+						{
+							__m128 a;
+							a = _mm_setzero_ps();
+							a = _mm_add_ps(a, a);
+							return 0;
+						}], [sse=yes], [sse=no])
+					AC_MSG_RESULT($sse)
+				else
+					sse="$with_sse"
+				fi
+
 				if test $sse = no
 				then
 					break
@@ -234,18 +255,26 @@ then
 				save_CXXFLAGS="$CXXFLAGS"
 				CXXFLAGS="$CXXFLAGS -msse2"
 				CPPFLAGS="$CPPFLAGS -msse2"
-				AC_CHECK_HEADERS(emmintrin.h, [], [])
-				AC_MSG_CHECKING(for SSE2 support)
-				AC_RUN_IFELSE([
-					#include <emmintrin.h>
-					int main()
-					{
-						__m128d a;
-						a = _mm_setzero_pd();
-						a = _mm_add_pd(a, a);
-						return 0;
-					}], [sse2=yes], [sse2=no])
-				AC_MSG_RESULT($sse2)
+				 
+				AC_ARG_WITH(sse2, [    --with-sse2           force presence or absence of SSE2  (x86 only)])	
+				if test "$with_sse2" != yes && test "$with_sse2" != no 
+				then
+					AC_CHECK_HEADERS(emmintrin.h, [], [])
+					AC_MSG_CHECKING(for SSE2 support)
+					AC_RUN_IFELSE([
+						#include <emmintrin.h>
+						int main()
+						{
+							__m128d a;
+							a = _mm_setzero_pd();
+							a = _mm_add_pd(a, a);
+							return 0;
+						}], [sse2=yes], [sse2=no])
+					AC_MSG_RESULT($sse2)
+				else
+					sse2="$with_sse2"
+				fi
+
 				if test $sse2 = no
 				then
 					CXXFLAGS="$save_CXXFLAGS"
@@ -1187,7 +1216,7 @@ echo
 echo SIMD support:
 echo $simd_options
 echo
-echo Missing SIMD support for $host_os:
+echo Missing SIMD support for $host:
 echo $simd_possible_options $simd_options | tr ' ' '\n' |  sort | uniq -u | tr '\n' ' '; echo
 echo
 

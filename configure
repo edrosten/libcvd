@@ -863,6 +863,10 @@ Optional Packages:
   --with-debug=flags      compile with debug support
   --with-profile=flags    compile with profile support
   --without-simd          disable SIMD code
+    --with-mmx            force presence or absence of MMX  (x86 only)
+    --with-mmxext         force presence or absence of MMXEXT (x86 only)
+    --with-sse            force presence or absence of SSE  (x86 only)
+    --with-sse2           force presence or absence of SSE2  (x86 only)
   --without-optimize      compile without optimizations
   --with-optimize=flags   compile with optimization flags
   --with-TooN=directory   Specify location for TooN
@@ -3924,9 +3928,16 @@ then
 				save_CPPFLAGS="$CPPFLAGS"
 
 
-				save_CXXFLAGS="$CXXFLAGS"
-				CXXFLAGS="$CXXFLAGS -mmmx"
-				CPPFLAGS="$CPPFLAGS -mmmx"
+# Check whether --with-mmx or --without-mmx was given.
+if test "${with_mmx+set}" = set; then
+  withval="$with_mmx"
+
+fi;
+				if test "$with_mmx" != yes && test "$with_mmx" != no
+				then
+					save_CXXFLAGS="$CXXFLAGS"
+					CXXFLAGS="$CXXFLAGS -mmmx"
+					CPPFLAGS="$CPPFLAGS -mmmx"
 
 for ac_header in mmintrin.h
 do
@@ -4077,9 +4088,9 @@ fi
 
 done
 
-				echo "$as_me:$LINENO: checking for MMX support" >&5
+					echo "$as_me:$LINENO: checking for MMX support" >&5
 echo $ECHO_N "checking for MMX support... $ECHO_C" >&6
-				if test "$cross_compiling" = yes; then
+					if test "$cross_compiling" = yes; then
   { { echo "$as_me:$LINENO: error: cannot run test program while cross compiling
 See \`config.log' for more details." >&5
 echo "$as_me: error: cannot run test program while cross compiling
@@ -4088,14 +4099,14 @@ See \`config.log' for more details." >&2;}
 else
   cat >conftest.$ac_ext <<_ACEOF
 
-					#include <mmintrin.h>
-					int main()
-					{
-						__m64 a;
-						a = _mm_setzero_si64();
-						a = _m_pand(a, a);
-						return 0;
-					}
+						#include <mmintrin.h>
+						int main()
+						{
+							__m64 a;
+							a = _mm_setzero_si64();
+							a = _m_pand(a, a);
+							return 0;
+						}
 _ACEOF
 rm -f conftest$ac_exeext
 if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
@@ -4119,8 +4130,12 @@ mmx=no
 fi
 rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
 fi
-				echo "$as_me:$LINENO: result: $mmx" >&5
+					echo "$as_me:$LINENO: result: $mmx" >&5
 echo "${ECHO_T}$mmx" >&6
+				else
+					mmx="$with_mmx"
+				fi
+
 				if test $mmx = no
 				then
 					CXXFLAGS="$save_CXXFLAGS"
@@ -4140,6 +4155,14 @@ _ACEOF
 				save_CXXFLAGS="$CXXFLAGS"
 				CXXFLAGS="$CXXFLAGS -msse"
 				CPPFLAGS="$CPPFLAGS -msse"
+
+# Check whether --with-mmxext or --without-mmxext was given.
+if test "${with_mmxext+set}" = set; then
+  withval="$with_mmxext"
+
+fi;
+				if test "$with_mmxext" != yes && test "$with_mmxext" != no
+				then
 
 for ac_header in xmmintrin.h
 do
@@ -4290,9 +4313,9 @@ fi
 
 done
 
-				echo "$as_me:$LINENO: checking for MMXEXT support" >&5
+					echo "$as_me:$LINENO: checking for MMXEXT support" >&5
 echo $ECHO_N "checking for MMXEXT support... $ECHO_C" >&6
-				if test "$cross_compiling" = yes; then
+					if test "$cross_compiling" = yes; then
   { { echo "$as_me:$LINENO: error: cannot run test program while cross compiling
 See \`config.log' for more details." >&5
 echo "$as_me: error: cannot run test program while cross compiling
@@ -4301,14 +4324,14 @@ See \`config.log' for more details." >&2;}
 else
   cat >conftest.$ac_ext <<_ACEOF
 
-					#include <xmmintrin.h>
-					int main()
-					{
-						__m64 a;
-						a = _mm_setzero_si64();
-						a = _m_pshufw(a, 0);
-						return 0;
-					}
+						#include <xmmintrin.h>
+						int main()
+						{
+							__m64 a;
+							a = _mm_setzero_si64();
+							a = _m_pshufw(a, 0);
+							return 0;
+						}
 _ACEOF
 rm -f conftest$ac_exeext
 if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
@@ -4332,8 +4355,12 @@ mmxext=no
 fi
 rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
 fi
-				echo "$as_me:$LINENO: result: $mmxext" >&5
+					echo "$as_me:$LINENO: result: $mmxext" >&5
 echo "${ECHO_T}$mmxext" >&6
+				else
+					mmxext="$with_mmxext"
+				fi
+
 				if test $mmxext = no
 				then
 					CXXFLAGS="$save_CXXFLAGS"
@@ -4349,9 +4376,18 @@ _ACEOF
 
 					simd_options="$simd_options mmxext"
 				fi
-				echo "$as_me:$LINENO: checking for SSE support" >&5
+
+
+# Check whether --with-sse or --without-sse was given.
+if test "${with_sse+set}" = set; then
+  withval="$with_sse"
+
+fi;
+				if test "$with_sse" != yes && test "$with_sse" != no
+				then
+					echo "$as_me:$LINENO: checking for SSE support" >&5
 echo $ECHO_N "checking for SSE support... $ECHO_C" >&6
-				if test "$cross_compiling" = yes; then
+					if test "$cross_compiling" = yes; then
   { { echo "$as_me:$LINENO: error: cannot run test program while cross compiling
 See \`config.log' for more details." >&5
 echo "$as_me: error: cannot run test program while cross compiling
@@ -4360,14 +4396,14 @@ See \`config.log' for more details." >&2;}
 else
   cat >conftest.$ac_ext <<_ACEOF
 
-					#include <xmmintrin.h>
-					int main()
-					{
-						__m128 a;
-						a = _mm_setzero_ps();
-						a = _mm_add_ps(a, a);
-						return 0;
-					}
+						#include <xmmintrin.h>
+						int main()
+						{
+							__m128 a;
+							a = _mm_setzero_ps();
+							a = _mm_add_ps(a, a);
+							return 0;
+						}
 _ACEOF
 rm -f conftest$ac_exeext
 if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
@@ -4391,8 +4427,12 @@ sse=no
 fi
 rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
 fi
-				echo "$as_me:$LINENO: result: $sse" >&5
+					echo "$as_me:$LINENO: result: $sse" >&5
 echo "${ECHO_T}$sse" >&6
+				else
+					sse="$with_sse"
+				fi
+
 				if test $sse = no
 				then
 					break
@@ -4410,6 +4450,15 @@ _ACEOF
 				save_CXXFLAGS="$CXXFLAGS"
 				CXXFLAGS="$CXXFLAGS -msse2"
 				CPPFLAGS="$CPPFLAGS -msse2"
+
+
+# Check whether --with-sse2 or --without-sse2 was given.
+if test "${with_sse2+set}" = set; then
+  withval="$with_sse2"
+
+fi;
+				if test "$with_sse2" != yes && test "$with_sse2" != no
+				then
 
 for ac_header in emmintrin.h
 do
@@ -4560,9 +4609,9 @@ fi
 
 done
 
-				echo "$as_me:$LINENO: checking for SSE2 support" >&5
+					echo "$as_me:$LINENO: checking for SSE2 support" >&5
 echo $ECHO_N "checking for SSE2 support... $ECHO_C" >&6
-				if test "$cross_compiling" = yes; then
+					if test "$cross_compiling" = yes; then
   { { echo "$as_me:$LINENO: error: cannot run test program while cross compiling
 See \`config.log' for more details." >&5
 echo "$as_me: error: cannot run test program while cross compiling
@@ -4571,14 +4620,14 @@ See \`config.log' for more details." >&2;}
 else
   cat >conftest.$ac_ext <<_ACEOF
 
-					#include <emmintrin.h>
-					int main()
-					{
-						__m128d a;
-						a = _mm_setzero_pd();
-						a = _mm_add_pd(a, a);
-						return 0;
-					}
+						#include <emmintrin.h>
+						int main()
+						{
+							__m128d a;
+							a = _mm_setzero_pd();
+							a = _mm_add_pd(a, a);
+							return 0;
+						}
 _ACEOF
 rm -f conftest$ac_exeext
 if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
@@ -4602,8 +4651,12 @@ sse2=no
 fi
 rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
 fi
-				echo "$as_me:$LINENO: result: $sse2" >&5
+					echo "$as_me:$LINENO: result: $sse2" >&5
 echo "${ECHO_T}$sse2" >&6
+				else
+					sse2="$with_sse2"
+				fi
+
 				if test $sse2 = no
 				then
 					CXXFLAGS="$save_CXXFLAGS"
@@ -10251,7 +10304,7 @@ echo
 echo SIMD support:
 echo $simd_options
 echo
-echo Missing SIMD support for $host_os:
+echo Missing SIMD support for $host:
 echo $simd_possible_options $simd_options | tr ' ' '\n' |  sort | uniq -u | tr '\n' ' '; echo
 echo
 
