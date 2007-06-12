@@ -862,6 +862,13 @@ Optional Packages:
   --without-debug         compile without debug support
   --with-debug=flags      compile with debug support
   --with-profile=flags    compile with profile support
+  --with-cpu=type         Specify pocessor type:
+                            X86:
+                              p3 p4 p4_64 xeon pM core2 core2_64 opteron
+                              opteron_64 athlon athlon64 athlon64_64
+                            SPARC:
+                              sparc
+                          Autodetection works on Linux only.
   --without-simd          disable SIMD code
     --with-mmx            force presence or absence of MMX  (x86 only)
     --with-mmxext         force presence or absence of MMXEXT (x86 only)
@@ -3890,23 +3897,40 @@ host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
 
 #Custom host CPU detection
-case "$host" in
-	*86*linux*)
-		cpu="`awk '
-/Pentium III/						{print "p3";exit}
-/Intel\(R\) Pentium\(R\) 4/			{print "p4";exit}
-/Intel\(R\) Pentium\(R\) M/			{print "pM";exit}
-/Intel\(R\) Core\(TM\)2/			{print "core2";exit}
-/Intel\(R\) Xeon\(TM\)/				{print "xeon";exit}
-/Intel\(R\) XEON\(TM\)/				{print "xeon";exit}
-/AMD Athlon\(tm\) 64 Processor/		{print "athlon64";exit}
-/AMD Athlon\(tm\)/					{print "athlon";exit}
-/AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
-	;;
-	sparc*)
-		cpu=sparc
+echo "$as_me:$LINENO: checking CPU type" >&5
+echo $ECHO_N "checking CPU type... $ECHO_C" >&6
+
+# Check whether --with-CPu or --without-CPu was given.
+if test "${with_CPu+set}" = set; then
+  withval="$with_CPu"
+
+fi;
+if test "$with_cpu" == ""
+then
+	case "$host" in
+		*86*linux*)
+			cpu="`awk '
+	/Pentium III/						{print "p3";exit}
+	/Intel\(R\) Pentium\(R\) 4/			{print "p4";exit}
+	/Intel\(R\) Pentium\(R\) D/			{print "p4";exit}
+	/Intel\(R\) Pentium\(R\) M/			{print "pM";exit}
+	/Intel\(R\) Core\(TM\)2/			{print "core2";exit}
+	/Intel\(R\) Xeon\(TM\)/				{print "xeon";exit}
+	/Intel\(R\) XEON\(TM\)/				{print "xeon";exit}
+	/AMD Athlon\(tm\) 64 Processor/		{print "athlon64";exit}
+	/AMD Athlon\(tm\)/					{print "athlon";exit}
+	/AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
 		;;
-esac
+		sparc*)
+			cpu=sparc
+			;;
+	esac
+else
+	cpu="$with_cpu"
+fi
+
+echo "$as_me:$LINENO: result: $cpu" >&5
+echo "${ECHO_T}$cpu" >&6
 
 
 # Check whether --with-simd or --without-simd was given.

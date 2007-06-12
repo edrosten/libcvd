@@ -124,23 +124,39 @@ AC_CANONICAL_HOST
 
 
 #Custom host CPU detection
-case "$host" in
-	*86*linux*)
-		cpu="`awk '
-/Pentium III/						{print "p3";exit}
-/Intel\(R\) Pentium\(R\) 4/			{print "p4";exit}
-/Intel\(R\) Pentium\(R\) M/			{print "pM";exit}
-/Intel\(R\) Core\(TM\)2/			{print "core2";exit}
-/Intel\(R\) Xeon\(TM\)/				{print "xeon";exit}
-/Intel\(R\) XEON\(TM\)/				{print "xeon";exit}
-/AMD Athlon\(tm\) 64 Processor/		{print "athlon64";exit}
-/AMD Athlon\(tm\)/					{print "athlon";exit}
-/AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
-	;;
-	sparc*)
-		cpu=sparc
+AC_MSG_CHECKING([CPU type])
+AC_ARG_WITH(CPu, [  --with-cpu=[type]         Specify pocessor type:
+                            X86:
+                              p3 p4 p4_64 xeon pM core2 core2_64 opteron
+                              opteron_64 athlon athlon64 athlon64_64
+                            SPARC:
+                              sparc
+                          Autodetection works on Linux only.])
+if test "$with_cpu" == ""
+then 
+	case "$host" in
+		*86*linux*)
+			cpu="`awk '
+	/Pentium III/						{print "p3";exit}
+	/Intel\(R\) Pentium\(R\) 4/			{print "p4";exit}
+	/Intel\(R\) Pentium\(R\) D/			{print "p4";exit}
+	/Intel\(R\) Pentium\(R\) M/			{print "pM";exit}
+	/Intel\(R\) Core\(TM\)2/			{print "core2";exit}
+	/Intel\(R\) Xeon\(TM\)/				{print "xeon";exit}
+	/Intel\(R\) XEON\(TM\)/				{print "xeon";exit}
+	/AMD Athlon\(tm\) 64 Processor/		{print "athlon64";exit}
+	/AMD Athlon\(tm\)/					{print "athlon";exit}
+	/AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
 		;;
-esac
+		sparc*)
+			cpu=sparc
+			;;
+	esac
+else
+	cpu="$with_cpu"
+fi
+
+AC_MSG_RESULT($cpu)
 
 AC_ARG_WITH(simd, [  --without-simd          disable SIMD code])
 
