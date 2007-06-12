@@ -111,6 +111,9 @@ then
 	CXXFLAGS="$CXXFLAGS -fPIC"
 fi
 
+#Start the compiler
+AC_CHECK_HEADERS(stdio.h, [], [])
+
 ##################################################
 #
 # Cpu type detection and optimization
@@ -145,84 +148,118 @@ if test "$with_simd" != "no"
 then
 	case "$host" in
 		*86*linux*)
+			simd_possible_options="sse2 sse mmxext mmx"
+			simd_options=
 
-			#Check for SIMD instructions
-			#Currently, we're mostly interested in what AMD call mmxext
-			#(which are part of SSE). They include pshufw, movntq and prefetchnta
-			AC_MSG_CHECKING([for MMX, SSE])
-			if grep -q sse /proc/cpuinfo
-			then
-				AC_MSG_RESULT(yes)
-				AC_SUBST(have_sse,yes)
-				AC_SUBST(have_mmxext,yes)
-				AC_DEFINE(CVD_HAVE_SSE)
-				AC_DEFINE(CVD_HAVE_MMXEXT)
+			for dummyvar in 1
+			do
 
-				if test x$GXX = xyes
-				then
-					CXXFLAGS="$CXXFLAGS -mmmx -msse"
-				fi
+				save_CPPFLAGS="$CPPFLAGS"
 
-				AC_COMPILE_IFELSE([#include <mmintrin.h>
- int main(){ __m64 a,b,c; a = _m_punpckhbw(b,c); }], [a=1], [a=0])
-				if test $a = 1
-				then
-					AC_DEFINE(CVD_HAVE_MMINTRIN)
-				fi
-				AC_COMPILE_IFELSE([#include <xmmintrin.h>
- int main(){ __m128 a,b,c; a = _mm_add_ps(b,c); }], [a=1], [a=0])
-				if test $a = 1
-				then
-					AC_DEFINE(CVD_HAVE_XMMINTRIN)
-				fi
-
-			else
-				AC_MSG_RESULT(no)
-			fi
-			
-			AC_MSG_CHECKING([for MMX, MMXEXT])
-			if grep -q mmxext /proc/cpuinfo
-			then
-				AC_MSG_RESULT(yes)
-				AC_SUBST(have_mmxext,yes)
-				AC_DEFINE(CVD_HAVE_MMXEXT)
-
-				if test x$GXX = xyes
-				then
-					CXXFLAGS="$CXXFLAGS -mmmx -m3dnow"
-				fi
-				AC_COMPILE_IFELSE([#include <mmintrin.h>
- int main(){ __m64 a,b,c; a = _m_punpckhbw(b,c); }], [a=1], [a=0])
-				if test $a = 1
-				then
-					AC_DEFINE(CVD_HAVE_MMINTRIN)
-				fi
-
-			else
-				AC_MSG_RESULT(no)
-			fi
-
-			AC_MSG_CHECKING([for SSE2])
-			if grep -q sse2 /proc/cpuinfo
-			then
-				AC_MSG_RESULT(yes)
-				AC_SUBST(have_sse2,yes)
-				AC_DEFINE(CVD_HAVE_SSE2)
-
-				if test x$GXX = xyes
-				then
-					CXXFLAGS="$CXXFLAGS -msse2"
-				fi
-				AC_COMPILE_IFELSE([#include <emmintrin.h>	
- int main(){ __m128d a,b,c; a = _mm_add_pd(b,c); }], [a=1], [a=0])
-				if test $a = 1
-				then
-					AC_DEFINE(CVD_HAVE_EMMINTRIN)
-				fi
-			else
-				AC_MSG_RESULT(no)
-			fi
 		
+				save_CXXFLAGS="$CXXFLAGS"
+				CXXFLAGS="$CXXFLAGS -mmmx"
+				CPPFLAGS="$CPPFLAGS -mmmx"
+				AC_CHECK_HEADERS(mmintrin.h, [], [])
+				AC_MSG_CHECKING(for MMX support)
+				AC_RUN_IFELSE([
+					#include <mmintrin.h>
+					int main()
+					{
+						__m64 a;
+						a = _mm_setzero_si64();
+						a = _m_pand(a, a);
+						return 0;
+					}], [mmx=yes], [mmx=no])
+				AC_MSG_RESULT($mmx)
+				if test $mmx = no
+				then
+					CXXFLAGS="$save_CXXFLAGS"
+					break
+				else	
+					AC_DEFINE(CVD_HAVE_MMINTRIN)
+					simd_options="$simd_options mmx"
+				fi
+
+				
+
+				#MMXEXT is pretty muxh the intersection of SSE nad 3Dnow!
+				#and includes pshufw, movnta and prefetchnta
+				save_CXXFLAGS="$CXXFLAGS"
+				CXXFLAGS="$CXXFLAGS -msse"
+				CPPFLAGS="$CPPFLAGS -msse"
+				AC_CHECK_HEADERS(xmmintrin.h, [], [])
+				AC_MSG_CHECKING(for MMXEXT support)
+				AC_RUN_IFELSE([
+					#include <xmmintrin.h>
+					int main()
+					{
+						__m64 a;
+						a = _mm_setzero_si64();
+						a = _m_pshufw(a, 0);
+						return 0;
+					}], [mmxext=yes], [mmxext=no])
+				AC_MSG_RESULT($mmxext)
+				if test $mmxext = no
+				then
+					CXXFLAGS="$save_CXXFLAGS"
+					break
+				else	
+					AC_DEFINE(CVD_HAVE_XMMINTRIN)
+					AC_DEFINE(CVD_HAVE_MMXEXT)
+					simd_options="$simd_options mmxext"
+				fi
+				AC_MSG_CHECKING(for SSE support)
+				AC_RUN_IFELSE([
+					#include <xmmintrin.h>
+					int main()
+					{
+						__m128 a;
+						a = _mm_setzero_ps();
+						a = _mm_add_ps(a, a);
+						return 0;
+					}], [sse=yes], [sse=no])
+				AC_MSG_RESULT($sse)
+				if test $sse = no
+				then
+					break
+				else	
+					AC_DEFINE(CVD_HAVE_SSE)
+					simd_options="$simd_options sse"
+				fi
+
+
+
+
+				save_CXXFLAGS="$CXXFLAGS"
+				CXXFLAGS="$CXXFLAGS -msse2"
+				CPPFLAGS="$CPPFLAGS -msse2"
+				AC_CHECK_HEADERS(emmintrin.h, [], [])
+				AC_MSG_CHECKING(for SSE2 support)
+				AC_RUN_IFELSE([
+					#include <emmintrin.h>
+					int main()
+					{
+						__m128d a;
+						a = _mm_setzero_pd();
+						a = _mm_add_pd(a, a);
+						return 0;
+					}], [sse2=yes], [sse2=no])
+				AC_MSG_RESULT($sse2)
+				if test $sse2 = no
+				then
+					CXXFLAGS="$save_CXXFLAGS"
+					break
+				else	
+					AC_DEFINE(CVD_HAVE_SSE2)
+					AC_DEFINE(CVD_HAVE_EMMINTRIN)
+					simd_options="$simd_options sse2"
+				fi
+			done
+			
+			CPPFLAGS="$save_CPPFLAGS"
+
+
 			#Also check whether we have a 64-bit processor
 			#(since some Pentium 4s have EM64T, and some don't)
 			#At least AMD name their processors with x86_64 something different!
@@ -1136,16 +1173,23 @@ echo > .deps
 fi
 
 
+changequote(, )
 echo
 echo Options:
 echo $options
 echo
 echo Missing options for $host_os:
-changequote(, )
-echo $options $all_options $os_options |  $AWK 'BEGIN{RS=" "}{a[$1]++}END{for(i in a)if(a[i]==1)printf(i" "); print""}'
+echo $options $all_options $os_options |  tr ' ' '\n' | sort | uniq -u | tr '\n' ' '; echo
 echo 
 echo Dodgy things:
 echo $dodginess_options 
+echo
+echo SIMD support:
+echo $simd_options
+echo
+echo Missing SIMD support for $host_os:
+echo $simd_possible_options $simd_options | tr ' ' '\n' |  sort | uniq -u | tr '\n' ' '; echo
+echo
 
 changequote([,])
 
