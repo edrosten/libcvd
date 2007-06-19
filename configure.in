@@ -200,6 +200,7 @@ then
 					break
 				else	
 					AC_DEFINE(CVD_HAVE_MMINTRIN)
+					AC_SUBST(have_mmx,yes)
 					simd_options="$simd_options mmx"
 				fi
 
@@ -236,6 +237,7 @@ then
 				else	
 					AC_DEFINE(CVD_HAVE_XMMINTRIN)
 					AC_DEFINE(CVD_HAVE_MMXEXT)
+					AC_SUBST(have_mmxext,yes)
 					simd_options="$simd_options mmxext"
 				fi
 
@@ -261,6 +263,7 @@ then
 				then
 					break
 				else	
+					AC_SUBST(have_sse,yes)
 					AC_DEFINE(CVD_HAVE_SSE)
 					simd_options="$simd_options sse"
 				fi
@@ -296,6 +299,7 @@ then
 					CXXFLAGS="$save_CXXFLAGS"
 					break
 				else	
+					AC_SUBST(have_sse2,yes)
 					AC_DEFINE(CVD_HAVE_SSE2)
 					AC_DEFINE(CVD_HAVE_EMMINTRIN)
 					simd_options="$simd_options sse2"

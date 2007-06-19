@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX CXXCPP EGREP build build_cpu build_vendor build_os host host_cpu host_vendor host_os have_64bit OFLAGS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB osx_hacks have_toon have_lapack have_acml major minor have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer have_qtbuffer have_pthread have_videodisplay have_jpeg have_tiff have_png have_ffmpeg have_memalign fast_pointers fast_force docs cpu progs testprogs LIBOBJS LTLIBOBJS debug_options debug_all_options'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX CXXCPP EGREP build build_cpu build_vendor build_os host host_cpu host_vendor host_os have_mmx have_mmxext have_sse have_sse2 have_64bit OFLAGS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB osx_hacks have_toon have_lapack have_acml major minor have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer have_qtbuffer have_pthread have_videodisplay have_jpeg have_tiff have_png have_ffmpeg have_memalign fast_pointers fast_force docs cpu progs testprogs LIBOBJS LTLIBOBJS debug_options debug_all_options'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -4169,6 +4169,8 @@ echo "${ECHO_T}$mmx" >&6
 #define CVD_HAVE_MMINTRIN 1
 _ACEOF
 
+					have_mmx=yes
+
 					simd_options="$simd_options mmx"
 				fi
 
@@ -4398,6 +4400,8 @@ _ACEOF
 #define CVD_HAVE_MMXEXT 1
 _ACEOF
 
+					have_mmxext=yes
+
 					simd_options="$simd_options mmxext"
 				fi
 
@@ -4461,6 +4465,8 @@ echo "${ECHO_T}$sse" >&6
 				then
 					break
 				else
+					have_sse=yes
+
 					cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_SSE 1
 _ACEOF
@@ -4686,6 +4692,8 @@ echo "${ECHO_T}$sse2" >&6
 					CXXFLAGS="$save_CXXFLAGS"
 					break
 				else
+					have_sse2=yes
+
 					cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_SSE2 1
 _ACEOF
@@ -9988,6 +9996,10 @@ s,@host@,$host,;t t
 s,@host_cpu@,$host_cpu,;t t
 s,@host_vendor@,$host_vendor,;t t
 s,@host_os@,$host_os,;t t
+s,@have_mmx@,$have_mmx,;t t
+s,@have_mmxext@,$have_mmxext,;t t
+s,@have_sse@,$have_sse,;t t
+s,@have_sse2@,$have_sse2,;t t
 s,@have_64bit@,$have_64bit,;t t
 s,@OFLAGS@,$OFLAGS,;t t
 s,@INSTALL_PROGRAM@,$INSTALL_PROGRAM,;t t
