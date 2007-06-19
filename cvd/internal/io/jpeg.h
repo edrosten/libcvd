@@ -59,10 +59,10 @@ namespace JPEG
 
   template <class T, class S> struct JPEGReader {
     static void read(BasicImage<T>& im, jpeg_in& jpeg) {
-      std::auto_ptr<S> rowbuf(new S[jpeg.x_size()]);
+      S rowbuf[jpeg.x_size()];
       for (int r=0; r<jpeg.y_size(); r++) {
-	jpeg.get_raw_pixel_lines((byte*)rowbuf.get(), 1);
-	Pixel::ConvertPixels<S,T>::convert(rowbuf.get(), im[r], jpeg.x_size());
+	jpeg.get_raw_pixel_lines((byte*)rowbuf, 1);
+	Pixel::ConvertPixels<S,T>::convert(rowbuf, im[r], jpeg.x_size());
       }
     }
   };
