@@ -118,7 +118,9 @@ namespace V4L
     
 };
 
- 
+
+/// A live video buffer which uses the Video for Linux 2 (V4L2) API.
+/// A replacement for the (deprecated?) V4L2Buffer
 /// @ingroup gVideoBuffer
 template <class T> class V4LBuffer : public VideoBuffer<T>
 {
