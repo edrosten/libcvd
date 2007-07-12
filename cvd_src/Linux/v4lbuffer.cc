@@ -66,7 +66,7 @@ namespace V4L { // V4L
 	v4l2_buffer refbuf;
     };
 
-    V4L2Client::V4L2Client(int fd, unsigned int fmt, ImageRef size, int input, bool fields)
+  V4L2Client::V4L2Client(int fd, unsigned int fmt, ImageRef size, int input, bool fields, int frames_per_second)
     {
 	state = 0;
 
@@ -138,6 +138,25 @@ namespace V4L { // V4L
 	    if (0 != ioctl(fd, VIDIOC_QBUF, &buffer))
 		throw string("VIDIOC_QBUF");
 	}
+
+	// Do we want to manually set FPS?
+	if(frames_per_second != 0) 
+	  {
+	    v4l2_streamparm streamparams;
+	    streamparams.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	    if (0 != ioctl(fd, VIDIOC_G_PARM, &streamparams))
+	      throw string("VIDIOC_G_PARM");
+	    
+	    // Check if the device has the capability to set a frame-rate.
+	    if(streamparams.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
+	      {
+		streamparams.parm.capture.timeperframe.denominator = frames_per_second;
+		streamparams.parm.capture.timeperframe.numerator = 1;
+		if (0 != ioctl(fd, VIDIOC_S_PARM, &streamparams))
+		  throw string("VIDIOC_S_PARM");
+	      }
+	  }
+
 	if (0 != ioctl(fd, VIDIOC_STREAMON, &reqbufs.type))
 	    throw string("STREAMON");
 	state = new State;
