@@ -72,6 +72,7 @@ namespace CVD {
 
 	/// A summary of multiple events
 	struct EventSummary {
+	    EventSummary() : cursor(-1,-1) {}
 	    /// key->frequency mapping for key presses and releases
 	    std::map<int,int> key_down, key_up;
 	    typedef std::map<int,int>::const_iterator key_iterator;
@@ -100,6 +101,12 @@ namespace CVD {
 	~GLWindow();
 	/// Get the size
 	ImageRef size() const;
+	/// Set the size
+	void size(const ImageRef &);
+	/// Get the position
+	ImageRef position() const;
+	/// Set the position
+	void position(const ImageRef &);
 	/// Set the mouse cursor position
 	void set_cursor_position(const ImageRef& where);
 	/// Get the mouse cursor position
