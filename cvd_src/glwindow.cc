@@ -127,14 +127,14 @@ CVD::GLWindow::~GLWindow()
 
 ImageRef CVD::GLWindow::size() const { return state->size; }
 
-void CVD::GLWindow::size(const ImageRef & s_){
+void CVD::GLWindow::set_size(const ImageRef & s_){
     state->size = s_;
     XResizeWindow(state->display, state->window, s_.x, s_.y);
 }
 
 ImageRef CVD::GLWindow::position() const { return state->position; }
 
-void CVD::GLWindow::position(const ImageRef & p_){
+void CVD::GLWindow::set_position(const ImageRef & p_){
     state->position = p_;
     XMoveWindow(state->display, state->window, p_.x, p_.y);
 }

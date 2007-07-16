@@ -102,11 +102,11 @@ namespace CVD {
 	/// Get the size
 	ImageRef size() const;
 	/// Set the size
-	void size(const ImageRef &);
+	void set_size(const ImageRef &);
 	/// Get the position
 	ImageRef position() const;
 	/// Set the position
-	void position(const ImageRef &);
+	void set_position(const ImageRef &);
 	/// Set the mouse cursor position
 	void set_cursor_position(const ImageRef& where);
 	/// Get the mouse cursor position
