@@ -41,6 +41,7 @@ void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title
 	GLX_GREEN_SIZE,    bpp/3, 
 	GLX_BLUE_SIZE,     bpp/3, 
 	GLX_DEPTH_SIZE,    8,
+	GLX_STENCIL_SIZE, 8,
 	None
     };
     XVisualInfo* visualInfo = glXChooseVisual(display, DefaultScreen(display),visualAttributes);
