@@ -4,6 +4,7 @@
 #include <TooN/TooN.h>
 #include <cvd/internal/pixel_operations.h>
 #include <cvd/internal/rgb_components.h>
+#include <cvd/vector_image_ref.h>
 #include <math.h>
 
 namespace CVD
@@ -134,7 +135,7 @@ namespace CVD
 
 			TooN::Vector<2> max()
 			{
-				return ir(im->size());
+				return vec(im->size());
 			}
 
 			
@@ -206,7 +207,7 @@ namespace CVD
 
 			TooN::Vector<2> max()
 			{
-				return ir(im->size());
+				return vec(im->size());
 			}
 
 	};
