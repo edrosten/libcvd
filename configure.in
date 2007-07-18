@@ -1170,7 +1170,8 @@ D_PROGS='progs/se3_exp             toon
 		progs/se3_ln               toon                 
 		progs/se3_pre_mul          toon                 
 		progs/se3_post_mul         toon                 
-		progs/se3_inv              toon                 
+		progs/se3_inv              toon
+		progs/calibrate	           toon          videodisplay
 		progs/img_play             videodisplay         
 		progs/cvd_display_image    videodisplay         
 		progs/img_play_bw          videodisplay         
