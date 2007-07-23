@@ -23,6 +23,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <memory>
 extern "C"{
 #include <jpeglib.h>
@@ -59,10 +60,10 @@ namespace JPEG
 
   template <class T, class S> struct JPEGReader {
     static void read(BasicImage<T>& im, jpeg_in& jpeg) {
-      S rowbuf[jpeg.x_size()];
+      std::vector<S> rowbuf(jpeg.x_size());
       for (int r=0; r<jpeg.y_size(); r++) {
-	jpeg.get_raw_pixel_lines((byte*)rowbuf, 1);
-	Pixel::ConvertPixels<S,T>::convert(rowbuf, im[r], jpeg.x_size());
+	jpeg.get_raw_pixel_lines((byte*)rowbuf.data(), 1);
+	Pixel::ConvertPixels<S,T>::convert(rowbuf.data(), im[r], jpeg.x_size());
       }
     }
   };

@@ -502,10 +502,8 @@ template<class T> class BasicImage: public SubImage<T>
 		/// Copy constructor
 		/// @param copyof The image to copy
 		BasicImage(const BasicImage& copyof)
+		:SubImage<T>(copyof)
 		{
-		  SubImage<T>::my_size = copyof.my_size;
-		  SubImage<T>::my_data = copyof.my_data;
-		  SubImage<T>::my_stride = copyof.my_stride;
 		}
 	
 		/// The image data is not destroyed when a BasicImage is destroyed.
