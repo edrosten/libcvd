@@ -1111,42 +1111,6 @@ else
 	dodginess_options="$dodginess_options no_posix_memalign"
 fi		
 
-################################################################################
-#
-# Fast options
-
-echo
-echo ----------------------
-echo Fast feature detection
-echo ----------------------
-
-
-fast_ptr=2
-AC_ARG_WITH(TooN, [  --with-fast-pointers=N  Number of pointers for FAST detectors. Answer: 2 ], [fast_ptr=$withval])
-
-fast_force=1
-AC_ARG_WITH(TooN, [  --with-fast-force=N     Force first question position for FAST. Answer: 0,1 ], [fast_force=$withval])
-
-if test "$fast_force" != 0 && test "$fast_force" != 1
-then
-	fast_force=1
-fi
-
-if test "$fast_ptr" != 2
-then
-	fast_ptr=2
-fi
-
-AC_MSG_CHECKING([for FAST parameter "pointers"])
-AC_MSG_RESULT($fast_ptr)
-
-AC_MSG_CHECKING([for FAST parameter "force"])
-AC_MSG_RESULT($fast_force)
-
-AC_SUBST(fast_pointers, $fast_ptr)
-AC_SUBST(fast_force, $fast_force)
-
-
 
 ################################################################################
 #
