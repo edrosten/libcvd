@@ -124,7 +124,7 @@ namespace CVD
 	/// @param corners	The resulting container of locally maximal corner locations
 	/// @param barrier	Corner detection threshold
 	/// @ingroup	gVision
-	inline void fast_corner_score_9_nonmax(const BasicImage<byte>& im, std::vector<ImageRef>& max_corners, int barrier);
+	void fast_corner_detect_9_nonmax(const BasicImage<byte>& im, std::vector<ImageRef>& max_corners, int barrier);
 
 	/// Perform tree based 10 point FAST feature detection
 	/// If you use this, please cite the paper given in @ref fast_corner_detect
