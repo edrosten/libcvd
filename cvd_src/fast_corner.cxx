@@ -1,6 +1,7 @@
 #include <cvd/fast_corner.h>
 #include <cvd/nonmax_suppression.h>
 #include "cvd_src/fast/prototypes.h"
+#include "cvd/config.h"
 
 using namespace CVD;
 using namespace std;
@@ -104,19 +105,25 @@ void fast_corner_detect_9_nonmax(const BasicImage<byte>& I, std::vector<ImageRef
 	nonmax_suppression(c, s, corners);
 }
 
+#ifdef CVD_HAVE_FAST_7
 void fast_corner_detect_7(const BasicImage<byte>& I, std::vector<ImageRef>& corners, int barrier)
 {
 	fast_corner_detect_plain_7(I, corners, barrier);
 }
+#endif
 
+#ifdef CVD_HAVE_FAST_8
 void fast_corner_detect_8(const BasicImage<byte>& I, std::vector<ImageRef>& corners, int barrier)
 {
 	fast_corner_detect_plain_8(I, corners, barrier);
 }
+#endif
 
+#ifdef CVD_HAVE_FAST_11
 void fast_corner_detect_11(const BasicImage<byte>& I, std::vector<ImageRef>& corners, int barrier)
 {
 	fast_corner_detect_plain_11(I, corners, barrier);
 }
+#endif
 
 }

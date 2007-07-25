@@ -66,7 +66,9 @@ namespace CVD
     
     template <bool Aligned> inline __m128i load_si128(const void* addr) { return _mm_loadu_si128((const __m128i*)addr); }
     template <> inline __m128i load_si128<true>(const void* addr) { return _mm_load_si128((const __m128i*)addr); }
-    
+   	
+    #ifdef CVD_HAVE_FAST_12
+
     template <bool Aligned> void faster_corner_detect_12(const BasicImage<byte>& I, std::vector<ImageRef>& corners, int barrier)
     {
 	const int w = I.size().x;
@@ -130,6 +132,7 @@ namespace CVD
 	}
     }
 
+
     void fast_corner_detect_12(const BasicImage<byte>& I, std::vector<ImageRef>& corners, int barrier)
     {
 	if (I.size().x < 22) {
@@ -143,6 +146,9 @@ namespace CVD
 	else
 	    faster_corner_detect_12<false>(I, corners, barrier);
     }
+    #endif
+
+    #ifdef CVD_HAVE_FAST_10
 
     template <bool Aligned> void faster_corner_detect_10(const BasicImage<byte>& I, std::vector<ImageRef>& corners, const int barrier)
     {
@@ -311,6 +317,10 @@ namespace CVD
 	else
 	    faster_corner_detect_10<false>(I, corners, barrier);
     }
+
+    #endif
+
+    #ifdef CVD_HAVE_FAST_9
 
     template <bool Aligned> void faster_corner_detect_9(const BasicImage<byte>& I, std::vector<ImageRef>& corners, const int barrier)
     {
@@ -532,6 +542,8 @@ namespace CVD
 	else
 	    faster_corner_detect_9<false>(I, corners, barrier);
     }
+
+    #endif
 
 }
 
