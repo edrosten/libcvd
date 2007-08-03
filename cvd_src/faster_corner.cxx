@@ -154,153 +154,170 @@ namespace CVD
     {
 	const int w = I.size().x;
 	const int stride = 3*w;
-	typedef std::list<std::pair<const byte*, unsigned int> > Passed;
-	Passed passed;
  
 	// The compiler refuses to reserve a register for this
 	register const __m128i barriers = _mm_set1_epi8((byte)barrier);
 	const byte* const end = I[I.size().y - 3]-16;
 
-	for (const byte* p = I[3] + 16; p!=end; p+=16) {
-	    __m128i lo, hi;
-	    {
-		const __m128i here = load_si128<Aligned>((const __m128i*)(p));
-		lo = _mm_subs_epu8(here, barriers);
-		hi = _mm_adds_epu8(barriers, here);
-	    }
-	    unsigned int ans_b, ans_e;
-	    {
-		__m128i top = load_si128<Aligned>((const __m128i*)(p-stride));
-		__m128i bottom = load_si128<Aligned>((const __m128i*)(p+stride));
+	int xend = I.size().x - 3;
+	xend -= I.size().x % 16;
 
-		CHECK_BARRIER(lo, hi, top, ans_b);
-		CHECK_BARRIER(lo, hi, bottom, ans_e);
-		if (!(ans_b | ans_e))
-		    continue;	 
-	    }
-
-	    unsigned int ans_m, ans_p, possible;
-	    {
-		__m128i ul = _mm_loadu_si128((const __m128i*)(p-2-2*w));
-		__m128i lr = _mm_loadu_si128((const __m128i*)(p+2+2*w));
-		CHECK_BARRIER(lo, hi, ul, ans_m);
-		CHECK_BARRIER(lo, hi, lr, ans_p);
-		possible = (ans_m & ans_b) | (ans_e & ans_p);
-		if (!possible)
-		    continue;
-	    }
-
-	    unsigned int ans_o, ans_n;
-	    {
-		__m128i ll = _mm_loadu_si128((const __m128i*)(p-2+2*w));
-		__m128i ur = _mm_loadu_si128((const __m128i*)(p+2-2*w));
-		CHECK_BARRIER(lo, hi, ll, ans_o);
-		CHECK_BARRIER(lo, hi, ur, ans_n);
-		possible &= ans_o | (ans_b & ans_n);
-		possible &= ans_n | (ans_e & ans_o);
-		if (!possible)
-		    continue;
-	    }
- 
-	    unsigned int ans_h, ans_k;
-	    {
-		__m128i left = _mm_loadu_si128((const __m128i*)(p-3));
-		__m128i right = _mm_loadu_si128((const __m128i*)(p+3));
-		CHECK_BARRIER(lo, hi, left, ans_h);
-		CHECK_BARRIER(lo, hi, right, ans_k);
-		possible &= ans_h | (ans_n & ans_k & ans_p);
-		possible &= ans_k | (ans_m & ans_h & ans_o);
-		if (!possible)
-		    continue;
-	    }
+	for(int y=3; y < I.size().y - 3; y++)
+	{
+	    for(int x=3; x < 16; x++)
+	    	if(is_corner_10<Less>(&I[y][x], I.row_stride(), barrier) || is_corner_10<Greater>(&I[y][x], I.row_stride(), barrier))
+		    corners.push_back(ImageRef(x, y));
 	    
-	    unsigned int ans_a, ans_c;
+	    for(int x=16; x < xend; x++)
 	    {
-		__m128i a = _mm_loadu_si128((const __m128i*)(p-1-stride));
-		__m128i c = _mm_insert_epi16(_mm_srli_si128(a,2), *(const unsigned short*)(p+15-stride), 7);
-		//__m128i c = _mm_loadu_si128((const __m128i*)(p+1-stride));
-		CHECK_BARRIER(lo, hi, a, ans_a);
-		CHECK_BARRIER(lo, hi, c, ans_c);
-		possible &= ans_a | (ans_e & ans_p);
-		possible &= ans_c | (ans_o & ans_e);
-		if (!possible)
-		    continue;
+	    	const byte* p = &I[y][x];
+		__m128i lo, hi;
+		{
+		    const __m128i here = load_si128<Aligned>((const __m128i*)(p));
+		    lo = _mm_subs_epu8(here, barriers);
+		    hi = _mm_adds_epu8(barriers, here);
+		}
+		unsigned int ans_b, ans_e;
+		{
+		    __m128i top = load_si128<Aligned>((const __m128i*)(p-stride));
+		    __m128i bottom = load_si128<Aligned>((const __m128i*)(p+stride));
+
+		    CHECK_BARRIER(lo, hi, top, ans_b);
+		    CHECK_BARRIER(lo, hi, bottom, ans_e);
+		    if (!(ans_b | ans_e))
+			continue;	 
+		}
+
+		unsigned int ans_m, ans_p, possible;
+		{
+		    __m128i ul = _mm_loadu_si128((const __m128i*)(p-2-2*w));
+		    __m128i lr = _mm_loadu_si128((const __m128i*)(p+2+2*w));
+		    CHECK_BARRIER(lo, hi, ul, ans_m);
+		    CHECK_BARRIER(lo, hi, lr, ans_p);
+		    possible = (ans_m & ans_b) | (ans_e & ans_p);
+		    if (!possible)
+			continue;
+		}
+
+		unsigned int ans_o, ans_n;
+		{
+		    __m128i ll = _mm_loadu_si128((const __m128i*)(p-2+2*w));
+		    __m128i ur = _mm_loadu_si128((const __m128i*)(p+2-2*w));
+		    CHECK_BARRIER(lo, hi, ll, ans_o);
+		    CHECK_BARRIER(lo, hi, ur, ans_n);
+		    possible &= ans_o | (ans_b & ans_n);
+		    possible &= ans_n | (ans_e & ans_o);
+		    if (!possible)
+			continue;
+		}
+     
+		unsigned int ans_h, ans_k;
+		{
+		    __m128i left = _mm_loadu_si128((const __m128i*)(p-3));
+		    __m128i right = _mm_loadu_si128((const __m128i*)(p+3));
+		    CHECK_BARRIER(lo, hi, left, ans_h);
+		    CHECK_BARRIER(lo, hi, right, ans_k);
+		    possible &= ans_h | (ans_n & ans_k & ans_p);
+		    possible &= ans_k | (ans_m & ans_h & ans_o);
+		    if (!possible)
+			continue;
+		}
+		
+		unsigned int ans_a, ans_c;
+		{
+		    __m128i a = _mm_loadu_si128((const __m128i*)(p-1-stride));
+		    __m128i c = _mm_insert_epi16(_mm_srli_si128(a,2), *(const unsigned short*)(p+15-stride), 7);
+		    //__m128i c = _mm_loadu_si128((const __m128i*)(p+1-stride));
+		    CHECK_BARRIER(lo, hi, a, ans_a);
+		    CHECK_BARRIER(lo, hi, c, ans_c);
+		    possible &= ans_a | (ans_e & ans_p);
+		    possible &= ans_c | (ans_o & ans_e);
+		    if (!possible)
+			continue;
+		}
+
+		unsigned int ans_d, ans_f;
+		{
+		    __m128i d = _mm_loadu_si128((const __m128i*)(p-1+stride));
+		    __m128i f = _mm_insert_epi16(_mm_srli_si128(d,2), *(const unsigned short*)(p+15+stride), 7);
+		    //__m128i f = _mm_loadu_si128((const __m128i*)(p+1+stride));
+		    CHECK_BARRIER(lo, hi, d, ans_d);
+		    CHECK_BARRIER(lo, hi, f, ans_f);
+		    const unsigned int ans_abc = ans_a & ans_b & ans_c;
+		    possible &= ans_d | (ans_abc & ans_n);
+		    possible &= ans_f | (ans_m & ans_abc);
+		    if (!possible)
+			continue;
+		}
+
+		unsigned int ans_g, ans_i;
+		{
+		    __m128i g = _mm_loadu_si128((const __m128i*)(p-3-w));
+		    __m128i ii = _mm_loadu_si128((const __m128i*)(p-3+w));
+		    CHECK_BARRIER(lo, hi, g, ans_g);
+		    CHECK_BARRIER(lo, hi, ii, ans_i);
+		    possible &= ans_g | (ans_f & ans_p & ans_k);
+		    possible &= ans_i | (ans_c & ans_n & ans_k);
+		    if (!possible)
+			continue;
+		}
+
+		unsigned int ans_j, ans_l;
+		{
+		    __m128i jj = _mm_loadu_si128((const __m128i*)(p+3-w));
+		    __m128i l = _mm_loadu_si128((const __m128i*)(p+3+w));
+		    CHECK_BARRIER(lo, hi, jj, ans_j);
+		    CHECK_BARRIER(lo, hi, l, ans_l);
+		    const unsigned int ans_ghi = ans_g & ans_h & ans_i;
+		    possible &= ans_j | (ans_d & ans_o & ans_ghi);
+		    possible &= ans_l | (ans_m & ans_a & ans_ghi);
+		    if (!possible)
+			continue;
+		}
+
+		//if(possible & 0x0f) //Does this make it faster?
+		{
+		    if(possible & (1<< 0))
+			    corners.push_back(ImageRef(y, x + 0));
+		    if(possible & (1<< 1))
+			    corners.push_back(ImageRef(y, x + 1));
+		    if(possible & (1<< 2))
+			    corners.push_back(ImageRef(y, x + 2));
+		    if(possible & (1<< 3))
+			    corners.push_back(ImageRef(y, x + 3));
+		    if(possible & (1<< 4))
+			    corners.push_back(ImageRef(y, x + 4));
+		    if(possible & (1<< 5))
+			    corners.push_back(ImageRef(y, x + 5));
+		    if(possible & (1<< 6))
+			    corners.push_back(ImageRef(y, x + 6));
+		    if(possible & (1<< 7))
+			    corners.push_back(ImageRef(y, x + 7));
+		}
+		//if(possible & 0xf0) //Does this mak( ,  fast)r?
+		{
+		    if(possible & (1<< 8))
+			    corners.push_back(ImageRef(y, x + 8));
+		    if(possible & (1<< 9))
+			    corners.push_back(ImageRef(y, x + 9));
+		    if(possible & (1<<10))
+			    corners.push_back(ImageRef(y, x +10));
+		    if(possible & (1<<11))
+			    corners.push_back(ImageRef(y, x +11));
+		    if(possible & (1<<12))
+			    corners.push_back(ImageRef(y, x +12));
+		    if(possible & (1<<13))
+			    corners.push_back(ImageRef(y, x +13));
+		    if(possible & (1<<14))
+			    corners.push_back(ImageRef(y, x +14));
+		    if(possible & (1<<15))
+			    corners.push_back(ImageRef(y, x +15));
+		}
 	    }
 
-	    unsigned int ans_d, ans_f;
-	    {
-		__m128i d = _mm_loadu_si128((const __m128i*)(p-1+stride));
-		__m128i f = _mm_insert_epi16(_mm_srli_si128(d,2), *(const unsigned short*)(p+15+stride), 7);
-		//__m128i f = _mm_loadu_si128((const __m128i*)(p+1+stride));
-		CHECK_BARRIER(lo, hi, d, ans_d);
-		CHECK_BARRIER(lo, hi, f, ans_f);
-		const unsigned int ans_abc = ans_a & ans_b & ans_c;
-		possible &= ans_d | (ans_abc & ans_n);
-		possible &= ans_f | (ans_m & ans_abc);
-		if (!possible)
-		    continue;
-	    }
-
-	    unsigned int ans_g, ans_i;
-	    {
-		__m128i g = _mm_loadu_si128((const __m128i*)(p-3-w));
-		__m128i ii = _mm_loadu_si128((const __m128i*)(p-3+w));
-		CHECK_BARRIER(lo, hi, g, ans_g);
-		CHECK_BARRIER(lo, hi, ii, ans_i);
-		possible &= ans_g | (ans_f & ans_p & ans_k);
-		possible &= ans_i | (ans_c & ans_n & ans_k);
-		if (!possible)
-		    continue;
-	    }
-
-	    unsigned int ans_j, ans_l;
-	    {
-		__m128i jj = _mm_loadu_si128((const __m128i*)(p+3-w));
-		__m128i l = _mm_loadu_si128((const __m128i*)(p+3+w));
-		CHECK_BARRIER(lo, hi, jj, ans_j);
-		CHECK_BARRIER(lo, hi, l, ans_l);
-		const unsigned int ans_ghi = ans_g & ans_h & ans_i;
-		possible &= ans_j | (ans_d & ans_o & ans_ghi);
-		possible &= ans_l | (ans_m & ans_a & ans_ghi);
-		if (!possible)
-		    continue;
-	    }
-	    passed.push_back(make_pair(p,(possible | (possible>>16))&0xFFFF));
-	}
-	corners.reserve(passed.size());
-	int row = 3;
-	const byte* row_start = I[3];
-	// Check first 16
-	{
-	    for (int j=3; j<16; ++j)
-		if (is_corner_10<Less>(row_start + j, w, row_start[j]-barrier) || 
-		    is_corner_10<Greater>(row_start + j, w, row_start[j]+barrier))
-		    corners.push_back(ImageRef(j,3));
-	}
-	for (Passed::iterator it = passed.begin(); it != passed.end(); ++it) {
-	    while (it->first >= row_start + w) {
-		++row;
-		row_start += w;
-	    }
-	    int x = it->first - row_start;
-	    unsigned int bits = it->second;
-	    if (x == 0) {
-		x = 3;
-		bits >>= 3;
-	    } else if (x >= w-18)
-		bits &= 0x1FFF;
-	    for (;bits;bits>>=1, ++x) {
-		if (bits&0x1)
-		    corners.push_back(ImageRef(x,row));
-	    }
-	}
-	// Check last 16
-	{
-	    row_start = I[I.size().y-4];
-	    for (int j=w-16; j<w-3; ++j)
-		if (is_corner_10<Less>(row_start + j, w, row_start[j]-barrier) || 
-		    is_corner_10<Greater>(row_start + j, w, row_start[j]+barrier))
-		    corners.push_back(ImageRef(j,I.size().y-4));
+	    for(int x=xend; x < I.size().x - 3; x++)
+	    	if(is_corner_10<Less>(&I[y][x], I.row_stride(), barrier) || is_corner_10<Greater>(&I[y][x], I.row_stride(), barrier))
+		    corners.push_back(ImageRef(x, y));
 	}
     }
 
