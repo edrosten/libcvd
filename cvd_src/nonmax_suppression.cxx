@@ -28,7 +28,7 @@ inline void nonmax_suppression_t(const vector<ImageRef>& corners, const vector<S
 	// (the corners are output in raster scan order). A beginning of -1 signifies
 	// that there are no corners on that row.
 	int last_row = corners.back().y;
-	vector<int> row_start(last_row, -1);
+	vector<int> row_start(last_row + 1, -1);
 
 	int prev_row = -1;
 	for(unsigned int i=0; i< corners.size(); i++)
