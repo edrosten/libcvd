@@ -8,6 +8,7 @@ class Runnable
  public:
   //! Perform the function of this object.
    virtual void run()=0;
+   virtual ~Runnable(){};
 };
 
 }

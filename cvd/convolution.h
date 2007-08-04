@@ -329,7 +329,7 @@ template <class A, class B> struct GetPixelRowTyped {
 };
 
 template <class T> struct GetPixelRowTyped<T,T> {
-  static inline const T* get(const T* row, int w, T* rowbuf) {
+  static inline const T* get(const T* row, int , T* ) {
     return row;
   }
 };
@@ -380,7 +380,7 @@ template <class T, int C> struct ConvolveMiddle<T,-1, C> {
 };
 
 template <class T> struct ConvolveMiddle<T,0,1> {
-  template <class S> static inline T at(const T* input, const S& factor, const S* kernel) { return *input * factor; }
+  template <class S> static inline T at(const T* input, const S& factor, const S* ) { return *input * factor; }
 };
 
 #if 1
