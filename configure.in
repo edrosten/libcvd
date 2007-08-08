@@ -1237,7 +1237,7 @@ echo Options:
 echo $options
 echo
 echo Missing options for $host_os:
-echo $options $all_options $os_options |  tr ' ' '\n' | sort | uniq -u | tr '\n' ' '; echo
+echo $options $all_options $os_options |  tr ' ' '\n' | sort | uniq -u | xargs echo
 echo 
 echo Dodgy things:
 echo $dodginess_options 
@@ -1246,7 +1246,7 @@ echo SIMD support:
 echo $simd_options
 echo
 echo Missing SIMD support for $host:
-echo $simd_possible_options $simd_options | tr ' ' '\n' |  sort | uniq -u | tr '\n' ' '; echo
+echo $simd_possible_options $simd_options | tr ' ' '\n' |  sort | uniq -u | xargs echo
 echo
 
 changequote([,])
@@ -1256,8 +1256,7 @@ echo Programs:
 echo $progs | sed -e's!progs/!!g'
 echo 
 echo Missing programs:
-progs1="`echo "$progs" | tr ' ' '\n' `"
-echo "$progs1 $D_PROGS" |  awk '{print $1}' | sort | uniq -u | sed -e's!progs/!!'g  | tr '\n' ' '; echo
+echo "$progs $D_PROGS" | xargs -n1 echo | awk -F/ '/progs/{print $2}' |  sort  | uniq -u | xargs echo
 echo
 
 echo Debug:
