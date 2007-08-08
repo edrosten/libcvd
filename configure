@@ -3904,9 +3904,9 @@ host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 echo "$as_me:$LINENO: checking CPU type" >&5
 echo $ECHO_N "checking CPU type... $ECHO_C" >&6
 
-# Check whether --with-CPu or --without-CPu was given.
-if test "${with_CPu+set}" = set; then
-  withval="$with_CPu"
+# Check whether --with-cpu or --without-cpu was given.
+if test "${with_cpu+set}" = set; then
+  withval="$with_cpu"
 
 fi;
 if test "$with_cpu" == ""

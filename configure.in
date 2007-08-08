@@ -125,7 +125,7 @@ AC_CANONICAL_HOST
 
 #Custom host CPU detection
 AC_MSG_CHECKING([CPU type])
-AC_ARG_WITH(CPu, [  --with-cpu=[type]         Specify pocessor type:
+AC_ARG_WITH(cpu, [  --with-cpu=[type]         Specify pocessor type:
                             X86:
                               p3 p4 p4_64 xeon pM core2 core2_64 opteron
                               opteron_64 athlon athlon64 athlon64_64
