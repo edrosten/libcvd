@@ -573,9 +573,11 @@ fi
 # Check for BLAS and LAPACK support
 #
 lapack=no
+AC_ARG_WITH(lapack, [  --without-lapack        Disable BLAS and LAPACK.], [lapack=never])
+
 acml=no
 
-if test "$toon" = yes && test "$host_vendor" == apple
+if test "$toon" = yes && test "$host_vendor" == apple && test "$lapack" != never
 then
 	
 	save_LIBS="$LIBS"
@@ -1250,9 +1252,14 @@ echo
 changequote([,])
 
 echo
-echo Programs
+echo Programs:
 echo $progs | sed -e's!progs/!!g'
 echo 
+echo Missing programs:
+progs1="`echo "$progs" | tr ' ' '\n' `"
+echo "$progs1 $D_PROGS" |  awk '{print $1}' | sort | uniq -u | sed -e's!progs/!!'g  | tr '\n' ' '; echo
+echo
+
 echo Debug:
 echo CPPFLAGS="$CPPFLAGS"
 echo CXXFLAGS="$CXXFLAGS"

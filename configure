@@ -882,6 +882,7 @@ Optional Packages:
   --without-optimize      compile without optimizations
   --with-optimize=flags   compile with optimization flags
   --with-TooN=directory   Specify location for TooN
+  --without-lapack        Disable BLAS and LAPACK.
   --with-acml[=directory] Use BLAS and LAPACK routines from the ACML library [located in the specified directory]
   --without-firewire	  compile without firewire (dvbuffer) support
   --without-v4l1	  compile without v4l1 support
@@ -5399,9 +5400,16 @@ fi
 # Check for BLAS and LAPACK support
 #
 lapack=no
+
+# Check whether --with-lapack or --without-lapack was given.
+if test "${with_lapack+set}" = set; then
+  withval="$with_lapack"
+  lapack=never
+fi;
+
 acml=no
 
-if test "$toon" = yes && test "$host_vendor" == apple
+if test "$toon" = yes && test "$host_vendor" == apple && test "$lapack" != never
 then
 
 	save_LIBS="$LIBS"
@@ -10375,9 +10383,14 @@ echo
 
 
 echo
-echo Programs
+echo Programs:
 echo $progs | sed -e's!progs/!!g'
 echo
+echo Missing programs:
+progs1="`echo "$progs" | tr ' ' '\n' `"
+echo "$progs1 $D_PROGS" |  awk '{print $1}' | sort | uniq -u | sed -e's!progs/!!'g  | tr '\n' ' '; echo
+echo
+
 echo Debug:
 echo CPPFLAGS="$CPPFLAGS"
 echo CXXFLAGS="$CXXFLAGS"
