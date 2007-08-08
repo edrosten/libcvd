@@ -333,7 +333,7 @@ clean:
 	find progs/ -perm +0100 -type f | xargs rm -f
 	rm -rf html man
 distclean: clean
-	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h
+	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h .deps
 
 depend:
 	rm -f .sourcefiles
