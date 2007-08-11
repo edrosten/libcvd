@@ -1047,9 +1047,9 @@ then
 	a=
 	AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h, [], [break])
 	AC_CHECK_LIB(avutil, main)
-	AC_CHECK_LIB(avcodec, avcodec_open)
 	AC_CHECK_LIB(avformat, av_open_input_file)
 	AC_CHECK_LIB(avformat, av_read_frame) #only in >= 0.4.9
+	AC_CHECK_LIB(avcodec, avcodec_open)
 	if test "$ac_cv_lib_avcodec_avcodec_open$ac_cv_lib_avformat_av_open_input_file" = yesyes
 	then
 		if test "$ac_cv_lib_avformat_av_read_frame" = yes
