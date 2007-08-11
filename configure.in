@@ -1135,6 +1135,7 @@ if echo $fasts | grep -q 7
 then
 	AC_SUBST(have_FAST_7, yes) 
 	AC_DEFINE(CVD_HAVE_FAST_7)
+	AC_SUBST(have_fast_7)
 fi
 if echo $fasts | grep -q 8 
 then

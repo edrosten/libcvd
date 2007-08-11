@@ -117,22 +117,27 @@ ifeq (@have_FAST_7@,yes)
 	CVD_OBJS+=cvd_src/fast/fast_7_detect.o                    \
 			  cvd_src/fast/fast_7_score.o                     
 endif
+
 ifeq (@have_FAST_8@,yes)
 	CVD_OBJS+=cvd_src/fast/fast_8_detect.o                    \
 			  cvd_src/fast/fast_8_score.o                     
 endif
+
 ifeq (@have_FAST_9@,yes)
 	CVD_OBJS+=cvd_src/fast/fast_9_detect.o                    \
 			  cvd_src/fast/fast_9_score.o                     
 endif
+
 ifeq (@have_FAST_10@,yes)
 	CVD_OBJS+=cvd_src/fast/fast_10_detect.o                    \
 			  cvd_src/fast/fast_10_score.o                     
 endif
+
 ifeq (@have_FAST_11@,yes)
 	CVD_OBJS+=cvd_src/fast/fast_11_detect.o                    \
 			  cvd_src/fast/fast_11_score.o                     
 endif
+
 ifeq (@have_FAST_12@,yes)
 	CVD_OBJS+=cvd_src/fast/fast_12_detect.o                    \
 			  cvd_src/fast/fast_12_score.o                     
@@ -247,11 +252,25 @@ else
 endif
 
 
-ifeq (@have_sse2@,yes)
-	CVD_OBJS+=cvd_src/faster_corner.o
+ifeq (@have_sse2@@have_FAST_9@,yesyes)
+	CVD_OBJS+=cvd_src/faster_corner_9.o
 else
-	CVD_OBJS+=cvd_src/slower_corner.o
+	CVD_OBJS+=cvd_src/slower_orner_9.o
 endif
+	
+
+ifeq (@have_sse2@@have_FAST_10@,yesyes)
+	CVD_OBJS+=cvd_src/faster_corner_10.o
+else
+	CVD_OBJS+=cvd_src/slower_orner_10.o
+endif
+
+ifeq (@have_sse2@@have_FAST_12@,yesyes)
+	CVD_OBJS+=cvd_src/faster_corner_12.o
+else
+	CVD_OBJS+=cvd_src/slower_orner_12.o
+endif
+
 
 
 ################################################################################
