@@ -84,7 +84,7 @@ inline void nonmax_suppression_t(const vector<ImageRef>& corners, const vector<S
 		}
 			
 		//Check below (if there is anything below)
-		if(pos.y != last_row-1 && row_start[pos.y + 1] != -1 && point_below < sz) //Nothing below
+		if(pos.y != last_row && row_start[pos.y + 1] != -1 && point_below < sz) //Nothing below
 		{
 			if(corners[point_below].y < pos.y + 1)
 				point_below = row_start[pos.y+1];
