@@ -62,8 +62,8 @@ namespace JPEG
     static void read(BasicImage<T>& im, jpeg_in& jpeg) {
       std::vector<S> rowbuf(jpeg.x_size());
       for (int r=0; r<jpeg.y_size(); r++) {
-	jpeg.get_raw_pixel_lines((byte*)rowbuf.data(), 1);
-	Pixel::ConvertPixels<S,T>::convert(rowbuf.data(), im[r], jpeg.x_size());
+	jpeg.get_raw_pixel_lines((byte*)&rowbuf[0], 1);
+	Pixel::ConvertPixels<S,T>::convert(&rowbuf[0], im[r], jpeg.x_size());
       }
     }
   };
