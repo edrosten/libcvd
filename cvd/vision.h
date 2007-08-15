@@ -490,6 +490,9 @@ template <class T> void flipVertical( Image<T> & in )
 }
 
 
+//template<class T>
+
+
 }; // namespace CVD
 
 #endif // CVD_VISION_H_
