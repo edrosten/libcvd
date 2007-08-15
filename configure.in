@@ -186,7 +186,7 @@ then
 						{
 							__m64 a;
 							a = _mm_setzero_si64();
-							a = _m_pand(a, a);
+							a = _mm_and_si64(a, a);
 							return 0;
 						}], [mmx=yes], [mmx=no])
 					AC_MSG_RESULT($mmx)
@@ -222,7 +222,7 @@ then
 						{
 							__m64 a;
 							a = _mm_setzero_si64();
-							a = _m_pshufw(a, 0);
+							a = _mm_shuffle_pi16(a, 0);
 							return 0;
 						}], [mmxext=yes], [mmxext=no])
 					AC_MSG_RESULT($mmxext)
