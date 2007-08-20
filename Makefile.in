@@ -255,20 +255,20 @@ endif
 ifeq (@have_sse2@@have_FAST_9@,yesyes)
 	CVD_OBJS+=cvd_src/faster_corner_9.o
 else
-	CVD_OBJS+=cvd_src/slower_orner_9.o
+	CVD_OBJS+=cvd_src/slower_corner_9.o
 endif
 	
 
 ifeq (@have_sse2@@have_FAST_10@,yesyes)
 	CVD_OBJS+=cvd_src/faster_corner_10.o
 else
-	CVD_OBJS+=cvd_src/slower_orner_10.o
+	CVD_OBJS+=cvd_src/slower_corner_10.o
 endif
 
 ifeq (@have_sse2@@have_FAST_12@,yesyes)
 	CVD_OBJS+=cvd_src/faster_corner_12.o
 else
-	CVD_OBJS+=cvd_src/slower_orner_12.o
+	CVD_OBJS+=cvd_src/slower_corner_12.o
 endif
 
 
