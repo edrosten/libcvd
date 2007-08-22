@@ -1,5 +1,6 @@
-template <class C> inline bool is_corner_12(const byte* p, const int w, const int t) {
+template <class C> inline bool is_corner_12(const byte* p, const int w, const int barrier) {
     const int w3 = 3*w;
+    const int t = C::prep_t(*p, barrier);
     if (!C::eval(p[-w3],t)) { // -???????????????
         if (!C::eval(p[-3],t)) { // -???????????-???
             return false;

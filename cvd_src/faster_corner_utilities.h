@@ -6,9 +6,29 @@
 namespace CVD
 {
 
-    struct Less { template <class T1, class T2> static bool eval(const T1 a, const T2 b) { return a < b; }};
-    struct Greater { template <class T1, class T2> static bool eval(const T1 a, const T2 b) { return b < a; }};
-
+  struct Less 
+  { 
+    template <class T1, class T2> static bool eval(const T1 a, const T2 b) 
+    {
+	return a < b; 
+    }
+    static int prep_t(int pixel_val, int barrier)
+    {
+      return pixel_val - barrier;
+    }
+  };
+  struct Greater 
+  {
+    template <class T1, class T2> static bool eval(const T1 a, const T2 b) 
+    {
+      return a > b; 
+    }
+    static int prep_t(int pixel_val, int barrier)
+    {
+      return pixel_val + barrier;
+    }
+  };
+  
 #define CHECK_BARRIER(lo, hi, other, flags)				\
     {									\
 	__m128i diff = _mm_subs_epu8(lo, other);			\
