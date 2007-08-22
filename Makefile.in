@@ -252,20 +252,20 @@ else
 endif
 
 
-ifeq (@have_sse2@@have_FAST_9@,yesyes)
+ifeq (@have_faster@@have_sse2@@have_FAST_9@,yesyesyes)
 	CVD_OBJS+=cvd_src/faster_corner_9.o
 else
 	CVD_OBJS+=cvd_src/slower_corner_9.o
 endif
 	
 
-ifeq (@have_sse2@@have_FAST_10@,yesyes)
+ifeq (@have_faster@@have_sse2@@have_FAST_10@,yesyesyes)
 	CVD_OBJS+=cvd_src/faster_corner_10.o
 else
 	CVD_OBJS+=cvd_src/slower_corner_10.o
 endif
 
-ifeq (@have_sse2@@have_FAST_12@,yesyes)
+ifeq (@have_faster@@have_sse2@@have_FAST_12@,yesyesyes)
 	CVD_OBJS+=cvd_src/faster_corner_12.o
 else
 	CVD_OBJS+=cvd_src/slower_corner_12.o

@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX CXXCPP EGREP build build_cpu build_vendor build_os host host_cpu host_vendor host_os have_mmx have_mmxext have_sse have_sse2 have_64bit OFLAGS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB osx_hacks have_toon have_lapack have_acml major minor have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer have_qtbuffer have_pthread have_videodisplay have_jpeg have_tiff have_png have_ffmpeg have_memalign have_FAST_7 have_fast_7 have_FAST_8 have_FAST_9 have_FAST_10 have_FAST_11 have_FAST_12 docs cpu progs testprogs LIBOBJS LTLIBOBJS debug_options debug_all_options'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX CXXCPP EGREP build build_cpu build_vendor build_os host host_cpu host_vendor host_os have_mmx have_mmxext have_sse have_sse2 have_64bit OFLAGS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB osx_hacks have_toon have_lapack have_acml major minor have_dvbuffer have_v4l1buffer have_v4l2buffer have_o2buffer have_qtbuffer have_pthread have_videodisplay have_jpeg have_tiff have_png have_ffmpeg have_memalign have_faster have_FAST_7 have_fast_7 have_FAST_8 have_FAST_9 have_FAST_10 have_FAST_11 have_FAST_12 docs cpu progs testprogs LIBOBJS LTLIBOBJS debug_options debug_all_options'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -859,6 +859,7 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-sse-fast             Enable currently broken SSE FAST detectors
   --enable-missingfast=7,8,...  compile without certain FAST detectors.
 
 Optional Packages:
@@ -9219,6 +9220,18 @@ echo --------------------------------
 
 echo "$as_me:$LINENO: checking \"FAST detectors\"" >&5
 echo $ECHO_N "checking \"FAST detectors\"... $ECHO_C" >&6
+# Check whether --enable-ssefast     or --disable-ssefast     was given.
+if test "${enable_ssefast    +set}" = set; then
+  enableval="$enable_ssefast    "
+
+fi;
+
+
+if test "$ssefast" = yes
+then
+	have_faster=yes
+
+fi
 
 allfasts="7 8 9 10 11 12"
 # Check whether --enable-missingfast or --disable-missingfast was given.
@@ -10059,6 +10072,7 @@ s,@have_tiff@,$have_tiff,;t t
 s,@have_png@,$have_png,;t t
 s,@have_ffmpeg@,$have_ffmpeg,;t t
 s,@have_memalign@,$have_memalign,;t t
+s,@have_faster@,$have_faster,;t t
 s,@have_FAST_7@,$have_FAST_7,;t t
 s,@have_fast_7@,$have_fast_7,;t t
 s,@have_FAST_8@,$have_FAST_8,;t t
