@@ -40,6 +40,8 @@
 #include <TooN/TooN.h>
 #include <cvd/se3.h>
 #include <cvd/so3.h>
+#include <cvd/se2.h>
+#include <cvd/so2.h>
 #endif
 
 namespace CVD
@@ -249,6 +251,23 @@ namespace CVD
 		glMultMatrix( se3.get_rotation());
 	}
 
+	/// multiplies a SO2 onto the current matrix stack
+	/// @param so2 the SO2
+	/// @ingroup gGL
+	inline void glMultMatrix( const CVD::SO2 & so2 )
+	{
+		glMultMatrix( so2.get_matrix());
+	}
+
+	/// multiplies a SE2 onto the current matrix stack. This multiplies
+	/// the SO2 and the translation in order.
+	/// @param se3 the SE2
+	/// @ingroup gGL
+	inline void glMultMatrix( const CVD::SE2 & se2 )
+	{
+		glTranslate( se2.get_translation());
+		glMultMatrix( se2.get_rotation());
+	}
 
 	/// Sets up an ortho projection suitable for drawing onto individual pixels of a
 	/// gl window (or video image.) glVertex2f(0.0,0.0) will be the top left pixel and
