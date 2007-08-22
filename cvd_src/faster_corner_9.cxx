@@ -33,7 +33,7 @@ namespace CVD
 	    	if(is_corner_9<Less>(&I[y][x], I.row_stride(), barrier) || is_corner_9<Greater>(&I[y][x], I.row_stride(), barrier))
 		    corners.push_back(ImageRef(x, y));
 	    
-	    for(int x=16; x < xend; x++)
+	    for(int x=16; x < xend; x+=16)
 	    {
 	    	const byte* p = &I[y][x];
 		__m128i lo, hi;
@@ -197,40 +197,40 @@ namespace CVD
 		//if(possible & 0x0f) //Does this make it faster?
 		{
 		    if(possible & (1<< 0))
-			    corners.push_back(ImageRef(y, x + 0));
+		      corners.push_back(ImageRef(x + 0, y));
 		    if(possible & (1<< 1))
-			    corners.push_back(ImageRef(y, x + 1));
+		      corners.push_back(ImageRef(x + 1, y));
 		    if(possible & (1<< 2))
-			    corners.push_back(ImageRef(y, x + 2));
+		      corners.push_back(ImageRef(x + 2, y));
 		    if(possible & (1<< 3))
-			    corners.push_back(ImageRef(y, x + 3));
+		      corners.push_back(ImageRef(x + 3, y));
 		    if(possible & (1<< 4))
-			    corners.push_back(ImageRef(y, x + 4));
+		      corners.push_back(ImageRef(x + 4, y));
 		    if(possible & (1<< 5))
-			    corners.push_back(ImageRef(y, x + 5));
+		      corners.push_back(ImageRef(x + 5, y));
 		    if(possible & (1<< 6))
-			    corners.push_back(ImageRef(y, x + 6));
+		      corners.push_back(ImageRef(x + 6, y));
 		    if(possible & (1<< 7))
-			    corners.push_back(ImageRef(y, x + 7));
+		      corners.push_back(ImageRef(x + 7, y));
 		}
 		//if(possible & 0xf0) //Does this mak( ,  fast)r?
 		{
 		    if(possible & (1<< 8))
-			    corners.push_back(ImageRef(y, x + 8));
+		      corners.push_back(ImageRef(x + 8, y));
 		    if(possible & (1<< 9))
-			    corners.push_back(ImageRef(y, x + 9));
+		      corners.push_back(ImageRef(x + 9, y));
 		    if(possible & (1<<10))
-			    corners.push_back(ImageRef(y, x +10));
+		      corners.push_back(ImageRef(x +10, y));
 		    if(possible & (1<<11))
-			    corners.push_back(ImageRef(y, x +11));
+		      corners.push_back(ImageRef(x +11, y));
 		    if(possible & (1<<12))
-			    corners.push_back(ImageRef(y, x +12));
+		      corners.push_back(ImageRef(x +12, y));
 		    if(possible & (1<<13))
-			    corners.push_back(ImageRef(y, x +13));
+		      corners.push_back(ImageRef(x +13, y));
 		    if(possible & (1<<14))
-			    corners.push_back(ImageRef(y, x +14));
+		      corners.push_back(ImageRef(x +14, y));
 		    if(possible & (1<<15))
-			    corners.push_back(ImageRef(y, x +15));
+		      corners.push_back(ImageRef(x +15, y));
 		}
 	    }
 
