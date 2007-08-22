@@ -1122,15 +1122,16 @@ echo --------------------------------
 echo Checking for extra build options
 echo --------------------------------
 
-AC_MSG_CHECKING("FAST detectors")
-AC_ARG_ENABLE(ssefast    , [  --enable-sse-fast             Enable currently broken SSE FAST detectors  ])
+AC_ARG_ENABLE(ssefast, [  --enable-ssefast        Enable currently broken SSE FAST detectors])
 
+echo $enable_ssefast
 
-if test "$ssefast" = yes
+if test "$enable_ssefast" = yes
 then
 	AC_SUBST(have_faster,yes)
 fi
 
+AC_MSG_CHECKING("FAST detectors")
 allfasts="7 8 9 10 11 12"
 AC_ARG_ENABLE(missingfast, [  --enable-missingfast=7,8,...  compile without certain FAST detectors.     ])
 wfasts="`echo $enable_missingfast | sed -e's/,/ /g'`"

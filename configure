@@ -859,7 +859,7 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-sse-fast             Enable currently broken SSE FAST detectors
+  --enable-ssefast        Enable currently broken SSE FAST detectors
   --enable-missingfast=7,8,...  compile without certain FAST detectors.
 
 Optional Packages:
@@ -9218,21 +9218,22 @@ echo --------------------------------
 echo Checking for extra build options
 echo --------------------------------
 
-echo "$as_me:$LINENO: checking \"FAST detectors\"" >&5
-echo $ECHO_N "checking \"FAST detectors\"... $ECHO_C" >&6
-# Check whether --enable-ssefast     or --disable-ssefast     was given.
-if test "${enable_ssefast    +set}" = set; then
-  enableval="$enable_ssefast    "
+# Check whether --enable-ssefast or --disable-ssefast was given.
+if test "${enable_ssefast+set}" = set; then
+  enableval="$enable_ssefast"
 
 fi;
 
+echo $enable_ssefast
 
-if test "$ssefast" = yes
+if test "$enable_ssefast" = yes
 then
 	have_faster=yes
 
 fi
 
+echo "$as_me:$LINENO: checking \"FAST detectors\"" >&5
+echo $ECHO_N "checking \"FAST detectors\"... $ECHO_C" >&6
 allfasts="7 8 9 10 11 12"
 # Check whether --enable-missingfast or --disable-missingfast was given.
 if test "${enable_missingfast+set}" = set; then
