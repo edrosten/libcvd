@@ -138,6 +138,7 @@ namespace CVD
 			continue;
 		}
 
+		possible |= (possible >> 16);
 		//if(possible & 0x0f) //Does this make it faster?
 		{
 		    if(possible & (1<< 0))
