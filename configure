@@ -9224,12 +9224,24 @@ if test "${enable_ssefast+set}" = set; then
 
 fi;
 
-echo $enable_ssefast
-
 if test "$enable_ssefast" = yes
 then
+	if test "$sse2" = no
+	then
+		{ echo "$as_me:$LINENO: WARNING: \"SSE2 is disabled. The FAST test program will be useless.\"" >&5
+echo "$as_me: WARNING: \"SSE2 is disabled. The FAST test program will be useless.\"" >&2;}
+	fi
+
+	echo
+	echo -------------------------------------------------------------------
+	echo Run ldd on fast_test to make sure it\'s linked to the right library!
+	echo -------------------------------------------------------------------
+	echo
+
 	have_faster=yes
 
+
+	hidden_options="$hidden_options faster_test";
 fi
 
 echo "$as_me:$LINENO: checking \"FAST detectors\"" >&5
@@ -9370,19 +9382,20 @@ progs=$progs
 echo $options $D_PROGS > foo
 
 T_PROGS='
-test/diskbuffer2					videodisplay
-test/dvbuffer_mono  				videodisplay dvbuffer
+test/fast_test					videodisplay faster_test sse2
+test/diskbuffer2				videodisplay
+test/dvbuffer_mono  			videodisplay dvbuffer
 test/dvbuffer_yuvrgb  			videodisplay dvbuffer
 test/test_images
 test/v4l1buffer_mono  			videodisplay v4l1buffer
 test/v4l2buffer					videodisplay v4l2buffer
 test/dvbuffer_controls 			videodisplay dvbuffer
-test/dvbuffer_rgb   				videodisplay dvbuffer
+test/dvbuffer_rgb   			videodisplay dvbuffer
 test/o2buffer        			videodisplay o2buffer
 test/v4l1buffer_bayer 			videodisplay v4l1buffer
 test/v4l1buffer_rgb  			videodisplay v4l1buffer
 test/qtbuffer_yuvrgb            videodisplay qtbuffer '
-testprogs="`echo $options $T_PROGS | $AWK -v stub=test -f make/prog_dependencies.awk`"
+testprogs="`echo $simd_options $hidden_options $options $T_PROGS | $AWK -v stub=test -f make/prog_dependencies.awk`"
 testprogs=$testprogs
 
 

@@ -328,6 +328,10 @@ progs: $(PROGS)
 @docs@:
 	doxygen Doxyfile
 
+test-fast:test/fast_test
+	test/fast_test test/fast_test_image/noise.pgm
+
+
 #If the mandir is older than the lib, then remake. A bit of a hack
 man: libcvd.a
 	doxygen Doxyfile
