@@ -18,10 +18,10 @@ namespace CVD
 	    const int BIT = 1<<I;
 	    if (three & BIT) {
 		if (three & (BIT << 16)) {
-		    if (is_corner_12<Greater>(p, w, *p+barrier)) 
+		    if (is_corner_12<Greater>(p, w, barrier)) 
 			corners.push_back(p);
 		} else {
-		    if (is_corner_12<Less>(p, w, *p-barrier))
+		    if (is_corner_12<Less>(p, w, barrier))
 			corners.push_back(p);
 		}
 	    }
