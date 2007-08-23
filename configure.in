@@ -1122,9 +1122,21 @@ echo --------------------------------
 echo Checking for extra build options
 echo --------------------------------
 
-AC_ARG_ENABLE(ssefast, [  --enable-ssefast        Enable currently broken SSE FAST detectors])
+AC_ARG_ENABLE(ssefast12, [  --enable-ssefast12      Enable currently broken SSE FAST-12 detector])
+AC_ARG_ENABLE(ssefast9,  [  --disable-ssefast9      Disable the probably OK SSE FAST-9 detector])
+AC_ARG_ENABLE(ssefast10, [  --disable-ssefast10     Disable the probably OK SSE FAST-10 detector])
 
-if test "$enable_ssefast" = yes
+if test "$enable_ssefast9"  != "no"
+then
+	AC_SUBST(have_faster9, yes)
+fi
+
+if test "$enable_ssefast10"  != "no"
+then
+	AC_SUBST(have_faster10, yes)
+fi
+
+if test "$enable_ssefast12" = yes
 then
 	if test "$sse2" = no
 	then
@@ -1137,7 +1149,7 @@ then
 	echo -------------------------------------------------------------------
 	echo 
 
-	AC_SUBST(have_faster,yes)
+	AC_SUBST(have_faster12,yes)
 
 	hidden_options="$hidden_options faster_test";
 fi
