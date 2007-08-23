@@ -23,7 +23,7 @@ namespace CVD
 	const byte* const end = I[I.size().y - 3]-16;
 
 	int xend = I.size().x - 3;
-	xend -= I.size().x % 16;
+	xend -= (I.size().x-3) % 16;
 
 	for(int y=3; y < I.size().y - 3; y++)
 	{

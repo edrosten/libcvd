@@ -27,7 +27,12 @@ template<class A, class B> void test(const Image<byte>& i, A funcf, B funcp)
 	funcp(i, normal, 1);
 	funcf(i, faster, 1);
 
-	cout << normal.size() << " " << faster.size() << endl;
+	cout << normal.size() << " " << faster.size() << " ";
+
+	if(normal.size() == faster.size())
+		cout << "ok." << endl;
+	else
+		cout << "\x1b[31m BROKEN!\x1b[0m\n";
 
 
 	sort(normal.begin(), normal.end());
