@@ -93,6 +93,43 @@ namespace CVD
 		    }
 		}
 	    }
+	    
+	    //Do the edge of the row, using the old-fasioned 4 point test
+	    for(int j=(w/16) * 16; j < w-3; j++, p++)
+	    {
+	    	int cb = *p + barrier;
+	    	int c_b = *p - barrier;
+		int num_above= (p[stride] > cb) + (p[-stride] > cb);
+		int num_below= (p[stride] < c_b) + (p[-stride] < c_b);
+
+		if(!num_above && !num_below)
+		    continue;
+
+		//Look left
+		num_above+= p[-3] > cb;
+		num_below+= p[-3] < c_b;
+
+		if(num_above & 2) //num_above is 2 or 3
+		{
+		    if(!(num_above & 1)) //num_above is 2
+			num_above += p[3] > cb; 
+		    
+
+		    //Only do a complete check if num_above is 3
+		    if((num_above&1) && is_corner_12<Greater>(p, w, barrier))
+		    	passed.push_back(p);
+		}
+		else if(num_below & 2)
+		{
+		    if(!(num_below & 1))
+			num_below += p[3] < c_b; 
+		    
+
+		    if((num_below&1) && is_corner_12<Less>(p, w, barrier))
+		    	passed.push_back(p);
+		}
+	    }
+
 	    passed.push_back(0);
 	}
 	corners.reserve(passed.size());

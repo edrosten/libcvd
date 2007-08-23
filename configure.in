@@ -1122,9 +1122,9 @@ echo --------------------------------
 echo Checking for extra build options
 echo --------------------------------
 
-AC_ARG_ENABLE(ssefast12, [  --enable-ssefast12      Enable currently broken SSE FAST-12 detector])
 AC_ARG_ENABLE(ssefast9,  [  --disable-ssefast9      Disable the probably OK SSE FAST-9 detector])
 AC_ARG_ENABLE(ssefast10, [  --disable-ssefast10     Disable the probably OK SSE FAST-10 detector])
+AC_ARG_ENABLE(ssefast12, [  --disable-ssefast12     Disable the probably OK SSE FAST-12 detector])
 
 if test "$enable_ssefast9"  != "no"
 then
@@ -1136,21 +1136,13 @@ then
 	AC_SUBST(have_faster10, yes)
 fi
 
-if test "$enable_ssefast12" = yes
+if test "$enable_ssefast12"  != "no"
 then
-	if test "$sse2" = no
-	then
-		AC_MSG_WARN("SSE2 is disabled. The FAST test program will be useless.")
-	fi
+	AC_SUBST(have_faster12, yes)
+fi
 
-	echo
-	echo -------------------------------------------------------------------
-	echo Run ldd on fast_test to make sure it\'s linked to the right library!
-	echo -------------------------------------------------------------------
-	echo 
-
-	AC_SUBST(have_faster12,yes)
-
+if test "$enable_ssefast12$enable_ssefast10$enable_ssefast9" != "nonono" && test
+then
 	hidden_options="$hidden_options faster_test";
 fi
 
