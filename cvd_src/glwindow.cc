@@ -69,6 +69,10 @@ void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title
 				  CWBorderPixel | CWColormap | CWEventMask,
 				  &attributes);
     XStoreName(display, window, title.c_str());
+    XClassHint classHint;
+    classHint.res_class = "cvd";
+    classHint.res_name = (char *)title.c_str();
+    XSetClassHint(display, window, &classHint);
     XMapWindow(display, window);
     XEvent ev;
     do { 	
