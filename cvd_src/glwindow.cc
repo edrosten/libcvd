@@ -16,7 +16,7 @@ CVD::Exceptions::GLWindow::RuntimeError::RuntimeError(std::string w)
 {
     what="GLWindow error: " + w;
 }
-    
+
 struct GLWindow::State {
     ImageRef size;
     ImageRef position;
@@ -27,7 +27,7 @@ struct GLWindow::State {
     Cursor null_cursor;
     GLXContext context;
 };
-    
+
 void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title)
 {
     Display* display = XOpenDisplay(0);
@@ -37,9 +37,9 @@ void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title
     int visualAttributes[] = {
 	GLX_RGBA,
 	GLX_DOUBLEBUFFER,
-	GLX_RED_SIZE,      bpp/3, 
-	GLX_GREEN_SIZE,    bpp/3, 
-	GLX_BLUE_SIZE,     bpp/3, 
+	GLX_RED_SIZE,      bpp/3,
+	GLX_GREEN_SIZE,    bpp/3,
+	GLX_BLUE_SIZE,     bpp/3,
 	GLX_DEPTH_SIZE,    8,
 	GLX_STENCIL_SIZE, 8,
 	None
@@ -52,20 +52,20 @@ void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title
 
     Window rootWindow = RootWindow(display, visualInfo->screen);
     XWindowAttributes windowAttributes;
-	
+
     XGetWindowAttributes(display, rootWindow, &windowAttributes);
 
     XSetWindowAttributes attributes;
     attributes.border_pixel = 0;
     attributes.colormap = XCreateColormap(display, rootWindow, visualInfo->visual, AllocNone);
     attributes.event_mask = KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask | ExposureMask;
-	
-    Window window = XCreateWindow(display, 
-				  rootWindow, 
-				  0, 0, size.x, size.y, 
-				  0, visualInfo->depth, 
-				  InputOutput, 
-				  visualInfo->visual, 
+
+    Window window = XCreateWindow(display,
+				  rootWindow,
+				  0, 0, size.x, size.y,
+				  0, visualInfo->depth,
+				  InputOutput,
+				  visualInfo->visual,
 				  CWBorderPixel | CWColormap | CWEventMask,
 				  &attributes);
     XStoreName(display, window, title.c_str());
@@ -75,10 +75,10 @@ void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title
     XSetClassHint(display, window, &classHint);
     XMapWindow(display, window);
     XEvent ev;
-    do { 	
+    do {
         XNextEvent(display,&ev);
     } while (ev.type != MapNotify);
-   
+
     Atom delete_atom = XInternAtom(display, "WM_DELETE_WINDOW", True);
     XSetWMProtocols(display, window, &delete_atom, 1);
 
@@ -123,7 +123,7 @@ CVD::GLWindow::~GLWindow()
 {
     glXMakeCurrent(state->display, None, 0);
     glXDestroyContext(state->display, state->context);
-    
+
     XUnmapWindow(state->display, state->window);
     XDestroyWindow(state->display, state->window);
     XCloseDisplay(state->display);
@@ -149,10 +149,10 @@ void CVD::GLWindow::set_cursor_position(const ImageRef& where)
     XWarpPointer(state->display, None, state->window, 0, 0, 0, 0, where.x, where.y);
 }
 
-ImageRef CVD::GLWindow::cursor_position() const 
+ImageRef CVD::GLWindow::cursor_position() const
 {
     Window wtmp;
-    int itmp; 
+    int itmp;
     unsigned int utmp;
     ImageRef where;
     XQueryPointer(state->display, state->window, &wtmp, &wtmp, &itmp, &itmp, &where.x, &where.y, &utmp);
@@ -214,18 +214,18 @@ void CVD::GLWindow::handle_events(EventHandler& handler)
 	XNextEvent(state->display, &event);
 	switch (event.type) {
 	case ButtonPress:
-	    handler.on_mouse_down(*this, ImageRef(event.xbutton.x, event.xbutton.y), 
+	    handler.on_mouse_down(*this, ImageRef(event.xbutton.x, event.xbutton.y),
 				  convertButtonState(event.xbutton.state), convertButton(event.xbutton.button));
 	    break;
 	case ButtonRelease:
-	    handler.on_mouse_up(*this, ImageRef(event.xbutton.x, event.xbutton.y), 
+	    handler.on_mouse_up(*this, ImageRef(event.xbutton.x, event.xbutton.y),
 				convertButtonState(event.xbutton.state), convertButton(event.xbutton.button));
 	    break;
 	case MotionNotify:
 	    handler.on_mouse_move(*this, ImageRef(event.xmotion.x, event.xmotion.y), convertButtonState(event.xbutton.state));
 	    break;
 	case KeyPress:
-		{	
+		{
 		XLookupString(&event.xkey, 0, 0, &k, 0);
 	    handler.on_key_down(*this, k);
 	    break;
@@ -246,10 +246,10 @@ void CVD::GLWindow::handle_events(EventHandler& handler)
 		handler.on_resize(*this, state->size);
 	    }
 	    break;
-	case Expose:    
+	case Expose:
 		handler.on_event(*this, EVENT_EXPOSE);
 		break;
-	case ClientMessage:    
+	case ClientMessage:
 	    if (event.xclient.data.l[0] == (int)state->delete_atom)
 		handler.on_event(*this, EVENT_CLOSE);
 	    else
@@ -312,7 +312,7 @@ public:
 	e.size = size;
 	events.push_back(e);
     }
-    
+
     void on_event(GLWindow& win, int event) {
 	GLWindow::Event e;
 	e.type = GLWindow::Event::EVENT;
@@ -327,7 +327,7 @@ void CVD::GLWindow::get_events(std::vector<Event>& events)
     handle_events(saver);
 }
 
-bool CVD::GLWindow::EventSummary::should_quit() const 
+bool CVD::GLWindow::EventSummary::should_quit() const
 {
     return key_down.count(XK_Escape) || events.count(GLWindow::EVENT_CLOSE);
 }
@@ -340,7 +340,7 @@ public:
 
     void on_key_down(GLWindow& win, int key) {	++summary.key_down[key]; }
     void on_key_up(GLWindow& win, int key) { ++summary.key_up[key]; }
-    void on_mouse_move(GLWindow& win, ImageRef where, int state) { summary.cursor = where; }
+    void on_mouse_move(GLWindow& win, ImageRef where, int state) { summary.cursor = where; summary.cursor_moved = true; }
     void on_mouse_down(GLWindow& win, ImageRef where, int state, int button) { summary.mouse_down[button] = std::make_pair(where,state); }
     void on_mouse_up(GLWindow& win, ImageRef where, int state, int button) { summary.mouse_up[button] = std::make_pair(where,state); }
     void on_event(GLWindow& win, int event) { ++summary.events[event]; }
@@ -348,6 +348,7 @@ public:
 
 void GLWindow::get_events(EventSummary& summary)
 {
+    summary.cursor = cursor_position();
     MakeSummary ms(summary);
     handle_events(ms);
 }

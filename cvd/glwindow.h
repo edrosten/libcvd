@@ -72,7 +72,7 @@ namespace CVD {
 
 	/// A summary of multiple events
 	struct EventSummary {
-	    EventSummary() : cursor(-1,-1) {}
+	    EventSummary() : cursor(-1,-1), cursor_moved(false) {}
 	    /// key->frequency mapping for key presses and releases
 	    std::map<int,int> key_down, key_up;
 	    typedef std::map<int,int>::const_iterator key_iterator;
@@ -87,6 +87,8 @@ namespace CVD {
 	    bool should_quit() const;
 	    /// last seen cursor position from mouse_move
 	    ImageRef cursor;
+	    /// was the cursor moved during the recording of the history
+	    bool cursor_moved;
 	};
 
 	/// Construct a GLWindow of the given size and colour depth, with the given title.
