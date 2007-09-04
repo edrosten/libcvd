@@ -245,9 +245,11 @@ namespace CVD {
 
 
 #if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_XMMINTRIN)
-
-    template <bool Aligned> inline __m128 load_ps(const void* addr) { return _mm_loadu_ps((const float*)addr); }
-    template <> inline __m128 load_ps<true>(const void* addr) { return _mm_load_ps((const float*)addr); }
+	
+	//Some versions of gcc do not define _mm_load?_ps as taking a const float*
+	//Later versions always use the const.
+    template <bool Aligned> inline __m128 load_ps(const void* addr) { return _mm_loadu_ps(static_cast<float*>(const_cast<void*>(addr))); }
+    template <> inline __m128 load_ps<true>(const void* addr) { return _mm_load_ps(static_cast<float*>(const_cast<void*>(addr))); }
 
     template <bool Aligned> inline void store_ps(__m128 m, void* addr) { return _mm_storeu_ps((float*)addr, m); }
     template <> inline void store_ps<true>(__m128 m, void* addr) { return _mm_store_ps((float*)addr, m); }
