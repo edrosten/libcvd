@@ -63,6 +63,16 @@ namespace CVD
 		glTexCoord2i(i.x, i.y);
 	}
 
+#ifdef GL_GLEXT_PROTOTYPES
+	/// Specify the (s,t) texture co-ordinates for a specific texture unit
+	/// @param i The texture coordinates
+	/// @param enum The texture unit
+	///@ingroup gGL
+	inline void glMultiTexCoord(GLenum unit, const ImageRef& i)
+	{
+	        glMultiTexCoord2i(unit,  i.x, i.y);
+	}
+#endif
 	/// Specify the (x,y) co-ordinates of the current raster position
 	/// @param i The raster position
 	///@ingroup gGL
@@ -121,6 +131,34 @@ namespace CVD
 		glTexCoord4d(v[0], v[1], v[2], v[3]);
 	}
 
+#ifdef GL_GLEXT_PROTOTYPES
+	/// Specify the (s,t) texture coordinates for a specific texture unit
+	/// @param v The texture coordinates
+	/// @param unit The texture unit
+	///@ingroup gGL
+	inline void glMultiTexCoord(GLenum unit, const TooN::Vector<2>& v)
+	{
+	        glMultiTexCoord2d(unit, v[0], v[1]);
+	}
+
+	/// Specify the (s,t,r) texture coordinates for a specific texture unit
+	/// @param v The texture coordinates
+	/// @param unit The texture unit
+	///@ingroup gGL
+	inline void glMutliTexCoord(GLenum unit, const TooN::Vector<3>& v)
+	{
+	        glMultiTexCoord3d(unit, v[0], v[1], v[2]);
+	}
+
+	/// Specify the (s,t,r,q) texture coordinates for a specific texture unit
+	/// @param v The texture coordinates
+	/// @param unit The texture unit
+	///@ingroup gGL
+	inline void glMultiTexCoord(GLenum unit, const TooN::Vector<4>& v)
+	{
+	        glMultiTexCoord4d(unit, v[0], v[1], v[2], v[3]);
+	}
+#endif
 
 	/// Specify the (x,y) co-ordinates of the current raster position
 	/// @param v The raster position
