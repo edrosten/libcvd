@@ -25,9 +25,6 @@
 #include <string>
 #include <vector>
 #include <memory>
-extern "C"{
-#include <jpeglib.h>
-};
 
 #include <cvd/image.h>
 #include <cvd/byte.h>
@@ -38,6 +35,9 @@ namespace CVD
 {
 namespace JPEG
 {
+extern "C"{
+#include <jpeglib.h>
+};
 
 	class jpeg_in
 	{
@@ -165,4 +165,5 @@ namespace JPEG
 
 }
 }
+
 #endif
