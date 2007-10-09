@@ -221,14 +221,16 @@ png_out::png_out(int w, int h, colour_type t, int depth, std::ostream& out)
 
 	//Set up the image type
 	png_set_IHDR(png_ptr, info_ptr, w, h, depth, c_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+	//Write the header 
+	png_write_info(png_ptr, info_ptr);
 	
+	//Write the transformations
 	#ifdef CVD_ARCH_LITTLE_ENDIAN
 		if (depth > 8)
 			png_set_swap(png_ptr);
 	#endif
 
-	//Write the header 
-	png_write_info(png_ptr, info_ptr);
 }
 
 void png_out::pack()

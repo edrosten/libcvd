@@ -67,7 +67,7 @@ data type).
 //#ifdef FAST_SHORT_IO
 #define LONG_PNM_FAST_LOAD
 
-#ifdef ARCH_LITTLE_ENDIAN
+#ifdef CVD_ARCH_LITTLE_ENDIAN
 #define SWAP_BYTES
 #else
 #define LONG_PNM_FAST_SAVE
