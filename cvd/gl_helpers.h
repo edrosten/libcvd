@@ -106,6 +106,15 @@ namespace CVD
 	{
 		glVertex4d(v[0], v[1], v[2], v[3]);
 	}
+    
+    
+    template <class P1, class P2> inline void glLine(const P1& x1, const P2& x2) {
+	glBegin(GL_LINES);
+	glVertex(x1);
+	glVertex(x2);
+	glEnd();
+    }
+
 
 	/// Specify the (s,t) texture coordinates
 	/// @param v The texture coordinates
