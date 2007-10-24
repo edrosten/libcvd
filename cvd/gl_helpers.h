@@ -81,6 +81,15 @@ namespace CVD
 		glRasterPos2i(i.x, i.y);
 	}
 
+    /// draws a line from x1 to x2
+    /// any type that is accepted by glVertex is possible
+    /// @ingroup gGL
+    template <class P1, class P2> inline void glLine(const P1& x1, const P2& x2) {
+	glBegin(GL_LINES);
+	glVertex(x1);
+	glVertex(x2);
+	glEnd();
+    }
 
 	#ifdef CVD_HAVE_TOON
 	/// Specify the (x,y) co-ordinates of a vertex
@@ -106,15 +115,6 @@ namespace CVD
 	{
 		glVertex4d(v[0], v[1], v[2], v[3]);
 	}
-    
-    
-    template <class P1, class P2> inline void glLine(const P1& x1, const P2& x2) {
-	glBegin(GL_LINES);
-	glVertex(x1);
-	glVertex(x2);
-	glEnd();
-    }
-
 
 	/// Specify the (s,t) texture coordinates
 	/// @param v The texture coordinates
@@ -518,7 +518,7 @@ namespace CVD
 	{
 		::glReadPixels(origin.x, origin.y, i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
 	}
-	
+
  	/// Read the current image from the colour buffer specified by glReadBuffer
 	/// @param size   The size of the area to read.
 	/// @param origin The window co-ordinate of the first pixel to be read from the frame buffer
