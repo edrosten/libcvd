@@ -178,24 +178,33 @@ option   := name [ '=' value ]
 identifier and values can be quoted literals with escapes, all other text is unquoted.
 Some Examples:
 
-@verbatim
 Open a DiskBuffer2 for *.pgm in /local/capture/:
-files:///local/capture/*.pgmKilled by signal 2.
-files:///local/capture/*.pgm
-Open a DiskBuffer2 that loops and uses a ReadAheadVideoBuffer wrapper with
-40 frame buffer, with 30 fps:
-files:[read_ahead=40, fps=30, on_end=loop]///local/capture/*.pgm
+@verbatim
+files:///local/capture/ *.pgm
+@endverbatim
+
+Open a DiskBuffer2 that loops and uses a ReadAheadVideoBuffer wrapper with 40 frame buffer, with 30 fps:
+@verbatim
+files:[read_ahead=40, fps=30, on_end=loop]///local/capture/ *.pgm
+@endverbatim
 
 Open a V4L2 device at /dev/video0:
+@verbatim
 v4l2:///dev/video0
-
+@endverbatim
+   
 Open a V4L2 device with fields on input 2:
-v4l2:[input=2,fields]\///dev/video0
+@verbatim
+v4l2:[input=2,fields]///dev/video0
+@endverbatim
 
 Open firewire camera 1 with 3 dma bufs and default brightness/exposure and fps:
+@verbatim
 dc1394:[dma_bufs=3]//1
+@endverbatim
 
 Open an avi file relative to the current directory:
+@verbatim
 file://../../stuff/movie.avi
 @endverbatim
 
