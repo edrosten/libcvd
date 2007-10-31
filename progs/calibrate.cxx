@@ -237,12 +237,14 @@ void getOptions(int argc, char* argv[])
         "Move virtual grid over real grid until it snaps on.\n"
         "Record a number of frames ~100.\n"
         "Press SPACE to calculate camera parameters.\n\n"
+        "A calibration grid for the default parameters is in libcvd/doc/cameracalib2cm.pdf\n\n"
+        "flag  description\t\t\t\tdefault\n"
         "  -d  device to open, CVD video source URL\tv4l2:///dev/video0\n"
         "  -x  grid dimension in x (width) direction\t11\n"
         "  -y  grid dimension in y (height) direction\t7\n"
-        "  -s  grid cell size\t\t\t\t0.02 cm\n"
+        "  -s  grid cell size\t\t\t\t0.02 m\n"
         "  -t  interval between captured frames\t\t0.5 s\n"
-        "  -c  camera parameters\t\t\t\t1000 1000 320 240 0 0\n"
+        "  -c  initial camera parameters\t\t\t1000 1000 320 240 0 0\n"
         "  -e  generate image showing errors per pixel\n";
         exit(0);
       }
@@ -853,7 +855,25 @@ int main(int argc, char* argv[])
               vframe = videoBuffer->get_frame();
             }
           Image<float> gray = convert_image<float>(*vframe);
-          glDrawPixels(*vframe);
+          glDisable(GL_BLEND);
+          glEnable(GL_TEXTURE_RECTANGLE_ARB);
+          glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+          glTexParameterf( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+          glTexParameterf( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+          glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+          glTexImage2D( *vframe, 0, GL_TEXTURE_RECTANGLE_ARB);
+          glBegin(GL_QUADS);
+              glTexCoord2i(0, 0);
+              glVertex2i(0,0);
+              glTexCoord2i(vframe->size().x, 0);
+              glVertex2i(640,0);
+              glTexCoord2i(vframe->size().x,vframe->size().y);
+              glVertex2i(640,480);
+              glTexCoord2i(0, vframe->size().y);
+              glVertex2i(0, 480);
+          glEnd ();
+          glDisable(GL_TEXTURE_RECTANGLE_ARB);
+          glEnable(GL_BLEND);
           videoBuffer->put_frame(vframe);
 
           //this is the bit that does the calibrating
