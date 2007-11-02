@@ -217,7 +217,7 @@ template<> struct readPNG_rgb<Rgb<byte>, byte>
 
 template<> struct readPNG_rgb<Rgb<unsigned short>, unsigned short>
 {
-	static void read(SubImage<Rgb<byte> >& im, png_in& png)
+	static void read(SubImage<Rgb<unsigned short> >& im, png_in& png)
 	{
 		std::vector<unsigned short*> rows;
 		make_row_pointers(im, rows);
@@ -257,7 +257,7 @@ template<> struct readPNG_rgb<Rgba<byte>, byte>
 
 template<> struct readPNG_rgb<Rgba<unsigned short>, unsigned short>
 {
-	static void read(SubImage<Rgba<byte> >& im, png_in& png)
+	static void read(SubImage<Rgba<unsigned short> >& im, png_in& png)
 	{
 		std::vector<unsigned short*> rows;
 		make_row_pointers(im, rows);
