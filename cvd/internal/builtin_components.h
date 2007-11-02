@@ -54,12 +54,12 @@ namespace CVD
       typedef P type;
       static const unsigned int count = 1;
 		  
-      static const P& get(const P& pixel, int i)
+      static const P& get(const P& pixel, int)
       {
 	return pixel;
       }
 
-      static P& get(P& pixel, int i)
+      static P& get(P& pixel, int)
       {
 	return pixel;
       }
