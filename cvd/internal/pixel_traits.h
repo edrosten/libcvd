@@ -23,6 +23,10 @@
 
 #include <limits>
 
+#if defined (CVD_HAVE_TOON)
+#include <TooN/TooN.h>
+#endif
+
 namespace CVD {
 namespace Pixel {
 	
@@ -191,6 +195,19 @@ namespace Pixel {
 	    static const bool max_intensity= true;  // the 'high' value
 	};
 
+
+#if defined (CVD_HAVE_TOON)
+    template<int N> struct traits<TooN::Vector<N> >
+    {
+	typedef TooN::Vector<N> wider_type;
+	typedef TooN::Vector<N> float_type;
+	static const bool integral = false;
+	static const bool is_signed = true;
+	static const TooN::Vector<N> max_intensity;
+    };
+    template <int N> const TooN::Vector<N> traits<TooN::Vector<N> >::max_intensity = TooN::Vector<N>(1.0);
+
+#endif
 
 
     template<int LIFT> const long double traits<long double, LIFT>::max_intensity = 1.0;
