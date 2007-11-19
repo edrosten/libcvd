@@ -365,20 +365,22 @@ void RawVideoFileBuffer::put_frame(void* f)
 //
 void RawVideoFileBuffer::seek_to(double t)
 {	
-	// The call to av_seek_frame only searches to the nearest keyframe. To continue from there, we
-	// must decode and read one frame at a time until we get to the desired point.
+	// The call to av_seek_frame only searches to the keyframe immediately prior to the desired frame.
+	// To continue from there, we must decode one frame at a time until we reach the required frame.
 
-	// Hack: I do not know how to obtain the current frame number or timestamp after the call to 
-	// av_seek_frame without performing another read_frame. This will obviously read one extra frame.
-	// So we must subtract one frame from the position we are actually searching for.
-	// t is defined as frame_number * frame_rate.
+	// Check that we are not seeking beyond the end of the video.
+	if (t * AV_TIME_BASE + 0.5 > pFormatContext->duration)
+	  throw Exceptions::VideoFileBuffer::BadSeek(t);
 
+	// Hack: I don't know how to find the current frame number after calling av_seek_frame() without
+	// calling read_frame() again. This obviously reads one extra frame, so we subtract one frame from 
+	// the position we are searching for. (t = frame_number * frame_rate)
  	double frame_rate = av_q2d(pFormatContext->streams[video_stream]->r_frame_rate);
 	int frame_num = static_cast<int>(t * frame_rate + 0.5);
 	t = (frame_num - 1) / frame_rate;
 
 	int64_t targetPts = static_cast<int64_t>(t * AV_TIME_BASE + 0.5);
-	// Handling the case where t == 0.
+	// If t was initially zero, it is now negative. Fix this.
 	int64_t seekToPts = targetPts < 0 ? 0 : targetPts;
 
 	#if LIBAVFORMAT_BUILD >= 4623
