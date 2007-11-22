@@ -13,8 +13,11 @@ namespace CVD
 // fast_nonmax_t is templated so you can have either of:
 //	1: A vector of ImageRefs of the nonmax corners
 //	2: A vector of <ImageRef, int> pairs of the corners and their scores.
+// And
+//  1: Non-strict (neighbours of the same score allowed)
+//  2: Strict (must be larger than the neighbours)
 //	It's internal, the user-visible functions instantiate it below..
-template<class Score, class ReturnType, class Collector>
+template<class Score, class ReturnType, class Collector, class Test>
 inline void nonmax_suppression_t(const vector<ImageRef>& corners, const vector<Score>& scores, vector<ReturnType>& nonmax_corners)
 {
 	nonmax_corners.clear();
@@ -53,12 +56,12 @@ inline void nonmax_suppression_t(const vector<ImageRef>& corners, const vector<S
 			
 		//Check left 
 		if(i > 0)
-			if(corners[i-1] == pos-ImageRef(1,0) && scores[i-1] > score)
+			if(corners[i-1] == pos-ImageRef(1,0) && Test::Compare(scores[i-1], score))
 				continue;
 			
 		//Check right
 		if(i < (sz - 1))
-			if(corners[i+1] == pos+ImageRef(1,0) && scores[i+1] > score)
+			if(corners[i+1] == pos+ImageRef(1,0) && Test::Compare(scores[i+1], score))
 				continue;
 			
 		//Check above (if there is a valid row above)
@@ -77,7 +80,7 @@ inline void nonmax_suppression_t(const vector<ImageRef>& corners, const vector<S
 			for(int i=point_above; corners[i].y < pos.y && corners[i].x <= pos.x + 1; i++)
 			{
 				int x = corners[i].x;
-				if( (x == pos.x - 1 || x ==pos.x || x == pos.x+1) && scores[i] > score)
+				if( (x == pos.x - 1 || x ==pos.x || x == pos.x+1) && Test::Compare(scores[i], score))
 					goto cont;
 			}
 			
@@ -96,7 +99,7 @@ inline void nonmax_suppression_t(const vector<ImageRef>& corners, const vector<S
 			for(int i=point_below; i < sz && corners[i].y == pos.y+1 && corners[i].x <= pos.x + 1; i++)
 			{
 				int x = corners[i].x;
-				if( (x == pos.x - 1 || x ==pos.x || x == pos.x+1) && scores[i] > score)
+				if( (x == pos.x - 1 || x ==pos.x || x == pos.x+1) && Test::Compare(scores[i],score))
 					goto cont;
 			}
 		}
@@ -108,6 +111,23 @@ inline void nonmax_suppression_t(const vector<ImageRef>& corners, const vector<S
 	}
 }
 	
+
+struct Greater
+{
+	static bool Compare(int a, int b)
+	{
+		return a > b;
+	}	
+};
+
+struct GreaterEqual
+{
+	static bool Compare(int a, int b)
+	{
+		return a >= b;
+	}	
+};
+
 // The two collectors which either return just the ImageRef or the <ImageRef,int> pair
 struct collect_pos
 {
@@ -120,14 +140,19 @@ struct collect_score
 };
 
 // The callable functions
+void nonmax_suppression_strict(const vector<ImageRef>& corners, const vector<int>& scores, vector<ImageRef>& nonmax_corners)
+{
+	nonmax_suppression_t<int, ImageRef, collect_pos, GreaterEqual>(corners, scores, nonmax_corners);
+}
+
 void nonmax_suppression(const vector<ImageRef>& corners, const vector<int>& scores, vector<ImageRef>& nonmax_corners)
 {
-	nonmax_suppression_t<int, ImageRef, collect_pos>(corners, scores, nonmax_corners);
+	nonmax_suppression_t<int, ImageRef, collect_pos, Greater>(corners, scores, nonmax_corners);
 }
 
 void nonmax_suppression_with_scores(const vector<ImageRef>& corners, const vector<int>& scores, vector<pair<ImageRef,int> >& nonmax_corners)
 {
-	nonmax_suppression_t<int, pair<ImageRef,int> , collect_score>(corners, scores, nonmax_corners);
+	nonmax_suppression_t<int, pair<ImageRef,int> , collect_score, Greater>(corners, scores, nonmax_corners);
 }
 
 
