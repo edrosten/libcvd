@@ -102,7 +102,7 @@ namespace CVD
 		/// @param from The source image.
 		/// @return The integral image
 		/// @ingroup gVision
-		template<class S, class D> Image<D> convert_image(const BasicImage<S>& from);
+		template<class S, class D> Image<D> integral_image(const BasicImage<S>& from);
 
 	#endif
 
