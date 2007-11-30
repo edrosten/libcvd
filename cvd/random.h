@@ -22,6 +22,7 @@
 #define CVD_RANDOM_H
 
 #include <cstdlib>
+#include <cmath>
 
 namespace CVD {
 	/// Uniform random numbers between 0 and 1
