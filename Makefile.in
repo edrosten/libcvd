@@ -62,6 +62,8 @@ MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
+DEBUGEXTRA=-D_GLIBCXX_DEBUG -DCVD_IMAGE_DEBUG
+
 SUBDIRS =
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -281,21 +283,40 @@ OBJS=$(CVD_OBJS)
 
 
 
+DEBUG_OBJS1=$(subst cvd_src,debug/cvd_src,$(OBJS))
+DEBUG_OBJS2=$(subst pnm_src,debug/pnm_src,$(DEBUG_OBJS1))
+DEBUG_OBJS=$(value $(DEBUG_OBJS2))
+
+
 ifeq (@osx_hacks@,yes)
 	soname=libcvd.dylib
 	soname1=libcvd-@major@.dylib
 	soname2=libcvd-@major@.@minor@.dylib
+
+	dsoname=libcvd_debug.dylib
+	dsoname1=libcvd_debug-@major@.dylib
+	dsoname2=libcvd_debug-@major@.@minor@.dylib
+
 	shared=-dynamiclib
 else
 	soname=libcvd.so
 	soname1=libcvd.so.@major@
 	soname2=libcvd.so.@major@.@minor@
+
+	dsoname=libcvd_debug.so
+	dsoname1=libcvd_debug.so.@major@
+	dsoname2=libcvd_debug.so.@major@.@minor@
+
 	shared=-shared
 endif
 
-sos= $(soname) $(soname1) $(soname2)
 
-all: libcvd.a $(soname) progs
+sos= $(soname) $(soname1) $(soname2) 
+dsos= $(dsoname) $(dsoname1) $(dsoname2) 
+
+
+all: libcvd.a $(soname) progs $(DTARGETS) libcvd_debug.a $(dsoname)
+
 
 $(soname): $(OBJS)
 	rm -f $(sos)
@@ -303,9 +324,22 @@ $(soname): $(OBJS)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
+$(dsoname): $(DEBUG_OBJS)
+	rm -f $(dsos)
+	$(CXX) $(CXXFLAGS) $(shared) -o $(dsoname2) $(DEBUG_OBJS) $(LDFLAGS) $(LOADLIBES)
+	ln -s $(dsoname2) $(dsoname1)
+	ln -s $(dsoname1) $(dsoname)
+
 libcvd.a: $(OBJS)
 	$(AR) crvs libcvd.a $(OBJS)
 	$(RANLIB) libcvd.a
+
+libcvd_debug.a: $(DEBUG_OBJS)
+	$(AR) crvs libcvd_debug.a $(DEBUG_OBJS)
+	$(RANLIB) libcvd_debug.a
+
+directories:
+	mkdir -p debug/cvd_src debug/cvd_src/IRIX debug/cvd_src/Linux debug/cvd_src/OSX debug/cvd_src/fast debug/cvd_src/i686 debug/pnm_src
 
 
 # Before we compile the test programs we need to augment the
@@ -337,24 +371,42 @@ man: libcvd.a
 	doxygen Doxyfile
 	touch man
 
-install: progs $(soname) libcvd.a
-	mkdir -p $(includedir)
-	mkdir -p $(libdir)
+
+install: install-progs install-headers install-libs install-libs-debug
+
+install-progs:progs
 	mkdir -p $(bindir)
+	cp $(PROGS) $(bindir)
+
+install-headers:
+	mkdir -p $(includedir)
 	cp -r cvd $(includedir)
+
+install-libs:$(soname) libcvd.a
+	mkdir -p $(libdir)
 	cp $(soname2) $(libdir)
 	rm -f  $(libdir)/$(soname1) $(libdir)/$(soname)
 	ln -s  $(libdir)/$(soname2) $(libdir)/$(soname1)
 	ln -s  $(libdir)/$(soname1) $(libdir)/$(soname)
 	cp libcvd.a $(libdir)
-	cp $(PROGS) $(bindir)
-	mkdir -p '$(mandir)'
+
+install-libs-debug:$(dsoname) libcvd_debug.a
+	mkdir -p $(libdir)
+	cp $(dsoname2) $(libdir)
+	rm -f  $(libdir)/$(dsoname1) $(libdir)/$(dsoname)
+	ln -s  $(libdir)/$(dsoname2) $(libdir)/$(dsoname1)
+	ln -s  $(libdir)/$(dsoname1) $(libdir)/$(dsoname)
+	cp libcvd_debug.a $(libdir)
+
+
+
 
 clean:
 	/bin/rm -f tmp libcvd.a $(sos)
 	find . -name '*.o' | xargs rm -f
 	find progs/ -perm +0100 -type f | xargs rm -f
 	rm -rf html man
+
 distclean: clean
 	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h .deps
 
@@ -383,8 +435,27 @@ ChangeLog:
 %.o: %.C
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
+%.o: %.s
+	as -g -o $@ $<
+
+
+
+debug/%.o : %.cc directories
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@
+
+debug/%.o: %.cpp directories
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@
+
+debug/%.o: %.cxx directories
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@
+
+debug/%.o: %.C directories
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@
+
+debug/%.o: %.s
+	as -g -o $@ $<
+
 %: %.o
 	$(CXX) -o $@ $< $(LDFLAGS) $(LOADLIBES)
-
 
 include .deps
