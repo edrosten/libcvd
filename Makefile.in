@@ -317,16 +317,15 @@ dsos= $(dsoname) $(dsoname1) $(dsoname2)
 
 all: libcvd.a $(soname) progs $(DTARGETS) libcvd_debug.a $(dsoname)
 
-
 $(soname): $(OBJS)
 	rm -f $(sos)
 	$(CXX) $(CXXFLAGS) $(shared) -o $(soname2) $(OBJS) $(LDFLAGS) $(LOADLIBES)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
-$(dsoname): $(DEBUG_OBJS)
+$(dsoname): $(DEBUG_OBJS2)
 	rm -f $(dsos)
-	$(CXX) $(CXXFLAGS) $(shared) -o $(dsoname2) $(DEBUG_OBJS) $(LDFLAGS) $(LOADLIBES)
+	$(CXX) $(CXXFLAGS) $(shared) -o $(dsoname2) $(DEBUG_OBJS2) $(LDFLAGS) $(LOADLIBES)
 	ln -s $(dsoname2) $(dsoname1)
 	ln -s $(dsoname1) $(dsoname)
 
@@ -347,7 +346,7 @@ directories:
 # libraries to use
 CPPFLAGS = -I. @CPPFLAGS@
 LDFLAGS = -L. -Wl,-R. @LDFLAGS@
-LOADLIBES = -lcvd @LIBS@
+LOADLIBES =  @LIBS@
 
 PROGS=@progs@
 TESTPROGS=@testprogs@
@@ -456,6 +455,6 @@ debug/%.o: %.s
 	as -g -o $@ $<
 
 %: %.o
-	$(CXX) -o $@ $< $(LDFLAGS) $(LOADLIBES)
+	$(CXX) -o $@ $< $(LDFLAGS) -lcvd  $(LOADLIBES)
 
 include .deps
