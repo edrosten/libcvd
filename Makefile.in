@@ -279,14 +279,6 @@ endif
 #
 #
 
-OBJS=$(CVD_OBJS)
-
-
-
-DEBUG_OBJS1=$(subst cvd_src,debug/cvd_src,$(OBJS))
-DEBUG_OBJS2=$(subst pnm_src,debug/pnm_src,$(DEBUG_OBJS1))
-DEBUG_OBJS=$(value $(DEBUG_OBJS2))
-
 
 ifeq (@osx_hacks@,yes)
 	soname=libcvd.dylib
@@ -310,6 +302,10 @@ else
 	shared=-shared
 endif
 
+OBJS=$(CVD_OBJS)
+
+DEBUG_OBJSA=$(OBJS:cvd_src%=debug/cvd_src%)
+DEBUG_OBJS=$(DEBUG_OBJSA:pnm_src%=debug/pnm_src%)
 
 sos= $(soname) $(soname1) $(soname2) 
 dsos= $(dsoname) $(dsoname1) $(dsoname2) 
@@ -323,9 +319,9 @@ $(soname): $(OBJS)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
-$(dsoname): $(DEBUG_OBJS2)
+$(dsoname): $(DEBUG_OBJS)
 	rm -f $(dsos)
-	$(CXX) $(CXXFLAGS) $(shared) -o $(dsoname2) $(DEBUG_OBJS2) $(LDFLAGS) $(LOADLIBES)
+	$(CXX) $(CXXFLAGS) $(shared) -o $(dsoname2) $(DEBUG_OBJS) $(LDFLAGS) $(LOADLIBES)
 	ln -s $(dsoname2) $(dsoname1)
 	ln -s $(dsoname1) $(dsoname)
 
@@ -337,7 +333,7 @@ libcvd_debug.a: $(DEBUG_OBJS)
 	$(AR) crvs libcvd_debug.a $(DEBUG_OBJS)
 	$(RANLIB) libcvd_debug.a
 
-directories:
+debug:
 	mkdir -p debug/cvd_src debug/cvd_src/IRIX debug/cvd_src/Linux debug/cvd_src/OSX debug/cvd_src/fast debug/cvd_src/i686 debug/pnm_src
 
 
@@ -415,7 +411,7 @@ depend:
 	rm -f .deps
 	bash generate_dependencies.bash "-I. $(CPPFLAGS)" > .deps
 
-.PHONY: ChangeLog
+.PHONY: ChangeLog 
 
 ChangeLog:
 	cvs log | gawk -f make/log_to_changelog.awk > ChangeLog
@@ -426,7 +422,7 @@ ChangeLog:
 	$(CXX) -I. $(OFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 %.o: %.cpp
-	$(CXX) -I. $(OFLAGS)  $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -I. $(OFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 %.o: %.cxx
 	$(CXX) -I. $(OFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
@@ -439,16 +435,16 @@ ChangeLog:
 
 
 
-debug/%.o : %.cc directories
+debug/%.o : %.cc debug
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@
 
-debug/%.o: %.cpp directories
+debug/%.o: %.cpp debug
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@
 
-debug/%.o: %.cxx directories
+debug/%.o: %.cxx debug
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@
 
-debug/%.o: %.C directories
+debug/%.o: %.C debug
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@
 
 debug/%.o: %.s
