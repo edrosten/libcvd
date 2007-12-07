@@ -150,6 +150,19 @@ RawQT::RawQT(const ImageRef & size, unsigned int mode, unsigned int num) : pimpl
 		err = SGPrepare(pimpl->seqGrab, false, true);	
 		// ...action
 		err = SGStartRecord(pimpl->seqGrab);
+		
+	        // What format are the images?
+		ImageDescriptionHandle imageDesc = (ImageDescriptionHandle)NewHandle(0);
+		err = SGGetChannelSampleDescription(pimpl->chanVideo, (Handle)imageDesc);
+		if(err != noErr){
+		  throw Exceptions::QTBUFFER::DeviceOpen("SGGetChannelSampleDescription returned error");
+		}
+		// Convert pascal string to stl string..
+		for(char i=1; i<=(**imageDesc).name[0]; i++)
+			frame_format_string = frame_format_string + (char) (**imageDesc).name[i];
+
+
+		
 	}
 	catch(Exceptions::QTBUFFER::DeviceOpen){
 		// clean up on failure
@@ -157,6 +170,11 @@ RawQT::RawQT(const ImageRef & size, unsigned int mode, unsigned int num) : pimpl
 		pimpl->chanVideo = NULL;
 		throw;
 	}
+}
+
+string RawQT::get_frame_format_string()
+{
+	return frame_format_string;
 }
 
 RawQT::~RawQT(){

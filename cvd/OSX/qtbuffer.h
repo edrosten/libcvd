@@ -32,6 +32,8 @@ Foundation, Inc.,
 #include <cvd/timer.h>
 #include <cvd/colourspaces.h>
 
+#include <string>
+
 namespace CVD {
 	namespace Exceptions {
 		/// Exceptions specific to QTBUFFER
@@ -105,11 +107,14 @@ namespace QT
         void put_frame( unsigned char * );
         /// Get the camera frame rate
         double frame_rate();
-		/// Is there a new frame ready?
-		bool frame_pending();
+	/// Is there a new frame ready?
+	bool frame_pending();
+	/// Get the video format string
+	std::string get_frame_format_string();
         
 	private:
 		RawQTPimpl * pimpl;
+                std::string frame_format_string;
     };
 };
 
