@@ -151,8 +151,7 @@ endif
 
 ifeq (@have_toon@,yes)
 	CVD_OBJS+=cvd_src/brezenham.o						\
-			  #cvd_src/se3.o								\
-			  #cvd_src/so3.o
+			  cvd_src/tensor_voting.o					
 endif
 
 ifeq (@have_lapack@,yes)
