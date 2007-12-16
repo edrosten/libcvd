@@ -24,6 +24,10 @@
 #include <cvd/Linux/dvbuffer.h>
 #endif
 
+#if CVD_HAVE_QTBUFFER
+#include <cvd/OSX/qtbuffer.h>
+#endif
+
 namespace CVD {
     struct ParseException : public Exceptions::All
     {
@@ -50,6 +54,10 @@ namespace CVD {
     template <class T> VideoBuffer<T>* makeDiskBuffer2(const std::vector<std::string>& files, double fps, VideoBufferFlags::OnEndOfBuffer eob)
     {
 	return new DiskBuffer2<T>(files, fps, eob);    
+    }
+    template <> inline VideoBuffer<vuy422> * makeDiskBuffer2(const std::vector<std::string>& files, double fps, VideoBufferFlags::OnEndOfBuffer eob)
+    {
+	throw VideoSourceException("DiskBuffer2 cannot handle type vuy422");
     }
 
     void get_files_options(const VideoSource& vs, int& fps, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob);
@@ -96,6 +104,16 @@ namespace CVD {
 
 #endif
 
+#if CVD_HAVE_QTBUFFER
+    template <class T> VideoBuffer<T> * makeQTBuffer( const ImageRef & size, int input)
+    {
+	throw VideoSourceException("QTBuffer cannot handle types other than vuy422");
+    }
+    template <> VideoBuffer<vuy422> * makeQTBuffer( const ImageRef & size, int input);
+    
+    void get_qt_options(const VideoSource & vs, ImageRef & size);
+#endif
+
     template <class T> VideoBuffer<T>* open_video_source(const VideoSource& vs)
     {
 	if (vs.protocol == "files") {
@@ -135,6 +153,14 @@ namespace CVD {
 	    return vb;
 	} 
 #endif
+#if CVD_HAVE_QTBUFFER
+    else if (vs.protocol == "qt") {
+        ImageRef size;
+        int input = atoi(vs.identifier.c_str());
+        get_qt_options(vs, size);
+        return makeQTBuffer<T>(size, input);
+    }
+#endif
 	else
 	    throw VideoSourceException("undefined video source protocol: '" + vs.protocol + "'\n\t valid protocols: "
 #if CVD_HAVE_FFMPEG
@@ -145,6 +171,9 @@ namespace CVD {
 #endif
 #if CVD_HAVE_DVBUFFER
 				       "dc1394, "
+#endif
+#if CVD_HAVE_QTBUFFER
+				       "qt, "
 #endif
 				       "files");
     }
