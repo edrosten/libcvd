@@ -85,7 +85,7 @@ pascal OSErr RawQTPimpl::GrabDataProc(SGChannel c, Ptr p, long len, long *offset
 	return err;
 }
 
-RawQT::RawQT(const ImageRef & size, unsigned int mode, unsigned int num) : pimpl(NULL) 
+RawQT::RawQT(const ImageRef & size, unsigned int mode, unsigned int num, bool showSettingsDialog) : pimpl(NULL) 
 {
 	if( !RawQTPimpl::isInitialized ){
 		EnterMovies();
@@ -129,6 +129,14 @@ RawQT::RawQT(const ImageRef & size, unsigned int mode, unsigned int num) : pimpl
 	if(err != noErr){
 		throw Exceptions::QTBUFFER::DeviceOpen("SGNewChannel returned error");
 	}
+	
+	if(showSettingsDialog)
+	  {
+	    err = SGSettingsDialog(pimpl->seqGrab, pimpl->chanVideo, 0, NULL, 0L, NULL, 0); 
+	    if(err != noErr)
+	      throw Exceptions::QTBUFFER::DeviceOpen("SGSettingsDialog returned an error");
+	  }
+
     try {
 	    err = SGSetChannelBounds(pimpl->chanVideo, &pimpl->bounds);
 	    if (err != noErr) {

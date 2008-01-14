@@ -95,7 +95,7 @@ namespace QT
 		* @param mode color palette to use (not supported yet)
 		* @param which camera to open (not supported yet)
 		*/
-        RawQT(const ImageRef & size, unsigned int mode, unsigned int num = 0);
+      RawQT(const ImageRef & size, unsigned int mode, unsigned int num = 0, bool showSettingsDialog=false);
         virtual ~RawQT();
         
 		/** Get the width in pixels of the captured frames. */
@@ -135,7 +135,7 @@ template <class T> class QTBuffer : public VideoBuffer<T>, public QT::RawQT
 public:
     /// Construct a video buffer
     /// @param dev file name of the device to use
-    QTBuffer(const ImageRef & size, unsigned int number = 0 ) : RawQT( size, 0, number ) {}
+    QTBuffer(const ImageRef & size, unsigned int number = 0, bool showSettingsDialog=false ) : RawQT( size, 0, number, showSettingsDialog ) {}
 	
     virtual ImageRef size()
     {
