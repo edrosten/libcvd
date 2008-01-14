@@ -105,13 +105,13 @@ namespace CVD {
 #endif
 
 #if CVD_HAVE_QTBUFFER
-    template <class T> VideoBuffer<T> * makeQTBuffer( const ImageRef & size, int input)
+    template <class T> VideoBuffer<T> * makeQTBuffer( const ImageRef & size, int input, bool showsettings)
     {
 	throw VideoSourceException("QTBuffer cannot handle types other than vuy422");
     }
-    template <> VideoBuffer<vuy422> * makeQTBuffer( const ImageRef & size, int input);
+    template <> VideoBuffer<vuy422> * makeQTBuffer( const ImageRef & size, int input, bool showsettings);
     
-    void get_qt_options(const VideoSource & vs, ImageRef & size);
+    void get_qt_options(const VideoSource & vs, ImageRef & size, bool & showsettings);
 #endif
 
     template <class T> VideoBuffer<T>* open_video_source(const VideoSource& vs)
@@ -156,9 +156,10 @@ namespace CVD {
 #if CVD_HAVE_QTBUFFER
     else if (vs.protocol == "qt") {
         ImageRef size;
+        bool showsettings;
         int input = atoi(vs.identifier.c_str());
-        get_qt_options(vs, size);
-        return makeQTBuffer<T>(size, input);
+        get_qt_options(vs, size, showsettings);
+        return makeQTBuffer<T>(size, input, showsettings);
     }
 #endif
 	else
@@ -199,7 +200,7 @@ open_video_source<T>(url) to get a VideoBuffer<T>*.
 The url syntax is the following:
 @verbatim
 url      := protocol ':' [ '[' options ']' ] // identifier
-protocol := "files" | "file" | "v4l2" | "dc1394"
+protocol := "files" | "file" | "v4l2" | "dc1394" | "qt"
 options  := option [ ',' options ]
 option   := name [ '=' value ]
 @endverbatim
@@ -237,6 +238,11 @@ Open an avi file relative to the current directory:
 file://../../stuff/movie.avi
 @endverbatim
 
+Open the first QuickTime camera and show the settings dialog
+@verbatim
+qt:[showsettings=1]//0
+@endverbatim
+
 Options supported by the various protocols are:
 @verbatim
 'files' protocol (DiskBuffer2):  identifier is glob pattern
@@ -258,6 +264,11 @@ Options supported by the various protocols are:
        dma_bufs | dma_buffers = <number> (default 3)
        brightness | bright = <number> (default -1)
        exposure | exp = <number> (default -1)
+
+'qt' protocol (QTBuffer): identifier is camera number
+      size = vga | qvga | <width>x<height>  (default vga)
+      showsettings = 0 | 1 (default 0)
+
 @endverbatim
 
 @ingroup gVideo

@@ -361,13 +361,14 @@ namespace CVD {
 #endif
 
 #if CVD_HAVE_QTBUFFER
-    template <> VideoBuffer<vuy422> * makeQTBuffer( const ImageRef & size, int input)
+    template <> VideoBuffer<vuy422> * makeQTBuffer( const ImageRef & size, int input, bool showsettings)
     {
-        return new CVD::QTBuffer<vuy422>(size, input);
+        return new CVD::QTBuffer<vuy422>(size, input, showsettings);
     }
     
-    void get_qt_options(const VideoSource & vs, ImageRef & size){
+    void get_qt_options(const VideoSource & vs, ImageRef & size, bool & showsettings){
 	size = ImageRef(640, 480);
+	showsettings = false;
 	for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it) {
 		if (it->first == "size") {
 		std::string s = it->second;
@@ -382,6 +383,9 @@ namespace CVD {
 		    if (!(size_in >> size.x >> x >> size.y))
 			throw ParseException("invalid image size specification: '"+it->second+"'\n\t valid specs: vga, qvga, <width>x<height>");
 		}
+		}
+		else if(it->first == "showsettings") {
+		    showsettings = atoi(it->second.c_str());
 	    } else
 		throw VideoSourceException("invalid option for 'qt' protocol: "+it->first+"\n\t valid options: size");
 	}
