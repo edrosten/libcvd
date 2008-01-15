@@ -15,9 +15,6 @@
 namespace CVD {
   namespace Internal
   {
-
-    extern pthread_mutex_t aligned_mem_mutex;
-
     template <class T, int N=20> struct placement_delete
     {
       enum { Size = (1<<N) };
