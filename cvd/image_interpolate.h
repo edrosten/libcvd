@@ -14,45 +14,45 @@ namespace CVD
 	///@ingroup gImage
 	namespace Interpolate
 	{
-		/// This does not interpolate: it uses the nearest neighbour.
-		///
-		/// The sub pixel to be accessed is \f$p = (x,y)\f$. The nearest pixel is
-		/// \f$q = ( \operatorname{round}\ x, \operatorname{round}\ y)\f$
-		/// The interpolated value, \f$v\f$, is \f$v = I(q)\f$
+	         /** This does not interpolate: it uses the nearest neighbour.
+		     
+		     The sub pixel to be accessed is \f$p = (x,y)\f$. The nearest pixel is
+		     \f$q = ( \operatorname{round}\ x, \operatorname{round}\ y)\f$
+		     The interpolated value, \f$v\f$, is \f$v = I(q)\f$
+		 */
 		class NearestNeighbour{};
 
-
-		/// This class is for bilinear interpolation.
-		///
-		/// Define \f$p' = ( \operatorname{floor}\ x, \operatorname{floor}\ y)\f$ and
-		/// \f$\delta = p - p'\f$
-		///
-		/// 4 pixels in a square with \f$p'\f$ in the top left corner are taken:
-		/// \f[\begin{array}{rl}
-		/// a =& I(p')\\   
-		/// b =& I(p' + (1,0))\\  
-		/// c =& I(p' + (0,1))\\  
-		///	d =& I(p' + (1,1))
-		/// \end{array}
-		/// \f]
-		/// 
-		/// The interpolated value, \f$v\f$, is 
-		/// \f[v = (1-\delta_y)((1-\delta_x)a + \delta_xb) + \delta_y((1-\delta_x)c + \delta_xd)\f]
+		/** This class is for bilinear interpolation.
+		    
+		    Define \f$p' = ( \operatorname{floor}\ x, \operatorname{floor}\ y)\f$ and
+		    \f$\delta = p - p'\f$
+		    
+		    4 pixels in a square with \f$p'\f$ in the top left corner are taken:
+		    \f[\begin{array}{rl}
+		    a =& I(p')\\   
+		    b =& I(p' + (1,0))\\  
+		    c =& I(p' + (0,1))\\  
+		    d =& I(p' + (1,1))
+		    \end{array}
+		    \f]
+		    
+		    The interpolated value, \f$v\f$, is 
+		    \f[v = (1-\delta_y)((1-\delta_x)a + \delta_xb) + \delta_y((1-\delta_x)c + \delta_xd)\f]
+		*/
 		class Bilinear{};
 
+		/**
+ 		  This class is for bicubic (not bicubic spline) interpolation.
 
-		/// This class is for bicubic (not bicubic spline) interpolation.
-		///
-		/// \f[ v = \sum_{m=-1}^2\sum_{n=-1}^2 I(x' + m, y' + n)r(m - \delta_x)r(\delta_y-n) \f]
-		///
-		/// where:
-		///
-		/// \f[\begin{array}{rl}
-		/// r(x) =& \frac{1}{6}\left[ p(x+2)^3 - 4p(x+1)^3 + 6p(x)^3 - 4p(x-1)^3 \right]\\
-		/// p(x) =& \begin{cases}x&x>0\\0&x \le 0\end{cases}
-		/// \end{array}\f]
-		///
-		///This algorithm is described in http://astronomy.swin.edu.au/~pbourke/colour/bicubic/
+		  \f[ v = \sum_{m=-1}^2\sum_{n=-1}^2 I(x' + m, y' + n)r(m - \delta_x)r(\delta_y-n) \f]
+  		  where:
+		    \f[\begin{array}{rl}
+		    r(x) =& \frac{1}{6}\left[ p(x+2)^3 - 4p(x+1)^3 + 6p(x)^3 - 4p(x-1)^3 \right]\\
+		    p(x) =& \begin{cases}x&x>0\\0&x \le 0\end{cases}
+		    \end{array}\f]                                                             
+		
+		    This algorithm is described in http://astronomy.swin.edu.au/~pbourke/colour/bicubic/ 
+		*/
 		class Bicubic{};
 	};
 
