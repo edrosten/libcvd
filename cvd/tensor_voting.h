@@ -106,12 +106,20 @@ namespace CVD
 				const vector<pair<int, Matrix<2> > >& kernel = kernels[direction];
 
 				Matrix<2>* p = &field[y][x];
-
+				
+				//The matrices are all symmetric, so only use the upper right triangle.
 				for(unsigned int i=0; i < kernel.size(); i++)
-					p[kernel[i].first] += kernel[i].second * scale;
+				{
+					p[kernel[i].first][0][0] += kernel[i].second[0][0] * scale;
+					p[kernel[i].first][0][1] += kernel[i].second[0][1] * scale;
+					p[kernel[i].first][1][1] += kernel[i].second[1][1] * scale;
+				}
 			}
-
 		
+		//Copy over bits to make the matrices symmetric
+		for(Image<Matrix<2> >:: iterator i=field.begin(); i != field.end(); i++)
+			(*i)[1][0] = (*i)[0][1];
+
 		return field;
 	}
 	
