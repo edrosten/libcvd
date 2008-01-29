@@ -114,6 +114,87 @@ namespace CVD
 		
 		return field;
 	}
+	
+
+	#ifdef CVD_EXPERIMENTAL
+
+	template<class C> Image<TooN::Matrix<2> > dense_tensor_vote_gradients_fast(const SubImage<C>& image, double sigma, double ratio, double cutoff=0.001, int num_divs = 4096)
+	{
+		using TooN::Matrix;
+		using std::pair;
+		using std::make_pair;
+		using std::vector;
+
+		Matrix<2> zero;
+		TooN::Zero(zero);
+		Image<Matrix<2> > ffield(image.size(), zero);
+		Image<__m128> field(image.size());
+		field.zero();
+
+		
+		//In much the same way as dense_tensor_vote_gradients, build up the kernel.
+		int kernel_radius =  (int)ceil(sigma * sqrt(-log(cutoff)));
+		vector<vector<pair<int, Matrix<2> > > > matrix_kernels;
+		for(unsigned int i=0; i < num_divs; i++)
+		{
+			double angle =  M_PI * i / num_divs;
+			matrix_kernels.push_back(TensorVoting::compute_a_tensor_kernel(kernel_radius, cutoff, angle, sigma, ratio, field.row_stride()));
+		}
+
+
+		//Put the kernel in aligned SSE registers.
+		//Image<__m128> is used since it guarantees SSE aligned memory.
+		vector<vector<int> > kernel_offsets;
+		vector<Image<__m128> > kernel_values;
+		for(unsigned int i=0; i < matrix_kernels.size(); i++)
+		{
+			vector<int>    off(matrix_kernels[i].size());
+			Image<__m128>  val(ImageRef(matrix_kernels[i].size(), 1));
+
+			for(unsigned int j=0; j < matrix_kernels[i].size(); j++)
+			{
+				off[j] = matrix_kernels[i][j].first;
+				Matrix<2>& m = matrix_kernels[i][j].second;
+				val.data()[j] = _mm_setr_ps(m[0][0], m[0][1], m[1][0], m[1][1]);
+			}
+
+			kernel_offsets.push_back(off);
+			kernel_values.push_back(val);
+		}
+
+		for(int y= kernel_radius; y < field.size().y - kernel_radius; y++)
+			for(int x= kernel_radius; x < field.size().x - kernel_radius; x++)
+			{
+				float gx = ((float)image[y][x+1] - image[y][x-1])/2.;
+				float gy = ((float)image[y+1][x] - image[y-1][x])/2.;
+
+				float scale = sqrt(gx*gx + gy*gy);
+				unsigned int direction = TensorVoting::quantize_half_angle(M_PI/2 + atan(gy / gx), num_divs);
+
+				const vector<int> & off = kernel_offsets[direction];
+				__m128* val = kernel_values[direction].data();
+				__m128* p = &field[y][x];
+				__m128 s = _mm_set1_ps(scale);
+
+				for(unsigned int i=0; i < off.size(); i++)
+					p[off[i]] = _mm_add_ps(p[off[i]], _mm_mul_ps(val[i], s));
+			}
+
+		for(int y=0; y < field.size().y; y++)
+			for(int x=0; x < field.size().x; x++)
+			{
+				float f[4];
+				_mm_storeu_ps(f, field[y][x]);
+				ffield[y][x][0][0] = f[0];
+				ffield[y][x][0][1] = f[1];
+				ffield[y][x][1][0] = f[2];
+				ffield[y][x][1][1] = f[3];
+			}
+		
+		return ffield;
+	}
+	#endif
+
 }
 
 
