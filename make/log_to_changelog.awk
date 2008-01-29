@@ -128,7 +128,7 @@ END{
 		}
 		else
 		{
-			print dates[ds] " " authors[keys[1]] " " concat
+			print dates[ds] " author: " authors[keys[1]] " " concat
 
 			for(j=1; j <= nk; j++)
 			{

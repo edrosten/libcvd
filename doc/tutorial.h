@@ -132,8 +132,8 @@ int main()
   pos.x = 0;
   pos.y = in.size().y / 2;
  	
-  cout << "Pixel at x=10, y=3 = " << i[3][10] << endl;
-  cout << "Pixel at x=0, and half way down = " << i[pos] << endl;
+  cout << "Pixel at x=10, y=3 = " << in[3][10] << endl;
+  cout << "Pixel at x=0, and half way down = " << in[pos] << endl;
   
   return 0;
 }

@@ -251,7 +251,7 @@ template<class T> class ConstSubImageIteratorEnd
 };
 
 
-/// A generic image class to manage a block of srbitrarily padded data as an image. Provides
+/// A generic image class to manage a block of arbitrarily padded data as an image. Provides
 /// basic image access such as accessing a particular pixel co-ordinate. 
 /// @param T The pixel type for this image. Typically either
 /// <code>CVD::byte</code> or <code>CVD::Rgb<CVD::byte> ></code> are used,
