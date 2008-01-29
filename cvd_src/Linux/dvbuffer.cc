@@ -21,8 +21,8 @@
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.13 $$Name:  $
-**       $Date: 2006/05/25 12:33:24 $
+**   $Revision: 1.14 $$Name:  $
+**       $Date: 2008/01/29 14:43:20 $
 **   Copyright: LGPL $Author: georgklein $
 ** Description:
 **
@@ -32,6 +32,9 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
+**  Revision 1.14  2008/01/29 14:43:20  georgklein
+**  Replaced some more DVBuffer constructor exit()s with exceptions
+**
 **  Revision 1.13  2006/05/25 12:33:24  georgklein
 **  Highly dubious fix without which my DVBuffer doesn't work (??)
 **
@@ -143,7 +146,6 @@ Exceptions::DVBuffer::DC1394Setup::DC1394Setup(string action)
 	what = "DVBuffer2 (in camera setup): " + action;// + ": " + strerror(errno);
 }
 
-
 Exceptions::DVBuffer::BadCameraSelection::BadCameraSelection(int nc, int cn)
 {
 	ostringstream o;
@@ -172,6 +174,11 @@ Exceptions::DVBuffer::BusReset::BusReset()
              "\n"
 			 "A quicker solution is to unplug the camera and plug it back in again.\n"
              "\n";
+}
+
+Exceptions::DVBuffer::DeviceSetup::DeviceSetup(string action)
+{
+  what = "DVBuffer2 (in setup): Failed on " + action + ": " + strerror(errno);
 }
 
 namespace DC
@@ -571,10 +578,6 @@ DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int e
   if ( (my_fd = open(dma_device_file,O_RDONLY)) < 0 )
   	throw Exceptions::DVBuffer::DeviceOpen(dma_device_file);
  
-  //TODO Finish putting in exceptions
-  //then move this to the end of this function
-  holder.clear();
-
   vmmap.syncronization_tag= 1;
   vmmap.num_buffers= num_dma_buffers;
   vmmap.capture_flags= SYNC_FRAMES;
@@ -583,10 +586,8 @@ DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int e
 
   /* tell the video1394 system that we want to listen to the given channel */
   if (ioctl(my_fd, LISTEN_CHANNEL, &vmmap) < 0) {
-    cerr << "LISTEN_CHANNEL ioctl failed!" << endl;
     tom_dc1394_dma_release_camera(my_handle,my_ring_buffer, my_frame_size*my_num_buffers, my_fd);
-    raw1394_destroy_handle(my_handle);
-    exit(1);
+    throw Exceptions::DVBuffer::DeviceSetup("LISTEN_CHANNEL ioctl");
   }
   
   my_frame_size= vmmap.buffer_size;
@@ -598,11 +599,9 @@ DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int e
     vwait.buffer= i;
     
     if (ioctl(my_fd,LISTEN_QUEUE_BUFFER,&vwait) < 0) {
-      cerr << "LISTEN_QUEUE_BUFFER ioctl failed!" << endl;
       ioctl(my_fd, UNLISTEN_CHANNEL, &(vwait.channel_number));
       tom_dc1394_dma_release_camera(my_handle,my_ring_buffer, my_frame_size*my_num_buffers, my_fd);
-      raw1394_destroy_handle(my_handle);
-      exit(1);
+      throw Exceptions::DVBuffer::DeviceSetup("LISTEN_QUEUE_BUFFER ioctl");
     }  
   }
     
@@ -611,21 +610,20 @@ DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int e
 
   // make sure the ring buffer was allocated
   if (my_ring_buffer == (unsigned char*)(-1)) {
-    cerr << "mmap failed!" << endl;
     ioctl(my_fd, UNLISTEN_CHANNEL, &vmmap.channel_number);
     tom_dc1394_dma_release_camera(my_handle,my_ring_buffer, my_frame_size*my_num_buffers, my_fd);
-    raw1394_destroy_handle(my_handle);
-    exit(1);
+    throw Exceptions::DVBuffer::DeviceSetup("mmap");
   }
+  
 
   // camera_dma_buffer_size= vmmap.buffer_size * vmmap.num_buffers;
 
   // set trigger mode
   if( dc1394_set_trigger_mode(my_handle, my_node, TRIGGER_MODE_0)
       != DC1394_SUCCESS)
-  {
+    {
     fprintf( stderr, "unable to set RawDCVideo trigger mode\n");
-  }
+    }
   
   // auto brightness and exposure
   if(bright==-1){
@@ -651,13 +649,14 @@ DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int e
 
   // this call is OK
   if (dc1394_start_iso_transmission(my_handle,my_node)!=DC1394_SUCCESS) {
-    fprintf( stderr, "unable to start RawDCVideo iso transmission\n");
     tom_dc1394_dma_release_camera(my_handle,my_ring_buffer, my_frame_size*my_num_buffers, my_fd);
-    raw1394_destroy_handle(my_handle);
-    exit(1);
+    throw Exceptions::DVBuffer::DC1394Setup("DC1394_start_iso_transmission");
   } else {
     fprintf( stderr, "started iso transmisssion\n");
   }
+
+  holder.clear();
+
 }
 
 VideoFrame<byte>* DC::RawDCVideo::get_frame(){

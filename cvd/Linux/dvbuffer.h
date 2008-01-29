@@ -69,9 +69,9 @@ namespace Exceptions
 		/// @ingroup gException
 		struct DeviceOpen: public All {DeviceOpen(std::string dev); ///< Construct from the device name
 		};
-		/// Error setting up the device
+		/// Error doing some later setup action
 		/// @ingroup gException
-		struct DeviceSetup: public All {DeviceSetup(std::string dev, std::string action);  ///< Construct from the device string and an error string
+		struct DeviceSetup: public All {DeviceSetup(std::string action);  ///< Construct from some action string
 		};
 		/// Error in a put_frame() call
 		/// @ingroup gException
