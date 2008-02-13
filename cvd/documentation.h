@@ -94,8 +94,7 @@ It is released under the LGPL License.
 			- Frameworks
 			- .dylib libraries
 		- Currently does not support gcc 3.3 (20030304) due to possible compiler bug.
-    - Cygwin(painful)
-		- Does not properly support the cygwin build environment. Manual intervention is needed.
+    - Cygwin
 	- Probably any other unix with a modern C++ compiler and a reasonably standard build environment (gmake is required)
 
  
