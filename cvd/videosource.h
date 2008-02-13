@@ -11,6 +11,7 @@
 
 #include <cvd/diskbuffer2.h>
 #include <cvd/readaheadvideobuffer.h>
+#include <cvd/colourspaces.h>
 
 #if CVD_HAVE_FFMPEG
 #include <cvd/videofilebuffer.h>
