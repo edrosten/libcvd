@@ -376,7 +376,7 @@ install: install-progs install-headers install-libs install-libs-debug
 
 install-progs:progs
 	mkdir -p $(bindir)
-	cp $(PROGS) $(bindir)
+	[ "$(PROGS)" == "" ] || cp $(PROGS) $(bindir)
 
 install-headers:
 	mkdir -p $(includedir)
