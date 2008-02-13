@@ -21,6 +21,7 @@
 #include "cvd/internal/io/jpeg.h"
 
 #include "cvd/image_io.h"
+#include "cvd/config.h"
 using namespace std;
 #include <iostream>
 #include <iomanip>
@@ -36,7 +37,7 @@ struct jpeg_istream_src: public jpeg_source_mgr
 
 	istream* i;
 	bool eof;
-	static const int bufsize=8192;
+	static const int bufsize=CVD_INTERNAL_JPEG_BUFFER_SIZE;
 	JOCTET buf[bufsize+2];
 
 	//Constructor
@@ -101,30 +102,8 @@ struct jpeg_istream_src: public jpeg_source_mgr
 			
 			//Store the byte...
 			me->buf[n] = c;
-			
-			//ooooh! a marker!
-			if(c == 0xff)
-			{
-				c = me->i->get();
-				if(c == EOF)
-				{
-					me->eof = 1;
-					break;
-				}
-
-
-				me->buf[++n] = c;
-
-				if(c == JPEG_EOI)
-				{
-					me->eof = 1;
-					break;
-				}
-			}
 		}
 
-		//me->i->read((char*)(me->buf), bufsize);
-		//me->bytes_in_buffer = me->i->gcount();	
 		me->bytes_in_buffer = n;
 
 		if(me->i->eof())

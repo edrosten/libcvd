@@ -914,7 +914,8 @@ fi
 #Put this before TIFF. If libjpeg is static, then this will ensure
 #(hopefully) that it selected before libtiff is tested (libtiff may
 #depend on libjpeg)
-AC_ARG_WITH(jpeg, [  --without-jpeg	  compile without JPEG support],[if test "$withval" = no; then disable_jpeg=yes; else disable_jpeg=no; fi])
+AC_ARG_WITH(jpeg,    [  --without-jpeg          compile without JPEG support],[if test "$withval" = no; then disable_jpeg=yes; else disable_jpeg=no; fi])
+AC_ARG_WITH(jpegbuffer, [  --with-jpegbuffer=N     Set JPEG read buffer size. N>1 will not be able to read multiple JPEGS from a stream.],[jpegbuffersize="$withval";])
 if test "$disable_jpeg" != yes 
 then
 	AC_CHECK_HEADERS(jpeglib.h)
@@ -924,6 +925,27 @@ then
 		AC_DEFINE(CVD_IMAGE_HAVE_JPEG, [JPEG,])
 		AC_SUBST(have_jpeg,yes)
 		options="$options jpeg"
+		
+		AC_MSG_CHECKING([JPEG read buffer size])
+
+		if test "$jpegbuffersize" == yes
+		then
+			jpegbuffersize=8192
+		elif test "$jpegbuffersize" == no || test "$jpegbuffersize" == ""
+		then
+			jpegbuffersize=1
+		fi
+
+		if test "$jpegbuffersize" -gt 1
+		then
+			AC_MSG_RESULT([$jpegbuffersize (unsafe reading)]);
+			dodginess_options="$dodginess_options unsafe_jpeg"
+		else
+			jpegbuffersize=1
+			AC_MSG_RESULT([1 (safe reading)]);
+		fi
+
+		AC_DEFINE_UNQUOTED(CVD_INTERNAL_JPEG_BUFFER_SIZE, $jpegbuffersize)
 	fi
 fi
 

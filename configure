@@ -894,7 +894,8 @@ Optional Packages:
   --without-quicktime	  compile without quicktime buffer support
   --without-threads       compile without PThread support
   --with-x                use the X Window System
-  --without-jpeg	  compile without JPEG support
+  --without-jpeg          compile without JPEG support
+  --with-jpegbuffer=N     Set JPEG read buffer size. N>1 will not be able to read multiple JPEGS from a stream.
   --without-tiff          compile without TIFF support
   --with-tiff=forceold    Debug/wierd build environment only. Force use of older library facilities.
   --without-png           compile without PNG support
@@ -7578,6 +7579,12 @@ if test "${with_jpeg+set}" = set; then
   withval="$with_jpeg"
   if test "$withval" = no; then disable_jpeg=yes; else disable_jpeg=no; fi
 fi;
+
+# Check whether --with-jpegbuffer or --without-jpegbuffer was given.
+if test "${with_jpegbuffer+set}" = set; then
+  withval="$with_jpegbuffer"
+  jpegbuffersize="$withval";
+fi;
 if test "$disable_jpeg" != yes
 then
 
@@ -7813,6 +7820,33 @@ _ACEOF
 		have_jpeg=yes
 
 		options="$options jpeg"
+
+		echo "$as_me:$LINENO: checking JPEG read buffer size" >&5
+echo $ECHO_N "checking JPEG read buffer size... $ECHO_C" >&6
+
+		if test "$jpegbuffersize" == yes
+		then
+			jpegbuffersize=8192
+		elif test "$jpegbuffersize" == no || test "$jpegbuffersize" == ""
+		then
+			jpegbuffersize=1
+		fi
+
+		if test "$jpegbuffersize" -gt 1
+		then
+			echo "$as_me:$LINENO: result: $jpegbuffersize (unsafe reading)" >&5
+echo "${ECHO_T}$jpegbuffersize (unsafe reading)" >&6;
+			dodginess_options="$dodginess_options unsafe_jpeg"
+		else
+			jpegbuffersize=1
+			echo "$as_me:$LINENO: result: 1 (safe reading)" >&5
+echo "${ECHO_T}1 (safe reading)" >&6;
+		fi
+
+		cat >>confdefs.h <<_ACEOF
+#define CVD_INTERNAL_JPEG_BUFFER_SIZE $jpegbuffersize
+_ACEOF
+
 	fi
 fi
 
