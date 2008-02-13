@@ -256,20 +256,26 @@ endif
 ifeq (@have_faster9@@have_sse2@@have_FAST_9@,yesyesyes)
 	CVD_OBJS+=cvd_src/faster_corner_9.o
 else
+ifeq (@have_FAST_9@,yes)
 	CVD_OBJS+=cvd_src/slower_corner_9.o
+endif
 endif
 	
 
 ifeq (@have_faster10@@have_sse2@@have_FAST_10@,yesyesyes)
 	CVD_OBJS+=cvd_src/faster_corner_10.o
 else
+ifeq (@have_FAST_10@,yes)
 	CVD_OBJS+=cvd_src/slower_corner_10.o
+endif
 endif
 
 ifeq (@have_faster12@@have_sse2@@have_FAST_12@,yesyesyes)
 	CVD_OBJS+=cvd_src/faster_corner_12.o
 else
+ifeq (@have_FAST_12@,yes)
 	CVD_OBJS+=cvd_src/slower_corner_12.o
+endif
 endif
 
 
