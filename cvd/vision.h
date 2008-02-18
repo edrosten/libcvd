@@ -389,7 +389,7 @@ inline void sample(const BasicImage<float>& im, double x, double y, float& resul
  * @Note: this will collide with transform in the std namespace
  */
 template <class T> 
-int transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<2>& M, const TooN::Vector<2>& inOrig, const TooN::Vector<2>& outOrig)
+int transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<2>& M, const TooN::Vector<2>& inOrig, const TooN::Vector<2>& outOrig, const T defaultValue = T())
 {
     const int w = out.size().x, h = out.size().y, iw = in.size().x, ih = in.size().y; 
     const TooN::Vector<2> across = M.T()[0];
@@ -451,7 +451,7 @@ int transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<2>
 		if (0 <= p[0] && 0 <= p[1] &&  p[0] < x_bound && p[1] < y_bound)
 		    sample(in,p[0],p[1],out[i][j]);
 		else {
-		    zeroPixel(out[i][j]);
+            out[i][j] = defaultValue;
 		    ++count;
 		}
 	    }
