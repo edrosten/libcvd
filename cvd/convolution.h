@@ -407,46 +407,6 @@ template <class T,class S> inline const T* convolveMiddle(const T* input, const 
 }
 
 
-#if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_XMMINTRIN)
-
-#include <xmmintrin.h>
-
-template <class S> const float* convolveMiddle(const float* input, const S& factor, const S* kernel, int ksize, int n, float* output) {
-    __m128 kkkk[ksize+1] __attribute__ ((aligned(16)));
-    kkkk[0] = _mm_set1_ps(factor);
-    for (int i=1; i<=ksize; i++)
-	kkkk[i] = _mm_set1_ps(kernel[i-1]);
-    
-    int i=0;
-    for (; i<n && !is_aligned<16>(input); i++, ++input, ++output) { 
-	*output = ConvolveMiddle<float,-1>::at(input, factor, kernel, ksize); 
-    }    
-    
-    for (; i<n-3; i+=4) {
-	__m128 sum = _mm_mul_ps(kkkk[0], _mm_load_ps(input));
-	const float* back = input - ksize-1;
-	const float* front = input + ksize+1;
-	const __m128* kp = kkkk+ksize+1;
-	while (++back != --front) {
-	    --kp;
-	    const __m128& kr = *kp;
-	    const __m128 b = _mm_loadu_ps(back);
-	    const __m128 f = _mm_loadu_ps(front);
-	    sum = _mm_add_ps(sum, _mm_mul_ps(kr, _mm_add_ps(b,f)));
-	}
-	_mm_stream_ps(output, sum);
-	output += 4;
-	input += 4;
-    }
-
-    for (; i<n; i++, ++input, ++output) { 
-	*output = ConvolveMiddle<float,-1>::at(input, factor, kernel, ksize); 
-    }    
-    return input;
-}
-
-#endif
-
 template <class T> inline void convolveGaussian(BasicImage<T>& I, double sigma, double sigmas=3.0)
 {
   convolveGaussian(I,I,sigma,sigmas);
@@ -550,8 +510,6 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
 	    rows[r] = rows[r+1];
 	rows[swin] = tmp;
     }
-
-    delete[] kernel;
 }
 
 #if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_XMMINTRIN)

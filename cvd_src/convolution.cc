@@ -1,6 +1,12 @@
 #include <cvd/convolution.h>
 
+#if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_XMMINTRIN)
+#include <xmmintrin.h>
+#endif
+
 using namespace std;
+
+
 
 namespace CVD {
 
@@ -105,6 +111,7 @@ void convolveGaussian5_1(Image<byte>& I)
 }
 
 #if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_XMMINTRIN)
+
 inline void convolveMiddle5(const float* in, double factor, const double kernel[], int count, float* out)
 {
     int i;
