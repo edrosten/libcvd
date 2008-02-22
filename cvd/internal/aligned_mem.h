@@ -96,6 +96,20 @@ namespace CVD {
     template <class T, int N> std::map<T*,typename aligned_mem<T,N>::entry> aligned_mem<T,N>::buffers;
 
   }
+
+    template <class T, int N> struct AlignedMem {
+	T* mem;
+	AlignedMem(size_t count) {
+	    mem = Internal::aligned_mem<T,N>::alloc(count);
+	}
+	~AlignedMem() {
+	    Internal::aligned_mem<T,N>::release(mem);
+	}
+	T* data() { return mem; }
+	const T* data() const { return mem; }
+    };    
+
+    
 }
 
 #endif

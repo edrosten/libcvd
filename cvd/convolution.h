@@ -383,9 +383,9 @@ template <class T> struct ConvolveMiddle<T,0,1> {
   template <class S> static inline T at(const T* input, const S& factor, const S* ) { return *input * factor; }
 };
 
-#if 1
 template <class T,class S> inline const T* convolveMiddle(const T* input, const S& factor, const S* kernel, int ksize, int n, T* output) {
-#define CALL_CM(I) for (int j=0; j<n; j++, input++) { *(output++) = ConvolveMiddle<T,I>::at(input, factor, kernel); } break
+#define CALL_CM(I) for (int j=0; j<n; ++j, ++input, ++output) { *output = ConvolveMiddle<T,I>::at(input, factor, kernel); } break
+    
   switch (ksize) {
   case 0: CALL_CM(0);
   case 1: CALL_CM(1);
@@ -400,20 +400,49 @@ template <class T,class S> inline const T* convolveMiddle(const T* input, const 
   case 10: CALL_CM(10);
   case 11: CALL_CM(11);
   case 12: CALL_CM(12);
-  default: for (int j=0; j<n; j++, input++) { *(output++) = ConvolveMiddle<T,-1>::at(input, factor, kernel, ksize); }    
+  default: for (int j=0; j<n; j++, input++) { *(output++) = ConvolveMiddle<T,-1>::at(input, factor, kernel, ksize); }     
   }
   return input;
 #undef CALL_CM
 }
 
-#else
 
-template <class T,class S> const T* convolveMiddle(const T* input, const S& factor, const S* kernel, int ksize, int n, T* output) {
-    assign_multiple(input, factor, output, n);    
-    for (int r=0; r <ksize; r++) {
-	add_multiple_of_sum(input-r-1, input+r+1, kernel[r], output, n);
+#if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_XMMINTRIN)
+
+#include <xmmintrin.h>
+
+template <class S> const float* convolveMiddle(const float* input, const S& factor, const S* kernel, int ksize, int n, float* output) {
+    __m128 kkkk[ksize+1] __attribute__ ((aligned(16)));
+    kkkk[0] = _mm_set1_ps(factor);
+    for (int i=1; i<=ksize; i++)
+	kkkk[i] = _mm_set1_ps(kernel[i-1]);
+    
+    int i=0;
+    for (; i<n && !is_aligned<16>(input); i++, ++input, ++output) { 
+	*output = ConvolveMiddle<float,-1>::at(input, factor, kernel, ksize); 
+    }    
+    
+    for (; i<n-3; i+=4) {
+	__m128 sum = _mm_mul_ps(kkkk[0], _mm_load_ps(input));
+	const float* back = input - ksize-1;
+	const float* front = input + ksize+1;
+	const __m128* kp = kkkk+ksize+1;
+	while (++back != --front) {
+	    --kp;
+	    const __m128& kr = *kp;
+	    const __m128 b = _mm_loadu_ps(back);
+	    const __m128 f = _mm_loadu_ps(front);
+	    sum = _mm_add_ps(sum, _mm_mul_ps(kr, _mm_add_ps(b,f)));
+	}
+	_mm_stream_ps(output, sum);
+	output += 4;
+	input += 4;
     }
-    return input + n;
+
+    for (; i<n; i++, ++input, ++output) { 
+	*output = ConvolveMiddle<float,-1>::at(input, factor, kernel, ksize); 
+    }    
+    return input;
 }
 
 #endif
@@ -425,105 +454,109 @@ template <class T> inline void convolveGaussian(BasicImage<T>& I, double sigma, 
 
 template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& out, double sigma, double sigmas=3.0)
 {
-  typedef typename Pixel::traits<typename Pixel::Component<T>::type>::float_type sum_comp_type;
-  typedef typename Pixel::traits<T>::float_type sum_type;
-  assert(out.size() == I.size());
-  int ksize = (int)(sigmas*sigma + 0.5);
-  sum_comp_type *kernel = new sum_comp_type[ksize];
-  sum_comp_type ksum = sum_comp_type();
-  for (int i=1; i<=ksize; i++)
-    ksum += (kernel[i-1] = static_cast<sum_comp_type>(exp(-i*i/(2*sigma*sigma))));
-  for (int i=0; i<ksize; i++)
-    kernel[i] /= (2*ksum+1);
-  double factor = 1.0/(2*ksum+1);
-  int w = I.size().x;
-  int h = I.size().y;
-  int swin = 2*ksize;
+    typedef typename Pixel::traits<typename Pixel::Component<T>::type>::float_type sum_comp_type;
+    typedef typename Pixel::traits<T>::float_type sum_type;
+    assert(out.size() == I.size());
+    int ksize = (int)(sigmas*sigma + 0.5);
+    //std::cerr << "sigma: " << sigma << " kernel: " << ksize << std::endl;
+    std::vector<sum_comp_type> kernel(ksize);
+    sum_comp_type ksum = sum_comp_type();
+    for (int i=1; i<=ksize; i++)
+	ksum += (kernel[i-1] = static_cast<sum_comp_type>(exp(-i*i/(2*sigma*sigma))));
+    for (int i=0; i<ksize; i++)
+	kernel[i] /= (2*ksum+1);
+    double factor = 1.0/(2*ksum+1);
+    int w = I.size().x;
+    int h = I.size().y;
+    int swin = 2*ksize;
 
-  sum_type* buffer = Internal::aligned_mem<sum_type,16>::alloc(w*(swin+1));
-  sum_type* rowbuf = Internal::aligned_mem<sum_type,16>::alloc(w);
-  sum_type* outbuf = Internal::aligned_mem<sum_type,16>::alloc(w);
+    AlignedMem<sum_type,16> buffer(w*(swin+1));
+    AlignedMem<sum_type,16> aligned_rowbuf(w);
+    AlignedMem<sum_type,16> aligned_outbuf(w);
 
-  sum_type** rows = new sum_type*[swin+1];
-  for (int k=0;k<swin+1;k++)
-    rows[k] = buffer + k*w;
+    sum_type* rowbuf = aligned_rowbuf.data();
+    sum_type* outbuf = aligned_outbuf.data();
 
-  T* output = out.data();
-  for (int i=0; i<h; i++) {
-    sum_type* next_row = rows[swin];
-    const sum_type* input = getPixelRowTyped(I[i], w, rowbuf);
-    // beginning of row
-    for (int j=0; j<ksize; j++) {
-      sum_type hsum = input[j] * factor;
-      for (int k=0; k<ksize; k++)
-	hsum += (input[abs(j-k-1)] + input[j+k+1]) * kernel[k];
-      next_row[j] = hsum;
-    }
-    // middle of row
-    input += ksize;
-    input = convolveMiddle<sum_type, sum_comp_type>(input, factor, kernel, ksize, w-swin, next_row+ksize);
-    // end of row
-    for (int j=w-ksize; j<w; j++, input++) {
-      sum_type hsum = *input * factor;
-      const int room = w-j;
-      for (int k=0; k<ksize; k++) {
-	hsum += (input[-k-1] + (k+1 >= room ? input[2*room-k-2] : input[k+1])) * kernel[k];
-      }
-      next_row[j] = hsum;
-    }
-    // vertical
-    if (i >= swin) {
-      const sum_type* middle_row = rows[ksize];
-      assign_multiple(middle_row, factor, outbuf, w);
-      for (int k=0; k<ksize; k++) {
-	const sum_comp_type m = kernel[k];
-	const sum_type* row1 = rows[ksize-k-1];
-	const sum_type* row2 = rows[ksize+k+1];	
-	add_multiple_of_sum(row1, row2, m, outbuf, w);
-      }
-      cast_copy(outbuf, output, w);
-      output += w;
-      if (i == h-1) {
-	for (int r=0; r<ksize; r++) {
-	  const sum_type* middle_row = rows[ksize+r+1];
-	  assign_multiple(middle_row, factor, outbuf, w);
-	  for (int k=0; k<ksize; k++) {
-	    const sum_comp_type m = kernel[k];
-	    const sum_type* row1 = rows[ksize+r-k];
-	    const sum_type* row2 = rows[ksize+r+k+2 > swin ? 2*swin - (ksize+r+k+2) : ksize+r+k+2];
-	    add_multiple_of_sum(row1, row2, m, outbuf, w);
-	  }
-	  cast_copy(outbuf, output, w);
-	  output += w;
-	}	
-      }
-    } else if (i == swin-1) {
-      for (int r=0; r<ksize; r++) {
-	const sum_type* middle_row = rows[r+1];
-	assign_multiple(middle_row, factor, outbuf, w);
-	for (int k=0; k<ksize; k++) {
-	  const sum_comp_type m = kernel[k];
-	  const sum_type* row1 = rows[abs(r-k-1)+1];
-	  const sum_type* row2 = rows[r+k+2];	
-	  add_multiple_of_sum(row1, row2, m, outbuf, w);
+    std::vector<sum_type*> rows(swin+1);
+    for (int k=0;k<swin+1;k++)
+	rows[k] = buffer.data() + k*w;
+
+    T* output = out.data();
+    for (int i=0; i<h; i++) {
+	sum_type* next_row = rows[swin];
+	const sum_type* input = getPixelRowTyped(I[i], w, rowbuf);
+	// beginning of row
+	for (int j=0; j<ksize; j++) {
+	    sum_type hsum = input[j] * factor;
+	    for (int k=0; k<ksize; k++)
+		hsum += (input[abs(j-k-1)] + input[j+k+1]) * kernel[k];
+	    next_row[j] = hsum;
 	}
-	cast_copy(outbuf, output, w);
-	output += w;
-      }
-    }
+	// middle of row
+	input += ksize;
+	input = convolveMiddle<sum_type, sum_comp_type>(input, factor, &kernel.front(), ksize, w-swin, next_row+ksize);
+	// end of row
+	for (int j=w-ksize; j<w; j++, input++) {
+	    sum_type hsum = *input * factor;
+	    const int room = w-j;
+	    for (int k=0; k<ksize; k++) {
+		hsum += (input[-k-1] + (k+1 >= room ? input[2*room-k-2] : input[k+1])) * kernel[k];
+	    }
+	    next_row[j] = hsum;
+	}
+	// vertical
+	if (i >= swin) {
+	    const sum_type* middle_row = rows[ksize];
+	    assign_multiple(middle_row, factor, outbuf, w);
+	    for (int k=0; k<ksize; k++) {
+		const sum_comp_type m = kernel[k];
+		const sum_type* row1 = rows[ksize-k-1];
+		const sum_type* row2 = rows[ksize+k+1];	
+		add_multiple_of_sum(row1, row2, m, outbuf, w);
+	    }
+	    cast_copy(outbuf, output, w);
+	    output += w;
+	    if (i == h-1) {
+		for (int r=0; r<ksize; r++) {
+		    const sum_type* middle_row = rows[ksize+r+1];
+		    assign_multiple(middle_row, factor, outbuf, w);
+		    for (int k=0; k<ksize; k++) {
+			const sum_comp_type m = kernel[k];
+			const sum_type* row1 = rows[ksize+r-k];
+			const sum_type* row2 = rows[ksize+r+k+2 > swin ? 2*swin - (ksize+r+k+2) : ksize+r+k+2];
+			add_multiple_of_sum(row1, row2, m, outbuf, w);
+		    }
+		    cast_copy(outbuf, output, w);
+		    output += w;
+		}	
+	    }
+	} else if (i == swin-1) {
+	    for (int r=0; r<ksize; r++) {
+		const sum_type* middle_row = rows[r+1];
+		assign_multiple(middle_row, factor, outbuf, w);
+		for (int k=0; k<ksize; k++) {
+		    const sum_comp_type m = kernel[k];
+		    const sum_type* row1 = rows[abs(r-k-1)+1];
+		    const sum_type* row2 = rows[r+k+2];	
+		    add_multiple_of_sum(row1, row2, m, outbuf, w);
+		}
+		cast_copy(outbuf, output, w);
+		output += w;
+	    }
+	}
     
-    sum_type* tmp = rows[0];
-    for (int r=0;r<swin; r++)
-      rows[r] = rows[r+1];
-    rows[swin] = tmp;
-  }
+	sum_type* tmp = rows[0];
+	for (int r=0;r<swin; r++)
+	    rows[r] = rows[r+1];
+	rows[swin] = tmp;
+    }
 
-  Internal::aligned_mem<sum_type,16>::release(buffer);
-  Internal::aligned_mem<sum_type,16>::release(rowbuf);
-  Internal::aligned_mem<sum_type,16>::release(outbuf);
-  delete[] kernel;
-  delete[] rows;
+    delete[] kernel;
 }
+
+#if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_XMMINTRIN)
+void convolveGaussian(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas=3.0);
+#endif
 
 template <class T, class O, class K> void convolve_gaussian_3(const BasicImage<T>& I, BasicImage<O>& out, K k1, K k2)
 {    
