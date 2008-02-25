@@ -406,7 +406,7 @@ install-libs-debug:$(dsoname) libcvd_debug.a
 
 
 clean:
-	/bin/rm -f tmp libcvd.a $(sos)
+	/bin/rm -f tmp libcvd.a $(sos) libcvd_debug.a $(dsos)
 	find . -name '*.o' | xargs rm -f
 	find progs/ -perm +0100 -type f | xargs rm -f
 	rm -rf html man
