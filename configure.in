@@ -463,7 +463,7 @@ will make a #define a b. AC_DEFINE_UNQUOTED is needed if b is a shell expansion
 >>)
 changequote([,])
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthreads acml"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthreads acml globlist"
 dodginess_options=
 
 ################################################################################
@@ -1096,19 +1096,42 @@ echo -----------------------------------
 echo Checking for platform compatibility 
 echo -----------------------------------
 
-AC_MSG_CHECKING(for GLOB_BRACE and GLOB_TILDE in glob.h)
-a=
-AC_COMPILE_IFELSE([#include <glob.h>
-int main(){glob(0, GLOB_BRACE|GLOB_TILDE,0,0);}], [a=1]) 
 
-if test x$a = x1
+AC_ARG_WITH(glob, [  --without-glob          Compile without diskbuffer glob matching ], [have_glob="$withval"])
+have_glob="${have_glob:-yes}"
+
+if test "$have_glob" = yes
 then
-	AC_MSG_RESULT(yes)
+	AC_CHECK_HEADERS(glob.h,glob_headers=yes)
+	AC_CHECK_LIB(c,glob, glob_lib=yes)
+	if test x$glob_headers$glob_lib != xyesyes
+	then
+		have_glob=no
+	fi
+fi
+
+if test "$have_glob" == yes
+then
+	AC_SUBST(have_glob,yes)
+	AC_DEFINE(CVD_HAVE_GLOB, 1)
+	options="$options globlist"
+	
+	AC_MSG_CHECKING(for GLOB_BRACE and GLOB_TILDE in glob.h)
+	a=
+	AC_COMPILE_IFELSE([#include <glob.h>
+	int main(){glob(0, GLOB_BRACE|GLOB_TILDE,0,0);}], [a=1]) 
+
+	if test x$a = x1
+	then
+		AC_MSG_RESULT(yes)
+	else
+		AC_MSG_RESULT(no)
+		AC_MSG_WARN(glob matching is only partly functional. Your existing globs may not work.)
+		AC_DEFINE(CVD_INTERNAL_GLOB_IS_BAD)
+		dodginess_options="$dodginess_options broken_glob"
+	fi
 else
-	AC_MSG_RESULT(no)
-	AC_MSG_WARN(glob matching is only partly functional. Your existing globs may not work.)
-	AC_DEFINE(CVD_INTERNAL_GLOB_IS_BAD)
-	dodginess_options="$dodginess_options broken_glob"
+	dodginess_options="$dodginess_options no_glob"
 fi
 
 a=

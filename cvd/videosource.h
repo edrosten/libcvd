@@ -9,9 +9,12 @@
 
 #include <cvd/config.h>
 
-#include <cvd/diskbuffer2.h>
 #include <cvd/readaheadvideobuffer.h>
 #include <cvd/colourspaces.h>
+
+#ifdef CVD_HAVE_GLOB
+#include <cvd/diskbuffer2.h>
+#endif
 
 #if CVD_HAVE_FFMPEG
 #include <cvd/videofilebuffer.h>
@@ -51,7 +54,8 @@ namespace CVD {
     std::ostream& operator<<(std::ostream& out, const VideoSource& vs);
 
     void parse(std::istream& in, VideoSource& vs);
-    
+   	
+#ifdef CVD_HAVE_GLOB
     template <class T> VideoBuffer<T>* makeDiskBuffer2(const std::vector<std::string>& files, double fps, VideoBufferFlags::OnEndOfBuffer eob)
     {
 	return new DiskBuffer2<T>(files, fps, eob);    
@@ -60,6 +64,7 @@ namespace CVD {
     {
 	throw VideoSourceException("DiskBuffer2 cannot handle type vuy422");
     }
+#endif
 
     void get_files_options(const VideoSource& vs, int& fps, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob);
     
@@ -117,7 +122,11 @@ namespace CVD {
 
     template <class T> VideoBuffer<T>* open_video_source(const VideoSource& vs)
     {
-	if (vs.protocol == "files") {
+	if(0)
+	{
+	}
+#if CVD_HAVE_GLOB
+	else if (vs.protocol == "files") {
 	    int fps, ra_frames=0;
 	    VideoBufferFlags::OnEndOfBuffer eob;
 	    get_files_options(vs, fps, ra_frames, eob);
@@ -126,6 +135,8 @@ namespace CVD {
 		vb = new ReadAheadVideoBuffer<T>(*vb, ra_frames);
 	    return vb;
 	}
+#endif
+
 #if CVD_HAVE_V4L2BUFFER
 	else if (vs.protocol == "v4l2") {
 	    ImageRef size;
@@ -177,7 +188,10 @@ namespace CVD {
 #if CVD_HAVE_QTBUFFER
 				       "qt, "
 #endif
-				       "files");
+#ifdef CVD_HAVE_GLOB
+				       "files"
+#endif 
+				       );
     }
 
 /**

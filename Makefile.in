@@ -84,7 +84,6 @@ GZIP_ENV = --best
 #
 
 CVD_OBJS=   cvd_src/cvd_timer.o                             \
-			cvd_src/globlist.o                              \
 			cvd_src/diskbuffer2.o                           \
 			cvd_src/deinterlacebuffer.o                     \
 			cvd_src/exceptions.o                            \
@@ -162,6 +161,11 @@ endif
 ################################################################################
 #
 # Libraries
+
+ifeq (@have_glob@,yes)
+	CVD_OBJS+=cvd_src/globlist.o
+endif
+
 ifeq (@have_tiff@,yes)
 	CVD_OBJS+=pnm_src/tiff.o
 endif
