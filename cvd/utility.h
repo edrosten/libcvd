@@ -1,7 +1,6 @@
 #ifndef CVD_UTILITY_H
 #define CVD_UTILITY_H
 
-#include <cvd/config.h>
 #include <cvd/image.h>
 #include <cvd/internal/is_pod.h>
 #include <cvd/internal/pixel_traits.h>
@@ -178,13 +177,10 @@ in the output image
       return is_aligned<A>(ptr) ? 0 : (A-((reinterpret_cast<size_t>(ptr)) & (A-1)))/sizeof(T); 
   }
 
-#if defined(CVD_HAVE_MMXEXT) && defined(CVD_HAVE_MMINTRIN)
   void differences(const byte* a, const byte* b, short* diff, unsigned int size);
   void differences(const short* a, const short* b, short* diff, unsigned int size);
-#endif  
 
 
-#if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_XMMINTRIN)
   void differences(const float* a, const float* b, float* diff, unsigned int size);
   void add_multiple_of_sum(const float* a, const float* b, const float& c,  float* out, unsigned int count);
   void assign_multiple(const float* a, const float& c,  float* out, unsigned int count);
@@ -192,9 +188,7 @@ in the output image
   double sum_squared_differences(const float* a, const float* b, size_t count);
   void square(const float* in, float* out, size_t count);
   void subtract_square(const float* in, float* out, size_t count);
-#endif
 
-#if defined (CVD_HAVE_SSE2) && defined(CVD_HAVE_EMMINTRIN)
   void differences(const int32_t* a, const int32_t* b, int32_t* diff, unsigned int size);
   void differences(const double* a, const double* b, double* diff, unsigned int size);
   void add_multiple_of_sum(const double* a, const double* b, const float& c,  double* out, unsigned int count);
@@ -202,12 +196,8 @@ in the output image
   double inner_product(const double* a, const double* b, unsigned int count);
   double sum_squared_differences(const double* a, const double* b, size_t count);
   long long sum_squared_differences(const byte* a, const byte* b, size_t count);
-#else  
-  inline long long sum_squared_differences(const byte* a, const byte* b, size_t count) {
-      return SumSquaredDifferences<long long,int,byte>::sum_squared_differences(a,b,count);
-  }
-#endif 
-  
+
+
 }
 
 #endif

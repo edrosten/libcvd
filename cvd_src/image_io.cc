@@ -42,7 +42,7 @@ resizable image (size " << dest << ").";
 
 Exceptions::Image_IO::OpenError::OpenError(const string& name, const string& why, int error)
 {
-	what = "Opening file: " + name+ " (" + why + "): " + strerror(errno);
+	what = "Opening file: " + name+ " (" + why + "): " + strerror(error);
 }
 
 Exceptions::Image_IO::MalformedImage::MalformedImage(const string& why)

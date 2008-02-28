@@ -88,11 +88,9 @@ CVD_OBJS=   cvd_src/cvd_timer.o                             \
 			cvd_src/deinterlacebuffer.o                     \
 			cvd_src/exceptions.o                            \
 			cvd_src/image_io.o                              \
-			cvd_src/image_convert.o                         \
 			cvd_src/bayer.o                                 \
 			cvd_src/colourspace_convert.o                   \
-			cvd_src/vision.o                                \
-			cvd_src/utility.o                               \
+			cvd_src/half_sample.o                           \
 			cvd_src/draw.o                                  \
 			cvd_src/yuv422.o                                \
 			cvd_src/yuv420.o                                \
@@ -104,190 +102,12 @@ CVD_OBJS=   cvd_src/cvd_timer.o                             \
 			cvd_src/nonmax_suppression.o                    \
 			cvd_src/timeddiskbuffer.o                       \
 			cvd_src/videosource.o                           \
-
-			#cvd_src/fast/7_@fast_pointers@_@fast_force@.o   \
-			#cvd_src/fast/8_@fast_pointers@_@fast_force@.o   \
-			#cvd_src/fast/11_@fast_pointers@_@fast_force@.o  \
-
+			@dep_objects@
 
 ################################################################################
 #
-# Allow disabling of FAST detectors
+# Shared objects
 #
-ifeq (@have_FAST_7@,yes)
-	CVD_OBJS+=cvd_src/fast/fast_7_detect.o                    \
-			  cvd_src/fast/fast_7_score.o                     
-endif
-
-ifeq (@have_FAST_8@,yes)
-	CVD_OBJS+=cvd_src/fast/fast_8_detect.o                    \
-			  cvd_src/fast/fast_8_score.o                     
-endif
-
-ifeq (@have_FAST_9@,yes)
-	CVD_OBJS+=cvd_src/fast/fast_9_detect.o                    \
-			  cvd_src/fast/fast_9_score.o                     
-endif
-
-ifeq (@have_FAST_10@,yes)
-	CVD_OBJS+=cvd_src/fast/fast_10_detect.o                    \
-			  cvd_src/fast/fast_10_score.o                     
-endif
-
-ifeq (@have_FAST_11@,yes)
-	CVD_OBJS+=cvd_src/fast/fast_11_detect.o                    \
-			  cvd_src/fast/fast_11_score.o                     
-endif
-
-ifeq (@have_FAST_12@,yes)
-	CVD_OBJS+=cvd_src/fast/fast_12_detect.o                    \
-			  cvd_src/fast/fast_12_score.o                     
-endif
-
-################################################################################
-#
-# Stuff requiring TooN
-
-ifeq (@have_toon@,yes)
-	CVD_OBJS+=cvd_src/brezenham.o						\
-			  cvd_src/tensor_voting.o					
-endif
-
-ifeq (@have_lapack@,yes)
-	CVD_OBJS+=
-endif
-
-
-################################################################################
-#
-# Libraries
-
-ifeq (@have_glob@,yes)
-	CVD_OBJS+=cvd_src/globlist.o
-endif
-
-ifeq (@have_tiff@,yes)
-	CVD_OBJS+=pnm_src/tiff.o
-endif
-
-ifeq (@have_jpeg@,yes)
-	CVD_OBJS+=pnm_src/jpeg.o
-endif
-
-
-ifeq (@have_png@,yes)
-	CVD_OBJS+=pnm_src/png.o
-endif
-
-ifeq (@have_ffmpeg@,yes)
-	CVD_OBJS+=cvd_src/videofilebuffer.o
-endif
-
-ifeq (@have_pthread@,yes)
-	CVD_OBJS+=cvd_src/thread.o cvd_src/synchronized.o cvd_src/eventobject.o
-endif
-
-ifeq (@have_videodisplay@,yes)
-	CVD_OBJS+=cvd_src/videodisplay.o
-	CVD_OBJS+=cvd_src/glwindow.o
-endif
-
-################################################################################
-#
-# Linux
-
-ifeq (@have_dvbuffer@,yes)
-	CVD_OBJS+=cvd_src/Linux/dvbuffer.o
-endif
-
-ifeq (@have_v4l2buffer@,yes)
-	CVD_OBJS+=cvd_src/Linux/v4l2buffer.o \
-		cvd_src/Linux/v4lbuffer.o \
-		cvd_src/Linux/v4lcontrol.o
-endif
-
-ifeq (@have_v4l1buffer@,yes)
-	CVD_OBJS+=cvd_src/Linux/v4l1buffer.o
-endif
-
-################################################################################
-#
-# IRIX
-ifeq (@have_o2buffer@,yes)
-	CVD_OBJS+=cvd_src/IRIX/O2buffer.o cvd_src/IRIX/sgi-video.o
-endif
-
-################################################################################
-#
-# OSX
-ifeq (@have_qtbuffer@,yes)
-    CVD_OBJS+=cvd_src/OSX/qtbuffer.o
-endif
-
-################################################################################
-#
-#Architecture objects
-ifeq (@host_cpu@@have_sse2@,i686yes)
-	CVD_OBJS+= 
-endif
-
-ifeq (@host_cpu@@have_sse@,i686yes)
-	CVD_OBJS+=  cvd_src/i686/convolve_float.o \
-		    cvd_src/i686/convolve_float4.o \
-		    cvd_src/i686/float_difference.o \
-		    cvd_src/i686/float_assign_mul.o \
-		    cvd_src/i686/float_add_mul_add.o \
-		    cvd_src/i686/float_add_mul_add_unaligned.o \
-		    cvd_src/i686/float_innerproduct.o 
-endif
-
-ifeq (@host_cpu@@have_mmxext@,i686yes)
-	CVD_OBJS+=cvd_src/i686/yuv411_to_stuff_MMX.o  \
-			cvd_src/i686/halfsample.o \
-			cvd_src/i686/byte_to_short_difference.o \
-			cvd_src/i686/short_difference.o \
-			cvd_src/i686/int_difference.o \
-			cvd_src/i686/yuv422_to_rgb.o \
-			cvd_src/i686/yuv422_to_grey.o \
-			cvd_src/i686/yuv420p_to_rgb.o \
-			cvd_src/i686/rgb_to_gray.o 
-
-else
-	CVD_OBJS+=cvd_src/yuv411_to_stuff.o
-endif
-
-
-ifeq (@have_faster9@@have_sse2@@have_FAST_9@,yesyesyes)
-	CVD_OBJS+=cvd_src/faster_corner_9.o
-else
-ifeq (@have_FAST_9@,yes)
-	CVD_OBJS+=cvd_src/slower_corner_9.o
-endif
-endif
-	
-
-ifeq (@have_faster10@@have_sse2@@have_FAST_10@,yesyesyes)
-	CVD_OBJS+=cvd_src/faster_corner_10.o
-else
-ifeq (@have_FAST_10@,yes)
-	CVD_OBJS+=cvd_src/slower_corner_10.o
-endif
-endif
-
-ifeq (@have_faster12@@have_sse2@@have_FAST_12@,yesyesyes)
-	CVD_OBJS+=cvd_src/faster_corner_12.o
-else
-ifeq (@have_FAST_12@,yes)
-	CVD_OBJS+=cvd_src/slower_corner_12.o
-endif
-endif
-
-
-
-################################################################################
-#
-#
-
 
 ifeq (@osx_hacks@,yes)
 	soname=libcvd.dylib
@@ -380,7 +200,7 @@ install: install-progs install-headers install-libs install-libs-debug
 
 install-progs:progs
 	mkdir -p $(bindir)
-	[ "$(PROGS)" == "" ] || cp $(PROGS) $(bindir)
+	[ "$(PROGS)" = "" ] || cp $(PROGS) $(bindir)
 
 install-headers:
 	mkdir -p $(includedir)
@@ -412,7 +232,7 @@ clean:
 	rm -rf html man
 
 distclean: clean
-	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h .deps
+	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h .deps config.dep_tmp
 
 depend:
 	rm -f .sourcefiles
@@ -428,16 +248,16 @@ ChangeLog:
 .PRECIOUS: %.o
 
 %.o : %.cc
-	$(CXX) -I. $(OFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 %.o: %.cpp
-	$(CXX) -I. $(OFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 %.o: %.cxx
-	$(CXX) -I. $(OFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 %.o: %.C
-	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 %.o: %.s
 	as -g -o $@ $<

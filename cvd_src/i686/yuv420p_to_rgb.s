@@ -1,9 +1,9 @@
 	.section	.rodata
 	.align 8
 	.text
-.globl yuv420p_to_rgb
-	.type	yuv420p_to_rgb, @function
-yuv420p_to_rgb:
+.globl cvd_asm_yuv420p_to_rgb
+	.type	cvd_asm_yuv420p_to_rgb, @function
+cvd_asm_yuv420p_to_rgb:
 	pushl	%ebp
 	movl	%esp, %ebp
 	subl	$12, %esp
@@ -149,4 +149,4 @@ yuv420p_to_rgb:
 	addl	$12, %esp
 	popl	%ebp
 	ret
-	.size	yuv420p_to_rgb, .-yuv420p_to_rgb
+	.size	cvd_asm_yuv420p_to_rgb, .-cvd_asm_yuv420p_to_rgb

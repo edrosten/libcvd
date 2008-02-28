@@ -1,7 +1,7 @@
-#include <cvd/config.h>
-#include <cvd/colourspace.h>
-#include <cvd/utility.h>
-#include <cvd/internal/assembly.h>
+#include "cvd/config.h"
+#include "cvd/colourspace.h"
+#include "cvd/utility.h"
+#include "cvd/internal/assembly.h"
 
 namespace CVD {
   namespace ColourSpace {
@@ -42,11 +42,18 @@ namespace CVD {
       }
     }
 
+#if CVD_INTERNAL_HAVE_YUV420P_MMX
+    extern "C"{
+	void cvd_asm_yuv420p_to_rgb(const unsigned char*, unsigned char*, int);
+    }
+
+#endif
+
     void yuv420p_to_rgb(const unsigned char* y, const unsigned char* u, const unsigned char* v, unsigned char* rgb, unsigned int width, unsigned int height) {
-#if defined(CVD_HAVE_MMXEXT) && defined(CVD_HAVE_CPU_i686)
+#if CVD_INTERNAL_HAVE_YUV420P_MMX
       if (is_aligned<8>(y) && (u == y + width*height) && is_aligned<8>(u) && (v == u + width*height/4) && is_aligned<8>(v) &&
 	  is_aligned<8>(rgb) && ((width&4) == 0) && ((height&1)==0))
-	Internal::Assembly::yuv420p_to_rgb(y,rgb,width,height);
+	cvd_asm_yuv420p_to_rgb(y,rgb,width,height);
       else
 	yuv420p_to_rgb_c(y, u, v, rgb, width, height);
 #else
@@ -54,7 +61,7 @@ namespace CVD {
 #endif
     }    
     
-    void yuv420p_to_grey(const unsigned char* y, const unsigned char* u, const unsigned char* v, 
+    void yuv420p_to_grey(const unsigned char* y, const unsigned char*, const unsigned char*, 
 			 unsigned char* grey, unsigned int width, unsigned int height)
     {
       memcpy(grey, y, width*height);

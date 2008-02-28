@@ -38,16 +38,16 @@
 #include <cvd/internal/io/bmp.h>
 
 
-#ifdef CVD_IMAGE_HAVE_JPEG
+#ifdef CVD_HAVE_JPEG
 	#include <cvd/internal/io/jpeg.h>
 #endif
 
-#ifdef CVD_IMAGE_HAVE_TIFF
+#ifdef CVD_HAVE_TIFF
 	#include <cvd/internal/io/tiff.h>
 #endif
 
 
-#ifdef CVD_IMAGE_HAVE_PNG
+#ifdef CVD_HAVE_PNG
 	#include <cvd/internal/io/png.h>
 #endif
 
@@ -69,14 +69,14 @@ namespace CVD
 			Automatic= -2,
 			Unknown = -1,
 			PNM=0,
-			PS,
-			EPS,
-			BMP,
-			#ifdef CVD_IMAGE_HAVE_JPEG
-				JPEG,
+			PS=1,
+			EPS=2,
+			BMP=3,
+			#ifdef CVD_HAVE_JPEG
+				JPEG=4,
 			#endif
-			#ifdef CVD_IMAGE_HAVE_PNG
-				PNG,
+			#ifdef CVD_HAVE_PNG
+				PNG=5,
 			#endif
 		};
 	}
@@ -208,15 +208,15 @@ namespace CVD
 
 	  if(c == 'P')
 	    PNM::readPNM(im, i);
-#ifdef CVD_IMAGE_HAVE_JPEG
+#ifdef CVD_HAVE_JPEG
 	  else if(c == 0xff)
 	    JPEG::readJPEG(im, i);
 #endif
-#ifdef CVD_IMAGE_HAVE_TIFF
+#ifdef CVD_HAVE_TIFF
 	  else if(c == 'I')
 	    TIFF::readTIFF(im, i);
 #endif
-#ifdef CVD_IMAGE_HAVE_PNG
+#ifdef CVD_HAVE_PNG
 	  else if(c == 0x89)
 	  {
 	    PNG::readPNG(im, i);
@@ -268,10 +268,10 @@ namespace CVD
 	  case ImageType::Automatic:
 	  case ImageType::Unknown:
 	  	PNM::writePNM(im, o); break;
-	  #ifdef CVD_IMAGE_HAVE_JPEG
+	  #ifdef CVD_HAVE_JPEG
 		  case ImageType::JPEG: JPEG::writeJPEG(im,o); break;
 	  #endif
-	  #ifdef CVD_IMAGE_HAVE_PNG
+	  #ifdef CVD_HAVE_PNG
 		  case ImageType::PNG: PNG::writePNG(im,o); break;
 	  #endif
 	  case ImageType::PS:   PS::writePS(im, o);  break;

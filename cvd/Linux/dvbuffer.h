@@ -284,7 +284,7 @@ template<class T> class DVBuffer2: public VideoBuffer<T>, public DC::RawDCVideo
 			return RawDCVideo::frame_pending();
 		}
 	
-		virtual void seek_to(double t){}
+		virtual void seek_to(double){}
 };
 
 /// An 8-bit greyscale video buffer from a Firewire (IEEE 1394) camera.

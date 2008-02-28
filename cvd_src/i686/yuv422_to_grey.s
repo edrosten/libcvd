@@ -1,9 +1,9 @@
 	.section	.rodata
 	.align 8
 	.text
-.globl yuv422_to_grey
-	.type	yuv422_to_grey, @function
-yuv422_to_grey:
+.globl cvd_asm_yuv422_to_grey
+	.type	cvd_asm_yuv422_to_grey, @function
+cvd_asm_yuv422_to_grey:
 	pushl	%ebp
 	movl	%esp, %ebp
 	pushl	%eax
@@ -48,4 +48,4 @@ yuv422_to_grey:
 	popl	%eax
 	popl	%ebp
 	ret
-	.size	yuv422_to_grey, .-yuv422_to_grey
+	.size	cvd_asm_yuv422_to_grey, .-cvd_asm_yuv422_to_grey

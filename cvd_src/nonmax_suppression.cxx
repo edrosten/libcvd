@@ -47,9 +47,9 @@ inline void nonmax_suppression_t(const vector<ImageRef>& corners, const vector<S
 	int point_above = 0;
 	int point_below = 0;
 	
-	const unsigned int sz = corners.size(); 
+	const int sz = corners.size(); 
 	
-	for(unsigned int i=0; i < sz; i++)
+	for(int i=0; i < sz; i++)
 	{
 		Score score = scores[i];
 		ImageRef pos = corners[i];
@@ -131,7 +131,7 @@ struct GreaterEqual
 // The two collectors which either return just the ImageRef or the <ImageRef,int> pair
 struct collect_pos
 {
-	static inline ImageRef collect(const ImageRef& pos, int score){return pos;}
+	static inline ImageRef collect(const ImageRef& pos, int ){return pos;}
 };
 
 struct collect_score

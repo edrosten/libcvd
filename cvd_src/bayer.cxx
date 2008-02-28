@@ -42,7 +42,7 @@ void bayer_to_rgb(const unsigned char* bggr, unsigned char* rgb, unsigned int wi
   out += 2;
   row += 2;
   next += 2;
-  for (int j=0; j<midcount; j++) {
+  for (unsigned int j=0; j<midcount; j++) {
     out[0][0] = (next[-1] + next[1])/2;
     out[0][1] = (row[-1] + row[1] + next[0])/3;
     out[0][2] = row[0];
@@ -66,7 +66,7 @@ void bayer_to_rgb(const unsigned char* bggr, unsigned char* rgb, unsigned int wi
   out -= width*2;
   // Middle rows
   const unsigned char* prev = row-width;
-  for (int i=1; i<height-1; i+=2) {
+  for (unsigned int i=1; i<height-1; i+=2) {
     //First pixels of grgr
     out[0][0] = row[1];
     out[0][1] = row[0];
@@ -79,7 +79,7 @@ void bayer_to_rgb(const unsigned char* bggr, unsigned char* rgb, unsigned int wi
     next += 2;
     prev += 2;
     // middle pixels of grgr
-    for (int j=0; j<midcount; j++) {
+    for (unsigned int j=0; j<midcount; j++) {
       out[0][0] = (row[-1] + row[1])/2;
       out[0][1] = row[0];
       out[0][2] = (prev[0] + next[0])/2;
@@ -116,7 +116,7 @@ void bayer_to_rgb(const unsigned char* bggr, unsigned char* rgb, unsigned int wi
     next += 2;
     prev += 2;
     // middle pixels of bgbg
-    for (int j=0; j<midcount; j++) {
+    for (unsigned int j=0; j<midcount; j++) {
       out[0][0] = (prev[-1] + prev[1] + next[-1] + next[1])/4;
       out[0][1] = (prev[0] + row[-1] + row[1] + next[0])/4;
       out[0][2] = row[0];
@@ -153,7 +153,7 @@ void bayer_to_rgb(const unsigned char* bggr, unsigned char* rgb, unsigned int wi
   next += 2;      
   prev += 2;
   // middle pixels of last row: grgr
-  for (int j=0; j<midcount; j++) {
+  for (unsigned int j=0; j<midcount; j++) {
     out[0][0] = (row[-1] + row[1])/2;
     out[0][1] = row[0];
     out[0][2] = prev[0];
@@ -189,7 +189,7 @@ void bayer_to_grey(const unsigned char* bggr, unsigned char* grey, unsigned int 
   out += 2;
   row += 2;
   next += 2;
-  for (int j=0; j<midcount; j++) {
+  for (unsigned int j=0; j<midcount; j++) {
     out[0] = cie((next[-1] + next[1])/2, (row[-1] + row[1] + next[0])/3, row[0]);
     out[1] = cie(next[1], row[1], (row[0] + row[2])/2);
     out += 2;
@@ -204,7 +204,7 @@ void bayer_to_grey(const unsigned char* bggr, unsigned char* grey, unsigned int 
   out -= width*2;
   // Middle rows
   const unsigned char* prev = row-width;
-  for (int i=1; i<height-1; i+=2) {
+  for (unsigned int i=1; i<height-1; i+=2) {
     //First pixels of grgr
     out[0] = cie(row[1], row[0], (prev[0] + next[0])/2);
     out[1] = cie(row[1], (prev[1]+row[0]+row[2]+next[1])/4, (prev[0]+prev[2]+next[0]+next[2])/4);
@@ -213,7 +213,7 @@ void bayer_to_grey(const unsigned char* bggr, unsigned char* grey, unsigned int 
     next += 2;
     prev += 2;
     // middle pixels of grgr
-    for (int j=0; j<midcount; j++) {
+    for (unsigned int j=0; j<midcount; j++) {
       out[0] = cie((row[-1] + row[1])/2, row[0], (prev[0] + next[0])/2);
       out[1] = cie(row[1], (prev[1]+row[0]+row[2]+next[1])/4, (prev[0]+prev[2]+next[0]+next[2])/4);
       out += 2;
@@ -239,7 +239,7 @@ void bayer_to_grey(const unsigned char* bggr, unsigned char* grey, unsigned int 
     next += 2;
     prev += 2;
     // middle pixels of bgbg
-    for (int j=0; j<midcount; j++) {
+    for (unsigned int j=0; j<midcount; j++) {
       out[0] = cie((prev[-1] + prev[1] + next[-1] + next[1])/4, (prev[0] + row[-1] + row[1] + next[0])/4, row[0]);
       out[1] = cie((prev[1] + next[1])/2, row[1], (row[0]+row[2])/2);
       out += 2;
@@ -264,7 +264,7 @@ void bayer_to_grey(const unsigned char* bggr, unsigned char* grey, unsigned int 
   next += 2;      
   prev += 2;
   // middle pixels of last row: grgr
-  for (int j=0; j<midcount; j++) {
+  for (unsigned int j=0; j<midcount; j++) {
     out[0] = cie((row[-1] + row[1])/2, row[0], prev[0]);
     out[1] = cie(row[1], (row[0] + prev[1] + row[2])/3, (prev[0] + prev[2])/2);
     out += 2;

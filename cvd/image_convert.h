@@ -24,7 +24,6 @@
 #include <cvd/config.h>
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/internal/rgb_components.h>
-#include <cvd/internal/assembly.h>
 #include <cvd/image.h>
 
 namespace CVD
@@ -46,12 +45,9 @@ namespace CVD
     };
   };
 
-#if defined(CVD_HAVE_MMXEXT) && defined(CVD_HAVE_CPU_i686)
-  // The rgb to gray case: use mmx routine with integer CIE
   template <> struct ConvertImage<Rgb<byte>, byte, Pixel::CIE<Rgb<byte>, byte>, 1> {
       static void convert(const BasicImage<Rgb<byte> >& from, BasicImage<byte>& to);
   };
-#endif
   
   template<class Conv, class C, class D> void convert_image(const BasicImage<C>& from, BasicImage<D>& to)
   {

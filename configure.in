@@ -1,710 +1,16 @@
 AC_INIT(CVD,0.7)
 AC_COPYRIGHT(Copyright foo)
-
-
-
-orig_CXXFLAGS="$CXXFLAGS"
-
 #Use builtin autoconf checks for all the programs we need.
 AC_PROG_AWK
-AC_PROG_CC
 AC_PROG_CXX
-
-
-#Switch testing language to C++
-AC_LANG(C++)
-
-###################################################
-#
-# Check for g++ version >= 3
-
-if test x$GXX = xyes
-then
-	good_gcc=0
-
-	AC_MSG_CHECKING([g++ version])
-	changequote(,)
-	gxx_major_version=`$CXX -v 2>&1 | $AWK -F '[ .]' '/version/{print $3}'`
-	changequote([,])
-
-
-	if test "$gxx_major_version" -lt 3
-	then
-		AC_MSG_RESULT([$gxx_major_version (failed)])
-		AC_MSG_CHECKING([for other possibilities for g++ version >= 3])
-		AC_MSG_RESULT([])
-		#Check for some other possible G++s
-		#Uncache che checks
-		unset CXX
-		unset ac_ct_CXX
-		unset ac_cv_prog_ac_ct_CXX 
-		unset ac_cv_prog_cxx_g
-		unset GXX
-		unset ac_cv_cxx_compiler_gnu
-
-		#echo is a dummy target, which will always succeed.
-		#If the c++ compiler is set to echo, then we know that
-		#none of the proper ones worked.
-		AC_PROG_CXX([g++-4 g++-3 echo])
-
-		if test $ac_cv_prog_ac_ct_CXX = echo
-		then
-			AC_MSG_ERROR([g++ version >= 3.0 is required.])
-		fi
-	else
-		AC_MSG_RESULT([$gxx_major_version (ok)])
-	fi
-fi
-
-
-
-AC_ARG_WITH(debug,   [  --without-debug         compile without debug support],[debug=no], [])
-AC_ARG_WITH(debug,   [  --with-debug=flags      compile with debug support],[debug="$withval"], [])
-AC_ARG_WITH(profile, [  --with-profile=flags    compile with profile support],[profile="$withval"], [profile=no])
-
-###################################################
-#
-# Deal with profiling and debugging
-#
-#
-if test "$debug" != no || test "$profile" != no
-then
-	if test "$debug" == ""
-	then
-		if test "$ac_cv_cxx_compiler_gnu" = yes
-		then
-			CXXFLAGS="$orig_CXXFLAGS -g -ggdb"
-		fi
-	else
-		CXXFLAGS="$orig_CXXFLAGS $debug"
-	fi
-elif test "$debug" = no
-then
-	#Remove debugging
-	CXXFLAGS="$orig_CXXFLAGS"
-fi
-
-if test "$profile" != no
-then
-	if test "$profile" = yes
-	then
-		if test "$ac_cv_cxx_compiler_gnu" = yes
-		then
-			CXXFLAGS="$CXXFLAGS -p -pg"
-			CFLAGS="$CFLAGS -p -pg"
-		else 
-			AC_MSG_WARN([I don't know how to switch on profiling for this compiler])
-		fi
-	else
-		CXXFLAGS="$CXXFLAGS $profile"
-		CFLAGS="$CFLAGS $profile"
-	fi
-fi
-
-################################################################################
-#
-# Make position independent code
-#
-
-if test x$GXX = xyes
-then
-	CXXFLAGS="$CXXFLAGS -fPIC"
-fi
-
-#Start the compiler
-AC_CHECK_HEADERS(stdio.h, [], [])
-
-##################################################
-#
-# Cpu type detection and optimization
-#
-
-#Host detection
-AC_CANONICAL_HOST
-
-
-#Custom host CPU detection
-AC_MSG_CHECKING([CPU type])
-AC_ARG_WITH(cpu, [  --with-cpu=[type]         Specify pocessor type:
-                            X86:
-                              p3 p4 p4_64 xeon pM core2 core2_64 opteron
-                              opteron_64 athlon athlon64 athlon64_64
-                            SPARC:
-                              sparc
-                          Autodetection works on Linux only.])
-if test "$with_cpu" == ""
-then 
-	case "$host" in
-		*86*linux*)
-			cpu="`awk '
-	/Pentium III/						{print "p3";exit}
-	/Intel\(R\) Pentium\(R\) 4/			{print "p4";exit}
-	/Intel\(R\) Pentium\(R\) D/			{print "p4";exit}
-	/Intel\(R\) Pentium\(R\) M/			{print "pM";exit}
-	/Intel\(R\) Core\(TM\)2/			{print "core2";exit}
-	/Intel\(R\) Xeon\(TM\)/				{print "xeon";exit}
-	/Intel\(R\) XEON\(TM\)/				{print "xeon";exit}
-	/AMD Athlon\(tm\) 64 Processor/		{print "athlon64";exit}
-	/AMD Athlon\(tm\)/					{print "athlon";exit}
-	/AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
-		;;
-		sparc*)
-			cpu=sparc
-			;;
-	esac
-else
-	cpu="$with_cpu"
-fi
-
-AC_MSG_RESULT($cpu)
-
-AC_ARG_WITH(simd, [  --without-simd          disable SIMD code])
-
-if test "$with_simd" != "no"
-then
-	case "$host" in
-		*86*linux*)
-			simd_possible_options="sse2 sse mmxext mmx"
-			simd_options=
-
-			for dummyvar in 1
-			do
-
-				save_CPPFLAGS="$CPPFLAGS"
-
-				AC_ARG_WITH(mmx, [    --with-mmx            force presence or absence of MMX  (x86 only)])	
-				if test "$with_mmx" != yes && test "$with_mmx" != no 
-				then
-					save_CXXFLAGS="$CXXFLAGS"
-					CXXFLAGS="$CXXFLAGS -mmmx"
-					CPPFLAGS="$CPPFLAGS -mmmx"
-					AC_CHECK_HEADERS(mmintrin.h, [], [])
-					AC_MSG_CHECKING(for MMX support)
-					AC_RUN_IFELSE([
-						#include <mmintrin.h>
-						int main()
-						{
-							__m64 a;
-							a = _mm_setzero_si64();
-							a = _mm_and_si64(a, a);
-							return 0;
-						}], [mmx=yes], [mmx=no])
-					AC_MSG_RESULT($mmx)
-				else
-					mmx="$with_mmx"
-				fi
-
-				if test $mmx = no
-				then
-					CXXFLAGS="$save_CXXFLAGS"
-					break
-				else	
-					AC_DEFINE(CVD_HAVE_MMINTRIN)
-					AC_SUBST(have_mmx,yes)
-					simd_options="$simd_options mmx"
-				fi
-
-				
-
-				#MMXEXT is pretty muxh the intersection of SSE nad 3Dnow!
-				#and includes pshufw, movnta and prefetchnta
-				save_CXXFLAGS="$CXXFLAGS"
-				CXXFLAGS="$CXXFLAGS -msse"
-				CPPFLAGS="$CPPFLAGS -msse"
-				AC_ARG_WITH(mmxext, [    --with-mmxext         force presence or absence of MMXEXT (x86 only) ])	
-				if test "$with_mmxext" != yes && test "$with_mmxext" != no 
-				then
-					AC_CHECK_HEADERS(xmmintrin.h, [], [])
-					AC_MSG_CHECKING(for MMXEXT support)
-					AC_RUN_IFELSE([
-						#include <xmmintrin.h>
-						int main()
-						{
-							__m64 a;
-							a = _mm_setzero_si64();
-							a = _mm_shuffle_pi16(a, 0);
-							return 0;
-						}], [mmxext=yes], [mmxext=no])
-					AC_MSG_RESULT($mmxext)
-				else
-					mmxext="$with_mmxext"
-				fi
-
-				if test $mmxext = no
-				then
-					CXXFLAGS="$save_CXXFLAGS"
-					break
-				else	
-					AC_DEFINE(CVD_HAVE_XMMINTRIN)
-					AC_DEFINE(CVD_HAVE_MMXEXT)
-					AC_SUBST(have_mmxext,yes)
-					simd_options="$simd_options mmxext"
-				fi
-
-				AC_ARG_WITH(sse, [    --with-sse            force presence or absence of SSE  (x86 only)])	
-				if test "$with_sse" != yes && test "$with_sse" != no 
-				then
-					AC_MSG_CHECKING(for SSE support)
-					AC_RUN_IFELSE([
-						#include <xmmintrin.h>
-						int main()
-						{
-							__m128 a;
-							a = _mm_setzero_ps();
-							a = _mm_add_ps(a, a);
-							return 0;
-						}], [sse=yes], [sse=no])
-					AC_MSG_RESULT($sse)
-				else
-					sse="$with_sse"
-				fi
-
-				if test $sse = no
-				then
-					break
-				else	
-					AC_SUBST(have_sse,yes)
-					AC_DEFINE(CVD_HAVE_SSE)
-					simd_options="$simd_options sse"
-				fi
-
-
-
-
-				save_CXXFLAGS="$CXXFLAGS"
-				CXXFLAGS="$CXXFLAGS -msse2"
-				CPPFLAGS="$CPPFLAGS -msse2"
-				 
-				AC_ARG_WITH(sse2, [    --with-sse2           force presence or absence of SSE2  (x86 only)])	
-				if test "$with_sse2" != yes && test "$with_sse2" != no 
-				then
-					AC_CHECK_HEADERS(emmintrin.h, [], [])
-					AC_MSG_CHECKING(for SSE2 support)
-					AC_RUN_IFELSE([
-						#include <emmintrin.h>
-						int main()
-						{
-							__m128d a;
-							a = _mm_setzero_pd();
-							a = _mm_add_pd(a, a);
-							return 0;
-						}], [sse2=yes], [sse2=no])
-					AC_MSG_RESULT($sse2)
-				else
-					sse2="$with_sse2"
-				fi
-
-				if test $sse2 = no
-				then
-					CXXFLAGS="$save_CXXFLAGS"
-					break
-				else	
-					AC_SUBST(have_sse2,yes)
-					AC_DEFINE(CVD_HAVE_SSE2)
-					AC_DEFINE(CVD_HAVE_EMMINTRIN)
-					simd_options="$simd_options sse2"
-				fi
-			done
-			
-			CPPFLAGS="$save_CPPFLAGS"
-
-
-			#Also check whether we have a 64-bit processor
-			#(since some Pentium 4s have EM64T, and some don't)
-			#At least AMD name their processors with x86_64 something different!
-			AC_MSG_CHECKING([for 64-bit extensions])
-			if grep -q lm /proc/cpuinfo
-			then
-				AC_MSG_RESULT(yes)
-				AC_SUBST(have_64bit,yes)
-				AC_DEFINE(CVD_HAVE_64BIT)
-				# Append _64 onto the CPU name so that we can look up the right flags
-				# if it is a pentuim 4
-				cpu=$cpu"_64"
-			else
-				AC_MSG_RESULT(no)
-				bit64=""
-			fi
-			
-		;;
-	esac
-fi
-
-if test "$cpu" == ""
-then
-	cpu=Unknown
-fi
-
-
-AC_ARG_WITH(optimize,   [  --without-optimize      compile without optimizations ],[optimize=no],[])
-AC_ARG_WITH(optimize,   [  --with-optimize=flags   compile with optimization flags],[optimize="$withval"], [])
-
-if test "$optimize" != no
-then
-	if test "$optimize" != ""
-	then
-		OFLAGS="$optimize"
-	elif test "$ac_cv_cxx_compiler_gnu" = yes
-	then
-		AC_MSG_CHECKING([for best optimize flags])
-		AC_MSG_RESULT([])
-		
-		#Find possible lest of compiler flags
-		#FIXME, only GCC is currently supported
-		cpuoptlist="`$AWK '/^'$cpu'/{$1=""; print}' make/march_flags`"
-		
-		#Test list in order to find the best compiler option
-		save_CXXFLAGS="$CXXFLAGS"
-		for mwhat in -march= -mcpu=
-		do
-			for i in $cpuoptlist
-			do
-				i="$mwhat$i"
-				AC_MSG_CHECKING([$CXX supports $i]) 
-				
-				CXXFLAGS="$save_CXXFLAGS $i" 
-				AC_COMPILE_IFELSE([int main(){}], [a=1], [a=0])
-
-				if test $a = 1
-				then
-					AC_MSG_RESULT([yes])
-					cpuopt=$i
-					break 2
-				else
-					AC_MSG_RESULT([no])
-				fi
-			done
-		done
-		CXXFLAGS="$save_CXXFLAGS"
-		
-		
-		opt="-O3 $cpuopt"
-		if test "$cpuopt" = ""
-		then
-			AC_MSG_WARN([I do not know what the best flags are for this processor ($cpu).])
-		fi
-		OFLAGS="$opt"
-	else
-		AC_MSG_WARN([I do not know how to switch on optimizing for this compiler])
-	fi
-fi
-
-AC_SUBST(OFLAGS,[$OFLAGS])
-
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_RANLIB
-
-
-
+#Switch testing language to C++
+AC_LANG(C++)
+#Start the compiler
 AC_CONFIG_HEADERS
 AC_HEADER_STDC
-
-#From hereon, I use the following conventions:
-#a variable, FOO is saves (for the purpose of testing additions to it) in
-#save_FOO
-#
-#The variable `a' is used throughout as a temporary in tests
-
-
-################################################################################
-#
-# Some notes on autoconf
-
-#This if m4ese for a block comment :-)
-changequote(<<,>>)
-m4_if(<<
-
-Quoting characters are [ and ]. There is no way to escape them, except by 
-changing the quote character (see above). This is why I mostly use the 
-shell construct:
-if test foo
-
-as opposed to 
-
-if [ foo ]
-
-
-
-
-
-AC_CHECK_LIB(library, function, success, failure)
-
-Used to check for existence function a library. On success, it sets the
-variable ac_cv_lib_library_function=yes (empty on failure). If the success
-argument is missing of blank, eg:
-
-AC_CHECK_LIB(library, function, [], [beep])
-
-then the -llibrary is added to $LIBS automatically. Testing for the function
-main is an easy way of checking that linking against a library works without
-looking for a specific function.
-
-
-
-
-
-
-AC_SUBST(a, b)
-
-will substiture b for @a@ in a .in file, such as makefile.in
-
-
-
-AC_DEFINE(a, b)
-
-will make a #define a b. AC_DEFINE_UNQUOTED is needed if b is a shell expansion
-
-
-
-
-
-
->>)
-changequote([,])
-
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthreads acml globlist"
-dodginess_options=
-
-################################################################################
-#
-#  Some of my own M4 macros
-#
-
-
-################################################################################
-#
-# An OSX specific hack to get at stuff in /sw automatically
-# 
-
-if test "$host_vendor" = apple
-then
-	CPPFLAGS="$CPPFLAGS -I /sw/include -I/opt/local/include -I/usr/X11R6/include"
-	LIBS="$LIBS -L/sw/lib -L/opt/local/lib"
-	AC_MSG_NOTICE([Adding /sw to the build path.])
-	AC_MSG_NOTICE([Adding /opt/local to the build path.])
-	AC_MSG_NOTICE([Adding /usr/X11R6/include to the build path.])
-	AC_SUBST(osx_hacks,yes)
-fi
-
-################################################################################
-#
-#Check for numerics
-#
-
-
-echo 
-echo -----------------------------
-echo Checking for numerics support
-echo -----------------------------
-
-
-
-
-###################################################
-#
-#Allow the user to specify the location of TooN
-#
-AC_ARG_WITH(TooN, [  --with-TooN=directory   Specify location for TooN ], [opt_toon_dir=$withval])
-toondir="Missing"
-
-if test "$opt_toon_dir" != no
-then
-
-	#Yes is not a useful answer. We know the answer is yes.
-	if test "$opt_toon_dir" = yes
-	then
-		opt_toon_dir=
-	fi
-
-	#Check for TooN
-	AC_MSG_CHECKING([for TooN])
-
-	#Check for TooN in a bunch of places
-	save_CPPFLAGS="$CPPFLAGS"
-	for dir in  $opt_toon_dir "" "$HOME/usr/include" "$HOME/code/TooN" "$HOME/Src/TooN" "../TooN" ".."
-	do
-		a=
-		if test "$dir" = ""
-		then
-			CPPFLAGS="$save_CPPFLAGS"
-		else
-			CPPFLAGS="$save_CPPFLAGS -I$dir"
-		fi
-
-		AC_COMPILE_IFELSE([#include <TooN/TooN.h>
-	int main(){TooN::Vector<2> v;return 0;}], [a=1]) 
-
-		AC_COMPILE_IFELSE([#include <numerics.h>
-	int main(){Vector<2> v;return 0;}], [old_toon="$old_toon $dir"]) 
-		
-		if test x$a = x1
-		then
-			toondir=$dir
-			break
-		fi
-	done
-
-	if test "$toondir" = ""
-	then
-		AC_MSG_RESULT(yes)
-	else
-		AC_MSG_RESULT($toondir)
-	fi
-fi 
-
-if test "$toondir" = Missing
-then
-	AC_MSG_WARN(TooN is missing. Numerics support disabled.)
-	if test "$old_toon" != ""
-	then
-	AC_MSG_WARN(You have old versions of TooN installed in $old_toon. These are too old for libCVD.)
-	fi
-	toon=no
-else
-	options="$options toon"
-	toon=yes
-	AC_DEFINE(CVD_HAVE_TOON)
-	AC_SUBST(have_toon,yes)
-fi
-
-##################################################
-#
-# Check for BLAS and LAPACK support
-#
-lapack=no
-AC_ARG_WITH(lapack, [  --without-lapack        Disable BLAS and LAPACK.], [lapack=never])
-
-acml=no
-
-if test "$toon" = yes && test "$host_vendor" == apple && test "$lapack" != never
-then
-	
-	save_LIBS="$LIBS"
-	LIBS="$LIBS -framework vecLib"
-
-
-	AC_MSG_CHECKING(vecLib framework)
-	a=0
-	AC_COMPILE_IFELSE([#include <TooN/SVD.h>
-int main(){TooN::Matrix<2> m;TooN::SVD<2> svdm(m);return 0;}], [a=1]) 
-
-	if test x$a	= x1
-	then
-		AC_MSG_RESULT(yes)
-		lapack=yes
-		options="$options lapack"
-	else
-		AC_MSG_RESULT(no)
-		LIBS="$save_LIBS"
-	fi
-fi
-
-define([ER_M4_PASTE], [$1$2])
-
-if test "$toon" = yes && test "$lapack" = no
-then
-
-	#This built-in autoconf macro finds the linker flags needed to
-	#link with Fortran libraries and sets FCLIBS accordingly
-	#AC_FC_LIBRARY_LDFLAGS
-	# TODO: We may also need to use AC_FC_DUMMY_MAIN to see whether a dummy
-	# Fortran main is needed (see the Autoconf manual). Currently, no machines
-	# we compile on seem to need this.
-
-	save_LIBS="$LIBS"
-	#LIBS="$LIBS $FCLIBS"
-
-
-#	AC_MSG_CHECKING([quality of Ac_FC_LIBRARY_LDFLAGS])
-#	AC_LINK_IFELSE([int main(){return 0;}], [fc=good],[fc=b0rked]);
-#	AC_MSG_RESULT($fc)
-
-	f2c="Missing"
-	fc="b0rked"
-	if test $fc == b0rked
-	then
-		AC_MSG_NOTICE(Reverting to old fortran library test.)
-
-		AC_MSG_CHECKING([for C to fortran library])
-
-		#The linking testing function AC_LINK_IFELSE uses LIBS in the 
-		#linking stage, so we communicate our requirements by using this
-		LIBS="$save_LIBS -lf2c"
-		AC_LINK_IFELSE([int main(){return 0;}], [f2c=f2c])
-
-		LIBS="$save_LIBS -lg2c"
-		AC_LINK_IFELSE([int main(){return 0;}], [f2c=g2c])
-
-		LIBS="$save_LIBS -lgfortran"
-		AC_LINK_IFELSE([int main(){return 0;}], [f2c=gfortran])
-
-		AC_MSG_RESULT($f2c)
-		LIBS="$save_LIBS -l$f2c"
-
-		#$LIBS should either havf FCLIBS or -l$f2c present
-
-		opt_acml_dir="no"
-		AC_ARG_WITH(acml, [  --with-acml[[=directory]] Use BLAS and LAPACK routines from the ACML library [[located in the specified directory]] ], [opt_acml_dir=$withval])
-
-		if test x$opt_acml_dir == xno
-		then
-		AC_CHECK_LIB(blas,  dgemm_)
-		if test x$ac_cv_lib_blas_dgemm_ != xyes
-		then
-			AC_MSG_WARN(BLAS is missing. Get it from www.netlib.org/blas);
-		else
-			AC_CHECK_LIB(lapack,  dgesvd_)
-			if test x$ac_cv_lib_lapack_dgesvd_ != xyes
-			then
-				  AC_MSG_WARN(LAPACK is missing. Get it from www.netlib.org/lapack);
-			else
-			  options="$options lapack"
-			  lapack=yes
-			fi
-		fi
-		else
-			AC_MSG_NOTICE(Compiling with acml)
-
-			if test x$opt_acml_dir != xyes
-			then
-				LDFLAGS="$LDFLAGS -L$opt_acml_dir"
-			else
-				LDFLAGS="$LDFLAGS -L/opt/acml/gnu64/lib"
-			fi
-
-			LIBS="$LIBS -lacml_mv"
-
-			AC_CHECK_LIB(acml, dgemm_)
-			AC_CHECK_LIB(acml, dgesvd_)
-
-			if test x$ac_cv_lib_acml_dgemm_$ac_cv_lib_acml_dgesvd_ != xyesyes
-			then
-				AC_MSG_WARN(ACML is missing. Get it from www.amd.com/acml);
-			else
-				options="$options acml lapack"
-				lapack=yes
-				acml=yes
-			fi
-		fi
-	fi
-
-	if test "$lapack" = no
-	then
-		LIBS="$save_LIBS"
-	else
-		AC_SUBST(have_lapack,yes)
-		AC_DEFINE(CVD_HAVE_LAPACK)
-
-		if test "$acml" = yes
-		then
-			AC_SUBST(have_acml,yes)
-			AC_DEFINE(CVD_HAVE_ACML)
-		fi
-	fi
-fi
-
-
 
 cvd_major=`echo $PACKAGE_VERSION | $AWK -F'\\\\.' '{print $1}'`
 cvd_minor=`echo $PACKAGE_VERSION | $AWK -F'\\\\.' '{print $2}'`
@@ -714,13 +20,270 @@ AC_SUBST(major, $cvd_major)
 AC_DEFINE_UNQUOTED(CVD_MINOR_VERSION,$cvd_minor)
 AC_SUBST(minor, $cvd_minor)
 
+
+
 ################################################################################
 #
-# platform specific options
+#Lists of  optional components
+#
+
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthread glob memalign"
+dodginess_options=
+options=
+simd_all_options=
+simd_options=
+os_all_options=
+
+################################################################################
+#
+# Useful macros
+#
+
+dnl APPEND(var, value)
+dnl This appends vale to a shell variable var
+define(APPEND, [$1="$$1 $2"])
+
+
+
+dnl TEST_AND_SET_CXXFLAG(flag, [program])
+dnl
+dnl This attempts to compile a and run program with a certain compiler flag.
+dnl If no program is given, then the minimal C++ program is compiled, and 
+dnl this tests just the validity of the compiler flag. 
+dnl
+define([TEST_AND_SET_CXXFLAG],[
+	if test "$3" == ""
+	then
+		AC_MSG_CHECKING([if compiler flag $1 works])	
+	else
+		AC_MSG_CHECKING([$3])	
+	fi
+	save_CXXFLAGS="$CXXFLAGS"
+	APPEND(CXXFLAGS, [$1])
+
+	m4_if([$2],[],[pushdef(prog, [int main(){}])], [pushdef(prog, [$2])])
+	AC_RUN_IFELSE([prog], [cvd_conf_test=1],[cvd_conf_test=0])
+	popdef([prog])
+
+	if test $cvd_conf_test = 1
+	then
+		AC_MSG_RESULT(yes)
+		ts_success=yes
+	else
+		AC_MSG_RESULT(no)
+		CXXFLAGS="$save_CXXFLAGS"
+		ts_success=no
+	fi
+])
+
+
+dnl CHECK_FOR_LIBRARY(option, code, [success], [fail])
+dnl option corresponds to the first parameter for the corresponding
+dnl AC_ARG_WITH. If the library is present, then have_option and CVD_HAVE_OPTION
+dnl are set. If with_option is "", it will be set to yes.
+dnl
+dnl The test code shall do nothing on success, and set the shell variable a to 1
+dnl on failure. For convenience, LIBS  and CXXFLAGS are checkpointed 
+dnl automatically. On failure, they are restored automatically.
+dnl
+dnl On success, "option" is appended to options, and the code "success" is run
+dnl On failure including --without) fail is run.
+define(CHECK_FOR_LIBRARY,[
+	if test "$with_$1" != no && test "$have_$1" != yes
+	then
+		if test "$with_$1" == ""
+		then
+			with_$1=yes
+		fi
+
+		save_LIBS="$LIBS"
+		save_CXXFLAGS="$CXXFLAGS"
+		a=
+		$2
+		
+		if test x$a == x
+		then
+			AC_DEFINE(CVD_HAVE_[]m4_toupper($1), 1)
+			AC_SUBST(have_$1, yes)
+			APPEND(options, $1)
+			$3
+		else
+			LIBS="$save_LIBS"
+			CXXFLAGS="$save_CXXFLAGS"
+		fi
+	fi
+	
+	if test "$have_$1" != yes
+	then
+		:
+		$4
+	fi
+	])
+
+
+dnl SIMD_TEST(name, flag, code)
+dnl This tests for SIMD code (with name), using the compiler flag "flag"
+dnl and the provided test code. It respects with_simd and with_name
+dnl
+dnl On success, "name" is appended to simd_options
+define(SIMD_TEST, [
+	if test "$with_simd" != no
+	then
+		if test "$with_$1" == "yes"
+		then
+			have_$1=yes
+		elif test "$with_$1" != "no"
+		then
+			TEST_AND_SET_CXXFLAG([$2], [$3], [for $1 support])
+			have_$1="$ts_success"
+		fi
+
+		if test "$have_$1" == yes
+		then
+			AC_DEFINE(CVD_HAVE_$1, 1)
+			AC_SUBST(have_[]m4_tolower($1), yes)
+			APPEND(simd_options, m4_tolower($1))
+		fi
+	fi])
+
+
+
+################################################################################
+#
+# Compiler flags and optimization
+#
+#
+TEST_AND_SET_CXXFLAG(-Wall)
+TEST_AND_SET_CXXFLAG(-Wextra)
+
+
+########################################
+#
+# Remove -O2 from CXXFLAGS
+# 
+CXXFLAGS="$(echo "$CXXFLAGS" | sed -e's/-O2//')"
+
+########################################
+#
+# Extra debugging
+#
+AC_ARG_WITH(debug,   [  --with-debug=flags      compile with debug support],[debug="$withval"], [debug=yes])
+if test "$debug" = yes
+then
+	TEST_AND_SET_CXXFLAG(-ggdb)
+elif test "$debug" != no
+then
+	APPEND(CXXFLAGS, $debug)
+fi
+
+########################################
+#
+# Position independent code
+#
+
+TEST_AND_SET_CXXFLAG(-fPIC)
+if test $ts_success == no
+then
+	AC_MSG_WARN([I don't know how to compile position independent code.])
+fi
+
+
+#Host detection
+AC_CANONICAL_HOST
+
+########################################
+#
+# CPU type detection and optimization
+#
+noopt_CXXFLAGS="$CXXFLAGS"
+CXXFLAGS=
+
+AC_ARG_WITH(optimize,   [  --without-optimize      compile without optimizations ],[optimize=no],[])
+AC_ARG_WITH(optimize,   [  --with-optimize=flags   compile with optimization flags],[optimize="$withval"], [optimize=-O3])
+
+if test "$optimize" != no
+then
+	AC_MSG_CHECKING([for best optimize flags])
+	AC_MSG_RESULT([])
+	
+	TEST_AND_SET_CXXFLAG(-O3)
+	if test $ts_success == no
+	then
+		AC_MSG_WARN([I do not know how to switch on optimizing for this compiler])
+	fi
+
+	AC_MSG_CHECKING([CPU type])
+	AC_ARG_WITH(cpu, [  --with-cpu=[type]         Specify pocessor type for optimization selection:
+				X86:
+					  p3 p4 p4_64 xeon pM core2 core2_64 opteron
+					  opteron_64 athlon athlon64 athlon64_64
+				SPARC:
+					  sparc
+				Autodetection works on Linux only.])
+
+	if test "$with_cpu" == ""
+	then 
+		case "$host" in
+			*86*linux*)
+				cpu="`awk '
+		/Pentium III/						{print "p3";exit}
+		/Intel\(R\) Pentium\(R\) 4/			{print "p4";exit}
+		/Intel\(R\) Pentium\(R\) D/			{print "p4";exit}
+		/Intel\(R\) Pentium\(R\) M/			{print "pM";exit}
+		/Intel\(R\) Core\(TM\)2/			{print "core2";exit}
+		/Intel\(R\) Xeon\(TM\)/				{print "xeon";exit}
+		/Intel\(R\) XEON\(TM\)/				{print "xeon";exit}
+		/AMD Athlon\(tm\) 64 Processor/		{print "athlon64";exit}
+		/AMD Athlon\(tm\)/					{print "athlon";exit}
+		/AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
+			;;
+			sparc*)
+				cpu=sparc
+				;;
+		esac
+
+		cpu="${cpu:-unknown}"
+	else
+		cpu="$with_cpu"
+	fi
+
+	AC_MSG_RESULT($cpu)
+
+
+	#Find possible lest of compiler flags
+	#FIXME, only GCC is currently supported
+	cpuoptlist="`$AWK '/^'$cpu'/{$1=""; print}' make/march_flags`"
+
+	for mwhat in -march= -mcpu=
+	do
+		for i in $cpuoptlist
+		do
+			TEST_AND_SET_CXXFLAG($mwhat$i)
+			if test $ts_success == yes
+			then
+				break 2
+			fi
+		done
+	done
+
+	if test $ts_success == no
+	then
+		AC_MSG_WARN([I do not know what the best flags are for this processor ($cpu).])
+	fi
+fi
+OFLAGS="$CXXFLAGS"
+CXXFLAGS="$noopt_CXXFLAGS"
+
+################################################################################
+#
+# Processor/Platform specific parts
+#
+
 echo
-echo ---------------------------------------
-echo Checking for platform specific features
-echo ---------------------------------------
+echo ------------------------------------
+echo Checking processor specific features
+echo ------------------------------------
+echo
 
 AC_C_BIGENDIAN
 
@@ -731,62 +294,120 @@ else
 	AC_DEFINE(CVD_ARCH_BIG_ENDIAN)
 fi
 
+
+
+AC_ARG_WITH(simd, [  --without-simd          disable SIMD code. Use --without- or --with-
+                             to force presence/absence and disable autodetection.])
+AC_ARG_WITH(mmx, [    --with-mmx            force presence or absence of MMX  (x86 only)])	
+AC_ARG_WITH(mmxext, [    --with-mmxext         force presence or absence of MMXEXT (x86 only) ])	
+AC_ARG_WITH(sse, [    --with-sse            force presence or absence of SSE  (x86 only)])	
+AC_ARG_WITH(sse2, [    --with-sse2           force presence or absence of SSE2  (x86 only)])	
+
+case "$host" in
+	*86*)
+		AC_SUBST(have_x86, yes)
+		simd_all_options="mmx mmxext sse sse2 sse3"
+
+		SIMD_TEST(MMX, -mmmx, [
+			#include <mmintrin.h>
+			int main()
+			{
+				__m64 a;
+				a = _mm_setzero_si64();
+				a = _mm_and_si64(a, a);
+				return 0;
+			}], [for MMX support])
+
+		SIMD_TEST(MMXEXT, -msse,[
+			#include <xmmintrin.h>
+			int main()
+			{
+				__m64 a;
+				a = _mm_setzero_si64();
+				a = _mm_shuffle_pi16(a, 0);
+			return 0;}], [for MMXEXT support])
+
+		SIMD_TEST(SSE, -msse, [
+			#include <xmmintrin.h>
+			int main()
+			{
+				__m128 a;
+				a = _mm_setzero_ps();
+				a = _mm_add_ps(a, a);
+				return 0;
+			}], [for SSE spport])
+
+		SIMD_TEST(SSE2, -msse2, [
+			#include <emmintrin.h>
+			int main()
+			{
+				__m128d a;
+				a = _mm_setzero_pd();
+				a = _mm_add_pd(a, a);
+				return 0;
+			}], [for SSE2 support])
+
+		SIMD_TEST(SSE3, -msse3, [
+			#include <pmmintrin.h>
+			int main()
+			{ fuk;
+				__m128d a;
+				a = _mm_setzero_pd();
+				a = _mm_hadd_ps(a, a);
+				return 1;
+			}], [for SSE3 support])
+		;;
+esac
+
+AC_CHECK_SIZEOF([void*])
+if test "$ac_cv_sizeof_voidp" == 4
+then
+	AC_SUBST(have_32bit,yes)
+fi
+
+################################################################################
+#
+# Operating system specific parts
+#
+
+########################################
+#
+# An OSX specific hack to get at stuff in /sw automatically
+#
+
+echo
+echo -----------------------------------------------
+echo Checking for operating system specific features
+echo -----------------------------------------------
+
+AC_ARG_WITH(dvbuffer, [  --without-dvbuffer      compile without dvbuffer (DC camera) support (Linux only)])
+AC_ARG_WITH(v4l1buffer, [  --without-v4l1buffer	  compile without v4l1bffer (Video4Linux) support (Linux only)])
+AC_ARG_WITH(v4l2, [  --without-v4l2buffer	  compile without v4l2buffer (Video4Linux2) support (Linux only)])
+AC_ARG_WITH(o2buffer, [  --without-o2buffer	  compile without sgi video (IRIX only)])
+AC_ARG_WITH(qtbuffer, [  --without-qtbuffer	  compile without quicktime buffer support (MacOSX only)])
+
 case "$host" in
 	*linux*)
-		
-		os_options="dvbuffer v4l2buffer v4l1buffer"
-	
-		AC_ARG_WITH(firewire, [  --without-firewire	  compile without firewire (dvbuffer) support],[if test "$withval" = no; then disable_firewire=yes; else disable_firewire=no; fi])
-		if test "$disable_firewire" != yes 
-		then
-			a=
+		os_all_options="dvbuffer v4l2buffer v4l1buffer"
+
+		CHECK_FOR_LIBRARY(dvbuffer, [
 			AC_CHECK_HEADERS(libraw1394/raw1394.h libdc1394/dc1394_control.h, [], [a=1])
 			AC_CHECK_LIB(raw1394, main,[],[a=1])
 			AC_CHECK_LIB(dc1394_control, main,[],[a=1])
-			
-			if test x$a = x
-			then
-				AC_DEFINE(CVD_HAVE_DVBUFFER)
-				AC_SUBST(have_dvbuffer, yes)
-				options="$options dvbuffer"
-			fi
-		fi
+		])
 
-		AC_ARG_WITH(v4l1, [  --without-v4l1	  compile without v4l1 support],[if test "$withval" = no; then disable_v4l1=yes; else disable_v4l1=no; fi])
-		if test "$disable_v4l1" != yes 
-		then
-			a=
-			AC_CHECK_HEADERS(linux/videodev.h, [a=1])
-			if test "$a" = 1
-			then
-				
-				AC_DEFINE(CVD_HAVE_V4L1BUFFER)
-				AC_SUBST(have_v4l1buffer, yes)
-				options="$options v4l1buffer"
-			fi
-		fi
-
-		AC_ARG_WITH(v4l2, [  --without-v4l2	  compile without v4l2 support],[if test "$withval" = no; then disable_v4l2=yes; else disable_v4l2=no; fi])
-		if test "$disable_v4l2" != yes 
-		then
-			a=no
-			AC_LANG(C)
+		CHECK_FOR_LIBRARY(v4l1buffer, [AC_CHECK_HEADERS(linux/videodev.h,[], [a=1])])
+		
+		CHECK_FOR_LIBRARY(v4l2buffer,[
 			AC_MSG_CHECKING(for v4l2)
 			AC_COMPILE_IFELSE([	#include <sys/types.h>
 								#include <linux/types.h>
 								#include <linux/videodev.h>
-								int main(){V4L2_PIX_FMT_GREY;return 0;}], [a=yes])
-			
-			AC_LANG(C++)
-			AC_MSG_RESULT($a)
-			if test "$a" = yes
-			then
-				AC_DEFINE(CVD_HAVE_V4L2BUFFER)
-				AC_SUBST(have_v4l2buffer, yes)
-				options="$options v4l2buffer"
-			fi
-		fi
-	
+								int main(){V4L2_PIX_FMT_GREY;return 0;}], 
+								[AC_MSG_RESULT(yes)],
+								[AC_MSG_RESULT(no); a=1])
+		])
+
 		AC_MSG_CHECKING([kernel major number])
 		kernel_major=[`uname -r | $AWK -F'[.-]' '{print $1}'`]
 		AC_MSG_RESULT($kernel_major)
@@ -802,49 +423,36 @@ case "$host" in
 		kernel_release=[`uname -r | $AWK -F'[.-]' '{print $3}'`]
 		AC_MSG_RESULT($kernel_release)
 		AC_DEFINE_UNQUOTED(CVD_KERNEL_RELEASE,$kernel_release)
-	;;
+		;;
+
 	*sgi*)
-		os_options="O2buffer"
-		AC_DEFINE(CVD_HAVE_O2UBFFER)
-		AC_SUBST(have_o2buffer,yes)
-	
-		AC_ARG_WITH(o2buffer, [  --without-o2buffer	  compile without sgi video],[if test "$withval" = no; then disable_o2buffer=yes; else disable_o2buffer=no; fi])
-		if test "$disable_o2buffer" != yes
-		then
+		os_all_options="o2buffer"
+		CHECK_FOR_LIBRARY(o2buffer, [
 			echo "I hope all SGIs have stuff needed for O2buffer. Disable (--without-o2buffer) if I'm wrong."
-			options="$options O2buffer"
-		fi
-	;;
+		])
+		;;
 esac
 
 if test "$host_vendor" == apple
 then
-	os_options="qtbuffer"
-	AC_ARG_WITH(quicktime, [  --without-quicktime	  compile without quicktime buffer support],[if test "$withval" = no; then disable_qtbuffer=yes; else disable_qtbuffer=no; fi])
-	if test "$disable_qtbuffer" != yes 
-	then
-		save_LIBS="$LIBS"
-		LIBS="$LIBS -framework Carbon -framework QuickTime"
+	APPEND(CPPFLAGS, [-I /sw/include -I/opt/local/include -I/usr/X11R6/include])
+	APPEND(LIBS, [-L/sw/lib -L/opt/local/lib])
+	AC_MSG_NOTICE([Adding /sw to the build path.])
+	AC_MSG_NOTICE([Adding /opt/local to the build path.])
+	AC_MSG_NOTICE([Adding /usr/X11R6/include to the build path.])
+	AC_SUBST(osx_hacks,yes)
+	os_all_options="qtbuffer"
 
+	CHECK_FOR_LIBRARY(qtbuffer,[
+		APPEND(LIBS, [-framework Carbon -framework QuickTime])
 		AC_MSG_CHECKING(Carbon and QuickTime framework)
-		a=0
 		AC_COMPILE_IFELSE([ #include <Carbon/Carbon.h>
 							#include <QuickTime/QuickTime.h>
-							int main(){InitCursor();EnterMovies();return 0;}], [a=1]) 
-
-		if test x$a	= x1
-		then
-			AC_MSG_RESULT(yes)
-			AC_DEFINE(CVD_HAVE_QTBUFFER)
-			AC_SUBST(have_qtbuffer, yes)
-			options="$options qtbuffer"
-		else
-			AC_MSG_RESULT(no)
-			LIBS="$save_LIBS"
-		fi
-	fi
+							int main(){InitCursor();EnterMovies();return 0;}],
+							[AC_MSG_RESULT(yes)], 
+							[AC_MSG_RESULT(no); a=1]) 
+	])
 fi
-
 
 ################################################################################
 #
@@ -856,283 +464,217 @@ echo -------------------------------
 echo Checking for optional libraries
 echo -------------------------------
 
-AC_ARG_WITH(threads, [  --without-threads       compile without PThread support],[if test "$withval" = no; then disable_threads=yes; else disable_threads=no; fi])
-if test "$disable_threads" != yes 
-then
+AC_ARG_WITH(videodisplay, [  --without-vidoedisplay  compile without videodisplay support])
+AC_ARG_WITH(pthread, [  --without-pthread       compile without PThread support])
+AC_ARG_WITH(jpeg,    [  --without-jpeg          compile without JPEG support])
+AC_ARG_WITH(jpegbuffer, [  --with-jpegbuffer=N     Set JPEG read buffer size. N>1 will not be able to read multiple JPEGS from a stream.])
+AC_ARG_WITH(tiff, [  --without-tiff          compile without TIFF support])
+AC_ARG_WITH(tiff, [  --with-tiff=forceold    Debug/wierd build environment only. Force use of older library facilities.])
+AC_ARG_WITH(png, [  --without-png           compile without PNG support])
+AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support])
+AC_ARG_WITH(toon, [  --withot-toon          Compile without TooN support])
+AC_ARG_WITH(lapack, [  --without-lapack        Disable BLAS and LAPACK.])
+AC_ARG_WITH(acml, [  --with-acml[[=directory]] Use BLAS and LAPACK routines from the ACML library [[located in the specified directory]] ], [opt_acml_dir=$withval])
 
+CHECK_FOR_LIBRARY(videodisplay,[
+	AC_PATH_X
+	if test x$x_includes != x
+	then
+		APPEND(CXXFLAGS, -I$x_includes)
+	fi
+
+	APPEND(LIBS, [-L$x_libraries -lX11 -lXext])
+	AC_CHECK_LIB(GL,glDrawPixels)
+])
+
+
+CHECK_FOR_LIBRARY(toon, [
+	AC_MSG_CHECKING([for TooN])
+	AC_COMPILE_IFELSE([#include <TooN/TooN.h>
+	int main(){TooN::Vector<2> v;return 0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
+
+])
+
+CHECK_FOR_LIBRARY(lapack, [
+	if test "$with_acml" != no
+	then
+		if test "$with_acml" != yes & test "$with_acml" != ""
+		then
+			APPEND(LIBS, -L $with_acml)
+		else
+			APPEND(LIBS, -L/opt/acml/gnu64/lib)
+		fi
+		APPEND(LIBS, -lacml_mv)
+
+		AC_CHECK_LIB(acml, dgesvd_, [], [a=1])
+	else
+		a=1
+	fi
+])
+
+CHECK_FOR_LIBRARY(lapack, [
+	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
+])
+
+CHECK_FOR_LIBRARY(lapack, [
+	AC_MSG_CHECKING(if f2c is needed for LAPACK),AC_MSG_RESULT()
+	APPEND(LIBS, -lf2c)
+	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
+])
+
+CHECK_FOR_LIBRARY(lapack, [
+	AC_MSG_CHECKING(if f2c is needed for LAPACK),AC_MSG_RESULT()
+	APPEND(LIBS, -lg2c)
+	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
+])
+
+CHECK_FOR_LIBRARY(lapack, [
+	AC_MSG_CHECKING(if f2c is needed for LAPACK),AC_MSG_RESULT()
+	APPEND(LIBS, -lgfortran)
+	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
+])
+
+
+
+CHECK_FOR_LIBRARY(pthread, [
+	APPEND(CXXFLAGS, -pthread)
+	APPEND(LIBS, -pthread)
 	AC_MSG_CHECKING(for working pthreads)
-	save_CXXFLAGS="$CXXFLAGS"
-	CXXFLAGS="$CXXFLAGS -pthread"
-	a=0
 	AC_COMPILE_IFELSE([#include <pthread.h>
 						void*foo(void*){}
-						int main(){pthread_create(0,0,foo,0);return 0;}],[a=1])
-	if test $a == 1
+						int main(){pthread_create(0,0,foo,0);return 0;}],
+						[AC_MSG_RESULT(yes)],
+						[AC_MSG_RESULT(no); a=1])
+], [
+	# check for existence of pthread_yield
+	# Mac OS X only has pthread_yield_np
+	a=
+	AC_CHECK_FUNC(pthread_yield, AC_DEFINE(CVD_HAVE_PTHREAD_YIELD),a=1$a)
+	AC_CHECK_FUNC(pthread_yield_np, AC_DEFINE(CVD_HAVE_PTHREAD_YIELD_NP),a=1$a)
+	if test x$a = x11
 	then
-		AC_MSG_RESULT(yes)
-		AC_DEFINE(CVD_HAVE_PTHREAD, 1)
-		AC_SUBST(have_pthread,yes)
-		LIBS="$LIBS -pthread"
-		options="$options pthreads"
-
-		# check for existence of pthread_yield
-		# Mac OS X only has pthread_yield_np
-		AC_CHECK_FUNCS(pthread_yield, AC_DEFINE(CVD_HAVE_PTHREAD_YIELD))
-		AC_CHECK_FUNCS(pthread_yield_np, AC_DEFINE(CVD_HAVE_PTHREAD_YIELD_NP))
-	else
-		AC_MSG_RESULT(no)
-		CXXFLAGS="$save_CXXFLAGS"
+		APPEND(dodginess_options, no_pthread_yield)
 	fi
-fi
-
-AC_PATH_X
-
-save_CXXFLAGS="$CXXFLAGS"
-save_LIBS="$LIBS"
-if test "x$ac_cv_have_x" != x
-then
-	LIBS="-L$x_libraries -lX11 -lXext $LIBS"
-	if test "x$x_includes" != x
-	then
-		CXXFLAGS="$CXXFLAGS -I$x_includes"
-	fi
-
-	AC_CHECK_LIB(GL,glDrawPixels)
-
-	if test "$ac_cv_lib_GL_glDrawPixels" != no
-	then
-		AC_DEFINE(CVD_HAVE_VIDEODISPLAY)
-		options="$options videodisplay"
-		AC_SUBST(have_videodisplay, yes)
-		LIBS="-lGL $LIBS"
-	else
-		LIBS="$save_LIBS"
-		CXXFLAGS="$CXXFLAGS"
-	fi
-fi
-
-#Put this before TIFF. If libjpeg is static, then this will ensure
-#(hopefully) that it selected before libtiff is tested (libtiff may
-#depend on libjpeg)
-AC_ARG_WITH(jpeg,    [  --without-jpeg          compile without JPEG support],[if test "$withval" = no; then disable_jpeg=yes; else disable_jpeg=no; fi])
-AC_ARG_WITH(jpegbuffer, [  --with-jpegbuffer=N     Set JPEG read buffer size. N>1 will not be able to read multiple JPEGS from a stream.],[jpegbuffersize="$withval";])
-if test "$disable_jpeg" != yes 
-then
-	AC_CHECK_HEADERS(jpeglib.h)
-	AC_CHECK_LIB(jpeg, jpeg_destroy_decompress)
-	if test "$ac_cv_header_jpeglib_h" = yes && test "$ac_cv_lib_jpeg_jpeg_destroy_decompress" = yes
-	then
-		AC_DEFINE(CVD_IMAGE_HAVE_JPEG, [JPEG,])
-		AC_SUBST(have_jpeg,yes)
-		options="$options jpeg"
-		
-		AC_MSG_CHECKING([JPEG read buffer size])
-
-		if test "$jpegbuffersize" == yes
-		then
-			jpegbuffersize=8192
-		elif test "$jpegbuffersize" == no || test "$jpegbuffersize" == ""
-		then
-			jpegbuffersize=1
-		fi
-
-		if test "$jpegbuffersize" -gt 1
-		then
-			AC_MSG_RESULT([$jpegbuffersize (unsafe reading)]);
-			dodginess_options="$dodginess_options unsafe_jpeg"
-		else
-			jpegbuffersize=1
-			AC_MSG_RESULT([1 (safe reading)]);
-		fi
-
-		AC_DEFINE_UNQUOTED(CVD_INTERNAL_JPEG_BUFFER_SIZE, $jpegbuffersize)
-	fi
-fi
-
-
-tiffarg=
-#AC_ARG_WITH(tiff, [  --without-tiff       compile without TIFF support],[if test "$withval" = no; then disable_tiff=yes; else disable_tiff=no; fi])
-AC_ARG_WITH(tiff, [  --without-tiff          compile without TIFF support],[tiffarg="$withval";])
-AC_ARG_WITH(tiff, [  --with-tiff=forceold    Debug/wierd build environment only. Force use of older library facilities.],[tiffarg="$withval";])
+])
 
 
 
-disable_tiff=no
-if test "$tiffarg" = no
-then
-	disable_tiff=yes
-elif test "$tiffarg" = forceold
-then
-	force_old_tiff=yes
-fi
 
-if test "$disable_tiff" != yes 
-then
-	AC_CHECK_HEADERS(tiffio.h)
-	if test "$ac_cv_header_tiffio_h" = yes 
-	then
-	
-		foo_LIBS="$LIBS"
-		tiff_works=
-
-		#Repeat twice, once for normal checking
-		#and once with an additional check for zlib
-		for i in 1 2
-		do
-
-			#Check first for new style tiff
-
-			if test "$force_old_tiff" != yes
-			then
-				AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented)
-				test x$ac_cv_lib_tiff_TIFFReadRGBAImageOriented == xyes && tiff_works=yes
-			fi
-
-			if test x$tiff_works == x
-			then
-				AC_CHECK_LIB(tiff, TIFFReadRGBAImage)
-				test x$ac_cv_lib_tiff_TIFFReadRGBAImage == xyes && tiff_works=old
-			fi 
-
-			if test x$tiff_works == x && test $i == 1
-			then	
-				AC_MSG_CHECKING([if perhaps libtiff requires zlib])
-				AC_MSG_RESULT()
-				AC_CHECK_LIB(z, deflate)
-				unset ac_cv_lib_tiff_TIFFReadRGBAImage
-				unset ac_cv_lib_tiff_TIFFReadRGBAImageOriented
-				tiff_needs_zlib=1
-			else
-				break
-			fi
-		done
-
-		if test x$tiff_works == x
-		then 
-			#This removes the extraneous zlib
-			LIBS=$foo_LIBS
-		else
-			AC_DEFINE(CVD_IMAGE_HAVE_TIFF, [TIFF,])
-			AC_SUBST(have_tiff,yes)
-			options="$options tiff"
-
-			if test x$tiff_works == xold
-			then
-				AC_MSG_WARN(libtiff is present but old. Loading large TIFFs might be slow.)
-				dodginess_options="$dodginess_options oldtiff"
-			else
-				AC_DEFINE(CVD_INTERNAL_HAVE_TIFF_ORIENTED, [TIFF,])
-			fi
-
-			if test x$tiff_needs_zlib != x
-			then
-				AC_MSG_WARN(libtiff is present but requires zlib to be specified manually. Something is odd about your build system)
-				dodginess_options="$dodginess_options tiff_needs_zlib"
-			fi
-		fi
-	fi
-fi
-
-
-
-#Put this before TIFF. If libjpeg is static, then this will ensure
-#(hopefully) that it selected before libtiff is tested (libtiff may
-#depend on libjpeg)
-AC_ARG_WITH(png, [  --without-png           compile without PNG support],[if test "$withval" = no; then disable_png=yes; else disable_png=no; fi])
-if test "$disable_png" != yes 
-then
+CHECK_FOR_LIBRARY(png, [
 	AC_CHECK_HEADERS(png.h)
 	AC_CHECK_LIB(png, png_init_io)
-	if test "$ac_cv_header_png_h" = yes && test "$ac_cv_lib_png_png_init_io" = yes
-	then
-		AC_DEFINE(CVD_IMAGE_HAVE_PNG, [PNG,])
-		AC_SUBST(have_png,yes)
-		options="$options png"
-	fi
-fi
+])
 
-AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support],[if test "$withval" = no; then use_ffmpeg=no; else use_ffmpeg="$withval"; fi])
-if test "$use_ffmpeg" != no
+CHECK_FOR_LIBRARY(jpeg, [
+	AC_CHECK_HEADERS(jpeglib.h)
+	AC_CHECK_LIB(jpeg, jpeg_destroy_decompress)
+],[
+
+	AC_MSG_CHECKING([JPEG read buffer size])
+
+	jpegbuffersize="`echo $with_jpegbuffer | awk '$1 = ($1+0<= 0)?1:$1'`"
+
+	if test "$jpegbuffersize" -gt 1
+	then
+		AC_MSG_RESULT([$jpegbuffersize (unsafe reading)]);
+		APPEND(dodginess_options, unsafe_jpeg)
+	else
+		jpegbuffersize=1
+		AC_MSG_RESULT([1 (safe reading)]);
+	fi
+	AC_DEFINE_UNQUOTED(CVD_INTERNAL_JPEG_BUFFER_SIZE, $jpegbuffersize)
+])
+
+
+CHECK_FOR_LIBRARY(tiff, [
+	AC_CHECK_HEADERS(tiffio.h,[],[a=1])
+	AC_CHECK_LIB(tiff, TIFFReadRGBAImage,[],[a=1])
+])
+
+CHECK_FOR_LIBRARY(tiff, [
+	AC_MSG_CHECKING([if perhaps libtiff requires zlib])
+	AC_MSG_RESULT([])
+	unset ac_cv_lib_tiff_TIFFReadRGBAImage
+	AC_CHECK_HEADERS(tiffio.h,[],[a=1])
+	AC_CHECK_LIB(z, deflate,[],[a=1])
+	AC_CHECK_LIB(tiff, TIFFReadRGBAImage,[],[a=1])
+],[
+	APPEND(dodginess_options, tiff_needs_zlib)
+])
+
+if test "$have_tiff" == yes
 then
-	save_LIBS="$LIBS"
-	if test x"$use_ffmpeg" != x
-	then 
-		LIBS="$LIBS -L $use_ffmpeg"
-	fi
-
-	gxx_version=`$CXX -dumpversion`
-	if test $gxx_version = 4.1.0
-	then
-		CXXFLAGS="$CXXFLAGS -D__STDC_CONSTANT_MACROS"
-	fi
-
 	a=
-	AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h, [], [break])
-	AC_CHECK_LIB(avutil, main)
-	AC_CHECK_LIB(avformat, av_open_input_file)
-	AC_CHECK_LIB(avformat, av_read_frame) #only in >= 0.4.9
-	AC_CHECK_LIB(avcodec, avcodec_open)
-	if test "$ac_cv_lib_avcodec_avcodec_open$ac_cv_lib_avformat_av_open_input_file" = yesyes
+	if test "$with_tiff" != forceold
 	then
-		if test "$ac_cv_lib_avformat_av_read_frame" = yes
-		then
-			AC_DEFINE(CVD_HAVE_FFMPEG)
-			AC_SUBST(have_ffmpeg, yes)
-			options="$options ffmpeg"
-			save_LIBS="$LIBS"
-		else
-			echo "You have FFMPEG, but the version is too old. Version 0.4.9 or newer is required."
-		fi
+		AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented, a=1)
 	fi
 
-	LIBS="$save_LIBS"
+	if test x$a = x
+	then
+		APPEND(dodginess_options, oldtiff)
+	else
+		AC_DEFINE(CVD_INTERNAL_HAVE_TIFF_ORIENTED, 1)
+	fi
 fi
+
+
+
+
+CHECK_FOR_LIBRARY(ffmpeg, [
+	if test "$with_ffmpeg" != yes
+	then
+		APPEND(LIBS, [-L $with_ffmpeg])
+	fi
+	if test "`$CXX -dumpversion`" = 4.1.0
+	then
+		APPEND(CXXFLAGS, -D__STDC_CONSTANT_MACROS)
+	fi
+
+	AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h, [], [a=1])
+	AC_CHECK_LIB(avutil, main, [], [a=1])
+	AC_CHECK_LIB(avformat, av_open_input_file, [], [a=1])
+	AC_CHECK_LIB(avformat, av_read_frame, [ffmpeg_recent=yes], [a=1]) #only in >= 0.4.9
+	AC_CHECK_LIB(avcodec, avcodec_open, [], [a=1])
+
+	if test x$ffmpeg_recent$a = x1
+	then
+		echo "You have FFMPEG, but the version is too old. Version 0.4.9 or newer is required."
+	fi
+])
+
 
 ################################################################################
 #
 # platform compatibility
+# All of these ought to be yes
 echo
 echo -----------------------------------
 echo Checking for platform compatibility 
 echo -----------------------------------
 
+AC_ARG_WITH(glob, [  --without-glob          Compile without diskbuffer glob matching (for debugging only)  ])
+AC_ARG_WITH(memalign, [  --without-memalign      Compile without posix_memalign (for debugging only)  ])
 
-AC_ARG_WITH(glob, [  --without-glob          Compile without diskbuffer glob matching ], [have_glob="$withval"])
-have_glob="${have_glob:-yes}"
 
-if test "$have_glob" = yes
-then
-	AC_CHECK_HEADERS(glob.h,glob_headers=yes)
-	AC_CHECK_LIB(c,glob, glob_lib=yes)
-	if test x$glob_headers$glob_lib != xyesyes
-	then
-		have_glob=no
-	fi
-fi
 
-if test "$have_glob" == yes
-then
-	AC_SUBST(have_glob,yes)
-	AC_DEFINE(CVD_HAVE_GLOB, 1)
-	options="$options globlist"
-	
-	AC_MSG_CHECKING(for GLOB_BRACE and GLOB_TILDE in glob.h)
-	a=
+CHECK_FOR_LIBRARY(glob, [
+	AC_CHECK_HEADERS(glob.h,[], [a=1])
+	AC_CHECK_FUNC(glob,[], [a=1])
+],[
+	AC_MSG_CHECKING([for GLOB_BRACE and GLOB_TILDE in glob.h])
 	AC_COMPILE_IFELSE([#include <glob.h>
-	int main(){glob(0, GLOB_BRACE|GLOB_TILDE,0,0);}], [a=1]) 
+	int main(){glob(0, GLOB_BRACE|GLOB_TILDE,0,0);}], 
+						[AC_MSG_RESULT(yes)],
+						[
+						  AC_MSG_RESULT(no)
+						  AC_DEFINE(CVD_INTERNAL_GLOB_IS_BAD)
+						  APPEND(dodginess_options, broken_glob)
+						])
+], [
+	APPEND(dodginess_options, no_glob)
+])
 
-	if test x$a = x1
-	then
-		AC_MSG_RESULT(yes)
-	else
-		AC_MSG_RESULT(no)
-		AC_MSG_WARN(glob matching is only partly functional. Your existing globs may not work.)
-		AC_DEFINE(CVD_INTERNAL_GLOB_IS_BAD)
-		dodginess_options="$dodginess_options broken_glob"
-	fi
-else
-	dodginess_options="$dodginess_options no_glob"
-fi
 
 a=
 AC_CHECK_DECL(feenableexcept, [a=1], [a= ], [#include <fenv.h>])
@@ -1143,21 +685,9 @@ else
 	dodginess_options="$dodginess_options missing_c99_feenableexcept"
 fi
 
-AC_MSG_CHECKING(for posix_memalign)
-a=0
-AC_COMPILE_IFELSE([#include <stdlib.h>
-				int main(){void* mem; posix_memalign(&mem,16,100); return 0;}],[a=1])
-if test $a == 1
-then
-	AC_MSG_RESULT(yes)
-	AC_DEFINE(CVD_HAVE_MEMALIGN, 1)
-	AC_SUBST(have_memalign,yes)
-else
-	AC_MSG_RESULT(no)
-	AC_SUBST(have_memalign,no)
-	dodginess_options="$dodginess_options no_posix_memalign"
-fi		
-
+CHECK_FOR_LIBRARY(memalign, [
+	AC_CHECK_FUNC(posix_memalign, [], [a=1])
+], [], [APPEND(dodginess_options, no_posix_memalign)])
 
 ################################################################################
 #
@@ -1167,119 +697,208 @@ echo --------------------------------
 echo Checking for extra build options
 echo --------------------------------
 
-AC_ARG_ENABLE(ssefast9,  [  --disable-ssefast9      Disable the probably OK SSE FAST-9 detector])
-AC_ARG_ENABLE(ssefast10, [  --disable-ssefast10     Disable the probably OK SSE FAST-10 detector])
-AC_ARG_ENABLE(ssefast12, [  --disable-ssefast12     Disable the probably OK SSE FAST-12 detector])
+AC_ARG_ENABLE(ssefast9,  [  --disable-ssefast9      Disable the probably OK SSE FAST-9 detector (debgging only)])
+AC_ARG_ENABLE(ssefast10, [  --disable-ssefast10     Disable the probably OK SSE FAST-10 detector (debgging only)])
+AC_ARG_ENABLE(ssefast12, [  --disable-ssefast12     Disable the probably OK SSE FAST-12 detector (debgging only)])
+AC_ARG_ENABLE(fast7, [  --disable-fast7               compile without the FAST-7 detector (use on low memory systems).     ])
+AC_ARG_ENABLE(fast8, [  --disable-fast8               compile without the FAST-8 detector (use on low memory systems).     ])
+AC_ARG_ENABLE(fast9, [  --disable-fast9               compile without the FAST-9 detector (use on low memory systems).     ])
+AC_ARG_ENABLE(fast10, [  --disable-fast10              compile without the FAST-10 detector (use on low memory systems).     ])
+AC_ARG_ENABLE(fast11, [  --disable-fast11              compile without the FAST-11 detector (use on low memory systems).     ])
+AC_ARG_ENABLE(fast12, [  --disable-fast12              compile without the FAST-12 detector (use on low memory systems).     ])
 
-if test "$enable_ssefast9"  != "no"
-then
-	AC_SUBST(have_faster9, yes)
-fi
 
-if test "$enable_ssefast10"  != "no"
-then
-	AC_SUBST(have_faster10, yes)
-fi
+test "$enable_fast7" != no && AC_SUBST(have_fast7, yes)
+test "$enable_fast8" != no && AC_SUBST(have_fast8, yes)
+test "$enable_fast9" != no && AC_SUBST(have_fast9, yes)
+test "$enable_fast10" != no && AC_SUBST(have_fast10, yes)
+test "$enable_fast11" != no && AC_SUBST(have_fast11, yes)
+test "$enable_fast12" != no && AC_SUBST(have_fast12, yes)
 
-if test "$enable_ssefast12"  != "no"
-then
-	AC_SUBST(have_faster12, yes)
-fi
+test "$enable_ssefast9" != no && AC_SUBST(have_ssefast9, yes)
+test "$enable_ssefast10" != no && AC_SUBST(have_ssefast10, yes)
+test "$enable_ssefast12" != no && AC_SUBST(have_ssefast12, yes)
 
-if test "$enable_ssefast12$enable_ssefast10$enable_ssefast9" != "nonono" && test
-then
-	hidden_options="$hidden_options faster_test";
-fi
+################################################################################
+#
+# Compute dependencies
+#
 
-AC_MSG_CHECKING("FAST detectors")
-allfasts="7 8 9 10 11 12"
-AC_ARG_ENABLE(missingfast, [  --enable-missingfast=7,8,...  compile without certain FAST detectors.     ])
-wfasts="`echo $enable_missingfast | sed -e's/,/ /g'`"
-fasts="`echo $allfasts $wfasts |  tr ' ' '\n' | sort -n | uniq -u | tr '\n' ' '`"
-
-AC_MSG_RESULT([$fasts])
-
-if echo $fasts | grep -q 7 
-then
-	AC_SUBST(have_FAST_7, yes) 
-	AC_DEFINE(CVD_HAVE_FAST_7)
-	AC_SUBST(have_fast_7)
-fi
-if echo $fasts | grep -q 8 
-then
-	AC_SUBST(have_FAST_8, yes) 
-	AC_DEFINE(CVD_HAVE_FAST_8)
-fi
-if echo $fasts | grep -q 9 
-then
-	AC_SUBST(have_FAST_9, yes) 
-	AC_DEFINE(CVD_HAVE_FAST_9)
-fi
-if echo $fasts | grep -q 10 
-then
-	AC_SUBST(have_FAST_10, yes) 
-	AC_DEFINE(CVD_HAVE_FAST_10)
-fi
-if echo $fasts | grep -q 11 
-then
-	AC_SUBST(have_FAST_11, yes) 
-	AC_DEFINE(CVD_HAVE_FAST_11)
-fi
-if echo $fasts | grep -q 12 
-then
-	AC_SUBST(have_FAST_12, yes) 
-	AC_DEFINE(CVD_HAVE_FAST_12)
-fi
+#First, extract all the have_* variables
+for i in `echo $ac_subst_vars | tr ' ' '\n' | grep have_`
+do
+	eval echo $i \$$i
+done > config.have_bits
 
 
 
-AC_CHECK_PROG(docs, doxygen, docs, no)
+#The dependency list
+#The file format is as follows:
+#
+# have_feature1 [yes]
+#
+# dependee_list_1 dependency_list_1 
+# dependee_list_2 dependency_list_2 
+#  ...
+# dependee_list_N dependee_list_N END
+#
+#
+# dependee_list is comma separated. dependency_list is whitespace separated.
+# If all the dependencies in dependency list are present (have_* is yes), then
+# dependee list is buildable. The lowest numbered dependee list is selected.
+#
+# The dependee list has a comma separated list of object files (minus the .o)
+# to be build. If a `file' is all caps, it is treated as a define, instead.
+#
+# Blank lines, and those starting with # are ignored
+cat config.have_bits - <<ENDDEPS  | awk -f make/compile_deps.awk > config.dep_tmp
 
-if test "$cpu" == ""
-then
-	cpu=generic
-fi
+#SIMD dependencies
+cvd_src/i686/yuv411_to_stuff_MMX			mmxext 32bit x86
+cvd_src/yuv411_to_stuff						END
 
-AC_SUBST(cpu,$cpu)
+cvd_src/i686/halfsample,HALFSAMPLE_MMX8		mmx 32bit x86 END
+HALFSAMPLE_SSE16							sse2 END
 
+YV402P_MMX									mmx END
 
-D_PROGS='progs/se3_exp             toon          lapack
-		progs/se3_ln               toon          lapack 
-		progs/se3_pre_mul          toon          lapack       
-		progs/se3_post_mul         toon          lapack       
-		progs/se3_inv              toon			 lapack
-		progs/calibrate	           toon          videodisplay lapack v4l2buffer
-		progs/img_play             videodisplay         
-		progs/cvd_display_image    videodisplay         
-		progs/img_play_bw          videodisplay         
-		progs/img_play_deinterlace videodisplay         
-		progs/video_play           videodisplay  ffmpeg 
-		progs/video_play_bw        videodisplay  ffmpeg '
-progs="`echo $options $D_PROGS | $AWK -v stub=progs -f make/prog_dependencies.awk`"
-AC_SUBST(progs,$progs)
+cvd_src/i686/rgb_to_gray,cvd_src/i686/convert_rgb_to_y 32bit mmxext x86
+cvd_src/noarch/convert_rgb_to_y					END
 
 
-echo $options $D_PROGS > foo
+cvd_src/i686/convolve_gaussian				sse2
+cvd_src/noarch/convolve_gaussian			END
 
-T_PROGS='
-test/fast_test					videodisplay faster_test sse2
-test/diskbuffer2				videodisplay
-test/dvbuffer_mono  			videodisplay dvbuffer
-test/dvbuffer_yuvrgb  			videodisplay dvbuffer
-test/test_images       			
-test/v4l1buffer_mono  			videodisplay v4l1buffer
-test/v4l2buffer					videodisplay v4l2buffer
-test/dvbuffer_controls 			videodisplay dvbuffer 
-test/dvbuffer_rgb   			videodisplay dvbuffer
-test/o2buffer        			videodisplay o2buffer
-test/v4l1buffer_bayer 			videodisplay v4l1buffer 
-test/v4l1buffer_rgb  			videodisplay v4l1buffer
-test/qtbuffer_yuvrgb            videodisplay qtbuffer '
-testprogs="`echo $simd_options $hidden_options $options $T_PROGS | $AWK -v stub=test -f make/prog_dependencies.awk`"
-AC_SUBST(testprogs,$testprogs)
 
-AC_OUTPUT(Makefile)
+cvd_src/i686/gradient						sse2
+cvd_src/noarch/gradient						END
 
+cvd_src/i686/yuv422_to_rgb,cvd_src/i686/yuv422_to_grey,cvd_src/i686/yuv422_wrapper mmxext 32bit x86
+cvd_src/noarch/yuv422_wrapper						END
+
+cvd_src/i686/median_3x3						sse2
+cvd_src/noarch/median_3x3					END
+
+
+cvd_src/i686/utility_float					sse
+cvd_src/noarch/utility_float				END
+
+cvd_src/i686/utility_byte_differences		mmx
+cvd_src/noarch/utility_byte_differences	END
+
+cvd_src/i686/utility_double_int				sse2
+cvd_src/noarch/utility_double_int			END
+
+#FAST corner detection specifics
+cvd_src/fast/fast_7_detect,cvd_src/fast/fast_7_score   	fast7  END
+cvd_src/fast/fast_8_detect,cvd_src/fast/fast_8_score   	fast8  END
+cvd_src/fast/fast_9_detect,cvd_src/fast/fast_9_score	fast9  END
+cvd_src/fast/fast_10_detect,cvd_src/fast/fast_10_score	fast10  END
+cvd_src/fast/fast_11_detect,cvd_src/fast/fast_11_score	fast11  END
+cvd_src/fast/fast_12_detect,cvd_src/fast/fast_12_score	fast12  END
+
+cvd_src/faster_corner_9							sse2 ssefast9 fast9
+cvd_src/slower_corner_9							fast9							END	
+
+cvd_src/faster_corner_10						sse2 ssefast10 fast10
+cvd_src/slower_corner_10						fast10							END
+
+cvd_src/faster_corner_12						sse2 ssefast12 fast12
+cvd_src/slower_corner_12						fast12							END
+
+#General OS specific bits
+cvd_src/Linux/dvbuffer							dvbuffer END
+cvd_src/Linux/v4l1buffer						v4l1buffer END
+cvd_src/Linux/v4lbuffer							v4l1buffer END
+cvd_src/Linux/v4l2buffer	                 	v4l2buffer END
+cvd_src/IRIX/O2buffer,cvd_src/IRIX/sgi-video	o2buffer END
+cvd_src/OSX/qtbuffer							qtbffer END
+
+#Libraries
+cvd_src/synchronized,cvd_src/eventobject,cvd_src/thread		pthread END
+cvd_src/videodisplay,cvd_src/glwindow			videodisplay END
+pnm_src/jpeg									jpeg END
+pnm_src/tiff									tiff END
+pnm_src/png										png END
+cvd_src/videofilebuffer							ffmpeg END
+cvd_src/globlist    							glob END
+
+ENDDEPS
+
+#Split in to object files and defines
+#@<:@ is a quadrigraph for [
+AC_SUBST(dep_objects, ["`awk -vORS=' ' '/@<:@a-z@:>@/{print $0".o"}' config.dep_tmp`"])
+
+for i in `awk '!/@<:@a-z@:>@/{print "CVD_INTERNAL_HAVE_"$0}' config.dep_tmp`
+do
+	AC_DEFINE_UNQUOTED($i, 1)
+done
+
+
+
+
+cat config.have_bits - << ENDPROGS | awk -f make/compile_deps.awk > config.dep_progs
+progs/se3_exp              toon          lapack 	END
+progs/se3_ln               toon          lapack  	END
+progs/se3_pre_mul          toon          lapack    	END
+progs/se3_post_mul         toon          lapack     END
+progs/se3_inv              toon			 lapack 	END
+progs/calibrate	           toon          videodisplay lapack v4l2buffer END
+progs/img_play             videodisplay          	END
+progs/cvd_display_image    videodisplay          	END
+progs/img_play_bw          videodisplay          	END
+progs/img_play_deinterlace videodisplay          	END
+progs/video_play           videodisplay  ffmpeg  	END
+progs/video_play_bw        videodisplay  ffmpeg  	END
+ENDPROGS
+
+AC_SUBST(progs, ["`cat config.dep_progs | tr '\n' ' ' `"])
+
+
+cat config.have_bits - << ENDPROGS | awk -f make/compile_deps.awk > config.dep_testprogs
+test/fast_test					videodisplay faster_test sse2   END
+test/diskbuffer2				videodisplay					END
+test/dvbuffer_mono  			videodisplay dvbuffer			END
+test/dvbuffer_yuvrgb  			videodisplay dvbuffer			END
+test/test_images       											END
+test/v4l1buffer_mono  			videodisplay v4l1buffer			END
+test/v4l2buffer					videodisplay v4l2buffer			END
+test/dvbuffer_controls 			videodisplay dvbuffer 			END
+test/dvbuffer_rgb   			videodisplay dvbuffer			END
+test/o2buffer        			videodisplay o2buffer			END
+test/v4l1buffer_bayer 			videodisplay v4l1buffer 		END
+test/v4l1buffer_rgb  			videodisplay v4l1buffer			END
+test/qtbuffer_yuvrgb            videodisplay qtbuffer 			END
+ENDPROGS
+AC_SUBST(testprogs, ["`cat config.dep_testprogs | tr '\n' ' ' `"])
+
+
+echo
+echo
+echo Options:
+echo $options $os_options
+echo
+echo Missing options for $host_os:
+echo $options $all_options $os_all_options |  tr ' ' '\n' | sort | uniq -u | xargs echo
+echo 
+echo Dodgy things:
+echo $dodginess_options 
+echo
+echo
+echo SIMD support:
+echo $simd_options
+echo
+echo Missing SIMD support for $host:
+echo $simd_all_options $simd_options | tr ' ' '\n' |  sort | uniq -u | xargs echo
+echo
+
+
+
+AC_SUBST(CXXFLAGS, $CXXFLAGS)
+AC_SUBST(OFLAGS, $OFLAGS)
+	
+echo $CXXFLAGS
+echo $LIBS
 
 cat << FOO > cvd/config.h
 #ifndef CVD_CONFIG_H
@@ -1290,47 +909,4 @@ echo '#define CVD_HAVE_CPU_'$host_cpu 1 | cat - confdefs.h | grep CVD_ | sort | 
 #endif/' >> cvd/config.h
 echo '#endif' >> cvd/config.h
 
-
-AC_SUBST(debug_options,$options)
-all_opts="$all_options $os_options"
-AC_SUBST(debug_all_options,"$all_opts")
-
-if test ! -r .deps
-then
-echo > .deps
-fi
-
-
-changequote(, )
-echo
-echo Options:
-echo $options
-echo
-echo Missing options for $host_os:
-echo $options $all_options $os_options |  tr ' ' '\n' | sort | uniq -u | xargs echo
-echo 
-echo Dodgy things:
-echo $dodginess_options 
-echo
-echo SIMD support:
-echo $simd_options
-echo
-echo Missing SIMD support for $host:
-echo $simd_possible_options $simd_options | tr ' ' '\n' |  sort | uniq -u | xargs echo
-echo
-
-changequote([,])
-
-echo
-echo Programs:
-echo $progs | sed -e's!progs/!!g'
-echo 
-echo Missing programs:
-echo "$progs $D_PROGS" | xargs -n1 echo | awk -F/ '/progs/{print $2}' |  sort  | uniq -u | xargs echo
-echo
-
-echo Debug:
-echo CPPFLAGS="$CPPFLAGS"
-echo CXXFLAGS="$CXXFLAGS"
-echo OFLAGS="$OFLAGS"
-echo LIBS="$LIBS"
+AC_OUTPUT(Makefile)

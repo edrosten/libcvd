@@ -12,9 +12,7 @@
 #include <cvd/readaheadvideobuffer.h>
 #include <cvd/colourspaces.h>
 
-#ifdef CVD_HAVE_GLOB
 #include <cvd/diskbuffer2.h>
-#endif
 
 #if CVD_HAVE_FFMPEG
 #include <cvd/videofilebuffer.h>
@@ -60,7 +58,7 @@ namespace CVD {
     {
 	return new DiskBuffer2<T>(files, fps, eob);    
     }
-    template <> inline VideoBuffer<vuy422> * makeDiskBuffer2(const std::vector<std::string>& files, double fps, VideoBufferFlags::OnEndOfBuffer eob)
+    template <> inline VideoBuffer<vuy422> * makeDiskBuffer2(const std::vector<std::string>& , double , VideoBufferFlags::OnEndOfBuffer )
     {
 	throw VideoSourceException("DiskBuffer2 cannot handle type vuy422");
     }

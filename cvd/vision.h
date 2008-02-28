@@ -24,7 +24,6 @@
 
 #include <vector>
 
-#include <cvd/config.h>
 #include <cvd/exceptions.h>
 #include <cvd/image.h>
 #include <cvd/internal/pixel_operations.h>
@@ -34,13 +33,6 @@
 #if defined(CVD_HAVE_TOON)
 #include <TooN/TooN.h>
 #include <TooN/helpers.h>
-#endif
-
-#if defined( __GNUC__) && defined(CVD_HAVE_SSE2)
-#ifndef __SSE2__
-#warning CVD was configured with SSE2 but SSE2 is not enabled on this compile (-msse2); expect breakage.
-#endif
-#include <emmintrin.h>
 #endif
 
 namespace CVD {
@@ -103,9 +95,7 @@ void halfSample(const BasicImage<T>& in, BasicImage<T>& out)
     }
 }
 
-#if defined(CVD_HAVE_MMXEXT) && defined(CVD_HAVE_CPU_i686)
- void halfSample(const BasicImage<byte>& in, BasicImage<byte>& out);
-#endif
+void halfSample(const BasicImage<byte>& in, BasicImage<byte>& out);
 
 /// subsamples an image to half its size by averaging 2x2 pixel blocks
 /// @param in input image
@@ -231,114 +221,10 @@ template <class S, class T> void gradient(const BasicImage<S>& im, BasicImage<T>
   Gradient<S,T>::gradient(im,out);
 }
 
-#if defined(CVD_HAVE_SSE2) && defined(CVD_HAVE_EMMINTRIN)
 
- void gradient(const byte* in, short (*out)[2], int w, int h);
-
- inline void gradient(const BasicImage<byte>& im, BasicImage<short[2]>& out)
- {
-     if( im.size() != out.size())
-	 throw Exceptions::Vision::IncompatibleImageSizes("gradient");
-     if (is_aligned<16>(im.data()) && is_aligned<16>(out.data()))
-	 gradient(im.data(), out.data(), im.size().x, im.size().y);
-     else
-	 gradient<byte,short[2]>(im,out);
-     zeroBorders(out);
- }
-
-static inline __m128i zero_si128() { __m128i x; asm ( "pxor %0, %0  \n\t" : "=x"(x) ); return x; }
-
-static inline __m128i shifter_load_si128(const void* p) { __m128i x; asm( "pshufd  $0xE4, (%1), %0 \n\t" : "=x"(x) : "r"(p) ); return x;}
-
-template <class F> void gradient_threshold(const BasicImage<byte>& in, BasicImage<unsigned short>& magSq, int thresh, const F& f)
-{
-    const int w = in.size().x;
-    const byte* curr = in.data() + w;
-    unsigned short* out = magSq.data()+w;
-    int threshSq = thresh*thresh;
-    unsigned short reduced = (unsigned short)((threshSq&1)? threshSq/2 : threshSq/2-1);
-
-    int candidates[w*2];
-    int* c_last = candidates;
-    int* c_curr = c_last+w;
-    int last_count=0;
-    int curr_count=0;
-    
-    __m128i t = _mm_set1_epi16(reduced);
-    for (int i=1; i<in.size().y-1; i++) { 
-	for (int j=0; j<w; j+=16, curr+=16, out+=16) {
-	    __m128i hor_left, hor_right;
-	    {
-		__m128i hor = _mm_load_si128((const __m128i*)curr);
-		hor_left = _mm_slli_si128(hor, 1);
-		hor_right = _mm_srli_si128(hor, 1);
-	    }
-	    __m128i  hdiff, vdiff, down, up;
-	    {
-		up = _mm_load_si128((const __m128i*)(curr-w));
-		down = _mm_load_si128((const __m128i*)(curr+w));
-
-		__m128i zero = zero_si128();
-		__m128i left = _mm_unpacklo_epi8(hor_right, zero);
-		__m128i right = _mm_unpacklo_epi8(hor_left, zero);
-		hdiff = _mm_insert_epi16(_mm_sub_epi16(right, left), short(curr[1]) - short(curr[-1]), 0);
-		
-		vdiff = _mm_sub_epi16(_mm_unpacklo_epi8(down, zero), _mm_unpacklo_epi8(up, zero));
-		
-		hdiff = _mm_mullo_epi16(hdiff,hdiff);
-		vdiff = _mm_mullo_epi16(vdiff,vdiff);
-		
-		hor_right = _mm_unpackhi_epi8(hor_right, zero);
-		hor_left = _mm_unpackhi_epi8(hor_left, zero);
-		down = _mm_unpackhi_epi8(down, zero);
-		up = _mm_unpackhi_epi8(up, zero);
-	    }
-	    __m128i first = _mm_avg_epu16(hdiff, vdiff);
-
-	    hdiff = _mm_insert_epi16(_mm_sub_epi16(hor_left,hor_right), short(curr[16]) - short(curr[14]), 7);
-	    vdiff = _mm_sub_epi16(down,up);
-	    hdiff = _mm_mullo_epi16(hdiff,hdiff);
-	    vdiff = _mm_mullo_epi16(vdiff,vdiff);
-
-	    __m128i second = _mm_avg_epu16(hdiff, vdiff);
-	    _mm_stream_si128((__m128i*)out, first);
-	    _mm_stream_si128((__m128i*)(out+8), second);
-	    first = _mm_cmpgt_epi16(first,t);
-	    second = _mm_cmpgt_epi16(second,t);	    
-	    int mask1 = _mm_movemask_epi8(first);
-	    int mask2 = _mm_movemask_epi8(second);
-	    if (mask1) {
-		if (mask1&0x0002) c_curr[curr_count++]=j;
-		if (mask1&0x0008) c_curr[curr_count++]=j+1;
-		if (mask1&0x0020) c_curr[curr_count++]=j+2;
-		if (mask1&0x0080) c_curr[curr_count++]=j+3;
-		if (mask1&0x0200) c_curr[curr_count++]=j+4;
-		if (mask1&0x0800) c_curr[curr_count++]=j+5;
-		if (mask1&0x2000) c_curr[curr_count++]=j+6;
-		if (mask1&0x8000) c_curr[curr_count++]=j+7;
-	    }
-	    if (mask2) {
-		if (mask2&0x0002) c_curr[curr_count++]=j+8;
-		if (mask2&0x0008) c_curr[curr_count++]=j+9;
-		if (mask2&0x0020) c_curr[curr_count++]=j+10;
-		if (mask2&0x0080) c_curr[curr_count++]=j+11;
-		if (mask2&0x0200) c_curr[curr_count++]=j+12;
-		if (mask2&0x0800) c_curr[curr_count++]=j+13;
-		if (mask2&0x2000) c_curr[curr_count++]=j+14;
-		if (mask2&0x8000) c_curr[curr_count++]=j+15;
-	    }
-	}	
-	if (last_count)
-	    f(i-1, c_last, last_count, out-3*w);
-	std::swap(c_curr, c_last);
-	last_count = curr_count;
-	curr_count = 0;
-    }
-    zeroBorders(magSq);
-}
-
+#ifndef DOXYGEN_IGNORE_INTERNAL
+inline void gradient(const BasicImage<byte>& im, BasicImage<short[2]>& out);
 #endif
-
 
 
 template <class T, class S> inline void sample(const BasicImage<S>& im, double x, double y, T& result)
@@ -557,11 +443,7 @@ namespace median {
 	    median::median_filter_3x3(I[i]+1, s, n, out[i]+1);
     }
 
-#if (CVD_HAVE_SSE2 && CVD_HAVE_EMMINTRIN)
-
 void median_filter_3x3(const SubImage<byte>& I, SubImage<byte> out);
-
-#endif
 
 //template<class T>
 

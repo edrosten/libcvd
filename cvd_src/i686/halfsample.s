@@ -20,9 +20,9 @@
 */
 
 	.text
-.globl halfsample
-	.type	halfsample, @function
-halfsample:
+.globl cvd_asm_halfsample_mmx
+	.type	cvd_asm_halfsample_mmx, @function
+cvd_asm_halfsample_mmx:
 	pushl	%ebp
 	movl	%esp, %ebp
 	pushl	%ebx
@@ -79,4 +79,4 @@ halfsample:
 	popl	%ebx
 	popl	%ebp
 	ret
-	.size	halfsample, .-halfsample
+	.size	cvd_asm_halfsample_mmx, .-cvd_asm_halfsample_mmx

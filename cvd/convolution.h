@@ -512,9 +512,7 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
     }
 }
 
-#if defined(CVD_HAVE_SSE) && defined(CVD_HAVE_XMMINTRIN)
 void convolveGaussian(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas=3.0);
-#endif
 
 template <class T, class O, class K> void convolve_gaussian_3(const BasicImage<T>& I, BasicImage<O>& out, K k1, K k2)
 {    
