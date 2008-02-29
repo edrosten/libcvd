@@ -1,5 +1,8 @@
 AC_INIT(CVD,0.7)
 AC_COPYRIGHT(Copyright foo)
+
+AC_CONFIG_HEADERS
+AC_HEADER_STDC
 #Use builtin autoconf checks for all the programs we need.
 AC_PROG_AWK
 AC_PROG_CXX
@@ -9,8 +12,6 @@ AC_PROG_RANLIB
 #Switch testing language to C++
 AC_LANG(C++)
 #Start the compiler
-AC_CONFIG_HEADERS
-AC_HEADER_STDC
 
 cvd_major=`echo $PACKAGE_VERSION | $AWK -F'\\\\.' '{print $1}'`
 cvd_minor=`echo $PACKAGE_VERSION | $AWK -F'\\\\.' '{print $2}'`
@@ -45,7 +46,7 @@ define(APPEND, [$1="$$1 $2"])
 
 
 
-dnl TEST_AND_SET_CXXFLAG(flag, [program])
+dnl TEST_AND_SET_CXXFLAG(flag, [program], [run])
 dnl
 dnl This attempts to compile a and run program with a certain compiler flag.
 dnl If no program is given, then the minimal C++ program is compiled, and 
@@ -62,7 +63,13 @@ define([TEST_AND_SET_CXXFLAG],[
 	APPEND(CXXFLAGS, [$1])
 
 	m4_if([$2],[],[pushdef(prog, [int main(){}])], [pushdef(prog, [$2])])
-	AC_RUN_IFELSE([prog], [cvd_conf_test=1],[cvd_conf_test=0])
+
+	m4_if([$4],[run],
+		[AC_RUN_IFELSE([prog], [cvd_conf_test=1],[cvd_conf_test=0], [cvd_conf_test=0])],
+		[AC_COMPILE_IFELSE([prog], [cvd_conf_test=1],[cvd_conf_test=0])]
+	)
+	
+	
 	popdef([prog])
 
 	if test $cvd_conf_test = 1
@@ -134,7 +141,7 @@ define(SIMD_TEST, [
 			have_$1=yes
 		elif test "$with_$1" != "no"
 		then
-			TEST_AND_SET_CXXFLAG([$2], [$3], [for $1 support])
+			TEST_AND_SET_CXXFLAG([$2], [$3], [for $1 support],run)
 			have_$1="$ts_success"
 		fi
 
@@ -350,9 +357,9 @@ case "$host" in
 		SIMD_TEST(SSE3, -msse3, [
 			#include <pmmintrin.h>
 			int main()
-			{ fuk;
-				__m128d a;
-				a = _mm_setzero_pd();
+			{ 
+				__m128 a;
+				a = _mm_setzero_ps();
 				a = _mm_hadd_ps(a, a);
 				return 1;
 			}], [for SSE3 support])
@@ -484,7 +491,7 @@ CHECK_FOR_LIBRARY(videodisplay,[
 	fi
 
 	APPEND(LIBS, [-L$x_libraries -lX11 -lXext])
-	AC_CHECK_LIB(GL,glDrawPixels)
+	AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
 ])
 
 
@@ -517,19 +524,22 @@ CHECK_FOR_LIBRARY(lapack, [
 ])
 
 CHECK_FOR_LIBRARY(lapack, [
-	AC_MSG_CHECKING(if f2c is needed for LAPACK),AC_MSG_RESULT()
+	AC_MSG_CHECKING(if f2c is needed for LAPACK)
+	AC_MSG_RESULT()
 	APPEND(LIBS, -lf2c)
 	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
 ])
 
 CHECK_FOR_LIBRARY(lapack, [
-	AC_MSG_CHECKING(if f2c is needed for LAPACK),AC_MSG_RESULT()
+	AC_MSG_CHECKING(if f2c is needed for LAPACK)
+	AC_MSG_RESULT()
 	APPEND(LIBS, -lg2c)
 	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
 ])
 
 CHECK_FOR_LIBRARY(lapack, [
-	AC_MSG_CHECKING(if f2c is needed for LAPACK),AC_MSG_RESULT()
+	AC_MSG_CHECKING(if f2c is needed for LAPACK)
+	AC_MSG_RESULT()
 	APPEND(LIBS, -lgfortran)
 	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
 ])
