@@ -20,6 +20,8 @@
 #include <cvd/videodisplay.h>
 #include <cvd/random.h>
 #include <cvd/timer.h>
+#include <cvd/colourspaces.h>
+#include <cvd/colourspace_convert.h>
 
 using namespace std;
 using namespace TooN;
@@ -28,10 +30,20 @@ using namespace CVD;
 #include <X11/keysym.h>
 #include <X11/Xlib.h>
 
-VideoBuffer<byte>* videoBuffer=0;
+#ifdef CVD_HAVE_QTBUFFER
+typedef vuy422 CAMERA_PIXEL;
+#else
+typedef byte CAMERA_PIXEL;
+#endif
+
+VideoBuffer<CAMERA_PIXEL>* videoBuffer=0;
 
 // global configuration variables, can be set via command line options
+#ifdef CVD_HAVE_QTBUFFER
+string videoDevice = "qt://0";
+#else
 string videoDevice = "v4l2:///dev/video0";
+#endif
 Vector<6> cameraParameters = (make_Vector, 1000,  1000,  320,  240,  0,  0);
 int bottomLeftWhite = 1;
 int gridx = 11;
@@ -253,9 +265,9 @@ void getOptions(int argc, char* argv[])
     return;
   try {
         cout << "opening " << videoDevice << endl;
-        videoBuffer = open_video_source<byte>(videoDevice);
+        videoBuffer = open_video_source<CAMERA_PIXEL>(videoDevice);
   }
-  catch (CVD::Exceptions::V4LBuffer::All& e) {
+  catch (CVD::Exceptions::All& e) {
       cerr << e.what << endl;
       exit(1);
   }
@@ -848,33 +860,35 @@ int main(int argc, char* argv[])
                 }
             }
 
-          VideoFrame<byte>* vframe = videoBuffer->get_frame();
+          VideoFrame<CAMERA_PIXEL>* vframe = videoBuffer->get_frame();
           while(videoBuffer->frame_pending())
             {
               videoBuffer->put_frame(vframe);
               vframe = videoBuffer->get_frame();
             }
-          Image<float> gray = convert_image<float>(*vframe);
+          Image<byte> temp = convert_image(*vframe);
+          Image<float> gray = convert_image(temp);
+          videoBuffer->put_frame(vframe);
+
           glDisable(GL_BLEND);
-          glEnable(GL_TEXTURE_RECTANGLE_ARB);
+          glEnable(GL_TEXTURE_RECTANGLE_NV);
           glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-          glTexParameterf( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-          glTexParameterf( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+          glTexParameterf( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+          glTexParameterf( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
           glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-          glTexImage2D( *vframe, 0, GL_TEXTURE_RECTANGLE_ARB);
+          glTexImage2D( temp, 0, GL_TEXTURE_RECTANGLE_NV);
           glBegin(GL_QUADS);
               glTexCoord2i(0, 0);
               glVertex2i(0,0);
-              glTexCoord2i(vframe->size().x, 0);
+              glTexCoord2i(temp.size().x, 0);
               glVertex2i(640,0);
-              glTexCoord2i(vframe->size().x,vframe->size().y);
+              glTexCoord2i(temp.size().x,temp.size().y);
               glVertex2i(640,480);
-              glTexCoord2i(0, vframe->size().y);
+              glTexCoord2i(0, temp.size().y);
               glVertex2i(0, 480);
           glEnd ();
-          glDisable(GL_TEXTURE_RECTANGLE_ARB);
+          glDisable(GL_TEXTURE_RECTANGLE_NV);
           glEnable(GL_BLEND);
-          videoBuffer->put_frame(vframe);
 
           //this is the bit that does the calibrating
           vector<pair<size_t, Vector<2> > > measurements;
