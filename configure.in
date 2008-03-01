@@ -442,10 +442,15 @@ esac
 
 if test "$host_vendor" == apple
 then
-	APPEND(CPPFLAGS, [-I /sw/include -I/opt/local/include -I/usr/X11R6/include])
-	APPEND(LIBS, [-L/sw/lib -L/opt/local/lib])
-	AC_MSG_NOTICE([Adding /sw to the build path.])
-	AC_MSG_NOTICE([Adding /opt/local to the build path.])
+	AC_CHECK_FILE(/opt/local, [
+		APPEND(CPPFLAGS, [-I/opt/local/include])
+		APPEND(LIBS, [-L/opt/local/lib])], 
+		[])
+	AC_CHECK_FILE(/sw, [
+		APPEND(CPPFLAGS, [-I/sw/include])
+		APPEND(LIBS, [-L/sw/lib])], 
+		[])
+	APPEND(CPPFLAGS, [-I/usr/X11R6/include])
 	AC_MSG_NOTICE([Adding /usr/X11R6/include to the build path.])
 	AC_SUBST(osx_hacks,yes)
 	os_all_options="qtbuffer"
@@ -544,7 +549,12 @@ CHECK_FOR_LIBRARY(lapack, [
 	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
 ])
 
-
+CHECK_FOR_LIBRARY(lapack, [
+	AC_MSG_CHECKING(if veclib is needed for LAPACK)
+	AC_MSG_RESULT()
+	APPEND(LIBS, -framework veclib)
+	AC_CHECK_FUNC(dgesvd_, [], [a=1])
+])
 
 CHECK_FOR_LIBRARY(pthread, [
 	APPEND(CXXFLAGS, -pthread)
@@ -822,7 +832,7 @@ cvd_src/Linux/v4l1buffer						v4l1buffer END
 cvd_src/Linux/v4lbuffer							v4l1buffer END
 cvd_src/Linux/v4l2buffer	                 	v4l2buffer END
 cvd_src/IRIX/O2buffer,cvd_src/IRIX/sgi-video	o2buffer END
-cvd_src/OSX/qtbuffer							qtbffer END
+cvd_src/OSX/qtbuffer							qtbuffer END
 
 #Libraries
 cvd_src/synchronized,cvd_src/eventobject,cvd_src/thread		pthread END
@@ -837,7 +847,7 @@ ENDDEPS
 
 #Split in to object files and defines
 #@<:@ is a quadrigraph for [
-AC_SUBST(dep_objects, ["`awk -vORS=' ' '/@<:@a-z@:>@/{print $0".o"}' config.dep_tmp`"])
+AC_SUBST(dep_objects, ["`awk -v ORS=' ' '{print $0".o"}' config.dep_tmp`"])
 
 for i in `awk '!/@<:@a-z@:>@/{print "CVD_INTERNAL_HAVE_"$0}' config.dep_tmp`
 do
@@ -853,7 +863,7 @@ progs/se3_ln               toon          lapack  	END
 progs/se3_pre_mul          toon          lapack    	END
 progs/se3_post_mul         toon          lapack     END
 progs/se3_inv              toon			 lapack 	END
-progs/calibrate	           toon          videodisplay lapack v4l2buffer END
+progs/calibrate	           toon          videodisplay lapack END
 progs/img_play             videodisplay          	END
 progs/cvd_display_image    videodisplay          	END
 progs/img_play_bw          videodisplay          	END

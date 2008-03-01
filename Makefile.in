@@ -163,15 +163,18 @@ libcvd_debug.a: $(DEBUG_OBJS)
 	$(RANLIB) libcvd_debug.a
 
 debug:
-	mkdir -p debug/cvd_src debug/cvd_src/IRIX debug/cvd_src/Linux debug/cvd_src/OSX debug/cvd_src/fast debug/cvd_src/i686 debug/pnm_src
+	mkdir -p debug/cvd_src debug/cvd_src/IRIX debug/cvd_src/Linux debug/cvd_src/OSX debug/cvd_src/fast debug/cvd_src/i686 debug/cvd_src/noarch debug/pnm_src
 
 
 # Before we compile the test programs we need to augment the
 # search paths with the path to libcvd, and also add libcvd to the
 # libraries to use
 CPPFLAGS = -I. @CPPFLAGS@
-LDFLAGS = -L. -Wl,-R. @LDFLAGS@
-LOADLIBES =  @LIBS@
+ifneq (@osx_hacks@,yes)
+    LDFLAGS = -Wl,-R. @LDFLAGS@
+endif
+LDFLAGS = -L. @LDFLAGS@
+LOADLIBES = @LIBS@
 
 PROGS=@progs@
 TESTPROGS=@testprogs@
@@ -234,11 +237,13 @@ clean:
 distclean: clean
 	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h .deps config.dep_tmp
 
-depend:
+.deps:
 	rm -f .sourcefiles
 	find . -name "*.cxx" -o -name "*.cc" -o -name "*.cpp" -o -name "*.c" -o -name "*.C" > .sourcefiles
 	rm -f .deps
 	bash generate_dependencies.bash "-I. $(CPPFLAGS)" > .deps
+
+depend: .deps
 
 .PHONY: ChangeLog 
 
