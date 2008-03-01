@@ -10747,7 +10747,7 @@ ENDDEPS
 
 #Split in to object files and defines
 #[ is a quadrigraph for [
-dep_objects="`awk -v ORS=' ' '{print $0".o"}' config.dep_tmp`"
+dep_objects="`awk -v ORS=' ' '/[a-z]/{print $0".o"}' config.dep_tmp`"
 
 
 for i in `awk '!/[a-z]/{print "CVD_INTERNAL_HAVE_"$0}' config.dep_tmp`
