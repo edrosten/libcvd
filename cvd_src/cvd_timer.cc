@@ -32,12 +32,21 @@
 
 namespace CVD {
 
+unsigned long long get_time_of_day_us()
+{
+	struct timeval tv;
+	gettimeofday(&tv,NULL);
+	return (unsigned long long)tv.tv_sec*1000000+tv.tv_usec;
+}
+
+cvd_timer::cvd_timer()
+{
+	startTime = get_time_of_day_us();
+}
+
 double cvd_timer::reset() 
 {
-  struct timeval tv;
-
-  gettimeofday(&tv,NULL);
-  unsigned long long temp = (unsigned long long)tv.tv_sec*1000000+tv.tv_usec;
+  unsigned long long temp  = get_time_of_day_us();
   double elapsed =  (temp - startTime) / 1000000.0;
   startTime = temp;
   return elapsed;
@@ -45,13 +54,7 @@ double cvd_timer::reset()
 
 double cvd_timer::get_time() 
 {
-  struct timeval tv;
-  unsigned long long temp;  // keep with integer arithmetic for diff
-
-  gettimeofday(&tv,NULL);
-  temp=(unsigned long long)tv.tv_sec*1000000+tv.tv_usec;
-
-  return (temp-startTime)/1000000.0;
+  return (get_time_of_day_us()-startTime)/1000000.0;
 }
 
 // Conv from units of nanosecs (specifically for v4l2 : kernel 2.4
@@ -73,12 +76,7 @@ double cvd_timer::conv_ntime(const struct timeval& tv)
 
 double get_time_of_day() 
 {
-  struct timeval tv;
-  unsigned long long temp;  // keep with integer arithmetic for diff
-
-  gettimeofday(&tv,NULL);
-  temp=(unsigned long long)tv.tv_sec*1000000+tv.tv_usec;
-  return temp/1000000.0;
+  return get_time_of_day_us()/1000000.0;
 }
 
 

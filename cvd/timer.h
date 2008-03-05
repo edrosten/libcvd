@@ -42,7 +42,7 @@ class cvd_timer
 {
 	public:
 		/// Create a timer, and set the start time to be now
-		cvd_timer() {reset();};
+		cvd_timer();
 		/// How many seconds have elapsed since the start time?
 		double get_time();
 
