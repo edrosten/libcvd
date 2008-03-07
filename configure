@@ -5371,7 +5371,7 @@ else
 				__m128 a;
 				a = _mm_setzero_ps();
 				a = _mm_hadd_ps(a, a);
-				return 1;
+				return 0;
 			}
 _ACEOF
 rm -f conftest$ac_exeext
