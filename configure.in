@@ -163,6 +163,7 @@ define(SIMD_TEST, [
 TEST_AND_SET_CXXFLAG(-Wall)
 TEST_AND_SET_CXXFLAG(-Wextra)
 
+APPEND(CXXFLAGS, [-I "$(eval echo $includedir)"])
 
 ########################################
 #
@@ -911,8 +912,6 @@ echo
 echo Missing SIMD support for $host:
 echo $simd_all_options $simd_options | tr ' ' '\n' |  sort | uniq -u | xargs echo
 echo
-
-
 
 AC_SUBST(CXXFLAGS, $CXXFLAGS)
 AC_SUBST(OFLAGS, $OFLAGS)
