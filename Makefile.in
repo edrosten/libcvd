@@ -163,7 +163,7 @@ libcvd_debug.a: $(DEBUG_OBJS)
 	$(RANLIB) libcvd_debug.a
 
 debug:
-	mkdir -p debug/cvd_src debug/cvd_src/IRIX debug/cvd_src/Linux debug/cvd_src/OSX debug/cvd_src/fast debug/cvd_src/i686 debug/cvd_src/noarch debug/pnm_src
+	mkdir -p debug/cvd_src debug/cvd_src/IRIX debug/cvd_src/Linux debug/cvd_src/OSX debug/cvd_src/fast debug/cvd_src/i686 debug/cvd_src/noarch debug/pnm_src debug/cvd_src/noarch
 
 
 # Before we compile the test programs we need to augment the
