@@ -3517,8 +3517,6 @@ CXXFLAGS="$CXXFLAGS -I "$(eval echo $includedir)""
 #
 CXXFLAGS="$(echo "$CXXFLAGS" | sed -e's/-O2//')"
 
-echo $CXXFLAGS
-
 ########################################
 #
 # Extra debugging
@@ -7957,6 +7955,8 @@ if test `eval echo '${'$as_ac_Header'}'` = yes; then
 #define `echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
 
+else
+  a=1
 fi
 
 done
@@ -8033,6 +8033,8 @@ _ACEOF
 
   LIBS="-lpng $LIBS"
 
+else
+  a=1
 fi
 
 
@@ -8218,6 +8220,8 @@ if test `eval echo '${'$as_ac_Header'}'` = yes; then
 #define `echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
 
+else
+  a=1
 fi
 
 done
@@ -8294,6 +8298,8 @@ _ACEOF
 
   LIBS="-ljpeg $LIBS"
 
+else
+  a=1
 fi
 
 

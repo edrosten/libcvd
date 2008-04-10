@@ -582,13 +582,13 @@ CHECK_FOR_LIBRARY(pthread, [
 
 
 CHECK_FOR_LIBRARY(png, [
-	AC_CHECK_HEADERS(png.h)
-	AC_CHECK_LIB(png, png_init_io)
+	AC_CHECK_HEADERS(png.h, [], [a=1])
+	AC_CHECK_LIB(png, png_init_io, [], [a=1])
 ])
 
 CHECK_FOR_LIBRARY(jpeg, [
-	AC_CHECK_HEADERS(jpeglib.h)
-	AC_CHECK_LIB(jpeg, jpeg_destroy_decompress)
+	AC_CHECK_HEADERS(jpeglib.h, [], [a=1])
+	AC_CHECK_LIB(jpeg, jpeg_destroy_decompress, [], [a=1])
 ],[
 
 	AC_MSG_CHECKING([JPEG read buffer size])
