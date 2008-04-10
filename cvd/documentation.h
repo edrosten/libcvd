@@ -109,7 +109,27 @@ It is released under the LGPL License.
 	- Solaris: SPARC
 	- IRIX SGI O2: MIPS
 
-  
+
+\section Compiling
+
+The normal system works:
+@code
+	./configure
+	make 
+	make install
+@endcode
+
+libCVD fully supports parallel builds (<code>make -J2</code> for instance).
+
+\subsection scBugs Compiler bugs
+	There are a few known compiler bugs which affect libCVD on various platforms.
+
+	- ppc-darwin (Mac OS X, on PPC)
+		- Does not support gcc 3.3 (20030304) due to possible compiler bug.
+		- Workaround: none. Install a more recent compiler.
+	- arm-linux (cross compiler running on i686-pc-linux-gnu)
+		- Internal compiler error with: gcc version 3.4.0 20040409 (CodeSourcery ARM Q1 2004)
+		- Workaround: remove <code>cvd_src/videosource.cpp</code> from <code>Makefile</code>
 */
 
 ///////////////////////////////////////////////////////
