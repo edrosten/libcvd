@@ -657,11 +657,6 @@ CHECK_FOR_LIBRARY(ffmpeg, [
 	AC_CHECK_LIB(avformat, av_open_input_file, [], [a=1])
 	AC_CHECK_LIB(avformat, av_read_frame, [ffmpeg_recent=yes], [a=1]) #only in >= 0.4.9
 	AC_CHECK_LIB(avcodec, avcodec_open, [], [a=1])
-
-	if test x$ffmpeg_recent$a = x1
-	then
-		echo "You have FFMPEG, but the version is too old. Version 0.4.9 or newer is required."
-	fi
 ])
 
 
