@@ -75,6 +75,7 @@ It is released under the LGPL License.
 		  - Drawing in to images
 		  - Flipping, pasting, etc
 		  - Interpolation, warping and resampling
+		  - Integral images
     - %Camera calibration support: Linear, Cubic and Quintic 
 
 \subsection Mathematical
@@ -84,20 +85,31 @@ It is released under the LGPL License.
 	- Random numbers
 
 \section Portability
+  LibCVD will compile on any reasonable unixy environment, with a reasonable
+  C++ compiler (e.g. gcc version >= 3.1) and GNU Make.  Additionally, libCVD
+  supports both normal and cross compilers.  It is known to work on:
+  
+  -Well tested (current):
+	- Linux: x86, x86-64
+	- Linux: ARM LPC3180, XScale (cross compile)
+	- uCLinux: Blackfin  (cross compile)
+	- FreeBSD: x86
+	- OpenBSD: XScale
+	- Mac OS X: x86
+		-Supports the OSX build environment including:
+			-Frameworks
+			-.dylib libraries
+	- Cygwin: x86
+	- MinGW: x86 (native and cross compile)
 
-    - Linux
-    - IRIX (SGI O2)
-    - FreeBSD
-	- OpenBSD
-    - Mac OS X
-		- Supports the OS X build environment including
-			- Frameworks
-			- .dylib libraries
-		- Currently does not support gcc 3.3 (20030304) due to possible compiler bug.
-    - Cygwin
-	- Probably any other unix with a modern C++ compiler and a reasonably standard build environment (gmake is required)
+  -Has worked on (current status unknown):
+	- Mac OS X: PPC
+		- Does not support gcc 3.3 (20030304) due to possible compiler bug.
+	- Linux: PPC
+	- Solaris: SPARC
+	- IRIX SGI O2: MIPS
 
- 
+  
 */
 
 ///////////////////////////////////////////////////////
