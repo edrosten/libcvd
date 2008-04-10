@@ -102,7 +102,6 @@ CVD_OBJS=   cvd_src/cvd_timer.o                             \
 			cvd_src/nonmax_suppression.o                    \
 			cvd_src/timeddiskbuffer.o                       \
 			cvd_src/videosource.o                           \
-			cvd_src/tensor_voting.o                         \
 			@dep_objects@
 
 ################################################################################
