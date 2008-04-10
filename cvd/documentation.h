@@ -129,7 +129,7 @@ libCVD fully supports parallel builds (<code>make -J2</code> for instance).
 		- Workaround: none. Install a more recent compiler.
 	- arm-linux (cross compiler running on i686-pc-linux-gnu)
 		- Internal compiler error with: gcc version 3.4.0 20040409 (CodeSourcery ARM Q1 2004)
-		- Workaround: remove <code>cvd_src/videosource.cpp</code> from <code>Makefile</code>
+		- Workaround: remove <code>cvd_src/videosource.o</code> from <code>Makefile</code>
 */
 
 ///////////////////////////////////////////////////////
