@@ -96,15 +96,14 @@ It is released under the LGPL License.
 	- FreeBSD: x86
 	- OpenBSD: XScale
 	- Mac OS X: x86
-		-Supports the OSX build environment including:
-			-Frameworks
-			-.dylib libraries
+		- Supports the OSX build environment including:
+			- Frameworks
+			- .dylib libraries
 	- Cygwin: x86
 	- MinGW: x86 (native and cross compile)
 
   -Has worked on (current status unknown):
 	- Mac OS X: PPC
-		- Does not support gcc 3.3 (20030304) due to possible compiler bug.
 	- Linux: PPC
 	- Solaris: SPARC
 	- IRIX SGI O2: MIPS
@@ -119,7 +118,7 @@ The normal system works:
 	make install
 @endcode
 
-libCVD fully supports parallel builds (<code>make -J2</code> for instance).
+libCVD fully supports parallel builds (<code>make -j2</code> for instance).
 
 \subsection scBugs Compiler bugs
 	There are a few known compiler bugs which affect libCVD on various platforms.

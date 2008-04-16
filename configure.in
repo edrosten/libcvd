@@ -840,7 +840,7 @@ cvd_src/videofilebuffer							ffmpeg END
 cvd_src/globlist    							glob END
 
 #Numerics dependencies
-cvd_src/tensor_voting.cc						toon END
+cvd_src/tensor_voting							toon END
 
 ENDDEPS
 
