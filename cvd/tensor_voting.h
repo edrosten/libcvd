@@ -13,8 +13,18 @@ namespace CVD
 	#ifndef DOXYGEN_IGNORE_INTERNAL
 	namespace TensorVoting
 	{
-		std::vector<std::pair<int, TooN::Matrix<2> > > compute_a_tensor_kernel(int radius, double cutoff, double angle, double sigma, double ratio, int row_stride);
-		unsigned int quantize_half_angle(double r, int num_divs);
+		struct TV_coord
+		{
+			ptrdiff_t o;
+			int	x;
+			int y;
+		};
+
+		std::vector<std::pair<TV_coord, TooN::Matrix<2> > > compute_a_tensor_kernel(int radius, double cutoff, double angle, double sigma, double ratio, int row_stride);
+		inline unsigned int quantize_half_angle(double r, int num_divs)
+		{
+			return  ((int)floor((r/M_PI+100) * num_divs + 0.5)) % num_divs;
+		}
 	}
 
 	#endif
@@ -72,6 +82,7 @@ namespace CVD
 		using TooN::Matrix;
 		using std::pair;
 		using std::vector;
+		using TensorVoting::TV_coord;
 
 		Matrix<2> zero;
 		TooN::Zero(zero);
@@ -86,7 +97,7 @@ namespace CVD
 
 
 		//First, build up the kernels
-		vector<vector<pair<int, Matrix<2> > > > kernels;
+		vector<vector<pair<TV_coord, Matrix<2> > > > kernels;
 		for(unsigned int i=0; i < num_divs; i++)
 		{
 			double angle =  M_PI * i / num_divs;
@@ -103,19 +114,51 @@ namespace CVD
 				double scale = sqrt(gx*gx + gy*gy);
 				unsigned int direction = TensorVoting::quantize_half_angle(M_PI/2 + atan(gy / gx), num_divs);
 
-				const vector<pair<int, Matrix<2> > >& kernel = kernels[direction];
+				const vector<pair<TV_coord, Matrix<2> > >& kernel = kernels[direction];
 
 				Matrix<2>* p = &field[y][x];
 				
 				//The matrices are all symmetric, so only use the upper right triangle.
 				for(unsigned int i=0; i < kernel.size(); i++)
 				{
-					p[kernel[i].first][0][0] += kernel[i].second[0][0] * scale;
-					p[kernel[i].first][0][1] += kernel[i].second[0][1] * scale;
-					p[kernel[i].first][1][1] += kernel[i].second[1][1] * scale;
+					p[kernel[i].first.o][0][0] += kernel[i].second[0][0] * scale;
+					p[kernel[i].first.o][0][1] += kernel[i].second[0][1] * scale;
+					p[kernel[i].first.o][1][1] += kernel[i].second[1][1] * scale;
 				}
 			}
-		
+
+		//Now do the edges
+		for(int y= 1; y < field.size().y-1; y++)
+		{
+			for(int x= 1; x < field.size().x-1; x++)
+			{
+				//Skip the middle bit
+				if(y >= kernel_radius && y < field.size().y - kernel_radius && x == kernel_radius)
+					x = field.size().x - kernel_radius;
+
+				double gx = ((double)image[y][x+1] - image[y][x-1])/2.;
+				double gy = ((double)image[y+1][x] - image[y-1][x])/2.;
+
+				double scale = sqrt(gx*gx + gy*gy);
+				unsigned int direction = TensorVoting::quantize_half_angle(M_PI/2 + atan(gy / gx), num_divs);
+
+				const vector<pair<TV_coord, Matrix<2> > >& kernel = kernels[direction];
+
+				Matrix<2>* p = &field[y][x];
+				
+				//The matrices are all symmetric, so only use the upper right triangle.
+				for(unsigned int i=0; i < kernel.size(); i++)
+				{
+					if(kernel[i].first.y+y >= 0 && kernel[i].first.y+y < field.size().y && kernel[i].first.x+x >= 0 && kernel[i].first.x+x < field.size().x)
+					{
+						p[kernel[i].first.o][0][0] += kernel[i].second[0][0] * scale;
+						p[kernel[i].first.o][0][1] += kernel[i].second[0][1] * scale;
+						p[kernel[i].first.o][1][1] += kernel[i].second[1][1] * scale;
+					}
+				}
+			}
+		}
+
 		//Copy over bits to make the matrices symmetric
 		for(Image<Matrix<2> >:: iterator i=field.begin(); i != field.end(); i++)
 			(*i)[1][0] = (*i)[0][1];

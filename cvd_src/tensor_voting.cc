@@ -13,11 +13,6 @@ namespace CVD
 	namespace TensorVoting
 	{
 
-		unsigned int quantize_half_angle(double r, int num_divs)
-		{
-			return  ((int)floor((r/M_PI+100) * num_divs + 0.5)) % num_divs;
-		}
-		
 		Matrix<2> rot(double angle)
 		{
 			double v[]= {cos(angle), sin(angle), -sin(angle), cos(angle)};
@@ -75,13 +70,22 @@ namespace CVD
 		{
 			return refpair<A,B>(aa, bb);
 		}
+
+		TV_coord make(int x, int y, int s)
+		{
+			TV_coord t;
+			t.x = x;
+			t.y = y;
+			t.o = (ptrdiff_t)s * y + x;
+			return t;
+		}
 		
 		//Compute a kernel, with small values set to zero, with pointer offsets
 		//for the nonzero elements.
-		vector<pair<int, Matrix<2> > > compute_a_tensor_kernel(int radius, double cutoff, double angle, double sigma, double ratio, int row_stride)
+		vector<pair<TV_coord, Matrix<2> > > compute_a_tensor_kernel(int radius, double cutoff, double angle, double sigma, double ratio, int row_stride)
 		{
 
-			vector<pair<int, Matrix<2> > > ret;
+			vector<pair<TV_coord, Matrix<2> > > ret;
 
 			Vector<2> g;
 			g[0] = cos(angle);
@@ -95,7 +99,7 @@ namespace CVD
 					rpair(tensor, scale) = tensor_kernel_element(g, x, y, sigma, ratio);
 
 					if(scale >= cutoff)
-						ret.push_back(make_pair(x + y * row_stride, scale * tensor));
+						ret.push_back(make_pair(make(x,y,row_stride), scale * tensor));
 				}
 			
 			return ret;
