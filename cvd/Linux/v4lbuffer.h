@@ -115,7 +115,12 @@ namespace V4L
 	double getRate();
 	bool pendingFrame();
 	virtual ~V4L2Client();
+	int num_buffers()
+	{
+		return num_bufs;
+	}
     private:
+	int num_bufs;
 	struct State; 
 	State* state;
     };
@@ -180,6 +185,16 @@ public:
 	if (v4l2)
 	    delete v4l2;
     }
+
+	int num_buffers()
+	{
+	if (v4l2) {
+		return v4l2->num_buffers();
+	} else {
+	    throw Exceptions::V4LBuffer::PutFrame(devname, "V4L1 not yet supported by V4LBuffer");
+	}
+	}
+
  private:
     struct V4LFrame : public VideoFrame<T> {
 	V4LFrame(int i, double t, void* data, ImageRef size) : VideoFrame<T>(t,reinterpret_cast<T*>(data),size), id(i) {}

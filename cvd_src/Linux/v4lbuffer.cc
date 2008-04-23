@@ -109,11 +109,13 @@ namespace V4L { // V4L
 	    throw string("Requested format not supported");
 	
 	struct v4l2_requestbuffers reqbufs;
-	reqbufs.count = 4;
+	reqbufs.count = 10;
 	reqbufs.memory = V4L2_MEMORY_MMAP;
 	reqbufs.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	if (0 != ioctl(fd,VIDIOC_REQBUFS,&reqbufs))
 	    throw string("VIDIOC_REQBUFS");
+
+	num_bufs = reqbufs.count;
 	
 	if (reqbufs.count < 2)
 	    throw string("Insufficient buffers available");
