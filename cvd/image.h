@@ -505,6 +505,13 @@ template<class T> class BasicImage: public SubImage<T>
 		:SubImage<T>(copyof)
 		{
 		}
+
+		void operator=(const BasicImage&copyof)
+		{
+			SubImage<T>::my_size = copyof.my_size;
+			SubImage<T>::my_data = copyof.my_data;
+			SubImage<T>::my_stride = copyof.my_stride;
+		}
 	
 		/// The image data is not destroyed when a BasicImage is destroyed.
 		~BasicImage()
@@ -540,11 +547,6 @@ template<class T> class BasicImage: public SubImage<T>
 		BasicImage()
 		{}
 	private:
-		void operator=(const BasicImage&copyof)
-		{
-			//my_size = copyof.my_size;
-			//my_data = copyof.my_data;
-		}
 };
 
 
