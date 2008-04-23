@@ -58,7 +58,7 @@ namespace CVD
 		unsigned short val;
 	};
 
-	/// A datatype to represent yuv420p (yuyv) data.
+	/// A datatype to represent yuv420p (yy...u...v) data.
 	/// @ingroup gVideoBuffer
 	struct yuv420p
 	{
