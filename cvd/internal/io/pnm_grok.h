@@ -67,8 +67,8 @@ namespace CVD
  			std::vector<array> rowbuf(pnm.x_size());
 			for (int r=0; r<pnm.y_size(); r++) 
 			{
-	  			pnm.get_raw_pixel_lines((S*) &rowbuf[0], 1);
-	  			Pixel::ConvertPixels<array, T>::convert(&rowbuf[0], im[r], pnm.x_size());
+	  			pnm.get_raw_pixel_lines((S*) &(rowbuf[0]), 1);
+	  			Pixel::ConvertPixels<array, T>::convert(&(rowbuf[0]), im[r], pnm.x_size());
 			}
 		}
 	};
@@ -80,8 +80,8 @@ namespace CVD
 			std::vector<S> rowbuf(pnm.x_size());
 			for (int r=0; r<pnm.y_size(); r++) 
 			{
-	  			pnm.get_raw_pixel_lines(&rowbuf[0], 1);
-	  			Pixel::ConvertPixels<S, T>::convert(&rowbuf[0], im[r], pnm.x_size());
+	  			pnm.get_raw_pixel_lines(&(rowbuf[0]), 1);
+	  			Pixel::ConvertPixels<S, T>::convert(&(rowbuf[0]), im[r], pnm.x_size());
 			}
       	}
     };
@@ -168,8 +168,8 @@ namespace CVD
 	writePNMHeader(out, 3, im.size(), 65535, false, "");	
 	std::vector<array> rowbuf[im.size().x];
 	for (int r=0; r<im.size().y; r++) {
-	  Pixel::ConvertPixels<T, array>::convert(im[r], &rowbuf[0], im.size().x);
-	  writePNMPixels(out, (const unsigned short*)&rowbuf[0], im.size().x*3, false);
+	  Pixel::ConvertPixels<T, array>::convert(im[r], &(rowbuf[0]), im.size().x);
+	  writePNMPixels(out, (const unsigned short*)&(rowbuf[0]), im.size().x*3, false);
 	}	
       }
     };
@@ -180,8 +180,8 @@ namespace CVD
 	writePNMHeader(out, 3, im.size(), 255, false, "");	
 	std::vector<array> rowbuf[im.size().x];
 	for (int r=0; r<im.size().y; r++) {
-	  Pixel::ConvertPixels<T, array>::convert(im[r], &rowbuf[0], im.size().x);
-	  writePNMPixels(out, (const byte*)&rowbuf[0], im.size().x*3, false);
+	  Pixel::ConvertPixels<T, array>::convert(im[r], &(rowbuf[0]), im.size().x);
+	  writePNMPixels(out, (const byte*)&(rowbuf[0]), im.size().x*3, false);
 	}	
       }
     };
@@ -192,8 +192,8 @@ namespace CVD
 	writePNMHeader(out, 1, im.size(), 65535, false, "");	
 	std::vector<S> rowbuf(im.size().x);
 	for (int r=0; r<im.size().y; r++) {
-	  Pixel::ConvertPixels<T, S>::convert(im[r], &rowbuf[0], im.size().x);
-	  writePNMPixels(out, &rowbuf[0], im.size().x, false);
+	  Pixel::ConvertPixels<T, S>::convert(im[r], &(rowbuf[0]), im.size().x);
+	  writePNMPixels(out, &(rowbuf[0]), im.size().x, false);
 	}	
       }
     };
@@ -204,8 +204,8 @@ namespace CVD
 	writePNMHeader(out, 1, im.size(), 255, false, "");	
 	std::vector<S> rowbuf(im.size().x);
 	for (int r=0; r<im.size().y; r++) {
-	  Pixel::ConvertPixels<T, S>::convert(im[r], &rowbuf[0], im.size().x);
-	  writePNMPixels(out, &rowbuf[0], im.size().x, false);
+	  Pixel::ConvertPixels<T, S>::convert(im[r], &(rowbuf[0]), im.size().x);
+	  writePNMPixels(out, &(rowbuf[0]), im.size().x, false);
 	}	
       }
     };
