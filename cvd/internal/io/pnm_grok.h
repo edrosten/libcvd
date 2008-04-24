@@ -166,7 +166,7 @@ namespace CVD
       typedef Rgb<unsigned short> array;
       static void write(const BasicImage<T>& im, std::ostream& out) {
 	writePNMHeader(out, 3, im.size(), 65535, false, "");	
-	std::vector<array> rowbuf[im.size().x];
+	std::vector<array> rowbuf(im.size().x);
 	for (int r=0; r<im.size().y; r++) {
 	  Pixel::ConvertPixels<T, array>::convert(im[r], &(rowbuf[0]), im.size().x);
 	  writePNMPixels(out, (const unsigned short*)&(rowbuf[0]), im.size().x*3, false);
@@ -178,7 +178,7 @@ namespace CVD
       typedef Rgb<byte> array;
       static void write(const BasicImage<T>& im, std::ostream& out) {
 	writePNMHeader(out, 3, im.size(), 255, false, "");	
-	std::vector<array> rowbuf[im.size().x];
+	std::vector<array> rowbuf(im.size().x);
 	for (int r=0; r<im.size().y; r++) {
 	  Pixel::ConvertPixels<T, array>::convert(im[r], &(rowbuf[0]), im.size().x);
 	  writePNMPixels(out, (const byte*)&(rowbuf[0]), im.size().x*3, false);
