@@ -232,10 +232,12 @@ namespace CVD {
 	return new CVD::V4LBuffer<CVD::byte>(dev, size, input, interlaced);
     }
 
-    template <> CVD::VideoBuffer<CVD::bayer>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced)
-    {
-	return new CVD::V4LBuffer<CVD::bayer>(dev, size, input, interlaced);
-    }
+    #ifdef V4L2_PIX_FMT_SBGGR8
+	template <> CVD::VideoBuffer<CVD::bayer>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced)
+	{
+	    return new CVD::V4LBuffer<CVD::bayer>(dev, size, input, interlaced);
+	}
+    #endif
     template <> CVD::VideoBuffer<CVD::yuv422>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced)
     {
 	return new CVD::V4LBuffer<CVD::yuv422>(dev, size, input, interlaced);

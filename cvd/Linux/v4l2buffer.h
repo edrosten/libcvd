@@ -28,7 +28,6 @@
 
 #include <cvd/videobuffer.h>
 #include <cvd/Linux/v4l2frame.h>
-#include <linux/videodev.h>    // v4l2 - video for linux 2
 
 #define V4L2BUFFERS 3
 

@@ -22,8 +22,17 @@
 #ifndef CVD_V4LBUFFER_H
 #define CVD_V4LBUFFER_H
 
+#include <cvd/config.h>
+
 #include <vector>
-#include <linux/videodev.h>
+
+#ifdef CVD_INTERNAL_HAVE_STRANGE_V4L2
+	#include <videodevx/videodev.h>
+#else
+	#include <linux/videodev.h>
+#endif
+
+
 
 #include <cvd/videobuffer.h>
 #include <cvd/byte.h>
@@ -69,33 +78,33 @@ namespace V4L
 
     template<> struct format<byte>
     {
-	static const unsigned int v4l2_fmt = V4L2_PIX_FMT_GREY;
+		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_GREY;
         static const unsigned int v4l1_palette = VIDEO_PALETTE_GREY;
     };
 	
     #ifdef V4L2_PIX_FMT_SBGGR8
     template<> struct format<bayer>
     {
-	static const unsigned int v4l2_fmt = V4L2_PIX_FMT_SBGGR8;
+		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_SBGGR8;
         static const unsigned int v4l1_palette = VIDEO_PALETTE_RAW;
     };
     #endif
 
     template<> struct format<yuv422>
     {
-	static const unsigned int v4l2_fmt = V4L2_PIX_FMT_YUYV;
+		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_YUYV;
         static const unsigned int v4l1_palette = VIDEO_PALETTE_YUV422;
     };
 
     template<> struct format<yuv420p>
     {
-	static const unsigned int v4l2_fmt = V4L2_PIX_FMT_YUV420;
+		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_YUV420;
         static const unsigned int v4l1_palette = VIDEO_PALETTE_YUV420P;
     };
 
     template<> struct format<Rgb<byte> >
     {
-	static const unsigned int v4l2_fmt = V4L2_PIX_FMT_RGB24;
+		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_RGB24;
         static const unsigned int v4l1_palette = VIDEO_PALETTE_RGB24;
     };
 #endif

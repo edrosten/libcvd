@@ -32,7 +32,13 @@
 #define CVD_V4L2FRAME_H
 
 #include <cvd/videoframe.h>
-#include <linux/videodev.h>
+#include <cvd/config.h>
+
+#ifdef CVD_INTERNAL_HAVE_STRANGE_V4L2
+	#include <videodevx/videodev.h>
+#else
+	#include <linux/videodev.h>
+#endif
 
 namespace CVD {
 

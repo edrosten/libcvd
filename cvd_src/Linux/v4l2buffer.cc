@@ -26,9 +26,9 @@
 #include <errno.h>
 #include <string.h>
 
+#include "cvd/config.h"
 #include "cvd/Linux/v4l2buffer.h"
 #include "cvd/timer.h"
-#include "cvd/config.h"
 
 #include <sys/types.h>   // included for open()
 #include <sys/stat.h>    // included for open()

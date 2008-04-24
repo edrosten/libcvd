@@ -396,7 +396,7 @@ AC_ARG_WITH(qtbuffer, [  --without-qtbuffer	  compile without quicktime buffer s
 
 case "$host" in
 	*linux*)
-		os_all_options="dvbuffer v4l2buffer v4l1buffer"
+		os_all_options="dvbuffer v4l2buffer v4l1buffer v4lbuffer"
 
 		CHECK_FOR_LIBRARY(dvbuffer, [
 			AC_CHECK_HEADERS(libraw1394/raw1394.h libdc1394/dc1394_control.h, [], [a=1])
@@ -404,7 +404,6 @@ case "$host" in
 			AC_CHECK_LIB(dc1394_control, main,[],[a=1])
 		])
 
-		CHECK_FOR_LIBRARY(v4l1buffer, [AC_CHECK_HEADERS(linux/videodev.h,[], [a=1])])
 		
 		CHECK_FOR_LIBRARY(v4l2buffer,[
 			AC_MSG_CHECKING(for v4l2)
@@ -414,25 +413,82 @@ case "$host" in
 								int main(){V4L2_PIX_FMT_GREY;return 0;}], 
 								[AC_MSG_RESULT(yes)],
 								[AC_MSG_RESULT(no); a=1])
+			if test x$a = x1
+			then
+				a=
+
+				AC_MSG_CHECKING(for strange v4l2)
+				AC_COMPILE_IFELSE([	#include <sys/types.h>
+									#include <linux/types.h>
+									#include <videodevx/videodev.h>
+									int main(){V4L2_PIX_FMT_GREY;return 0;}], 
+									[AC_MSG_RESULT(yes)],
+									[AC_MSG_RESULT(no); a=1])
+
+				if test x$a = x
+				then
+					APPEND(dodginess_options, strange_v4l2)
+					strange_v4l2=yes
+					AC_DEFINE(CVD_INTERNAL_HAVE_STRANGE_V4L2, 1)
+				fi
+			fi
 		])
+		
+		if test x$strange_v4l2 != xyes
+		then
+			CHECK_FOR_LIBRARY(v4l1buffer, [AC_CHECK_HEADERS(linux/videodev.h,[], [a=1])])
+		else
+			CHECK_FOR_LIBRARY(v4l1buffer, [
+				AC_MSG_CHECKING(for strange v4l)
+				AC_COMPILE_IFELSE([	#include <videodevx/videodev.h>
+									int main(){VIDEO_PALETTE_GREY;return 0;}], 
+									[AC_MSG_RESULT(yes)],
+									[AC_MSG_RESULT(no); a=1])])
+		fi
+		
+		if test "$cross_compiling" = yes
+		then
+			uname_r= 
+		else
+			uname_r="`uname -r`"
+		fi
+
+		
+		AC_ARG_WITH(linux, [  --with-linux=UNAME      specify the output of uname -r ],[uname_r="$withval"])
+
+		if test "$uname_r" = ""
+		then
+			AC_MSG_WARN([No kernel type specified. Assming 2.6.20])
+			uname_r=2.6.20
+		fi
+		
 
 		AC_MSG_CHECKING([kernel major number])
-		kernel_major=[`uname -r | $AWK -F'[.-]' '{print $1}'`]
+		kernel_major=[`echo $uname_r | $AWK -F'[.-]' '{print $1}'`]
 		AC_MSG_RESULT($kernel_major)
 		AC_DEFINE_UNQUOTED(CVD_KERNEL_MAJOR,$kernel_major)
 		
 		AC_MSG_CHECKING([kernel minor number])
-		kernel_minor=[`uname -r | $AWK -F'[.-]' '{print $2}'`]
+		kernel_minor=[`echo $uname_r | $AWK -F'[.-]' '{print $2}'`]
 		AC_MSG_RESULT($kernel_minor)
 		AC_DEFINE_UNQUOTED(CVD_KERNEL_MINOR,$kernel_minor)
 
 		
 		AC_MSG_CHECKING([kernel release number])
-		kernel_release=[`uname -r | $AWK -F'[.-]' '{print $3}'`]
+		kernel_release=[`echo $uname_r | $AWK -F'[.-]' '{print $3}'`]
 		AC_MSG_RESULT($kernel_release)
 		AC_DEFINE_UNQUOTED(CVD_KERNEL_RELEASE,$kernel_release)
-		;;
 
+
+		if test $kernel_major.$kernel_minor != 2.4
+		then
+			export have_linux_2_4=yes
+		elif test $kernel_major.$kernel_minor =! 2.6
+		then
+			export have_linux_2_6=yes
+		fi
+
+		;;
 	*sgi*)
 		os_all_options="o2buffer"
 		CHECK_FOR_LIBRARY(o2buffer, [
@@ -825,7 +881,7 @@ cvd_src/slower_corner_12						fast12							END
 #General OS specific bits
 cvd_src/Linux/dvbuffer							dvbuffer END
 cvd_src/Linux/v4l1buffer						v4l1buffer END
-cvd_src/Linux/v4lbuffer							v4l1buffer v4l2buffer END
+cvd_src/Linux/v4lbuffer							v4l2buffer,linux_2_6 END
 cvd_src/Linux/v4l2buffer	                 	v4l2buffer END
 cvd_src/IRIX/O2buffer,cvd_src/IRIX/sgi-video	o2buffer END
 cvd_src/OSX/qtbuffer							qtbuffer END
@@ -840,7 +896,7 @@ cvd_src/videofilebuffer							ffmpeg END
 cvd_src/globlist    							glob END
 
 #Numerics dependencies
-cvd_src/tensor_voting							toon END
+cvd_src/tensor_voting,cvd_src/brezenham			toon END
 
 ENDDEPS
 

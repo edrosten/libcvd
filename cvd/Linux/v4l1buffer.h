@@ -23,10 +23,9 @@
 #define __CVD_V4L1BUFFER_H
 
 #include <vector>
-#include <linux/videodev.h>
 
-#include <cvd/videobuffer.h>
 #include <cvd/Linux/v4l1frame.h>
+#include <cvd/videobuffer.h>
 #include <cvd/byte.h>
 #include <cvd/rgb.h>
 #include <cvd/timer.h>
@@ -85,6 +84,12 @@ namespace V4L1
     {
         static const unsigned int mode = VIDEO_PALETTE_YUV422;
     };
+
+	template<> struct cam_type<yuv420p>
+    {
+        static const unsigned int mode = VIDEO_PALETTE_YUV420P;
+    };
+
 
     template<> struct cam_type<Rgb<byte> >
     {
