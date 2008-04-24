@@ -69,7 +69,7 @@ unsigned int getPaletteDepth(unsigned int p) {
     }
 }
 
-RawV4L1::RawV4L1(const std::string & dev, unsigned int mode)
+RawV4L1::RawV4L1(const std::string & dev, unsigned int mode, const ImageRef& size)
     : deviceName( dev ), myDevice(-1), mySize(640,480), myPalette(mode),
       myBrightness(0.5), myWhiteness(0.5), myContrast(0.5), myHue(0.5), mySaturation(0.5),
       myBpp(16)
@@ -80,6 +80,21 @@ RawV4L1::RawV4L1(const std::string & dev, unsigned int mode)
     struct video_capability caps;
     if (ioctl(myDevice, VIDIOCGCAP, & caps) != 0)
         throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "get capabilities");
+	
+
+	
+	if(size.x != 0)
+	{
+		struct video_window window;
+		if (ioctl (myDevice, VIDIOCGWIN, &window) != 0)
+			throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "get window");
+
+		window.width  = size.x;
+		window.height = size.y;
+		if (ioctl (myDevice, VIDIOCSWIN, &window) != 0)
+			throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "set window");
+	}
+
     struct video_mbuf mbuf;
     if (ioctl(myDevice, VIDIOCGMBUF, &mbuf) != 0)
         throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "get memory buffer info");

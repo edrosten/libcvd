@@ -5901,7 +5901,7 @@ fi
 
 case "$host" in
 	*linux*)
-		os_all_options="dvbuffer v4l2buffer v4l1buffer"
+		os_all_options="dvbuffer v4l2buffer v4l1buffer v4lbuffer"
 
 
 	if test "$with_dvbuffer" != no && test "$have_dvbuffer" != yes
@@ -6877,7 +6877,7 @@ _ACEOF
 		if test $kernel_major.$kernel_minor != 2.4
 		then
 			export have_linux_2_4=yes
-		elif test $kernel_major.$kernel_minor =! 2.6
+		elif test $kernel_major.$kernel_minor != 2.6
 		then
 			export have_linux_2_6=yes
 		fi

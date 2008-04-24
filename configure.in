@@ -483,7 +483,7 @@ case "$host" in
 		if test $kernel_major.$kernel_minor != 2.4
 		then
 			export have_linux_2_4=yes
-		elif test $kernel_major.$kernel_minor =! 2.6
+		elif test $kernel_major.$kernel_minor != 2.6
 		then
 			export have_linux_2_6=yes
 		fi

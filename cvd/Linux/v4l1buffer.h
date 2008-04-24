@@ -107,7 +107,7 @@ namespace V4L1
          * @param dev file name of the device to open
          * @param mode color palette to use (see linux/video.h for possible modes)
          */
-        RawV4L1(const std::string & dev, unsigned int mode);
+        RawV4L1(const std::string & dev, unsigned int mode, const ImageRef&);
         virtual ~RawV4L1();
         /** Get the width in pixels of the captured frames. */
         const ImageRef& get_size() const;
@@ -189,7 +189,12 @@ template <class T> class V4L1Buffer : public VideoBuffer<T>, public V4L1::RawV4L
 public:
     /// Construct a video buffer
     /// @param dev file name of the device to use
-    V4L1Buffer(const std::string & dev) : RawV4L1( dev, V4L1::cam_type<T>::mode ) {}
+    V4L1Buffer(const std::string & dev) : RawV4L1( dev, V4L1::cam_type<T>::mode, ImageRef(0,0)) {}
+
+    /// Construct a video buffer
+    /// @param dev file name of the device to use
+    /// @param size Size of the video stream to grab
+    V4L1Buffer(const std::string & dev, ImageRef size) : RawV4L1( dev, V4L1::cam_type<T>::mode,size ) {}
 
     virtual ImageRef size()
     {
