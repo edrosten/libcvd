@@ -166,10 +166,10 @@ namespace CVD
       typedef Rgb<unsigned short> array;
       static void write(const BasicImage<T>& im, std::ostream& out) {
 	writePNMHeader(out, 3, im.size(), 65535, false, "");	
-	std::auto_ptr<array> rowbuf(new array[im.size().x]);
+	std::vector<array> rowbuf[im.size().x];
 	for (int r=0; r<im.size().y; r++) {
-	  Pixel::ConvertPixels<T, array>::convert(im[r], rowbuf.get(), im.size().x);
-	  writePNMPixels(out, (const unsigned short*)rowbuf.get(), im.size().x*3, false);
+	  Pixel::ConvertPixels<T, array>::convert(im[r], &rowbuf[0], im.size().x);
+	  writePNMPixels(out, (const unsigned short*)&rowbuf[0], im.size().x*3, false);
 	}	
       }
     };
@@ -178,10 +178,10 @@ namespace CVD
       typedef Rgb<byte> array;
       static void write(const BasicImage<T>& im, std::ostream& out) {
 	writePNMHeader(out, 3, im.size(), 255, false, "");	
-	std::auto_ptr<array> rowbuf(new array[im.size().x]);
+	std::vector<array> rowbuf[im.size().x];
 	for (int r=0; r<im.size().y; r++) {
-	  Pixel::ConvertPixels<T, array>::convert(im[r], rowbuf.get(), im.size().x);
-	  writePNMPixels(out, (const byte*)rowbuf.get(), im.size().x*3, false);
+	  Pixel::ConvertPixels<T, array>::convert(im[r], &rowbuf[0], im.size().x);
+	  writePNMPixels(out, (const byte*)&rowbuf[0], im.size().x*3, false);
 	}	
       }
     };
@@ -190,10 +190,10 @@ namespace CVD
       typedef unsigned short S;
       static void write(const BasicImage<T>& im, std::ostream& out) {
 	writePNMHeader(out, 1, im.size(), 65535, false, "");	
-	std::auto_ptr<S> rowbuf(new S[im.size().x]);
+	std::vector<S> rowbuf(im.size().x);
 	for (int r=0; r<im.size().y; r++) {
-	  Pixel::ConvertPixels<T, S>::convert(im[r], rowbuf.get(), im.size().x);
-	  writePNMPixels(out, rowbuf.get(), im.size().x, false);
+	  Pixel::ConvertPixels<T, S>::convert(im[r], &rowbuf[0], im.size().x);
+	  writePNMPixels(out, &rowbuf[0], im.size().x, false);
 	}	
       }
     };
@@ -202,10 +202,10 @@ namespace CVD
       typedef byte S;
       static void write(const BasicImage<T>& im, std::ostream& out) {
 	writePNMHeader(out, 1, im.size(), 255, false, "");	
-	std::auto_ptr<S> rowbuf(new S[im.size().x]);
+	std::vector<S> rowbuf(im.size().x);
 	for (int r=0; r<im.size().y; r++) {
-	  Pixel::ConvertPixels<T, S>::convert(im[r], rowbuf.get(), im.size().x);
-	  writePNMPixels(out, rowbuf.get(), im.size().x, false);
+	  Pixel::ConvertPixels<T, S>::convert(im[r], &rowbuf[0], im.size().x);
+	  writePNMPixels(out, &rowbuf[0], im.size().x, false);
 	}	
       }
     };
