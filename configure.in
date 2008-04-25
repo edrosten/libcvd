@@ -480,12 +480,13 @@ case "$host" in
 		AC_DEFINE_UNQUOTED(CVD_KERNEL_RELEASE,$kernel_release)
 
 
-		if test $kernel_major.$kernel_minor != 2.4
+		if test $kernel_major.$kernel_minor == 2.4
 		then
-			export have_linux_2_4=yes
-		elif test $kernel_major.$kernel_minor != 2.6
+			
+			AC_SUBST(have_linux_2_4, yes)
+		elif test $kernel_major.$kernel_minor == 2.6
 		then
-			export have_linux_2_6=yes
+			AC_SUBST(have_linux_2_6, yes)
 		fi
 
 		;;
@@ -881,7 +882,7 @@ cvd_src/slower_corner_12						fast12							END
 #General OS specific bits
 cvd_src/Linux/dvbuffer							dvbuffer END
 cvd_src/Linux/v4l1buffer						v4l1buffer END
-cvd_src/Linux/v4lbuffer							v4l2buffer,linux_2_6 END
+cvd_src/Linux/v4lbuffer							v4l2buffer linux_2_6 END
 cvd_src/Linux/v4l2buffer	                 	v4l2buffer END
 cvd_src/IRIX/O2buffer,cvd_src/IRIX/sgi-video	o2buffer END
 cvd_src/OSX/qtbuffer							qtbuffer END
@@ -947,6 +948,11 @@ test/qtbuffer_yuvrgb            videodisplay qtbuffer 			END
 ENDPROGS
 AC_SUBST(testprogs, ["`cat config.dep_testprogs | tr '\n' ' ' `"])
 
+
+if echo "$dep_objects" | grep -q v4lbuffer
+then
+	APPEND(options, v4lbuffer)	
+fi
 
 echo
 echo
