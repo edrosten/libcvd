@@ -134,7 +134,7 @@ struct jpeg_istream_src: public jpeg_source_mgr
 		}
 	}
 
-	static void s_term_source(j_decompress_ptr p)
+	static void s_term_source(j_decompress_ptr)
 	{
 	}
 };

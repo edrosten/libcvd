@@ -38,7 +38,8 @@ tsize_t tiff_in::read(thandle_t vis, tdata_t data, tsize_t count)
 	return i->i.gcount();
 }
 
-tsize_t tiff_in::write(thandle_t vis, tdata_t data, tsize_t count)
+//tsize_t tiff_in::write(thandle_t vis, tdata_t data, tsize_t count)
+tsize_t tiff_in::write(thandle_t, tdata_t, tsize_t)
 {
 	return 0;
 }
@@ -63,7 +64,7 @@ toff_t tiff_in::size(thandle_t vis)
 	return ii->length;
 }
 
-int tiff_in::close(thandle_t vis)
+int tiff_in::close(thandle_t)
 {
 	return 0;
 }
@@ -81,7 +82,7 @@ void tiff_in::unmap(thandle_t, tdata_t, toff_t)
 static const int error_size=512;
 static char error_msg[error_size]="";
 
-static void tiff_error_handler(const char* module, const char* fmt, va_list ap)
+static void tiff_error_handler(const char*, const char* fmt, va_list ap)
 {
 	int n = vsnprintf(error_msg, error_size, fmt, ap);
 	if(n == error_size)

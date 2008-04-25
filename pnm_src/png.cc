@@ -14,7 +14,7 @@ static void error_fn(png_structp png_ptr, png_const_charp error_msg)
 	*(string*)(png_ptr->error_ptr) = error_msg;
 }
 
-static void warn_fn(png_structp png_ptr, png_const_charp error_msg)
+static void warn_fn(png_structp, png_const_charp )
 {
 }
 
@@ -216,6 +216,8 @@ png_out::png_out(int w, int h, colour_type t, int depth, std::ostream& out)
 		case GreyAlpha: c_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
 		case Rgb: c_type = PNG_COLOR_TYPE_RGB; break;
 		case RgbAlpha: c_type = PNG_COLOR_TYPE_RGB_ALPHA; break;
+		default:
+			throw Exceptions::Image_IO::MalformedImage("unknown pixel format");
 	}
 
 

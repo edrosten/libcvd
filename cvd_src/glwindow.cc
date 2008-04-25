@@ -267,20 +267,20 @@ private:
     std::vector<GLWindow::Event>& events;
 public:
     SaveEvents(std::vector<GLWindow::Event>& events_) : events(events_) {}
-    void on_key_down(GLWindow& win, int key) {
+    void on_key_down(GLWindow&, int key) {
 	GLWindow::Event e;
 	e.type = GLWindow::Event::KEY_DOWN;
 	e.which = key;
 	events.push_back(e);
     }
-    void on_key_up(GLWindow& win, int key) {
+    void on_key_up(GLWindow&, int key) {
 	GLWindow::Event e;
 	e.type = GLWindow::Event::KEY_UP;
 	e.which = key;
 	events.push_back(e);
     }
 
-    void on_mouse_move(GLWindow& win, ImageRef where, int state) {
+    void on_mouse_move(GLWindow&, ImageRef where, int state) {
 	GLWindow::Event e;
 	e.type = GLWindow::Event::MOUSE_MOVE;
 	e.state = state;
@@ -288,7 +288,7 @@ public:
 	events.push_back(e);
     }
 
-    void on_mouse_down(GLWindow& win, ImageRef where, int state, int button) {
+    void on_mouse_down(GLWindow&, ImageRef where, int state, int button) {
 	GLWindow::Event e;
 	e.type = GLWindow::Event::MOUSE_DOWN;
 	e.state = state;
@@ -297,7 +297,7 @@ public:
 	events.push_back(e);
     }
 
-    void on_mouse_up(GLWindow& win, ImageRef where, int state, int button) {
+    void on_mouse_up(GLWindow&, ImageRef where, int state, int button) {
 	GLWindow::Event e;
 	e.type = GLWindow::Event::MOUSE_UP;
 	e.state = state;
@@ -306,14 +306,14 @@ public:
 	events.push_back(e);
     }
 
-    void on_resize(GLWindow& win, ImageRef size) {
+    void on_resize(GLWindow&, ImageRef size) {
 	GLWindow::Event e;
 	e.type = GLWindow::Event::RESIZE;
 	e.size = size;
 	events.push_back(e);
     }
 
-    void on_event(GLWindow& win, int event) {
+    void on_event(GLWindow&, int event) {
 	GLWindow::Event e;
 	e.type = GLWindow::Event::EVENT;
 	e.which = event;
@@ -338,12 +338,12 @@ private:
 public:
     MakeSummary(GLWindow::EventSummary& summary_) : summary(summary_) {}
 
-    void on_key_down(GLWindow& win, int key) {	++summary.key_down[key]; }
-    void on_key_up(GLWindow& win, int key) { ++summary.key_up[key]; }
-    void on_mouse_move(GLWindow& win, ImageRef where, int state) { summary.cursor = where; summary.cursor_moved = true; }
-    void on_mouse_down(GLWindow& win, ImageRef where, int state, int button) { summary.mouse_down[button] = std::make_pair(where,state); }
-    void on_mouse_up(GLWindow& win, ImageRef where, int state, int button) { summary.mouse_up[button] = std::make_pair(where,state); }
-    void on_event(GLWindow& win, int event) { ++summary.events[event]; }
+    void on_key_down(GLWindow&, int key) {	++summary.key_down[key]; }
+    void on_key_up(GLWindow&, int key) { ++summary.key_up[key]; }
+    void on_mouse_move(GLWindow&, ImageRef where, int) { summary.cursor = where; summary.cursor_moved = true; }
+    void on_mouse_down(GLWindow&, ImageRef where, int state, int button) { summary.mouse_down[button] = std::make_pair(where,state); }
+    void on_mouse_up(GLWindow&, ImageRef where, int state, int button) { summary.mouse_up[button] = std::make_pair(where,state); }
+    void on_event(GLWindow&, int event) { ++summary.events[event]; }
 };
 
 void GLWindow::get_events(EventSummary& summary)

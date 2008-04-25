@@ -30,7 +30,7 @@ namespace CVD
     };
 
     template <int N> struct BitCheck<N,N> { 
-	template <class C> static inline void eval(unsigned int three, const byte* p, const int w, const int barrier, C& corners) {} 
+	template <class C> static inline void eval(unsigned int, const byte* , const int , const int , C& ) {} 
     };
 
     template <int CHUNKS, class C> inline void process_16(unsigned int three, const byte* p, const int w, const int barrier, C& corners)

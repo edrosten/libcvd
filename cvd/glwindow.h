@@ -48,7 +48,7 @@ namespace CVD {
 	public:
 	    virtual ~EventHandler() {}
 	    /// Called for key press events
-	    virtual void on_key_down(GLWindow& win, int key) {}
+	    virtual void on_key_down(GLWindow&, int key) {}
 	    /// Called for key release events
 	    virtual void on_key_up(GLWindow& win, int key) {}
 	    /// Called for mouse movement events
