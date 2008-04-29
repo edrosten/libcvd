@@ -23,6 +23,7 @@ arch= @build_cpu@
 
 CC = @CC@
 CXX=@CXX@
+LD=arm-linux-ld -lstdc++ 
 RANLIB=@RANLIB@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
@@ -144,13 +145,13 @@ all: libcvd.a $(soname) progs $(DTARGETS) libcvd_debug.a $(dsoname)
 
 $(soname): $(OBJS)
 	rm -f $(sos)
-	$(CXX) $(CXXFLAGS) $(shared) -o $(soname2) $(OBJS) $(LDFLAGS) $(LOADLIBES)
+	$(LD) $(shared) -o $(soname2) $(OBJS) $(LDFLAGS) $(LOADLIBES)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
 $(dsoname): $(DEBUG_OBJS)
 	rm -f $(dsos)
-	$(CXX) $(CXXFLAGS) $(shared) -o $(dsoname2) $(DEBUG_OBJS) $(LDFLAGS) $(LOADLIBES)
+	$(LD) $(shared) -o $(dsoname2) $(DEBUG_OBJS) $(LDFLAGS) $(LOADLIBES)
 	ln -s $(dsoname2) $(dsoname1)
 	ln -s $(dsoname1) $(dsoname)
 

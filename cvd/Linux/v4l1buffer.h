@@ -165,6 +165,9 @@ namespace V4L1
         unsigned int myBpp;
         int autoexp;
 
+		void *mmaped_memory;
+		size_t mmaped_len;
+
         std::vector<unsigned char*> myFrameBuf;
         std::vector<bool> myFrameBufState;
         unsigned int myNextRetrieveBuf;
@@ -217,6 +220,10 @@ public:
     {
         return RawV4L1::frame_rate();
     }
+
+	virtual ~V4L1Buffer()
+	{
+	}
 
 private:
     V4L1Buffer( V4L1Buffer& copyof );

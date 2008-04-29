@@ -98,9 +98,13 @@ RawV4L1::RawV4L1(const std::string & dev, unsigned int mode, const ImageRef& siz
     struct video_mbuf mbuf;
     if (ioctl(myDevice, VIDIOCGMBUF, &mbuf) != 0)
         throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "get memory buffer info");
-    unsigned char* theMap = (unsigned char*)mmap(0, mbuf.size, PROT_READ|PROT_WRITE, MAP_SHARED, myDevice, 0);
-    if (theMap == (unsigned char*)-1)
+
+	mmaped_len = mbuf.size;
+    mmaped_memory = mmap(0, mbuf.size, PROT_READ|PROT_WRITE, MAP_SHARED, myDevice, 0);
+    if (mmaped_memory == MAP_FAILED)
         throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "mmap()");
+
+	unsigned char* theMap = static_cast<unsigned char*>(mmaped_memory);
 
     myFrameBuf.resize(mbuf.frames);
     myFrameBufState.resize(myFrameBuf.size(), false);
@@ -123,7 +127,10 @@ RawV4L1::RawV4L1(const std::string & dev, unsigned int mode, const ImageRef& siz
 RawV4L1::~RawV4L1()
 {
     if (myDevice != -1)
+	{
         close(myDevice);
+		munmap(mmaped_memory, mmaped_len);
+	}
 }
 
 void RawV4L1::retrieveSettings()
