@@ -23,7 +23,7 @@ arch= @build_cpu@
 
 CC = @CC@
 CXX=@CXX@
-LD=arm-linux-ld -lstdc++ 
+LD=@CXX@
 RANLIB=@RANLIB@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
