@@ -396,10 +396,6 @@ template <class T,class S> inline const T* convolveMiddle(const T* input, const 
   case 6: CALL_CM(6);
   case 7: CALL_CM(7);
   case 8: CALL_CM(8);
-  case 9: CALL_CM(9);
-  case 10: CALL_CM(10);
-  case 11: CALL_CM(11);
-  case 12: CALL_CM(12);
   default: for (int j=0; j<n; j++, input++) { *(output++) = ConvolveMiddle<T,-1>::at(input, factor, kernel, ksize); }     
   }
   return input;
@@ -417,7 +413,7 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
     typedef typename Pixel::traits<typename Pixel::Component<T>::type>::float_type sum_comp_type;
     typedef typename Pixel::traits<T>::float_type sum_type;
     assert(out.size() == I.size());
-    int ksize = (int)(sigmas*sigma + 0.5);
+    int ksize = (int)ceil(sigmas*sigma);
     //std::cerr << "sigma: " << sigma << " kernel: " << ksize << std::endl;
     std::vector<sum_comp_type> kernel(ksize);
     sum_comp_type ksum = sum_comp_type();
@@ -449,7 +445,7 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
 	for (int j=0; j<ksize; j++) {
 	    sum_type hsum = input[j] * factor;
 	    for (int k=0; k<ksize; k++)
-		hsum += (input[abs(j-k-1)] + input[j+k+1]) * kernel[k];
+		hsum += (input[std::max(j-k-1,0)] + input[j+k+1]) * kernel[k];
 	    next_row[j] = hsum;
 	}
 	// middle of row
@@ -460,7 +456,7 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
 	    sum_type hsum = *input * factor;
 	    const int room = w-j;
 	    for (int k=0; k<ksize; k++) {
-		hsum += (input[-k-1] + (k+1 >= room ? input[2*room-k-2] : input[k+1])) * kernel[k];
+		hsum += (input[-k-1] + input[std::min(k+1,room-1)]) * kernel[k];
 	    }
 	    next_row[j] = hsum;
 	}
@@ -483,7 +479,7 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
 		    for (int k=0; k<ksize; k++) {
 			const sum_comp_type m = kernel[k];
 			const sum_type* row1 = rows[ksize+r-k];
-			const sum_type* row2 = rows[ksize+r+k+2 > swin ? 2*swin - (ksize+r+k+2) : ksize+r+k+2];
+			const sum_type* row2 = rows[std::min(ksize+r+k+2, swin)];
 			add_multiple_of_sum(row1, row2, m, outbuf, w);
 		    }
 		    cast_copy(outbuf, output, w);
@@ -496,7 +492,7 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
 		assign_multiple(middle_row, factor, outbuf, w);
 		for (int k=0; k<ksize; k++) {
 		    const sum_comp_type m = kernel[k];
-		    const sum_type* row1 = rows[abs(r-k-1)+1];
+		    const sum_type* row1 = rows[std::max(r-k-1,0)+1];
 		    const sum_type* row2 = rows[r+k+2];	
 		    add_multiple_of_sum(row1, row2, m, outbuf, w);
 		}
@@ -511,6 +507,10 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
 	rows[swin] = tmp;
     }
 }
+
+void compute_van_vliet_b(double sigma, double b[]);
+void compute_triggs_M(const double b[], double M[][3]);
+void van_vliet_blur(const double b[], const SubImage<float> in, SubImage<float> out);
 
 void convolveGaussian(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas=3.0);
 
