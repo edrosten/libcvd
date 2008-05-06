@@ -677,11 +677,8 @@ class Image: public BasicImage<T>
 		///@param copy The image to copy
 		void copy_from(const BasicImage<T>& copy)
 		{
-			Image<T> tmp(copy.size());
-
-			*this = tmp;
-			
-			std::copy(copy.begin(), copy.end(), this->begin());
+            resize(copy.size());
+            std::copy(copy.begin(), copy.end(), this->begin());
 		}
 
 
