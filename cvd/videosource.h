@@ -62,6 +62,10 @@ namespace CVD {
     {
 	throw VideoSourceException("DiskBuffer2 cannot handle type vuy422");
     }
+    template <> inline VideoBuffer<yuv422> * makeDiskBuffer2(const std::vector<std::string>& , double , VideoBufferFlags::OnEndOfBuffer )
+    {
+	throw VideoSourceException("DiskBuffer2 cannot handle type yuv422");
+    }
 #endif
 
     void get_files_options(const VideoSource& vs, int& fps, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob);
@@ -114,6 +118,7 @@ namespace CVD {
 	throw VideoSourceException("QTBuffer cannot handle types other than vuy422");
     }
     template <> VideoBuffer<vuy422> * makeQTBuffer( const ImageRef & size, int input, bool showsettings);
+    template <> VideoBuffer<yuv422> * makeQTBuffer( const ImageRef & size, int input, bool showsettings);
     
     void get_qt_options(const VideoSource & vs, ImageRef & size, bool & showsettings);
 #endif

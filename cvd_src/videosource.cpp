@@ -367,6 +367,11 @@ namespace CVD {
     {
         return new CVD::QTBuffer<vuy422>(size, input, showsettings);
     }
+
+    template <> VideoBuffer<yuv422> * makeQTBuffer( const ImageRef & size, int input, bool showsettings)
+    {
+        return new CVD::QTBuffer<yuv422>(size, input, showsettings);
+    }
     
     void get_qt_options(const VideoSource & vs, ImageRef & size, bool & showsettings){
 	size = ImageRef(640, 480);
@@ -389,7 +394,7 @@ namespace CVD {
 		else if(it->first == "showsettings") {
 		    showsettings = atoi(it->second.c_str());
 	    } else
-		throw VideoSourceException("invalid option for 'qt' protocol: "+it->first+"\n\t valid options: size");
+		throw VideoSourceException("invalid option for 'qt' protocol: "+it->first+"\n\t valid options: size, showsettings");
 	}
     }
 #endif
