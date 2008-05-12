@@ -1,4 +1,5 @@
 #include <vector>
+#include <climits>
 #include <cvd/image.h>
 #include <cvd/byte.h>
 

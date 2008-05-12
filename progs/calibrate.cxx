@@ -852,10 +852,12 @@ int main(int argc, char* argv[])
                     {
                       doParams = !doParams;
                       if(stage == 1)
+					  {
                         if(doParams)
                           titlePrefix = "Calibrate: Tracking Pose and Internal Params";
                         else
                           titlePrefix = "Calibrate: Tracking Pose";
+					  }
                     }
                 }
             }

@@ -22,6 +22,7 @@
 #define PNM_TIFF
 
 #include <iostream>
+#include <vector>
 #include <string>
 #include <stdarg.h>
 #include <cvd/image.h>
@@ -76,29 +77,29 @@ namespace TIFF
 
 	template <class T, class S> struct TIFFReader<T,S,1> {
 	  static void read(BasicImage<T>& im, tiff_in& tiff) {
-	    std::auto_ptr<S> rowbuf(new S[tiff.x_size()]);
+		std::vector<S> rowbuf(tiff.x_size());
 	    for (int r=0; r<tiff.y_size(); r++) {
-	      tiff.get_raw_pixel_lines(rowbuf.get(), 1);
-	      Pixel::ConvertPixels<S,T>::convert(rowbuf.get(), im[r], tiff.x_size());
+	      tiff.get_raw_pixel_lines(&rowbuf[0], 1);
+	      Pixel::ConvertPixels<S,T>::convert(&rowbuf[0], im[r], tiff.x_size());
 	    }	    
 	  }
 	};
 	template <class T, class S> struct TIFFReader<T,S,3> {
 	  static void read(BasicImage<T>& im, tiff_in& tiff) {
-	    std::auto_ptr<Rgb<S> > rowbuf(new Rgb<S>[tiff.x_size()]);
+		std::vector<Rgb<S> > rowbuf(tiff.x_size());
 	    for (int r=0; r<tiff.y_size(); r++) {
-	      tiff.get_raw_pixel_lines((S*)rowbuf.get(), 1);
-	      Pixel::ConvertPixels<Rgb<S>,T>::convert(rowbuf.get(), im[r], tiff.x_size());
+	      tiff.get_raw_pixel_lines((S*)&rowbuf[0], 1);
+	      Pixel::ConvertPixels<Rgb<S>,T>::convert(&rowbuf[0], im[r], tiff.x_size());
 	    }	    
 	  }
 	};
 
 	template <class T, class S> struct TIFFReader<T,S,4> {
 	  static void read(BasicImage<T>& im, tiff_in& tiff) {
-	    std::auto_ptr<Rgba<S> > rowbuf(new Rgba<S>[tiff.x_size()]);
+		std::vector<Rgba<S> > rowbuf(tiff.x_size());
 	    for (int r=0; r<tiff.y_size(); r++) {
-	      tiff.get_raw_pixel_lines((S*)rowbuf.get(), 1);
-	      Pixel::ConvertPixels<Rgba<S>,T>::convert(rowbuf.get(), im[r], tiff.x_size());
+	      tiff.get_raw_pixel_lines((S*)&rowbuf[0], 1);
+	      Pixel::ConvertPixels<Rgba<S>,T>::convert(&rowbuf[0], im[r], tiff.x_size());
 	    }	    
 	  }
 	};

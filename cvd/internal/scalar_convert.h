@@ -109,8 +109,8 @@ namespace Pixel
 		    table[i] = (i-255)/255.0;    
 		  return true;
 		}
-		static bool init_float_for_byte = buildLookupTable(float_for_byte);
-		static bool init_double_for_byte = buildLookupTable(double_for_byte);
+		const static bool init_float_for_byte = buildLookupTable(float_for_byte);
+		const static bool init_double_for_byte = buildLookupTable(double_for_byte);
 		inline float byte_to_float(int b) { return float_for_byte[b+255]; }
 		inline double byte_to_double(int b) { return double_for_byte[b+255]; }
 		
