@@ -23,6 +23,7 @@
 #define CVD_VISION_H_
 
 #include <vector>
+#include <memory>
 
 #include <cvd/exceptions.h>
 #include <cvd/image.h>
