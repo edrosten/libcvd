@@ -74,7 +74,8 @@ inline void nonmax_suppression_t(const vector<ImageRef>& corners, const vector<S
 			
 			//Make point_above point to the first of the pixels above the current point,
 			//if it exists.
-			for(; corners[point_above].y < pos.y && corners[point_above].x < pos.x - 1; point_above++);
+			for(; corners[point_above].y < pos.y && corners[point_above].x < pos.x - 1; point_above++)
+			{}
 			
 			
 			for(int i=point_above; corners[i].y < pos.y && corners[i].x <= pos.x + 1; i++)
@@ -94,7 +95,8 @@ inline void nonmax_suppression_t(const vector<ImageRef>& corners, const vector<S
 			
 			// Make point below point to one of the pixels belowthe current point, if it
 			// exists.
-			for(; point_below < sz && corners[point_below].y == pos.y+1 && corners[point_below].x < pos.x - 1; point_below++);
+			for(; point_below < sz && corners[point_below].y == pos.y+1 && corners[point_below].x < pos.x - 1; point_below++)
+			{}
 
 			for(int i=point_below; i < sz && corners[i].y == pos.y+1 && corners[i].x <= pos.x + 1; i++)
 			{
