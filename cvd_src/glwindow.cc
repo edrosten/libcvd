@@ -70,7 +70,8 @@ void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title
 				  &attributes);
     XStoreName(display, window, title.c_str());
     XClassHint classHint;
-    classHint.res_class = "cvd";
+	char res_name[] = "cvd";
+    classHint.res_class = res_name;
     classHint.res_name = (char *)title.c_str();
     XSetClassHint(display, window, &classHint);
     XMapWindow(display, window);
