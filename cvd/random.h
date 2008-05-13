@@ -40,7 +40,7 @@ namespace CVD {
 	/// @ingroup gMaths
 	inline double rand_g()
 	{
-		static bool use_old=0;
+		static bool use_old=false;
 		static double y2;
 		double r;
 
@@ -59,11 +59,12 @@ namespace CVD {
 			y2 = x2 * w;
 
 			r = y1;
+			use_old = true;
 		}
 		else
 		{
 			r = y2;
-			use_old = 1;
+			use_old = false;
 		}
 
 
