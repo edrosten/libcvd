@@ -373,6 +373,12 @@ then
 	AC_SUBST(have_32bit,yes)
 fi
 
+AC_MSG_CHECKING([assembler supports .type pseudo-op])
+AS_IF([echo '.globl test
+.type test, @function' | as &> /dev/null], 
+	[AC_SUBST(have_assembler,yes) AC_MSG_RESULT(yes)],
+	[AC_MSG_RESULT(no)])
+
 ################################################################################
 #
 # Operating system specific parts
@@ -830,12 +836,12 @@ cat config.have_bits - <<ENDDEPS  | awk -f make/compile_deps.awk > config.dep_tm
 cvd_src/i686/yuv411_to_stuff_MMX			mmxext 32bit x86
 cvd_src/yuv411_to_stuff						END
 
-cvd_src/i686/halfsample,HALFSAMPLE_MMX8		mmx 32bit x86 END
+cvd_src/i686/halfsample,HALFSAMPLE_MMX8		mmx 32bit x86 assembler END
 HALFSAMPLE_SSE16							sse2 END
 
 YV402P_MMX									mmx END
 
-cvd_src/i686/rgb_to_gray,cvd_src/i686/convert_rgb_to_y 32bit mmxext x86
+cvd_src/i686/rgb_to_gray,cvd_src/i686/convert_rgb_to_y	32bit mmxext x86 assembler
 cvd_src/noarch/convert_rgb_to_y					END
 
 
@@ -846,7 +852,7 @@ cvd_src/noarch/convolve_gaussian			END
 cvd_src/i686/gradient						sse2
 cvd_src/noarch/gradient						END
 
-cvd_src/i686/yuv422_to_rgb,cvd_src/i686/yuv422_to_grey,cvd_src/i686/yuv422_wrapper mmxext 32bit x86
+cvd_src/i686/yuv422_to_rgb,cvd_src/i686/yuv422_to_grey,cvd_src/i686/yuv422_wrapper mmxext 32bit x86 assembler
 cvd_src/noarch/yuv422_wrapper						END
 
 cvd_src/i686/median_3x3						sse2

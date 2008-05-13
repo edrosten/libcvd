@@ -687,6 +687,7 @@ have_sse
 have_sse2
 have_sse3
 have_32bit
+have_assembler
 CXXCPP
 have_dvbuffer
 have_v4l2buffer
@@ -5856,6 +5857,19 @@ then
 
 fi
 
+{ echo "$as_me:$LINENO: checking assembler supports .type pseudo-op" >&5
+echo $ECHO_N "checking assembler supports .type pseudo-op... $ECHO_C" >&6; }
+if echo '.globl test
+.type test, @function' | as &> /dev/null; then
+  have_assembler=yes
+ { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+else
+  { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+fi
+
+
 ################################################################################
 #
 # Operating system specific parts
@@ -10882,12 +10896,12 @@ cat config.have_bits - <<ENDDEPS  | awk -f make/compile_deps.awk > config.dep_tm
 cvd_src/i686/yuv411_to_stuff_MMX			mmxext 32bit x86
 cvd_src/yuv411_to_stuff						END
 
-cvd_src/i686/halfsample,HALFSAMPLE_MMX8		mmx 32bit x86 END
+cvd_src/i686/halfsample,HALFSAMPLE_MMX8		mmx 32bit x86 assembler END
 HALFSAMPLE_SSE16							sse2 END
 
 YV402P_MMX									mmx END
 
-cvd_src/i686/rgb_to_gray,cvd_src/i686/convert_rgb_to_y 32bit mmxext x86
+cvd_src/i686/rgb_to_gray,cvd_src/i686/convert_rgb_to_y	32bit mmxext x86 assembler
 cvd_src/noarch/convert_rgb_to_y					END
 
 
@@ -10898,7 +10912,7 @@ cvd_src/noarch/convolve_gaussian			END
 cvd_src/i686/gradient						sse2
 cvd_src/noarch/gradient						END
 
-cvd_src/i686/yuv422_to_rgb,cvd_src/i686/yuv422_to_grey,cvd_src/i686/yuv422_wrapper mmxext 32bit x86
+cvd_src/i686/yuv422_to_rgb,cvd_src/i686/yuv422_to_grey,cvd_src/i686/yuv422_wrapper mmxext 32bit x86 assembler
 cvd_src/noarch/yuv422_wrapper						END
 
 cvd_src/i686/median_3x3						sse2
@@ -11754,6 +11768,7 @@ have_sse!$have_sse$ac_delim
 have_sse2!$have_sse2$ac_delim
 have_sse3!$have_sse3$ac_delim
 have_32bit!$have_32bit$ac_delim
+have_assembler!$have_assembler$ac_delim
 CXXCPP!$CXXCPP$ac_delim
 have_dvbuffer!$have_dvbuffer$ac_delim
 have_v4l2buffer!$have_v4l2buffer$ac_delim
@@ -11777,7 +11792,6 @@ have_glob!$have_glob$ac_delim
 have_memalign!$have_memalign$ac_delim
 have_fast7!$have_fast7$ac_delim
 have_fast8!$have_fast8$ac_delim
-have_fast9!$have_fast9$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -11819,6 +11833,7 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+have_fast9!$have_fast9$ac_delim
 have_fast10!$have_fast10$ac_delim
 have_fast11!$have_fast11$ac_delim
 have_fast12!$have_fast12$ac_delim
@@ -11833,7 +11848,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 12; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 13; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
