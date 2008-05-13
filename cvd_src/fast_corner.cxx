@@ -95,37 +95,4 @@ void fast_nonmax_with_scores(const BasicImage<byte>& im, const vector<ImageRef>&
 	nonmax_suppression_with_scores(corners, scores, max_corners);
 }
 
-
-#ifdef CVD_HAVE_FAST_9
-void fast_corner_detect_9_nonmax(const BasicImage<byte>& I, std::vector<ImageRef>& corners, int barrier)
-{
-	vector<ImageRef> c;
-	vector<int> s;
-	fast_corner_detect_9(I, c, barrier);
-	fast_corner_score_9(I, c, barrier, s);
-	nonmax_suppression(c, s, corners);
-}
-#endif
-
-#ifdef CVD_HAVE_FAST_7
-void fast_corner_detect_7(const BasicImage<byte>& I, std::vector<ImageRef>& corners, int barrier)
-{
-	fast_corner_detect_plain_7(I, corners, barrier);
-}
-#endif
-
-#ifdef CVD_HAVE_FAST_8
-void fast_corner_detect_8(const BasicImage<byte>& I, std::vector<ImageRef>& corners, int barrier)
-{
-	fast_corner_detect_plain_8(I, corners, barrier);
-}
-#endif
-
-#ifdef CVD_HAVE_FAST_11
-void fast_corner_detect_11(const BasicImage<byte>& I, std::vector<ImageRef>& corners, int barrier)
-{
-	fast_corner_detect_plain_11(I, corners, barrier);
-}
-#endif
-
 }

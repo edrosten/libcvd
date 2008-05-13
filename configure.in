@@ -163,7 +163,7 @@ define(SIMD_TEST, [
 TEST_AND_SET_CXXFLAG(-Wall)
 TEST_AND_SET_CXXFLAG(-Wextra)
 
-APPEND(CXXFLAGS, [-I "$(eval echo $includedir)"])
+APPEND(CPPFLAGS, [-I"$(eval echo $includedir)"])
 
 ########################################
 #
@@ -863,12 +863,12 @@ cvd_src/i686/utility_double_int				sse2
 cvd_src/noarch/utility_double_int			END
 
 #FAST corner detection specifics
-cvd_src/fast/fast_7_detect,cvd_src/fast/fast_7_score   	fast7  END
-cvd_src/fast/fast_8_detect,cvd_src/fast/fast_8_score   	fast8  END
-cvd_src/fast/fast_9_detect,cvd_src/fast/fast_9_score	fast9  END
-cvd_src/fast/fast_10_detect,cvd_src/fast/fast_10_score	fast10  END
-cvd_src/fast/fast_11_detect,cvd_src/fast/fast_11_score	fast11  END
-cvd_src/fast/fast_12_detect,cvd_src/fast/fast_12_score	fast12  END
+cvd_src/fast/fast_7_detect,cvd_src/fast/fast_7_score,cvd_src/slower_corner_7   	fast7  END
+cvd_src/fast/fast_8_detect,cvd_src/fast/fast_8_score,cvd_src/slower_corner_8		fast8  END
+cvd_src/fast/fast_9_detect,cvd_src/fast/fast_9_score,cvd_src/fast_corner_9_nonmax		fast9  END
+cvd_src/fast/fast_10_detect,cvd_src/fast/fast_10_score									fast10  END
+cvd_src/fast/fast_11_detect,cvd_src/fast/fast_11_score,cvd_src/slower_corner_11	fast11  END
+cvd_src/fast/fast_12_detect,cvd_src/fast/fast_12_score									fast12  END
 
 cvd_src/faster_corner_9							sse2 ssefast9 fast9
 cvd_src/slower_corner_9							fast9							END	
