@@ -583,6 +583,13 @@ CHECK_FOR_LIBRARY(lapack, [
 ])
 
 CHECK_FOR_LIBRARY(lapack, [
+	AC_MSG_CHECKING(if Accelerate framework is needed for LAPACK)
+	AC_MSG_RESULT()
+	APPEND(LIBS, -framework Accelerate)
+	AC_CHECK_FUNC(dgesvd_, [], [a=1])
+])
+
+CHECK_FOR_LIBRARY(lapack, [
 	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
 ])
 
@@ -605,13 +612,6 @@ CHECK_FOR_LIBRARY(lapack, [
 	AC_MSG_RESULT()
 	APPEND(LIBS, -lgfortran)
 	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
-])
-
-CHECK_FOR_LIBRARY(lapack, [
-	AC_MSG_CHECKING(if veclib is needed for LAPACK)
-	AC_MSG_RESULT()
-	APPEND(LIBS, -framework veclib)
-	AC_CHECK_FUNC(dgesvd_, [], [a=1])
 ])
 
 CHECK_FOR_LIBRARY(pthread, [

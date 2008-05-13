@@ -7700,6 +7700,135 @@ _ACEOF
 		save_CXXFLAGS="$CXXFLAGS"
 		a=
 
+	{ echo "$as_me:$LINENO: checking if Accelerate framework is needed for LAPACK" >&5
+echo $ECHO_N "checking if Accelerate framework is needed for LAPACK... $ECHO_C" >&6; }
+	{ echo "$as_me:$LINENO: result: " >&5
+echo "${ECHO_T}" >&6; }
+	LIBS="$LIBS -framework Accelerate"
+	{ echo "$as_me:$LINENO: checking for dgesvd_" >&5
+echo $ECHO_N "checking for dgesvd_... $ECHO_C" >&6; }
+if test "${ac_cv_func_dgesvd_+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+/* Define dgesvd_ to an innocuous variant, in case <limits.h> declares dgesvd_.
+   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
+#define dgesvd_ innocuous_dgesvd_
+
+/* System header to define __stub macros and hopefully few prototypes,
+    which can conflict with char dgesvd_ (); below.
+    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
+    <limits.h> exists even on freestanding compilers.  */
+
+#ifdef __STDC__
+# include <limits.h>
+#else
+# include <assert.h>
+#endif
+
+#undef dgesvd_
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char dgesvd_ ();
+/* The GNU C library defines this for functions which it implements
+    to always fail with ENOSYS.  Some functions are actually named
+    something starting with __ and the normal name is an alias.  */
+#if defined __stub_dgesvd_ || defined __stub___dgesvd_
+choke me
+#endif
+
+int
+main ()
+{
+return dgesvd_ ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_cxx_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_func_dgesvd_=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_func_dgesvd_=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_func_dgesvd_" >&5
+echo "${ECHO_T}$ac_cv_func_dgesvd_" >&6; }
+if test $ac_cv_func_dgesvd_ = yes; then
+  :
+else
+  a=1
+fi
+
+
+
+		if test x$a == x
+		then
+			cat >>confdefs.h <<\_ACEOF
+#define CVD_HAVE_LAPACK 1
+_ACEOF
+
+			have_lapack=yes
+
+			options="$options lapack"
+
+		else
+			LIBS="$save_LIBS"
+			CXXFLAGS="$save_CXXFLAGS"
+		fi
+	fi
+
+	if test "$have_lapack" != yes
+	then
+		:
+
+	fi
+
+
+
+	if test "$with_lapack" != no && test "$have_lapack" != yes
+	then
+		if test "$with_lapack" == ""
+		then
+			with_lapack=yes
+		fi
+
+		save_LIBS="$LIBS"
+		save_CXXFLAGS="$CXXFLAGS"
+		a=
+
 
 { echo "$as_me:$LINENO: checking for dgesvd_ in -llapack" >&5
 echo $ECHO_N "checking for dgesvd_ in -llapack... $ECHO_C" >&6; }
@@ -8114,135 +8243,6 @@ _ACEOF
 
   LIBS="-llapack $LIBS"
 
-else
-  a=1
-fi
-
-
-
-		if test x$a == x
-		then
-			cat >>confdefs.h <<\_ACEOF
-#define CVD_HAVE_LAPACK 1
-_ACEOF
-
-			have_lapack=yes
-
-			options="$options lapack"
-
-		else
-			LIBS="$save_LIBS"
-			CXXFLAGS="$save_CXXFLAGS"
-		fi
-	fi
-
-	if test "$have_lapack" != yes
-	then
-		:
-
-	fi
-
-
-
-	if test "$with_lapack" != no && test "$have_lapack" != yes
-	then
-		if test "$with_lapack" == ""
-		then
-			with_lapack=yes
-		fi
-
-		save_LIBS="$LIBS"
-		save_CXXFLAGS="$CXXFLAGS"
-		a=
-
-	{ echo "$as_me:$LINENO: checking if veclib is needed for LAPACK" >&5
-echo $ECHO_N "checking if veclib is needed for LAPACK... $ECHO_C" >&6; }
-	{ echo "$as_me:$LINENO: result: " >&5
-echo "${ECHO_T}" >&6; }
-	LIBS="$LIBS -framework veclib"
-	{ echo "$as_me:$LINENO: checking for dgesvd_" >&5
-echo $ECHO_N "checking for dgesvd_... $ECHO_C" >&6; }
-if test "${ac_cv_func_dgesvd_+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-/* Define dgesvd_ to an innocuous variant, in case <limits.h> declares dgesvd_.
-   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
-#define dgesvd_ innocuous_dgesvd_
-
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char dgesvd_ (); below.
-    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-    <limits.h> exists even on freestanding compilers.  */
-
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-
-#undef dgesvd_
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char dgesvd_ ();
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined __stub_dgesvd_ || defined __stub___dgesvd_
-choke me
-#endif
-
-int
-main ()
-{
-return dgesvd_ ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_cxx_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-  ac_cv_func_dgesvd_=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	ac_cv_func_dgesvd_=no
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_func_dgesvd_" >&5
-echo "${ECHO_T}$ac_cv_func_dgesvd_" >&6; }
-if test $ac_cv_func_dgesvd_ = yes; then
-  :
 else
   a=1
 fi
