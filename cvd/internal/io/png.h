@@ -420,9 +420,9 @@ template<> struct PNGWriter<unsigned short>
 
 template<> struct PNGWriter<Rgb8>
 {
-	static void write(const SubImage<Rgb<byte> >& i, std::ostream& o)
+	static void write(const SubImage<Rgb8>& i, std::ostream& o)
 	{
-		png_out po(i.size().x, i.size().y, png_out::Rgb, 8, o);
+		png_out po(i.size().x, i.size().y, png_out::RgbAlpha, 8, o);
 		po.rgbx();
 		std::vector<const byte*> rows;
 		make_row_pointers(i, rows);
