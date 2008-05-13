@@ -1,7 +1,6 @@
 	.text
-.globl cvd_asm_rgb_to_gray
-	.type	cvd_asm_rgb_to_gray, @function
-cvd_asm_rgb_to_gray:
+.globl _cvd_asm_rgb_to_gray
+_cvd_asm_rgb_to_gray:
 	pushl	%ebp
 	movl	%esp, %ebp
 	pushl	%eax
@@ -90,4 +89,3 @@ cvd_asm_rgb_to_gray:
 	popl	%eax
 	popl	%ebp
 	ret
-	.size	cvd_asm_rgb_to_gray, .-cvd_asm_rgb_to_gray

@@ -1,7 +1,6 @@
 	.text
-.globl cvd_asm_yuv422_to_rgb
-	.type	cvd_asm_yuv422_to_rgb, @function
-cvd_asm_yuv422_to_rgb:	
+.globl _cvd_asm_yuv422_to_rgb
+_cvd_asm_yuv422_to_rgb:	
 	pushl	%ebp
 	movl	%esp, %ebp
 	subl	$16, %esp
@@ -137,4 +136,3 @@ cvd_asm_yuv422_to_rgb:
 	emms
 	leave
 	ret
-	.size	cvd_asm_yuv422_to_rgb, .-cvd_asm_yuv422_to_rgb
