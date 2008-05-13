@@ -74,8 +74,7 @@ public:
 
 bool RawQTPimpl::isInitialized = false;
 
-pascal OSErr RawQTPimpl::GrabDataProc(SGChannel c, Ptr p, long len, long *offset, long chRefCon, TimeValue time, short writeType, long refCon){
-#pragma unused(offset,chRefCon,writeType)
+pascal OSErr RawQTPimpl::GrabDataProc(SGChannel /* c */, Ptr p, long len, long * /* offset */, long /* chRefCon */, TimeValue time, short /* writeType */, long refCon){
 	ComponentResult err = noErr;
 	RawQTPimpl * self = (RawQTPimpl *)refCon;
 	self->lastFrame = (unsigned char *) p;
@@ -85,7 +84,7 @@ pascal OSErr RawQTPimpl::GrabDataProc(SGChannel c, Ptr p, long len, long *offset
 	return err;
 }
 
-RawQT::RawQT(const ImageRef & size, unsigned int mode, unsigned int num, bool showSettingsDialog) : pimpl(NULL) 
+RawQT::RawQT(const ImageRef & size, unsigned int /* mode */, unsigned int /* num */, bool showSettingsDialog) : pimpl(NULL) 
 {
 	if( !RawQTPimpl::isInitialized ){
 		EnterMovies();
