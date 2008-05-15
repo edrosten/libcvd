@@ -421,7 +421,8 @@ template<class T> class SubImage
 		/// @param d The value to write into the image
 		inline void fill(const T d)
 		{
-			ImageUtil::memfill(my_data, totalsize(), d);
+			for(int y=0; y < my_size.y; y++)
+				ImageUtil::memfill( (*this)[y], my_size.x, d);
 		}
 
 		/// Copy constructor
