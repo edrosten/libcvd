@@ -96,7 +96,10 @@ namespace CVD {
       unsigned int w,h,ch, comp;
       readBMPHeader(w,h,ch,comp,in);
       if (comp || (ch != 3 && ch != 1)) 
+      {
+      	std::cerr << comp << " " << ch << "\n";
 	throw CVD::Exceptions::Image_IO::UnsupportedImageType();
+	}
       im.resize(ImageRef(w,h));
       if (ch == 1)
 	BMPReader<T,1>::read(im, in);
