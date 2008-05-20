@@ -18,7 +18,7 @@
 #include <cvd/videofilebuffer.h>
 #endif
 
-#if CVD_HAVE_V4L2BUFFER
+#if CVD_INTERNAL_HAVE_V4LBUFFER
 #include <cvd/Linux/v4lbuffer.h>
 #endif
 
@@ -70,7 +70,7 @@ namespace CVD {
 
     void get_files_options(const VideoSource& vs, int& fps, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob);
     
-#if CVD_HAVE_V4L2BUFFER
+#if CVD_INTERNAL_HAVE_V4LBUFFER
     template <class T> VideoBuffer<T>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced)
     {
 	throw VideoSourceException("V4LBuffer cannot handle types other than byte, bayer, yuv422, Rgb<byte>");
@@ -140,7 +140,7 @@ namespace CVD {
 	}
 #endif
 
-#if CVD_HAVE_V4L2BUFFER
+#if CVD_INTERNAL_HAVE_V4LBUFFER
 	else if (vs.protocol == "v4l2") {
 	    ImageRef size;
 	    int input;
@@ -182,7 +182,7 @@ namespace CVD {
 #if CVD_HAVE_FFMPEG
 				       "file, "
 #endif
-#if CVD_HAVE_V4L2BUFFER
+#if CVD_INTERNAL_HAVE_V4LBUFFER
 				       "v4l2, "
 #endif
 #if CVD_HAVE_DVBUFFER

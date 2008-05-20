@@ -226,7 +226,7 @@ namespace CVD {
     }
 
 
-#if CVD_HAVE_V4L2BUFFER
+#if CVD_INTERNAL_HAVE_V4LBUFFER
     template <> CVD::VideoBuffer<CVD::byte>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced)
     {
 	return new CVD::V4LBuffer<CVD::byte>(dev, size, input, interlaced);

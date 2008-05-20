@@ -888,7 +888,7 @@ cvd_src/slower_corner_12						fast12							END
 #General OS specific bits
 cvd_src/Linux/dvbuffer							dvbuffer END
 cvd_src/Linux/v4l1buffer						v4l1buffer END
-cvd_src/Linux/v4lbuffer							v4l2buffer linux_2_6 END
+cvd_src/Linux/v4lbuffer,V4LBUFFER				v4l2buffer linux_2_6 END
 cvd_src/Linux/v4l2buffer	                 	v4l2buffer END
 cvd_src/IRIX/O2buffer,cvd_src/IRIX/sgi-video	o2buffer END
 cvd_src/OSX/qtbuffer							qtbuffer END
