@@ -895,6 +895,10 @@ cvd_src/OSX/qtbuffer							qtbuffer END
 
 #Libraries
 cvd_src/synchronized,cvd_src/eventobject,cvd_src/thread		pthread END
+cvd_src/thread/runnable_batch                   pthread
+cvd_src/nothread/runnable_batch                 END
+
+
 cvd_src/videodisplay,cvd_src/glwindow			videodisplay END
 pnm_src/jpeg									jpeg END
 pnm_src/tiff									tiff END
