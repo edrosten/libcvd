@@ -20,7 +20,7 @@ namespace CVD
 
 	double inner_product(const float* a, const float* b, unsigned int count)
 	{
-		inner_product<float>(a, b, count);
+		return inner_product<float>(a, b, count);
 	}
 
 	double sum_squared_differences(const float* a, const float* b, size_t count)

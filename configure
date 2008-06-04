@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP AWK CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB major minor build build_cpu build_vendor build_os host host_cpu host_vendor host_os have_x86 have_mmx have_mmxext have_sse have_sse2 have_sse3 have_32bit have_assembler CXXCPP have_dvbuffer have_v4l2buffer have_v4l1buffer have_linux_2_4 have_linux_2_6 have_o2buffer osx_hacks have_qtbuffer have_videodisplay have_toon have_lapack have_pthread have_png have_jpeg have_tiff have_ffmpeg docs have_glob have_memalign have_fast7 have_fast8 have_fast9 have_fast10 have_fast11 have_fast12 have_ssefast9 have_ssefast10 have_ssefast12 dep_objects progs testprogs OFLAGS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP AWK CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S RANLIB ac_ct_RANLIB major minor build build_cpu build_vendor build_os host host_cpu host_vendor host_os have_x86 have_mmx have_mmxext have_sse have_sse2 have_sse3 have_32bit have_assembler CXXCPP have_dvbuffer have_v4l2buffer have_v4l1buffer have_linux_2_4 have_linux_2_6 have_o2buffer osx_hacks have_qtbuffer have_videodisplay have_tr1_shared_ptr have_toon have_lapack have_pthread have_png have_jpeg have_tiff have_ffmpeg docs have_glob have_memalign have_fast7 have_fast8 have_fast9 have_fast10 have_fast11 have_fast12 have_ssefast9 have_ssefast10 have_ssefast12 dep_objects progs testprogs OFLAGS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -907,6 +907,7 @@ Optional Packages:
   --without-png           compile without PNG support
   --without-ffmpeg	  compile without FFMPEG support
   --withot-toon          Compile without TooN support
+  --withot-tr1_shared_ptr          Compile without tr1::shared_ptr support
   --without-lapack        Disable BLAS and LAPACK.
   --with-acml[=directory] Use BLAS and LAPACK routines from the ACML library [located in the specified directory]
   --with-x                use the X Window System
@@ -3349,7 +3350,7 @@ minor=$cvd_minor
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthread glob memalign"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthread glob memalign tr1_shared_ptr"
 dodginess_options=
 options=
 simd_all_options=
@@ -6519,6 +6520,12 @@ if test "${with_toon+set}" = set; then
 
 fi;
 
+# Check whether --with-tr1_shared_ptr or --without-tr1_shared_ptr was given.
+if test "${with_tr1_shared_ptr+set}" = set; then
+  withval="$with_tr1_shared_ptr"
+
+fi;
+
 # Check whether --with-lapack or --without-lapack was given.
 if test "${with_lapack+set}" = set; then
   withval="$with_lapack"
@@ -6878,6 +6885,82 @@ _ACEOF
 	fi
 
 	if test "$have_videodisplay" != yes
+	then
+		:
+
+	fi
+
+
+
+	if test "$with_tr1_shared_ptr" != no && test "$have_tr1_shared_ptr" != yes
+	then
+		if test "$with_tr1_shared_ptr" == ""
+		then
+			with_tr1_shared_ptr=yes
+		fi
+
+		save_LIBS="$LIBS"
+		save_CXXFLAGS="$CXXFLAGS"
+		a=
+
+	echo "$as_me:$LINENO: checking for tr1::shared_ptr" >&5
+echo $ECHO_N "checking for tr1::shared_ptr... $ECHO_C" >&6
+	cat >conftest.$ac_ext <<_ACEOF
+#include <tr1/memory>
+	int main(){std::tr1::shared_ptr<int> i; return  0;}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; a=1
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+
+
+
+		if test x$a == x
+		then
+			cat >>confdefs.h <<\_ACEOF
+#define CVD_HAVE_TR1_SHARED_PTR 1
+_ACEOF
+
+			have_tr1_shared_ptr=yes
+
+			options="$options tr1_shared_ptr"
+
+		else
+			LIBS="$save_LIBS"
+			CXXFLAGS="$save_CXXFLAGS"
+		fi
+	fi
+
+	if test "$have_tr1_shared_ptr" != yes
 	then
 		:
 
@@ -10497,8 +10580,8 @@ cvd_src/OSX/qtbuffer							qtbuffer END
 
 #Libraries
 cvd_src/synchronized,cvd_src/eventobject,cvd_src/thread		pthread END
-cvd_src/thread/runnable_batch                   pthread
-cvd_src/nothread/runnable_batch                 END
+cvd_src/thread/runnable_batch                   tr1_shared_ptr pthread
+cvd_src/nothread/runnable_batch                 tr1_shared_ptr END
 
 
 cvd_src/videodisplay,cvd_src/glwindow			videodisplay END
@@ -11307,6 +11390,7 @@ s,@have_o2buffer@,$have_o2buffer,;t t
 s,@osx_hacks@,$osx_hacks,;t t
 s,@have_qtbuffer@,$have_qtbuffer,;t t
 s,@have_videodisplay@,$have_videodisplay,;t t
+s,@have_tr1_shared_ptr@,$have_tr1_shared_ptr,;t t
 s,@have_toon@,$have_toon,;t t
 s,@have_lapack@,$have_lapack,;t t
 s,@have_pthread@,$have_pthread,;t t

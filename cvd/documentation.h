@@ -95,7 +95,7 @@ It is released under the LGPL License.
 	- uCLinux: Blackfin  (cross compile)
 	- FreeBSD: x86
 	- OpenBSD: XScale
-	- Mac OS X: x86
+	- Mac OS X: x86, PPC
 		- Supports the OSX build environment including:
 			- Frameworks
 			- .dylib libraries
@@ -103,7 +103,6 @@ It is released under the LGPL License.
 	- MinGW: x86 (native and cross compile)
 
   -Has worked on (current status unknown):
-	- Mac OS X: PPC
 	- Linux: PPC
 	- Solaris: SPARC
 	- IRIX SGI O2: MIPS

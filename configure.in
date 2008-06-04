@@ -28,7 +28,7 @@ AC_SUBST(minor, $cvd_minor)
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthread glob memalign"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthread glob memalign tr1_shared_ptr"
 dodginess_options=
 options=
 simd_all_options=
@@ -549,6 +549,7 @@ AC_ARG_WITH(tiff, [  --with-tiff=forceold    Debug/wierd build environment only.
 AC_ARG_WITH(png, [  --without-png           compile without PNG support])
 AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support])
 AC_ARG_WITH(toon, [  --withot-toon          Compile without TooN support])
+AC_ARG_WITH(tr1_shared_ptr, [  --withot-tr1_shared_ptr          Compile without tr1::shared_ptr support])
 AC_ARG_WITH(lapack, [  --without-lapack        Disable BLAS and LAPACK.])
 AC_ARG_WITH(acml, [  --with-acml[[=directory]] Use BLAS and LAPACK routines from the ACML library [[located in the specified directory]] ], [opt_acml_dir=$withval])
 
@@ -561,6 +562,13 @@ CHECK_FOR_LIBRARY(videodisplay,[
 
 	APPEND(LIBS, [-L$x_libraries -lX11 -lXext])
 	AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
+])
+
+CHECK_FOR_LIBRARY(tr1_shared_ptr, [
+	AC_MSG_CHECKING([for tr1::shared_ptr])
+	AC_COMPILE_IFELSE([#include <tr1/memory>
+	int main(){std::tr1::shared_ptr<int> i; return  0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
+
 ])
 
 
@@ -895,8 +903,8 @@ cvd_src/OSX/qtbuffer							qtbuffer END
 
 #Libraries
 cvd_src/synchronized,cvd_src/eventobject,cvd_src/thread		pthread END
-cvd_src/thread/runnable_batch                   pthread
-cvd_src/nothread/runnable_batch                 END
+cvd_src/thread/runnable_batch                   tr1_shared_ptr pthread
+cvd_src/nothread/runnable_batch                 tr1_shared_ptr END
 
 
 cvd_src/videodisplay,cvd_src/glwindow			videodisplay END

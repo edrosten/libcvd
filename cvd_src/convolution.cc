@@ -1,4 +1,5 @@
-#include <cvd/convolution.h>
+#include "cvd/abs.h"
+#include "cvd/convolution.h"
 using namespace std;
 
 namespace CVD {
@@ -186,7 +187,7 @@ void compute_van_vliet_scaled_d(double sigma, double d[])
 	compute_scaling_jacobian(d, sj);
 	double v = target_var - compute_van_vliet_variance(d, vj);
 	double step = v / (vj[0]*sj[0] + vj[1]*sj[1] + vj[2]*sj[2]);
-	if (std::abs(step) < 1e-6)
+	if (CVD::abs<double>(step) < 1e-6)
 	    break;
 	double exp_step = exp(std::min(std::max(step, -1.0), 1.0));
 	scale_d(d, exp_step);
