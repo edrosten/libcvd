@@ -48,11 +48,18 @@ inline void convolveMiddle(const float* in, double factor, const vector<double>&
     }
 }
 
-inline void convolveVertical5(const vector<float*> row, double factor, double kernel[], int count, float* out)
+template <bool Aligned> inline __m128 load_ps(const float* f) { return _mm_loadu_ps(f); }
+template <> inline __m128 load_ps<true>(const float* f) { return _mm_load_ps(f); }
+
+template <bool Aligned> inline void store_ps(float* f, __m128 d) { _mm_storeu_ps(f,d); }
+template <> inline void store_ps<true>(float* f, __m128 d) { _mm_store_ps(f,d); }
+
+template <bool Aligned>
+inline void convolveVertical5(const vector<float*>& row, double factor, const double kernel[], int count, float* out)
 {
     const int ksize = 2;
     int i;
-    for (i=0; i<count && !is_aligned<16>(row[0] + i); ++i, ++out) {
+    for (i=0; i<count && !is_aligned<16>(out); ++i, ++out) {
 	double sum = row[ksize][i] * factor + (row[1][i] + row[3][i]) * kernel[0] + (row[0][i] + row[4][i]) * kernel[1];
 	*out = sum;
     }
@@ -62,10 +69,10 @@ inline void convolveVertical5(const vector<float*> row, double factor, double ke
     const __m128 k2 = _mm_set1_ps(kernel[1]);
 
     for (; i+3<count; i+=4, out+=4) {
-	__m128 sum = (_mm_load_ps(row[ksize] + i) * ffff
-		      + (_mm_load_ps(row[ksize-1]+i) + _mm_load_ps(row[ksize+1]+i)) * k1
-		      + (_mm_load_ps(row[ksize-2]+i) + _mm_load_ps(row[ksize+2]+i)) * k2);
-	_mm_store_ps(out, sum);
+	__m128 sum = (load_ps<Aligned>(row[ksize] + i) * ffff
+		      + (load_ps<Aligned>(row[ksize-1]+i) + load_ps<Aligned>(row[ksize+1]+i)) * k1
+		      + (load_ps<Aligned>(row[ksize-2]+i) + load_ps<Aligned>(row[ksize+2]+i)) * k2);
+	store_ps<true>(out, sum);
     }    
     for (; i<count; ++i, ++out) {
 	double sum = row[ksize][i] * factor + (row[1][i] + row[3][i]) * kernel[0] + (row[0][i] + row[4][i]) * kernel[1];
@@ -73,16 +80,17 @@ inline void convolveVertical5(const vector<float*> row, double factor, double ke
     }
 }
 
-inline void convolveVertical(const vector<float*> row, double factor, vector<double>& kernel, int count, float* out)
+template <bool Aligned>
+inline void convolveVertical(const vector<float*>& row, double factor, const vector<double>& kernel, int count, float* out)
 {
     const int ksize = kernel.size();
     if (ksize == 2) {
-	convolveVertical5(row, factor, &kernel[0], count, out);
+	convolveVertical5<Aligned>(row, factor, &kernel[0], count, out);
 	return;
     }
 	
     int i;
-    for (i=0; i<count && !is_aligned<16>(row[0] + i); ++i, ++out) {
+    for (i=0; i<count && !is_aligned<16>(out); ++i, ++out) {
 	double sum = row[ksize][i] * factor;
 	for (int k=1; k<=ksize; ++k)
 	    sum += kernel[k-1] * (row[ksize-k][i] + row[ksize+k][i]);
@@ -90,10 +98,10 @@ inline void convolveVertical(const vector<float*> row, double factor, vector<dou
     }
     const __m128 ffff = _mm_set1_ps(factor);
     for (; i+3<count; i+=4, out+=4) {
-	__m128 sum = _mm_mul_ps(_mm_load_ps(row[ksize] + i), ffff);
+	__m128 sum = _mm_mul_ps(load_ps<Aligned>(row[ksize] + i), ffff);
 	for (int k=1; k<=ksize; ++k)
-	    sum += _mm_set1_ps(kernel[k-1]) * (_mm_load_ps(row[ksize-k]+i) + _mm_load_ps(row[ksize+k]+i));
-	_mm_store_ps(out, sum);
+	    sum += _mm_set1_ps(kernel[k-1]) * (load_ps<Aligned>(row[ksize-k]+i) + load_ps<Aligned>(row[ksize+k]+i));
+	store_ps<true>(out, sum);
     }    
     for (; i<count; ++i, ++out) {
 	double sum = row[ksize][i] * factor;
@@ -125,6 +133,11 @@ void convolveGaussian_simd(const BasicImage<float>& I, BasicImage<float>& out, d
 	rows[k] = buffer.data() + k*w;
 
     float* output = out.data();
+
+    typedef void (*CONV_VERT_FUNC)(const vector<float*>&, double, const vector<double>&, int, float*);    
+    const bool aligned = is_aligned<16>(I[0]) && is_aligned<16>(I[1]);
+    CONV_VERT_FUNC conv_vert = aligned ? (CONV_VERT_FUNC)convolveVertical<true> : (CONV_VERT_FUNC)convolveVertical<false>;
+
     for (int i=0; i<h; i++) {
 	float* next_row = rows[swin];
 	const float* input = I[i];
@@ -150,7 +163,7 @@ void convolveGaussian_simd(const BasicImage<float>& I, BasicImage<float>& out, d
 	}
 	// vertical
 	if (i >= swin) {
-	    convolveVertical(rows, factor, kernel, w, output);
+	    conv_vert(rows, factor, kernel, w, output);
 	    output += w;
 	    if (i == h-1) {
 		for (int r=0; r<ksize; r++, output += w) {
@@ -161,7 +174,7 @@ void convolveGaussian_simd(const BasicImage<float>& I, BasicImage<float>& out, d
 			int hi = ksize+r+k+2;
 			rrows[ksize+k+1] = rows[std::min(hi,swin)];
 		    }
-		    convolveVertical(rrows, factor, kernel, w, output);
+		    conv_vert(rrows, factor, kernel, w, output);
 		}
 	    }
 	} else if (i == swin-1) {
@@ -172,7 +185,7 @@ void convolveGaussian_simd(const BasicImage<float>& I, BasicImage<float>& out, d
 		    rrows[ksize-k-1] = rows[std::max(r-k-1,0)+1];
 		    rrows[ksize+k+1] = rows[r+k+2];
 		}
-		convolveVertical(rrows, factor, kernel, w, output);
+		conv_vert(rrows, factor, kernel, w, output);
 	    }
 	}
     
@@ -239,6 +252,8 @@ void van_vliet_blur_simd(const double b[], const SubImage<float> in, SubImage<fl
     }
 
     const double alpha = 1 + b[0] + b[1] + b[2];
+    const __m128 a2 = _mm_set1_ps(alpha*alpha);
+
     
     const __m128 inv_alpha = _mm_set1_ps(1.0/alpha);
     const __m128 bb1 = _mm_set1_ps(b[0]);
@@ -253,15 +268,14 @@ void van_vliet_blur_simd(const double b[], const SubImage<float> in, SubImage<fl
 	y3 = y2 = y1 = inv_alpha*_mm_setr_ps(p[0], p[is], p[2*is], p[3*is]);
 	    
 	for (int j=0; j+3<w; j+=4, p+=4) {
-	    __m128 x0 = _mm_setr_ps(p[0], p[is], p[2*is], p[3*is]);
-	    __m128 x1 =  _mm_setr_ps(p[1], p[is+1], p[2*is+1], p[3*is+1]);
-	    __m128 x2 = _mm_setr_ps(p[2], p[is+2], p[2*is+2], p[3*is+2]);
-	    __m128 x3 = _mm_setr_ps(p[3], p[is+3], p[2*is+3], p[3*is+3]);
-	    __m128 y0 = x0 - (bb1*y1 + bb2*y2 + bb3*y3);
+	    __m128 y0 = _mm_setr_ps(p[0], p[is], p[2*is], p[3*is]) - (bb1*y1 + bb2*y2 + bb3*y3);
+	    y3 = _mm_setr_ps(p[1], p[is+1], p[2*is+1], p[3*is+1]) - (bb1*y0 + bb2*y1 + bb3*y2);
+	    y2 = _mm_setr_ps(p[2], p[is+2], p[2*is+2], p[3*is+2]) - (bb1*y3 + bb2*y0 + bb3*y1);
+	    y1 = _mm_setr_ps(p[3], p[is+3], p[2*is+3], p[3*is+3]) - (bb1*y2 + bb2*y3 + bb3*y0);
 	    tmp[j] = y0;
-	    tmp[j+1] = y3 = x1 - (bb1*y0 + bb2*y1 + bb3*y2);
-	    tmp[j+2] = y2 = x2 - (bb1*y3 + bb2*y0 + bb3*y1);
-	    tmp[j+3] = y1 = x3 - (bb1*y2 + bb2*y3 + bb3*y0);
+	    tmp[j+1] = y3;
+	    tmp[j+2] = y2;
+	    tmp[j+3] = y1;
 	}
 	
 	{
@@ -279,14 +293,12 @@ void van_vliet_blur_simd(const double b[], const SubImage<float> in, SubImage<fl
 	    __m128 y02 = y2 = tmp[j-2] - (bb1*y01 + bb2*y00 + bb3*y1);
 	    __m128 y03 = y1 = tmp[j-3] - (bb1*y02 + bb2*y01 + bb3*y00);
 	    transpose(y03,y02,y01,y00);
-	    _mm_store_ps(o, y03);
-	    _mm_store_ps(o+os, y02);
-	    _mm_store_ps(o+2*os, y01);
-	    _mm_store_ps(o+3*os, y00);
+	    _mm_store_ps(o, a2*y03);
+	    _mm_store_ps(o+os, a2*y02);
+	    _mm_store_ps(o+2*os, a2*y01);
+	    _mm_store_ps(o+3*os, a2*y00);
 	}
     }
-
-    const __m128 a4 = _mm_set1_ps(alpha*alpha*alpha*alpha);
 
     // vertical
     for (int i=0; i<w; i+=4) {
@@ -324,13 +336,13 @@ void van_vliet_blur_simd(const double b[], const SubImage<float> in, SubImage<fl
 	    y2 = tmp[j-2] - (bb1*y3 + bb2*y0 + bb3*y1);
 	    y1 = tmp[j-3] - (bb1*y2 + bb2*y3 + bb3*y0);
 
-	    _mm_store_ps(o, a4*y0);//_mm_min_ps(ones, _mm_max_ps(zeros,a4*y0)));
+	    _mm_store_ps(o, a2*y0);//_mm_min_ps(ones, _mm_max_ps(zeros,a4*y0)));
 	    o -= os;
-	    _mm_store_ps(o, a4*y3);//_mm_min_ps(ones, _mm_max_ps(zeros,a4*y3)));
+	    _mm_store_ps(o, a2*y3);//_mm_min_ps(ones, _mm_max_ps(zeros,a4*y3)));
 	    o -= os;
-	    _mm_store_ps(o, a4*y2);//_mm_min_ps(ones, _mm_max_ps(zeros,a4*y2)));
+	    _mm_store_ps(o, a2*y2);//_mm_min_ps(ones, _mm_max_ps(zeros,a4*y2)));
 	    o -= os;
-	    _mm_store_ps(o, a4*y1);//_mm_min_ps(ones, _mm_max_ps(zeros,a4*y1)));
+	    _mm_store_ps(o, a2*y1);//_mm_min_ps(ones, _mm_max_ps(zeros,a4*y1)));
 	}
     }
     _mm_setcsr(csr_state);
