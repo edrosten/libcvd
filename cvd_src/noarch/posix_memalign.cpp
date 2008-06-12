@@ -1,4 +1,7 @@
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
+
+using namespace std;
 
 namespace CVD {
 

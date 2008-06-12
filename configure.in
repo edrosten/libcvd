@@ -905,7 +905,8 @@ cvd_src/OSX/qtbuffer							qtbuffer END
 cvd_src/synchronized,cvd_src/eventobject,cvd_src/thread		pthread END
 cvd_src/thread/runnable_batch                   tr1_shared_ptr pthread
 cvd_src/nothread/runnable_batch                 tr1_shared_ptr END
-
+cvd_src/noarch/posix_memalign                   memalign
+cvd_src/noarch/default_memalign                 END
 
 cvd_src/videodisplay,cvd_src/glwindow			videodisplay END
 pnm_src/jpeg									jpeg END
