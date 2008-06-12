@@ -229,6 +229,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\cvd_src\gltext.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\cvd_src\half_sample.cc"
 				>
 			</File>
