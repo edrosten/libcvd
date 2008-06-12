@@ -32,6 +32,9 @@
 #include <cvd/rgb8.h>
 #include <cvd/rgba.h>
 #include <cvd/config.h>
+#ifdef WIN32
+#include <windows.h>
+#endif
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <cvd/internal/gl_types.h>
@@ -206,7 +209,7 @@ namespace CVD
     /// @ingroup gGL
     inline void glTranslate( const ImageRef & v )
     {
-        glTranslatef( v.x, v.y, 0);
+        glTranslatef( static_cast<GLfloat>(v.x), static_cast<GLfloat>(v.y), 0);
     }
 
 	/// add a translation specified from the first three coordinates of a vector

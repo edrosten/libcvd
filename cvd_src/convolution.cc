@@ -8,7 +8,7 @@ namespace Internal {
 
 void convolveSeparableGray(unsigned char* I, unsigned int width, unsigned int height, const int kernel[], unsigned int size, int divisor)
 {
-    unsigned char buffer[width>height ? width : height];
+    std::vector<unsigned char> buffer(width>height ? width : height);
     unsigned char* p = I;
     unsigned int i,j,m;
     if (size%2 == 0) {
@@ -22,41 +22,7 @@ void convolveSeparableGray(unsigned char* I, unsigned int width, unsigned int he
                 sum += p[j+m] * kernel[m];
             buffer[j] = (unsigned char)(sum/divisor);
         }
-        memcpy(p+size/2, buffer, width-size+1);
-        p += width;
-    }
-    for (j=0;j<width-size+1;j++) {
-        p = I+j+(size/2)*width;
-        for (i=0; i<height;i++)
-            buffer[i] = I[i*width+j];
-        for (i=0;i<height-size+1;i++) {
-            int sum = 0;
-            for (m=0; m<size; m++)
-                sum += buffer[i+m] * kernel[m];
-            *p = (unsigned char)(sum/divisor);
-            p += width;
-        }
-    }
-}
-
-// TODO:: not used at all ?
-void convolveSeparableRGB(unsigned char* I, unsigned int width, unsigned int height, const int kernel[], unsigned int size, int divisor)
-{
-    unsigned char buffer[(width>height ? width : height)*3];
-    unsigned char* p = I;
-    unsigned int i,j,m;
-    if (size%2 == 0) {
-        printf("In convolveSeparable, size must be odd.\n");
-        return;
-    }
-    for (i=height; i>0; i--) {
-        for (j=0;j<width-size+1;j++) {
-            int sum = 0;
-            for (m=0; m<size; m++)
-                sum += p[j+m] * kernel[m];
-            buffer[j] = (unsigned char)(sum/divisor);
-        }
-        memcpy(p+size/2, buffer, width-size+1);
+        memcpy(p+size/2, &buffer.front(), width-size+1);
         p += width;
     }
     for (j=0;j<width-size+1;j++) {
@@ -303,15 +269,15 @@ void van_vliet_blur(const double b[], const CVD::SubImage<float> in, CVD::SubIma
 	    y3 = tmp[j+1] - (b0*y0 + b1*y1 + b2 * y2);
 	    y2 = tmp[j+2] - (b0*y3 + b1*y0 + b2 * y1);
 	    y1 = tmp[j+3] - (b0*y2 + b1*y3 + b2 * y0);
-	    o[0] = y0;
-	    o[1] = y3;
-	    o[2] = y2;
-	    o[3] = y1;
+	    o[0] = (float)y0;
+	    o[1] = (float)y3;
+	    o[2] = (float)y2;
+	    o[3] = (float)y1;
 	}
 
 	for (int j=w-rw; j<w; ++j, ++o) {
 	    double y0 = tmp[j] - (b0*y1 + b1*y2 + b2 * y3);
-	    o[0] = y0;
+	    o[0] = (float)y0;
 	    y3 = y2; y2 = y1; y1 = y0;
 	}
 
@@ -362,19 +328,19 @@ void van_vliet_blur(const double b[], const CVD::SubImage<float> in, CVD::SubIma
 	    y3 = tmp[j+1] - (b0*y0 + b1*y1 + b2 * y2);
 	    y2 = tmp[j+2] - (b0*y3 + b1*y0 + b2 * y1);
 	    y1 = tmp[j+3] - (b0*y2 + b1*y3 + b2 * y0);
-	    o[0] = alpha_fourth*y0;//clamp01(alpha_fourth*y0); 
+	    o[0] = (float)(alpha_fourth*y0);//clamp01(alpha_fourth*y0); 
 	    o+=stride;
-	    o[0] = alpha_fourth*y3;//clamp01(alpha_fourth*y3); 
+	    o[0] = (float)(alpha_fourth*y3);//clamp01(alpha_fourth*y3); 
 	    o+=stride;
-	    o[0] = alpha_fourth*y2;//clamp01(alpha_fourth*y2); 
+	    o[0] = (float)(alpha_fourth*y2);//clamp01(alpha_fourth*y2); 
 	    o+=stride;
-	    o[0] = alpha_fourth*y1;//clamp01(alpha_fourth*y1); 
+	    o[0] = (float)(alpha_fourth*y1);//clamp01(alpha_fourth*y1); 
 	    o+=stride;
 	}
 
 	for (int j=h-rh; j<h; ++j, o+=stride) {
 	    double y0 = tmp[j] - (b0*y1 + b1*y2 + b2 * y3);
-	    o[0] = alpha_fourth*y0;//clamp01(alpha_fourth*y0);
+	    o[0] = (float)(alpha_fourth*y0);//clamp01(alpha_fourth*y0);
 	    y3 = y2; y2 = y1; y1 = y0;
 	}
     }

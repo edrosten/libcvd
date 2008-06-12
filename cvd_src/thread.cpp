@@ -2,6 +2,10 @@
 #include <cvd/thread.h>
 #include <time.h>
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 namespace CVD {
 //Static variables
 bool Thread::ourInitializedFlag = false;
@@ -78,8 +82,12 @@ Thread* Thread::getCurrent()
 /** Uses nanosleep. */
 void Thread::sleep(unsigned int milli) 
 {
+#ifdef WIN32
+    Sleep(milli);
+#else
    struct timespec ts = { milli/1000, (milli%1000)*1000000 };
    nanosleep(&ts, 0);
+#endif
 }
 
 void Thread::yield()
@@ -89,7 +97,7 @@ void Thread::yield()
 #elif defined(CVD_HAVE_PTHREAD_YIELD_NP)
   pthread_yield_np();
 #else
-#warning "Thread::yield() not implemented"
+//#warning "Thread::yield() not implemented"
 #endif
 }
 

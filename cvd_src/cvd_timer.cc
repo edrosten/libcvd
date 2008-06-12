@@ -28,7 +28,11 @@
 #include "cvd/timer.h"
 #include <iostream>
 
+#ifdef WIN32
+#include "Win32/win32.h"
+#else
 #include <sys/time.h>  //gettimeofday
+#endif
 
 namespace CVD {
 

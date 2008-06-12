@@ -4,8 +4,10 @@
 
 namespace CVD {
 
-
+#ifndef WIN32  // this is not used at all?
     static inline __m128i zero_si128() { __m128i x; asm ( "pxor %0, %0  \n\t" : "=x"(x) ); return x; }
+#endif
+
     template <bool Aligned> inline __m128i load_si128(const void* addr) { return _mm_loadu_si128((const __m128i*)addr); }
     template <> inline __m128i load_si128<true>(const void* addr) { return _mm_load_si128((const __m128i*)addr); }
     template <bool Aligned> inline __m128d load_pd(const void* addr) { return _mm_loadu_pd((const double*)addr); }
@@ -14,21 +16,21 @@ namespace CVD {
     template <bool Aligned> inline void store_pd(__m128d m, void* addr) { return _mm_storeu_pd((double*)addr, m); }
     template <> inline void store_pd<true>(__m128d m, void* addr) { return _mm_store_pd((double*)addr, m); }
 
-    template <bool Aligned_b> void int_differences(const __m128i* a, const __m128i* b, __m128i* diff, unsigned int count)
+    template <bool Aligned_b> void int_differences(const __m128i* a, const __m128i* b, __m128i* diff, size_t count)
     {
 	while (count--) {
 	    *(diff++) = _mm_sub_epi32(*(a++), load_si128<Aligned_b>(b++));
 	}
     }
     
-    template <bool Aligned_b> void double_differences(const __m128d* a, const __m128d* b, __m128d* diff, unsigned int count)
+    template <bool Aligned_b> void double_differences(const __m128d* a, const __m128d* b, __m128d* diff, size_t count)
     {
 	while (count--) {
 	    *(diff++) = _mm_sub_pd(*(a++), load_pd<Aligned_b>(b++));
 	}
     }
 
-    template <bool Aligned_b> void double_add_multiple_of_sum(const __m128d* a, const __m128d* b, const double& c, __m128d* out, unsigned int count)
+    template <bool Aligned_b> void double_add_multiple_of_sum(const __m128d* a, const __m128d* b, const double& c, __m128d* out, size_t count)
     {
 	__m128d cc = _mm_set1_pd(c);
 	while (count--) {
@@ -37,16 +39,16 @@ namespace CVD {
 	}
     }
 
-    template <bool Aligned_out> void double_assign_multiple(const __m128d* a, const double& c, __m128d* out, unsigned int count)
+    template <bool Aligned_out> void double_assign_multiple(const __m128d* a, const double& c, __m128d* out, size_t count)
     {
 	__m128d cc = _mm_set1_pd(c);
 	while (count--)
 	    store_pd<Aligned_out>(_mm_mul_pd(*(a++), cc), out++);
     }
-    template <bool Aligned_b> double double_inner_product(const __m128d* a, const __m128d* b, unsigned int count)
+    template <bool Aligned_b> double double_inner_product(const __m128d* a, const __m128d* b, size_t count)
     {
 	double sums_store[2];
-	const unsigned int BLOCK = 1<<16;
+	const size_t BLOCK = 1<<16;
 	double dot = 0;
 	while (count) {
 	    size_t pass = std::min(count, BLOCK);
@@ -62,9 +64,9 @@ namespace CVD {
 	return dot;
     }
 
-    template <bool Aligned_b> long long byte_sum_squared_differences(const __m128i* a, const __m128i* b, unsigned int count) {
+    template <bool Aligned_b> long long byte_sum_squared_differences(const __m128i* a, const __m128i* b, size_t count) {
 	unsigned long sums_store[4];	
-	const unsigned int BLOCK = 1<<15;
+	const size_t BLOCK = 1<<15;
 	long long ssd = 0;
 	while (count) {
 	    size_t pass = std::min(count, BLOCK);
@@ -89,10 +91,10 @@ namespace CVD {
 	return ssd;
     }
 
-    template <bool Aligned_b> inline double double_sum_squared_differences(const __m128d* a, const __m128d* b, unsigned int count) 
+    template <bool Aligned_b> inline double double_sum_squared_differences(const __m128d* a, const __m128d* b, size_t count) 
     {
 	double sums_store[2];
-	const unsigned int BLOCK = 1<<10;
+	const size_t BLOCK = 1<<10;
 	double ssd = 0;
 	while (count) {
 	    size_t pass = std::min(count, BLOCK);
@@ -114,14 +116,14 @@ namespace CVD {
 	    differences<T1,T2>(a,b,diff,count);
 	}
 
-	static inline void aligned_differences(const int32_t* a, const int32_t* b, int32_t* diff, unsigned int count) {
+	static inline void aligned_differences(const int32_t* a, const int32_t* b, int32_t* diff, size_t count) {
 	    if (is_aligned<16>(b))
 		int_differences<true>((const __m128i*)a, (const __m128i*)b, (__m128i*)diff, count>>2);
 	    else
 		int_differences<false>((const __m128i*)a, (const __m128i*)b, (__m128i*)diff, count>>2);
 	}
 
-	static inline void aligned_differences(const double* a, const double* b, double* diff, unsigned int count)
+	static inline void aligned_differences(const double* a, const double* b, double* diff, size_t count)
 	{
 	    if (is_aligned<16>(b))
 		double_differences<true>((const __m128d*)a,(const __m128d*)b,(__m128d*)diff,count>>1);
@@ -133,7 +135,7 @@ namespace CVD {
 	    add_multiple_of_sum<T1,T2>(a,b,c,out,count);
 	}
 	
-	static inline void aligned_add_mul_add(const double* a, const double* b, const double& c, double* out, unsigned int count)
+	static inline void aligned_add_mul_add(const double* a, const double* b, const double& c, double* out, size_t count)
 	{
 	    if (is_aligned<16>(b))
 		double_add_multiple_of_sum<true>((const __m128d*)a, (const __m128d*)b, c, (__m128d*)out, count>>1);
@@ -145,7 +147,7 @@ namespace CVD {
 	    assign_multiple<T1,T2>(a,c,out,count);
 	}
 
-	static inline void aligned_assign_mul(const double* a, const double& c, double* out, unsigned int count)
+	static inline void aligned_assign_mul(const double* a, const double& c, double* out, size_t count)
 	{
 	    if (is_aligned<16>(out))
 		double_assign_multiple<true>((const __m128d*)a, c, (__m128d*)out, count>>1);
@@ -157,7 +159,7 @@ namespace CVD {
 	    return inner_product<T1>(a,b,count);
 	}
 	
-	static inline double aligned_inner_product(const double* a, const double* b, unsigned int count)
+	static inline double aligned_inner_product(const double* a, const double* b, size_t count)
 	{
 	    if (is_aligned<16>(b))
 		return double_inner_product<true>((const __m128d*) a, (const __m128d*) b, count>>1);
@@ -190,27 +192,27 @@ namespace CVD {
 	}	
     };
 
-    void differences(const int32_t* a, const int32_t* b, int32_t* diff, unsigned int size)
+    void differences(const int32_t* a, const int32_t* b, int32_t* diff, size_t size)
     {
 	maybe_aligned_differences<SSE2_funcs, int32_t, int32_t, 16, 4>(a,b,diff,size);
     }
 
-    void differences(const double* a, const double* b, double* diff, unsigned int size)
+    void differences(const double* a, const double* b, double* diff, size_t size)
     {
 	maybe_aligned_differences<SSE2_funcs, double, double, 16, 2>(a,b,diff,size);
     }
 
-    void add_multiple_of_sum(const double* a, const double* b, const double& c,  double* out, unsigned int count)
+    void add_multiple_of_sum(const double* a, const double* b, const double& c,  double* out, size_t count)
     {
 	maybe_aligned_add_mul_add<SSE2_funcs, double, double, 16, 2>(a,b,c,out,count);
     }
 
-    void assign_multiple(const double* a, const double& c,  double* out, unsigned int count)
+    void assign_multiple(const double* a, const double& c,  double* out, size_t count)
     {
 	maybe_aligned_assign_mul<SSE2_funcs, double, double, 16, 2>(a,c,out,count);
     }
 
-    double inner_product(const double* a, const double* b, unsigned int count)
+    double inner_product(const double* a, const double* b, size_t count)
     {
 	return maybe_aligned_inner_product<SSE2_funcs, double, double, 16, 2>(a,b,count);
     }

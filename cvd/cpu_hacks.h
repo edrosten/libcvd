@@ -28,6 +28,10 @@
 	#include <fenv.h>
 #endif
 
+#if CVD_HAVE_MMXEXT
+    #include <xmmintrin.h>
+#endif
+
 namespace CVD
 {
 
@@ -73,22 +77,22 @@ namespace CVD
 		#ifdef  CVD_HAVE_MMXEXT	
 			template<int I> inline void prefetch(const void* ptr)
 			{
-				asm( "prefetchnta %0\n": :"m"(ptr));
+                _mm_prefetch((char *)ptr, _MM_HINT_NTA);
 			}
 
 			template<> inline void prefetch<0>(const void* ptr)
 			{
-				asm( "prefetcht0 %0\n": :"m"(ptr));
+				_mm_prefetch((char *)ptr, _MM_HINT_T0);
 			}
 			
 			template<> inline void prefetch<1>(const void* ptr)
 			{
-				asm( "prefetcht1 %0\n": :"m"(ptr));
+				_mm_prefetch((char *)ptr, _MM_HINT_T1);
 			}
 
 			template<> inline void prefetch<2>(const void* ptr)
 			{
-				asm( "prefetcht2 %0\n": :"m"(ptr));
+                _mm_prefetch((char *)ptr, _MM_HINT_T2);
 			}
 		
 			inline void prefetch(const void* ptr)

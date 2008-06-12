@@ -92,7 +92,7 @@ namespace PS
 
 	for(int i=0; i < 5; i++)
 	{
-		r[4-i] = num % 85 + 33;
+		r[4-i] = (char)(num % 85 + 33);
 		num /= 85;
 	}
 

@@ -47,7 +47,7 @@ inline void nonmax_suppression_t(const vector<ImageRef>& corners, const vector<S
 	int point_above = 0;
 	int point_below = 0;
 	
-	const int sz = corners.size(); 
+	const int sz = (int)corners.size(); 
 	
 	for(int i=0; i < sz; i++)
 	{

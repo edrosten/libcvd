@@ -40,7 +40,6 @@
 #include <utility>
 #include <iterator>
 #include <cvd/internal/aligned_mem.h>
-#include <stdlib.h>
 
 namespace CVD {
 
@@ -744,14 +743,7 @@ class Image: public BasicImage<T>
 			*num_copies = 1;
  			this->my_size = size;
  			this->my_stride = size.x;
-#if CVD_HAVE_MEMALIGN
-			void* mem=0;
-			const int alloc_err = posix_memalign(&mem, 16, this->totalsize()*sizeof(T));
-			assert(alloc_err == 0);
-			this->my_data = new (mem) T[this->totalsize()];
-#else
-			this->my_data = Internal::aligned_mem<T,16>::alloc(this->totalsize());
-#endif
+            this->my_data = Internal::aligned_alloc<T>(this->totalsize(), 16);
 		}
 
 		///Create a filled image of a given size
@@ -817,12 +809,7 @@ class Image: public BasicImage<T>
 		{
 			if(this->my_data && *num_copies && --(*num_copies) == 0)
 			{
-#if CVD_HAVE_MEMALIGN
-			    Internal::placement_delete<T>::free(this->my_data, this->totalsize());
-			    free(this->my_data);
-#else
-			    Internal::aligned_mem<T,16>::release(this->my_data);
-#endif
+                Internal::aligned_free<T>(this->my_data, this->totalsize());
 			    this->my_data = 0;
 			    delete   num_copies;
 			    num_copies = 0;
@@ -852,4 +839,3 @@ class Image: public BasicImage<T>
 
 } // end namespace
 #endif
-

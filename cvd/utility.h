@@ -98,7 +98,7 @@ in the output image
   /// Compute pointwise differences (a_i - b_i) and store in diff_i
   /// This is accelerated using SIMD for some platforms and data types (alignment is checked at runtime)
   /// Do not specify template parameters explicitly so that overloading can choose the right implementation
-  template <class A, class B> inline void differences(const A* a, const A* b, B* diff, unsigned int count)
+  template <class A, class B> inline void differences(const A* a, const A* b, B* diff, size_t count)
   {
       while (count--)
 	  *(diff++) = (B)*(a++) - (B)*(b++);
@@ -107,7 +107,7 @@ in the output image
   /// Compute pointwise (a_i + b_i) * c and add to out_i
   /// This is accelerated using SIMD for some platforms and data types (alignment is checked at runtime)
   /// Do not specify template parameters explicitly so that overloading can choose the right implementation
-  template <class A, class B> inline void add_multiple_of_sum(const A* a, const A* b, const A& c,  B* out, unsigned int count)
+  template <class A, class B> inline void add_multiple_of_sum(const A* a, const A* b, const A& c,  B* out, size_t count)
   {
       while (count--)
 	  *(out++) += (*(a++) + *(b++)) * c;
@@ -116,7 +116,7 @@ in the output image
   /// Compute pointwise a_i * c and store in out_i
   /// This is accelerated using SIMD for some platforms and data types (alignment is checked at runtime)
   /// Do not specify template parameters explicitly so that overloading can choose the right implementation
-      template <class A, class B, class C> inline void assign_multiple(const A* a, const B& c,  C* out, unsigned int count)
+      template <class A, class B, class C> inline void assign_multiple(const A* a, const B& c,  C* out, size_t count)
   {
       while (count--)
 	  *(out++) = static_cast<C>(*(a++) * c);
@@ -125,7 +125,7 @@ in the output image
   /// Compute sum(a_i*b_i)
   /// This is accelerated using SIMD for some platforms and data types (alignment is checked at runtime)
   /// Do not specify template parameters explicitly so that overloading can choose the right implementation
-  template <class T> double inner_product(const T* a, const T* b, unsigned int count) {
+  template <class T> double inner_product(const T* a, const T* b, size_t count) {
       double dot = 0;
       while (count--)
 	  dot += *(a++) * *(b++);
@@ -181,19 +181,19 @@ in the output image
   void differences(const short* a, const short* b, short* diff, unsigned int size);
 
 
-  void differences(const float* a, const float* b, float* diff, unsigned int size);
-  void add_multiple_of_sum(const float* a, const float* b, const float& c,  float* out, unsigned int count);
-  void assign_multiple(const float* a, const float& c,  float* out, unsigned int count);
-  double inner_product(const float* a, const float* b, unsigned int count);
+  void differences(const float* a, const float* b, float* diff, size_t size);
+  void add_multiple_of_sum(const float* a, const float* b, const float& c,  float* out, size_t count);
+  void assign_multiple(const float* a, const float& c,  float* out, size_t count);
+  double inner_product(const float* a, const float* b, size_t count);
   double sum_squared_differences(const float* a, const float* b, size_t count);
   void square(const float* in, float* out, size_t count);
   void subtract_square(const float* in, float* out, size_t count);
 
-  void differences(const int32_t* a, const int32_t* b, int32_t* diff, unsigned int size);
-  void differences(const double* a, const double* b, double* diff, unsigned int size);
-  void add_multiple_of_sum(const double* a, const double* b, const float& c,  double* out, unsigned int count);
-  void assign_multiple(const double* a, const double& c,  double* out, unsigned int count);
-  double inner_product(const double* a, const double* b, unsigned int count);
+  void differences(const int32_t* a, const int32_t* b, int32_t* diff, size_t size);
+  void differences(const double* a, const double* b, double* diff, size_t size);
+  void add_multiple_of_sum(const double* a, const double* b, const float& c,  double* out, size_t count);
+  void assign_multiple(const double* a, const double& c,  double* out, size_t count);
+  double inner_product(const double* a, const double* b, size_t count);
   double sum_squared_differences(const double* a, const double* b, size_t count);
   long long sum_squared_differences(const byte* a, const byte* b, size_t count);
 

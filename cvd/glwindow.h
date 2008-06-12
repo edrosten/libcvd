@@ -135,8 +135,9 @@ namespace CVD {
 	void activate();
 	/// Make this GL context active
 	void make_current() { activate(); }
+
+    struct State;
     private:
-	struct State;
 	State* state;
 	void init(const ImageRef& size, int bpp, const std::string& title);
     };

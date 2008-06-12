@@ -28,7 +28,7 @@
 #ifndef __CVD_TIMER_H
 #define __CVD_TIMER_H
 
-#include <sys/time.h>
+struct timeval;
 
 namespace CVD {
 
@@ -50,7 +50,7 @@ class cvd_timer
 		/// correcting for the start time
 		/// @param time The current time in nanoseconds
 		double conv_ntime(signed long long time);  
-		
+
 		/// Convert the current time from a timeval into a double, correcting
 		/// for the start time
 		/// @param tv The current time as a timeval

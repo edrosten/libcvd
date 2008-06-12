@@ -106,7 +106,7 @@ namespace Pixel
 		
 		template <class S> bool buildLookupTable(S table[]) {
 		  for (int i=0; i<=511; i++)
-		    table[i] = (i-255)/255.0;    
+		    table[i] = (S)((i-255)/255.0);    
 		  return true;
 		}
 		const static bool init_float_for_byte = buildLookupTable(float_for_byte);
@@ -135,7 +135,7 @@ namespace Pixel
 		
 		template <class D> struct ScalarConvert<byte,float,D,false,false> {
 		    static inline float from(const D& from) {
-			return from * (1.0/255.0);
+			return static_cast<float>(from * (1.0/255.0));
 		    }
 		};
 

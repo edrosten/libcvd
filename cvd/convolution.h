@@ -443,17 +443,17 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
 	const sum_type* input = getPixelRowTyped(I[i], w, rowbuf);
 	// beginning of row
 	for (int j=0; j<ksize; j++) {
-	    sum_type hsum = input[j] * factor;
+	    sum_type hsum = static_cast<sum_type>(input[j] * factor);
 	    for (int k=0; k<ksize; k++)
 		hsum += (input[std::max(j-k-1,0)] + input[j+k+1]) * kernel[k];
 	    next_row[j] = hsum;
 	}
 	// middle of row
 	input += ksize;
-	input = convolveMiddle<sum_type, sum_comp_type>(input, factor, &kernel.front(), ksize, w-swin, next_row+ksize);
+	input = convolveMiddle<sum_type, sum_comp_type>(input, static_cast<sum_comp_type>(factor), &kernel.front(), ksize, w-swin, next_row+ksize);
 	// end of row
 	for (int j=w-ksize; j<w; j++, input++) {
-	    sum_type hsum = *input * factor;
+	    sum_type hsum = static_cast<sum_type>(*input * factor);
 	    const int room = w-j;
 	    for (int k=0; k<ksize; k++) {
 		hsum += (input[-k-1] + input[std::min(k+1,room-1)]) * kernel[k];

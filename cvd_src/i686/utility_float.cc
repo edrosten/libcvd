@@ -17,7 +17,7 @@ namespace CVD {
     template <bool Aligned> inline void store_ps(__m128 m, void* addr) { return _mm_storeu_ps((float*)addr, m); }
     template <> inline void store_ps<true>(__m128 m, void* addr) { return _mm_store_ps((float*)addr, m); }
 
-    template <bool Aligned_b> void float_differences(const __m128* a, const __m128* b, __m128* diff, unsigned int count)
+    template <bool Aligned_b> void float_differences(const __m128* a, const __m128* b, __m128* diff, size_t count)
     {
 	while (count--) {
 	    _mm_stream_ps((float*)diff, _mm_sub_ps(load_ps<true>(a), load_ps<Aligned_b>(b)));
@@ -27,7 +27,7 @@ namespace CVD {
 	}
     }
     
-    template <bool Aligned_b> void float_add_multiple_of_sum(const __m128* a, const __m128* b, const float& c, __m128* out, unsigned int count)
+    template <bool Aligned_b> void float_add_multiple_of_sum(const __m128* a, const __m128* b, const float& c, __m128* out, size_t count)
     {
 	__m128 cccc = _mm_set1_ps(c);
 	while (count--) {
@@ -38,7 +38,7 @@ namespace CVD {
 	}
     }
 
-    template <bool Aligned_out> inline void float_assign_multiple(const __m128* a, const float& c, __m128* out, unsigned int count)
+    template <bool Aligned_out> inline void float_assign_multiple(const __m128* a, const float& c, __m128* out, size_t count)
     {
 	const __m128 cccc = _mm_set1_ps(c);
 	while (count--)
@@ -46,10 +46,10 @@ namespace CVD {
        
     }
     
-    template <bool Aligned_b> double float_inner_product(const __m128* a, const __m128* b, unsigned int count)
+    template <bool Aligned_b> double float_inner_product(const __m128* a, const __m128* b, size_t count)
     {
 	float sums_store[4];
-	const unsigned int BLOCK = 1<<10;
+	const size_t BLOCK = 1<<10;
 	double dot = 0;
 	while (count) {
 	    size_t pass = std::min(count, BLOCK);
@@ -108,7 +108,7 @@ namespace CVD {
 	    differences<T1,T2>(a,b,diff,count);
 	}
 	
-	static inline void aligned_differences(const float* a, const float* b, float* diff, unsigned int count) {
+	static inline void aligned_differences(const float* a, const float* b, float* diff, size_t count) {
 	    if (is_aligned<16>(b))
 		float_differences<true>((const __m128*)a, (const __m128*)b, (__m128*)diff, count>>2);
 	    else
@@ -139,7 +139,7 @@ namespace CVD {
 	    return inner_product<T1>(a,b,count);
 	}
 	
-	static inline double aligned_inner_product(const float* a, const float* b, unsigned int count)
+	static inline double aligned_inner_product(const float* a, const float* b, size_t count)
 	{
 	    if (is_aligned<16>(b))
 		return float_inner_product<true>((const __m128*) a, (const __m128*) b, count>>2);
@@ -151,7 +151,7 @@ namespace CVD {
 	    return sum_squared_differences<T1>(a,b,count);
 	}
 	
-	static inline double aligned_ssd(const float* a, const float* b, unsigned int count)
+	static inline double aligned_ssd(const float* a, const float* b, size_t count)
 	{
 	    if (is_aligned<16>(b))
 		return float_sum_squared_differences<true>((const __m128*) a, (const __m128*) b, count>>2);
@@ -181,23 +181,23 @@ namespace CVD {
 	}
     };
     
-    void differences(const float* a, const float* b, float* diff, unsigned int size)
+    void differences(const float* a, const float* b, float* diff, size_t size)
     {
 	maybe_aligned_differences<SSE_funcs, float, float, 16, 4>(a,b,diff,size);
     }
     
-    void add_multiple_of_sum(const float* a, const float* b, const float& c,  float* out, unsigned int count)
+    void add_multiple_of_sum(const float* a, const float* b, const float& c,  float* out, size_t count)
     {
 	maybe_aligned_add_mul_add<SSE_funcs,float,float,16,4>(a,b,c,out,count);
     }
     
-    void assign_multiple(const float* a, const float& c,  float* out, unsigned int count) 
+    void assign_multiple(const float* a, const float& c,  float* out, size_t count) 
     {
 	maybe_aligned_assign_mul<SSE_funcs,float,float,16,4>(a,c,out,count);
     }
 
     
-    double inner_product(const float* a, const float* b, unsigned int count) 
+    double inner_product(const float* a, const float* b, size_t count) 
     {
 	return maybe_aligned_inner_product<SSE_funcs,double,float,16,4>(a,b,count);
     }

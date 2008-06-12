@@ -5,6 +5,26 @@ using namespace std;
 
 namespace CVD {
 
+#ifdef WIN32
+inline __m128 operator+( const __m128 & a, const __m128 & b){
+    return _mm_add_ps(a,b);
+}
+
+inline __m128 operator+=( __m128 & a, const __m128 & b){
+    a = _mm_add_ps(a,b);
+    return a;
+}
+
+inline __m128 operator-( const __m128 & a, const __m128 & b){
+    return _mm_sub_ps(a,b);
+}
+
+inline __m128 operator*( const __m128 & a, const __m128 & b){
+    return _mm_mul_ps(a,b);
+}
+
+#endif
+
 inline void convolveMiddle5(const float* in, double factor, const double kernel[], int count, float* out)
 {
     int i;
@@ -83,7 +103,7 @@ inline void convolveVertical5(const vector<float*>& row, double factor, const do
 template <bool Aligned>
 inline void convolveVertical(const vector<float*>& row, double factor, const vector<double>& kernel, int count, float* out)
 {
-    const int ksize = kernel.size();
+    const int ksize = static_cast<int>(kernel.size());
     if (ksize == 2) {
 	convolveVertical5<Aligned>(row, factor, &kernel[0], count, out);
 	return;
@@ -239,9 +259,15 @@ void van_vliet_blur_simd(const double b[], const SubImage<float> in, SubImage<fl
 
     unsigned int csr_state = _mm_getcsr();
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-    
-    __m128 tmp[w>h?w:h] __attribute__((aligned(16)));
+
+    AlignedMem<__m128,16> tmpArray(w>h?w:h);
+    __m128 * tmp = tmpArray.data();
+
+#ifdef WIN32
+    __m128 M[9];
+#else
     __m128 M[9] __attribute__((aligned(16)));
+#endif
 
     {	
 	double m[3][3];

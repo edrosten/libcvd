@@ -52,14 +52,14 @@ namespace CVD
     template<class P> struct Component
     {
       typedef P type;
-      static const unsigned int count = 1;
+      static const size_t count = 1;
 		  
-      static const P& get(const P& pixel, int)
+      static const P& get(const P& pixel, size_t)
       {
 	return pixel;
       }
 
-      static P& get(P& pixel, int)
+      static P& get(P& pixel, size_t)
       {
 	return pixel;
       }
@@ -69,14 +69,14 @@ namespace CVD
     template<class P, int I> struct Component<P[I]>
     {
       typedef P type;
-      static const unsigned int count=I;
+      static const size_t count=I;
       
-      static const P& get(const P pixel[I], unsigned int i)
+      static const P& get(const P pixel[I], size_t i)
       {
 	return pixel[i];
       }
 
-      static inline P& get(P pixel[I], unsigned int i)
+      static inline P& get(P pixel[I], size_t i)
       {
 	return pixel[i];
       }
@@ -86,14 +86,14 @@ namespace CVD
     template<int N> struct Component<TooN::Vector<N> >
     {
       typedef double type;
-      static const unsigned int count=N;
+      static const size_t count=N;
       
-      static const type& get(const TooN::Vector<N>& pixel, unsigned int i)
+      static const type& get(const TooN::Vector<N>& pixel, size_t i)
       {
 	return pixel[i];
       }
 
-      static inline type& get(TooN::Vector<N>& pixel, unsigned int i)
+      static inline type& get(TooN::Vector<N>& pixel, size_t i)
       {
 	return pixel[i];
       }

@@ -5,9 +5,13 @@ using namespace std;
 
 namespace CVD {
 
+#ifdef WIN32
+#define shift_left_7(thing) _mm_slli_epi16(thing,7)
+#else
     // I have to use this because gcc 3.3 has an internal bug with _mm_slli_epi16
 #define shift_left_7(thing) asm ( "psllw $0x7, %0  \n\t" : : "x"(thing) : "%0" );
-    
+#endif
+
     void gradient(const byte* in, short (*out)[2], int w, int h)
     {
         const byte zeros[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};

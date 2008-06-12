@@ -35,17 +35,17 @@ namespace CVD
 		template<class P> struct Component<Rgb<P> >
 		{
 			typedef P type;
-			static const unsigned int count = 3;
+			static const size_t count = 3;
 
 			
 			//This version is much faster, with -funroll-loops
-			static const P& get(const Rgb<P>& pixel, unsigned int i)
+			static const P& get(const Rgb<P>& pixel, size_t i)
 			{
 				return *(reinterpret_cast<const P*>(&pixel)+i);
 				//return i == 0 ? pixel.red : (i==1 ? pixel.green : pixel.blue);
 			}
 
-			static P& get(Rgb<P>& pixel, unsigned int i)
+			static P& get(Rgb<P>& pixel, size_t i)
 			{
 				return *(reinterpret_cast<P*>(&pixel)+i);
 				// return i == 0 ? pixel.red : (i==1 ? pixel.green : pixel.blue);
@@ -55,15 +55,15 @@ namespace CVD
 		template<> struct Component<Rgb8>
 		{
 			typedef unsigned char type;
-			static const unsigned int count = 3;
+			static const size_t count = 3;
 
-			static const type& get(const Rgb8& pixel, unsigned int i)
+			static const type& get(const Rgb8& pixel, size_t i)
 			{
 				return *(reinterpret_cast<const unsigned char*>(&pixel)+i);
 				//return i == 0 ? pixel.red : (i==1 ? pixel.green : pixel.blue);
 			}
 
-			static type& get(Rgb8& pixel, unsigned int i)
+			static type& get(Rgb8& pixel, size_t i)
 			{
 				return *(reinterpret_cast<unsigned char*>(&pixel)+i);
 				//return i == 0 ? pixel.red : (i==1 ? pixel.green : pixel.blue);
@@ -73,15 +73,15 @@ namespace CVD
 		template<class P> struct Component<Rgba<P> >
 		{
 			typedef P type;
-			static const unsigned int count = 4;
+			static const size_t count = 4;
 
-			static const P& get(const Rgba<P>& pixel, unsigned int i)
+			static const P& get(const Rgba<P>& pixel, size_t i)
 			{
 				return *(reinterpret_cast<const P*>(&pixel)+i);
 				//return i == 0 ? pixel.red : (i==1 ? pixel.green : (i==2 ?pixel.blue: pixel.alpha));
 			}
 
-			static P& get(Rgba<P>& pixel, unsigned int i)
+			static P& get(Rgba<P>& pixel, size_t i)
 			{
 				return *(reinterpret_cast<P*>(&pixel)+i);
 				//return i == 0 ? pixel.red : (i==1 ? pixel.green : (i==2 ?pixel.blue: pixel.alpha));

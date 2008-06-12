@@ -249,7 +249,7 @@ struct jpeg_ostream_dest: public jpeg_destination_mgr
 		me->free_in_buffer = bufsize;
 	}
 
-	static int s_empty_output_buffer(j_compress_ptr cinfo)
+	static boolean s_empty_output_buffer(j_compress_ptr cinfo)
 	{
 		jpeg_ostream_dest* me = (jpeg_ostream_dest*) cinfo->dest;
 

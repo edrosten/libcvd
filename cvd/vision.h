@@ -260,7 +260,7 @@ inline void sample(const BasicImage<float>& im, double x, double y, float& resul
     float e = a-b;
     x-=lx;
     y-=ly;
-    result = x*(y*(e-c+d)-e)+y*(c-a)+a;
+    result = (float)(x*(y*(e-c+d)-e)+y*(c-a)+a);
   }
 
 #if defined (CVD_HAVE_TOON)

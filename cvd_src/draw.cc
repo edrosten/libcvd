@@ -34,7 +34,7 @@ std::vector<ImageRef> getCircle(int radius) {
         	++y;
         }
     }
-    unsigned int i;
+    size_t i;
     for (i=points.size()-1;i>0;i--)
         points.push_back(ImageRef(-points[i-1].x, points[i-1].y));
     for (i=points.size()-1;i>1;i--)

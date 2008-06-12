@@ -1,16 +1,7 @@
 #ifndef CVD_ALIGNED_MEM_H
 #define CVD_ALIGNED_MEM_H
-#include <map>
 #include <cassert>
 #include <cvd/config.h>
-
-#ifdef _REENTRANT
-    #ifndef CVD_HAVE_PTHREAD
-    	#error "CVD is not compiled with thread support. This code is not thread safe."
-    #else 
-	#include <cvd/synchronized.h>
-    #endif
-#endif
 
 namespace CVD {
   namespace Internal
@@ -44,72 +35,35 @@ namespace CVD {
       static inline void free(T*, size_t ) {}
     };
 
+    void * aligned_alloc(size_t count, size_t alignment);
+    void aligned_free(void * memory);
 
-    template <class T, int N> struct aligned_mem {
-	struct entry {
-	    char* buffer;
-	    size_t count;
-	};
-	static std::map<T*, entry> buffers;
+    template <class T> 
+    inline T * aligned_alloc(size_t count, size_t alignment){
+        void * data = aligned_alloc(sizeof(T)* count, alignment);
+        return new (data) T[count];
+    }
 
-	#if defined(CVD_HAVE_PTHREAD) && defined(_REENTRANT)
-	    static Synchronized mutex;
-	#endif
+    template <class T>
+    inline void aligned_free(T * memory, size_t count){
+        placement_delete<T>::free(memory, count);   
+        aligned_free(memory);
+    }
 
-
-	static T* alloc(size_t count)
-	{
-	    char* start = new char[count*sizeof(T) + N];
-	    size_t val = (size_t)start;
-	    T* astart = new (start + (N-(val % N))) T[count];
-	    entry e = {start, count};
-
-
-	    #if defined(CVD_HAVE_PTHREAD) && defined(_REENTRANT)
-	    Lock lock(mutex);
-	    #endif
-
-	    buffers[astart] = e;
-
-	    return astart;
-	}
-
-	static void release(T* ptr) 
-	{
-	    #if defined(CVD_HAVE_PTHREAD) && defined(_REENTRANT)
-	    Lock lock(mutex);
-	    #endif
-
-	    typename std::map<T*,entry>::iterator it = buffers.find(ptr);
-	    assert(it != buffers.end());
-	    placement_delete<T>::free(ptr, it->second.count);
-	    delete[] it->second.buffer;
-
-
-	    buffers.erase(it);
-	}
-    };
-	#if defined(CVD_HAVE_PTHREAD) && defined(_REENTRANT)
-		template<class T, int N> Synchronized aligned_mem<T,N>::mutex;
-	#endif
-
-    template <class T, int N> std::map<T*,typename aligned_mem<T,N>::entry> aligned_mem<T,N>::buffers;
-
-  }
+  } // namespace Internal
 
     template <class T, int N> struct AlignedMem {
 	T* mem;
-	AlignedMem(size_t count) {
-	    mem = Internal::aligned_mem<T,N>::alloc(count);
+    size_t count;
+    AlignedMem(size_t c) : count(c) {
+	    mem = Internal::aligned_alloc<T>(count, N);
 	}
 	~AlignedMem() {
-	    Internal::aligned_mem<T,N>::release(mem);
+	    Internal::aligned_free<T>(mem, count);
 	}
 	T* data() { return mem; }
 	const T* data() const { return mem; }
     };    
-
-    
 }
 
 #endif

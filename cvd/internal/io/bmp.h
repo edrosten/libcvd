@@ -62,13 +62,13 @@ namespace CVD {
 	  Internal::simple_vector<T> cvt(256);
 	  Pixel::ConvertPixels<Rgb<byte>,T>::convert(&palette[0], &cvt[0], 256);
 	  for (int r=im.size().y-1; r>=0; r--) {
-	    in.read((char*)&rowbuf[0], rowSize);
+          in.read((char*)&rowbuf[0], static_cast<std::streamsize>(rowSize));
 	    for (int c=0; c<im.size().x; c++)
 	      im[r][c] = cvt[rowbuf[c]];
 	  } 
 	} else {	  
 	  for (int r=im.size().y-1; r>=0; r--) {
-	    in.read((char*)&rowbuf[0], rowSize);
+	    in.read((char*)&rowbuf[0], static_cast<std::streamsize>(rowSize));
 	    Pixel::ConvertPixels<byte,T>::convert(&rowbuf[0], im[r], im.size().x);
 	  }
 	}
@@ -81,7 +81,7 @@ namespace CVD {
 	  rowSize += 4 - (rowSize%4);
 	Internal::simple_vector<byte> rowbuf(rowSize);
 	for (int r=im.size().y-1; r>=0; r--) {
-	  in.read((char*)&rowbuf[0], rowSize);
+	  in.read((char*)&rowbuf[0], static_cast<std::streamsize>(rowSize));
 	  for (int c=0; c<im.size().x*3; c+=3) {
 	    byte tmp = rowbuf[c];
 	    rowbuf[c] = rowbuf[c+2];
