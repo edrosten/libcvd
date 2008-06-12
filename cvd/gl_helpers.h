@@ -566,6 +566,40 @@ namespace CVD
         }
     }
 
+    /// @defgroup gGLText OpenGL text rendering
+    /// @ingroup gGL
+    /// @{
+ 
+    /// sets the font to use for future font rendering commands. currently sans, serif and mono are available.
+    /// @param fontname string containing font name
+    void glSetFont( const std::string & fontname );
+
+    /// returns the name of the currently active font
+    const std::string & glGetFont();
+
+    /// different style for font rendering
+    enum TEXT_STYLE {
+        FILL = 0,       ///< renders glyphs as filled polygons
+        OUTLINE = 1,    ///< renders glyphs as outlines with GL_LINES
+        NICE = 2        ///< renders glyphs filled with antialiased outlines
+    };
+
+    /// renders a string in GL using the current settings.
+    /// Font coordinates are +X along the line and +Y along the up direction of glyphs.
+    /// The origin is at the top baseline at the left of the first character. Characters have a maximum size of 1.
+    /// linefeed is interpreted as a new line and the start is offset in -Y direction by @ref spacing . Individual characters
+    /// are separated by @ref kerning + plus their individual with.
+    /// @param text string to be rendered, unknown characters are replaced with '?'
+    /// @param style rendering style
+    /// @param spacing distance between individual text lines
+    /// @param kerning distance between characters
+    std::pair<double, double> glDrawText(const std::string & text, enum TEXT_STYLE style = NICE, double spacing = 1.5, double kerning = 0.1);
+
+    /// returns the size of the bounding box of a text to be rendered, similar to @ref glDrawText but without any visual output
+    std::pair<double, double> glGetExtends(const std::string & text, double spacing = 1.5, double kerning = 0.1);
+
+    ///@}
+
 };
 
 #endif

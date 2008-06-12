@@ -908,7 +908,7 @@ cvd_src/nothread/runnable_batch                 tr1_shared_ptr END
 cvd_src/noarch/posix_memalign                   memalign
 cvd_src/noarch/default_memalign                 END
 
-cvd_src/videodisplay,cvd_src/glwindow			videodisplay END
+cvd_src/videodisplay,cvd_src/glwindow,cvd_src/gltext			videodisplay END
 pnm_src/jpeg									jpeg END
 pnm_src/tiff									tiff END
 pnm_src/png										png END
@@ -964,6 +964,7 @@ test/o2buffer        			videodisplay o2buffer			END
 test/v4l1buffer_bayer 			videodisplay v4l1buffer 		END
 test/v4l1buffer_rgb  			videodisplay v4l1buffer			END
 test/qtbuffer_yuvrgb            videodisplay qtbuffer 			END
+test/font                       videodisplay                    END
 ENDPROGS
 AC_SUBST(testprogs, ["`cat config.dep_testprogs | tr '\n' ' ' `"])
 
