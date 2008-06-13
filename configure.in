@@ -842,7 +842,8 @@ cat config.have_bits - <<ENDDEPS  | awk -f make/compile_deps.awk > config.dep_tm
 
 #SIMD dependencies
 cvd_src/i686/yuv411_to_stuff_MMX			mmxext 32bit x86
-cvd_src/yuv411_to_stuff						END
+cvd_src/i686/yuv411_to_stuff_MMX_64			mmxext x86
+cvd_src/yuv411_to_stuff					END
 
 cvd_src/i686/halfsample,HALFSAMPLE_MMX8		mmx 32bit x86 assembler END
 HALFSAMPLE_SSE16							sse2 END
