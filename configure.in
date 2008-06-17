@@ -611,21 +611,21 @@ CHECK_FOR_LIBRARY(lapack, [
 	AC_MSG_CHECKING(if f2c is needed for LAPACK)
 	AC_MSG_RESULT()
 	APPEND(LIBS, -lf2c)
-	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
+	AC_CHECK_LIB(lapack, dpotrf_, [], [a=1])
 ])
 
 CHECK_FOR_LIBRARY(lapack, [
 	AC_MSG_CHECKING(if f2c is needed for LAPACK)
 	AC_MSG_RESULT()
 	APPEND(LIBS, -lg2c)
-	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
+	AC_CHECK_LIB(lapack, dpotrs_, [], [a=1])
 ])
 
 CHECK_FOR_LIBRARY(lapack, [
 	AC_MSG_CHECKING(if f2c is needed for LAPACK)
 	AC_MSG_RESULT()
 	APPEND(LIBS, -lgfortran)
-	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
+	AC_CHECK_LIB(lapack, dpotri_, [], [a=1])
 ])
 
 CHECK_FOR_LIBRARY(pthread, [
