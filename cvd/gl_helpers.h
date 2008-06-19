@@ -157,7 +157,7 @@ namespace CVD
 	/// @param v The texture coordinates
 	/// @param unit The texture unit
 	///@ingroup gGL
-	inline void glMutliTexCoord(GLenum unit, const TooN::Vector<3>& v)
+	inline void glMultiTexCoord(GLenum unit, const TooN::Vector<3>& v)
 	{
 	        glMultiTexCoord3d(unit, v[0], v[1], v[2]);
 	}
