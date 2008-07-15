@@ -513,6 +513,7 @@ void compute_triggs_M(const double b[], double M[][3]);
 void van_vliet_blur(const double b[], const SubImage<float> in, SubImage<float> out);
 
 void convolveGaussian(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas=3.0);
+void convolveGaussian_fir(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas=3.0);
 
 template <class T, class O, class K> void convolve_gaussian_3(const BasicImage<T>& I, BasicImage<O>& out, K k1, K k2)
 {    

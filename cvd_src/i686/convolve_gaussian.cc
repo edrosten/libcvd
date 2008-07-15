@@ -396,6 +396,11 @@ void convolveGaussian(const BasicImage<float>& I, BasicImage<float>& out, double
 	convolveGaussian_simd(I, out, sigma, sigmas);    
 }
 
+void convolveGaussian_fir(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas)
+{
+    convolveGaussian_simd(I, out, sigma, sigmas);    
+}
+
 
 };
 

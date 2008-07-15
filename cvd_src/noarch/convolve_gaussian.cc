@@ -16,4 +16,8 @@ namespace CVD
 	    convolveGaussian<float>(I, out, sigma, sigmas);
     }    
     
+    void convolveGaussian_fir(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas)
+	{
+	    convolveGaussian<float>(I, out, sigma, sigmas);
+	}
 }
