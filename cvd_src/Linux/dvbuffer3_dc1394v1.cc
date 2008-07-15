@@ -20,7 +20,7 @@
 */
 // -*- c++ -*-
 
-#include <cvd/dvbuffer3.h>
+#include <cvd/Linux/dvbuffer3.h>
 #include <cvd/byte.h>
 #include <cvd/Linux/dvbuffer.h>
 #include <vector>

@@ -84,7 +84,7 @@ define([TEST_AND_SET_CXXFLAG],[
 ])
 
 
-dnl CHECK_FOR_LIBRARY(option, code, [success], [fail])
+dnl CHECK_FOR_OPTION(option, code, [success], [fail])
 dnl option corresponds to the first parameter for the corresponding
 dnl AC_ARG_WITH. If the library is present, then have_option and CVD_HAVE_OPTION
 dnl are set. If with_option is "", it will be set to yes.
@@ -95,7 +95,7 @@ dnl automatically. On failure, they are restored automatically.
 dnl
 dnl On success, "option" is appended to options, and the code "success" is run
 dnl On failure including --without) fail is run.
-define(CHECK_FOR_LIBRARY,[
+define(CHECK_FOR_OPTION,[
 	if test "$with_$1" != no && test "$have_$1" != yes
 	then
 		if test "$with_$1" == ""
@@ -394,24 +394,38 @@ echo -----------------------------------------------
 echo Checking for operating system specific features
 echo -----------------------------------------------
 
-AC_ARG_WITH(dvbuffer, [  --without-dvbuffer      compile without dvbuffer (DC camera) support (Linux only)])
-AC_ARG_WITH(v4l1buffer, [  --without-v4l1buffer	  compile without v4l1bffer (Video4Linux) support (Linux only)])
-AC_ARG_WITH(v4l2, [  --without-v4l2buffer	  compile without v4l2buffer (Video4Linux2) support (Linux only)])
-AC_ARG_WITH(o2buffer, [  --without-o2buffer	  compile without sgi video (IRIX only)])
-AC_ARG_WITH(qtbuffer, [  --without-qtbuffer	  compile without quicktime buffer support (MacOSX only)])
+AC_ARG_WITH(dvbuffer,  [  --without-dvbuffer      compile without dvbuffer (libDC1394v1) support (Linux only)])
+AC_ARG_WITH(dvbuffer3, [  --without-dvbuffer3     compile without dvbuffer3 (libDC1394v{1,2}) support (Linux only)])
+AC_ARG_WITH(dc1394v2,  [  --without-dc1394v2      do not use libDC1394v2 (use v1 instead) for dvbuffer3 (Linux only)])
+AC_ARG_WITH(v4l1buffer,[  --without-v4l1buffer	  compile without v4l1bffer (Video4Linux) support (Linux only)])
+AC_ARG_WITH(v4l2,      [  --without-v4l2buffer	  compile without v4l2buffer (Video4Linux2) support (Linux only)])
+AC_ARG_WITH(o2buffer,  [  --without-o2buffer	  compile without sgi video (IRIX only)])
+AC_ARG_WITH(qtbuffer,  [  --without-qtbuffer	  compile without quicktime buffer support (MacOSX only)])
 
 case "$host" in
 	*linux*)
-		os_all_options="dvbuffer v4l2buffer v4l1buffer v4lbuffer"
+		os_all_options="dc1394v2 dvbuffer dvbuffer3 v4l2buffer v4l1buffer v4lbuffer"
 
-		CHECK_FOR_LIBRARY(dvbuffer, [
+		CHECK_FOR_OPTION(dc1394v2, [
+			AC_CHECK_HEADERS(dc1394/dc1394.h, [], [a=1])
+			AC_CHECK_LIB(dc1394, main,[],[a=1])
+		])
+
+		CHECK_FOR_OPTION(dvbuffer, [
 			AC_CHECK_HEADERS(libraw1394/raw1394.h libdc1394/dc1394_control.h, [], [a=1])
 			AC_CHECK_LIB(raw1394, main,[],[a=1])
 			AC_CHECK_LIB(dc1394_control, main,[],[a=1])
 		])
 
+		CHECK_FOR_OPTION(dvbuffer3, [
+			if test "$have_dc1394v2" != yes && test "$have_dvbuffer" != yes
+			then
+				a=1
+			fi
+		])
+
 		
-		CHECK_FOR_LIBRARY(v4l2buffer,[
+		CHECK_FOR_OPTION(v4l2buffer,[
 			AC_MSG_CHECKING(for v4l2)
 			AC_COMPILE_IFELSE([	#include <sys/types.h>
 								#include <linux/types.h>
@@ -442,9 +456,9 @@ case "$host" in
 		
 		if test x$strange_v4l2 != xyes
 		then
-			CHECK_FOR_LIBRARY(v4l1buffer, [AC_CHECK_HEADERS(linux/videodev.h,[], [a=1])])
+			CHECK_FOR_OPTION(v4l1buffer, [AC_CHECK_HEADERS(linux/videodev.h,[], [a=1])])
 		else
-			CHECK_FOR_LIBRARY(v4l1buffer, [
+			CHECK_FOR_OPTION(v4l1buffer, [
 				AC_MSG_CHECKING(for strange v4l)
 				AC_COMPILE_IFELSE([	#include <videodevx/videodev.h>
 									int main(){VIDEO_PALETTE_GREY;return 0;}], 
@@ -498,7 +512,7 @@ case "$host" in
 		;;
 	*sgi*)
 		os_all_options="o2buffer"
-		CHECK_FOR_LIBRARY(o2buffer, [
+		CHECK_FOR_OPTION(o2buffer, [
 			echo "I hope all SGIs have stuff needed for O2buffer. Disable (--without-o2buffer) if I'm wrong."
 		])
 		;;
@@ -519,7 +533,7 @@ then
 	AC_SUBST(osx_hacks,yes)
 	os_all_options="qtbuffer"
 
-	CHECK_FOR_LIBRARY(qtbuffer,[
+	CHECK_FOR_OPTION(qtbuffer,[
 		APPEND(LIBS, [-framework Carbon -framework QuickTime])
 		AC_MSG_CHECKING(Carbon and QuickTime framework)
 		AC_COMPILE_IFELSE([ #include <Carbon/Carbon.h>
@@ -553,7 +567,7 @@ AC_ARG_WITH(tr1_shared_ptr, [  --withot-tr1_shared_ptr          Compile without 
 AC_ARG_WITH(lapack, [  --without-lapack        Disable BLAS and LAPACK.])
 AC_ARG_WITH(acml, [  --with-acml[[=directory]] Use BLAS and LAPACK routines from the ACML library [[located in the specified directory]] ], [opt_acml_dir=$withval])
 
-CHECK_FOR_LIBRARY(videodisplay,[
+CHECK_FOR_OPTION(videodisplay,[
 	AC_PATH_X
 	if test x$x_includes != x
 	then
@@ -564,7 +578,7 @@ CHECK_FOR_LIBRARY(videodisplay,[
 	AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
 ])
 
-CHECK_FOR_LIBRARY(tr1_shared_ptr, [
+CHECK_FOR_OPTION(tr1_shared_ptr, [
 	AC_MSG_CHECKING([for tr1::shared_ptr])
 	AC_COMPILE_IFELSE([#include <tr1/memory>
 	int main(){std::tr1::shared_ptr<int> i; return  0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
@@ -572,14 +586,14 @@ CHECK_FOR_LIBRARY(tr1_shared_ptr, [
 ])
 
 
-CHECK_FOR_LIBRARY(toon, [
+CHECK_FOR_OPTION(toon, [
 	AC_MSG_CHECKING([for TooN])
 	AC_COMPILE_IFELSE([#include <TooN/TooN.h>
 	int main(){TooN::Vector<2> v;return 0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
 
 ])
 
-CHECK_FOR_LIBRARY(lapack, [
+CHECK_FOR_OPTION(lapack, [
 	if test "$with_acml" != no
 	then
 		if test "$with_acml" != yes & test "$with_acml" != ""
@@ -596,39 +610,39 @@ CHECK_FOR_LIBRARY(lapack, [
 	fi
 ])
 
-CHECK_FOR_LIBRARY(lapack, [
+CHECK_FOR_OPTION(lapack, [
 	AC_MSG_CHECKING(if Accelerate framework is needed for LAPACK)
 	AC_MSG_RESULT()
 	APPEND(LIBS, -framework Accelerate)
 	AC_CHECK_FUNC(dgesvd_, [], [a=1])
 ])
 
-CHECK_FOR_LIBRARY(lapack, [
+CHECK_FOR_OPTION(lapack, [
 	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
 ])
 
-CHECK_FOR_LIBRARY(lapack, [
+CHECK_FOR_OPTION(lapack, [
 	AC_MSG_CHECKING(if f2c is needed for LAPACK)
 	AC_MSG_RESULT()
 	APPEND(LIBS, -lf2c)
 	AC_CHECK_LIB(lapack, dpotrf_, [], [a=1])
 ])
 
-CHECK_FOR_LIBRARY(lapack, [
+CHECK_FOR_OPTION(lapack, [
 	AC_MSG_CHECKING(if f2c is needed for LAPACK)
 	AC_MSG_RESULT()
 	APPEND(LIBS, -lg2c)
 	AC_CHECK_LIB(lapack, dpotrs_, [], [a=1])
 ])
 
-CHECK_FOR_LIBRARY(lapack, [
+CHECK_FOR_OPTION(lapack, [
 	AC_MSG_CHECKING(if f2c is needed for LAPACK)
 	AC_MSG_RESULT()
 	APPEND(LIBS, -lgfortran)
 	AC_CHECK_LIB(lapack, dpotri_, [], [a=1])
 ])
 
-CHECK_FOR_LIBRARY(pthread, [
+CHECK_FOR_OPTION(pthread, [
 	APPEND(CXXFLAGS, -pthread)
 	APPEND(LIBS, -pthread)
 	AC_MSG_CHECKING(for working pthreads)
@@ -652,12 +666,12 @@ CHECK_FOR_LIBRARY(pthread, [
 
 
 
-CHECK_FOR_LIBRARY(png, [
+CHECK_FOR_OPTION(png, [
 	AC_CHECK_HEADERS(png.h, [], [a=1])
 	AC_CHECK_LIB(png, png_init_io, [], [a=1])
 ])
 
-CHECK_FOR_LIBRARY(jpeg, [
+CHECK_FOR_OPTION(jpeg, [
 	AC_CHECK_HEADERS(jpeglib.h, [], [a=1])
 	AC_CHECK_LIB(jpeg, jpeg_destroy_decompress, [], [a=1])
 ],[
@@ -678,12 +692,12 @@ CHECK_FOR_LIBRARY(jpeg, [
 ])
 
 
-CHECK_FOR_LIBRARY(tiff, [
+CHECK_FOR_OPTION(tiff, [
 	AC_CHECK_HEADERS(tiffio.h,[],[a=1])
 	AC_CHECK_LIB(tiff, TIFFReadRGBAImage,[],[a=1])
 ])
 
-CHECK_FOR_LIBRARY(tiff, [
+CHECK_FOR_OPTION(tiff, [
 	AC_MSG_CHECKING([if perhaps libtiff requires zlib])
 	AC_MSG_RESULT([])
 	unset ac_cv_lib_tiff_TIFFReadRGBAImage
@@ -713,7 +727,7 @@ fi
 
 
 
-CHECK_FOR_LIBRARY(ffmpeg, [
+CHECK_FOR_OPTION(ffmpeg, [
 	if test "$with_ffmpeg" != yes
 	then
 		APPEND(LIBS, [-L $with_ffmpeg])
@@ -745,7 +759,7 @@ AC_ARG_WITH(memalign, [  --without-memalign      Compile without posix_memalign 
 
 
 
-CHECK_FOR_LIBRARY(glob, [
+CHECK_FOR_OPTION(glob, [
 	AC_CHECK_HEADERS(glob.h,[], [a=1])
 	AC_CHECK_FUNC(glob,[], [a=1])
 ],[
@@ -772,7 +786,7 @@ else
 	dodginess_options="$dodginess_options missing_c99_feenableexcept"
 fi
 
-CHECK_FOR_LIBRARY(memalign, [
+CHECK_FOR_OPTION(memalign, [
 	AC_CHECK_FUNC(posix_memalign, [], [a=1])
 ], [], [APPEND(dodginess_options, no_posix_memalign)])
 
@@ -896,6 +910,8 @@ cvd_src/slower_corner_12						fast12							END
 
 #General OS specific bits
 cvd_src/Linux/dvbuffer							dvbuffer END
+cvd_src/Linux/dvbuffer3_dc1394v2     					dvbuffer3 dc1394v2
+cvd_src/Linux/dvbuffer3_dc1394v1     					dvbuffer3 dvbuffer END
 cvd_src/Linux/v4l1buffer						v4l1buffer END
 cvd_src/Linux/v4lbuffer,V4LBUFFER				v4l2buffer linux_2_6 END
 cvd_src/Linux/v4l2buffer	                 	v4l2buffer END
@@ -954,13 +970,13 @@ AC_SUBST(progs, ["`cat config.dep_progs | tr '\n' ' ' `"])
 cat config.have_bits - << ENDPROGS | awk -f make/compile_deps.awk > config.dep_testprogs
 test/fast_test					videodisplay faster_test sse2   END
 test/diskbuffer2				videodisplay					END
-test/dvbuffer_mono  			videodisplay dvbuffer			END
-test/dvbuffer_yuvrgb  			videodisplay dvbuffer			END
+test/dvbuffer_mono  			videodisplay dc1394v1			END
+test/dvbuffer_yuvrgb  			videodisplay dc1394v1			END
 test/test_images       											END
 test/v4l1buffer_mono  			videodisplay v4l1buffer			END
 test/v4l2buffer					videodisplay v4l2buffer			END
-test/dvbuffer_controls 			videodisplay dvbuffer 			END
-test/dvbuffer_rgb   			videodisplay dvbuffer			END
+test/dvbuffer_controls 			videodisplay dc1394v1 			END
+test/dvbuffer_rgb   			videodisplay dc1394v1			END
 test/o2buffer        			videodisplay o2buffer			END
 test/v4l1buffer_bayer 			videodisplay v4l1buffer 		END
 test/v4l1buffer_rgb  			videodisplay v4l1buffer			END

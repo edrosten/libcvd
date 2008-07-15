@@ -20,7 +20,7 @@
 */
 // -*- c++ -*-
 
-#include <cvd/dvbuffer3.h>
+#include <cvd/Linux/dvbuffer3.h>
 #include <cvd/byte.h>
 #include <dc1394/dc1394.h>
 #include <vector>
@@ -109,7 +109,7 @@ namespace CVD
       dc1394error_t error;
 
       // Enumerate the cameras connected to the system.
-      dc1394camera_list_t *pCameraList;
+      dc1394camera_list_t *pCameraList = NULL;
   
       error = dc1394_camera_enumerate(mpLDCP->pDC1394, &pCameraList);
       if(error) throw(All("Camera enumerate"));
@@ -277,7 +277,7 @@ namespace CVD
     
       if(error) throw(All("Failed on deque"));
     
-    
+      
       DV3::DV3Frame *pDV3Frame = new DV3::DV3Frame(pDC1394Frame);
       return pDV3Frame;
     
