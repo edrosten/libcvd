@@ -80,6 +80,13 @@ namespace CVD
 			static const int format=GL_LUMINANCE;
 			static const int type  =GL_FLOAT;
 		};
+
+		template<> struct data<double>
+		{
+			static const int format=GL_LUMINANCE;
+			static const int type  =GL_DOUBLE;
+		};
+	
 	
 
 		//Rgb<*> types
@@ -125,6 +132,13 @@ namespace CVD
 			static const int format=GL_RGB;
 			static const int type  =GL_FLOAT;
 		};
+
+		template<> struct data<Rgb<double> >
+		{
+			static const int format=GL_RGB;
+			static const int type  =GL_DOUBLE;
+		};
+		
 		
 		//Rgba<*> types
 	
@@ -168,6 +182,12 @@ namespace CVD
 		{
 			static const int format=GL_RGBA;
 			static const int type  =GL_FLOAT;
+		};
+
+		template<> struct data<Rgba<double> >
+		{
+			static const int format=GL_RGBA;
+			static const int type  =GL_DOUBLE;
 		};
 		//Rgb8 type
 
