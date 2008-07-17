@@ -16,7 +16,7 @@
 	You should have received a copy of the GNU Lesser General Public
 	License along with this library; if not, write to the Free Software
 	Foundation, Inc., 
-    51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+	51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // -*- c++ -*-
 
@@ -72,6 +72,7 @@ namespace CVD
 	case RAW8:   return DC1394_COLOR_CODING_RAW8; 
 	case RAW16:  return DC1394_COLOR_CODING_RAW16; 
 	}
+      throw(All("DC_from_DV3: Invalid colourspace"));
     }
 
     static dc1394feature_t DC_from_DV3_Feature(DV3Feature f)
@@ -93,6 +94,7 @@ namespace CVD
 	case PAN:           return DC1394_FEATURE_PAN;
 	case TILT:          return DC1394_FEATURE_TILT;
 	}
+      throw(All("DC_from_DV3: Invalid feature"));
     }
 
     RawDVBuffer3::RawDVBuffer3(DV3ColourSpace colourspace,
@@ -163,7 +165,7 @@ namespace CVD
 	  {
 	    uint32_t x,y;
 	    dc1394_get_image_size_from_video_mode(mpLDCP->pCamera, vModes[i], &x, &y);
-	    if(x == irSize.x && y == irSize.y)
+	    if(x == (uint32_t) irSize.x && y == (uint32_t) irSize.y)
 	      {
 		bModeFound = true;
 		nMode = vModes[i];
@@ -186,7 +188,7 @@ namespace CVD
     
       // Got mode, now decide on frame-rate. Similar thing: first get list, then choose from list.
       dc1394framerates_t framerates;
-      dc1394framerate_t nChosenFramerate;
+      dc1394framerate_t nChosenFramerate = DC1394_FRAMERATE_MIN;
       mdFramerate = -1.0;
       error = dc1394_video_get_supported_framerates(mpLDCP->pCamera,nMode,&framerates);
       if(error) throw(All("Could not query supported framerates"));
@@ -229,16 +231,31 @@ namespace CVD
       // At the moment, hard-code the channel to speed 400. This is maybe something to fix in future?
       error = dc1394_video_set_iso_speed(mpLDCP->pCamera, DC1394_ISO_SPEED_400);
       if(error) throw(All("Could not set ISO speed."));
-    
+      
+      // Hack Alert: The code below sets the iso channel without this
+      // having been properly allocated!  Likewise we never allocate
+      // bandwidth. Both of these could be allocated if the following
+      // two lines were erased, and the `0' parameter to
+      // dc1394_capture_setup were changed to
+      // DC1394_CAPTURE_FLAGS_DEFAULT; but this causes problems when
+      // the program crashes, as the resources are not deallocated
+      // properly.
+      // This hack emulates what dvbuffer.cc does using libdc1394v1.
+      
+      error = dc1394_video_set_iso_channel(mpLDCP->pCamera, nCamNumber);
+      if(error) throw(All("Could not set ISO channel.")); 
+
       error = dc1394_video_set_mode(mpLDCP->pCamera, nMode);
       if(error) throw(All("Could not set video mode"));
-    
+      
       error = dc1394_video_set_framerate(mpLDCP->pCamera, nChosenFramerate);
       if(error) throw(All("Could not set frame-rate"));
-    
-      error = dc1394_capture_setup(mpLDCP->pCamera, 4, DC1394_CAPTURE_FLAGS_DEFAULT);
+
+      // Hack to disable resource allocation -- see above
+      // error = dc1394_capture_setup(mpLDCP->pCamera, 4, DC1394_CAPTURE_FLAGS_DEFAULT);
+      error = dc1394_capture_setup(mpLDCP->pCamera, 4, 0);
       if(error) throw(All("Could not setup capture."));
-    
+      
       error = dc1394_video_set_transmission(mpLDCP->pCamera, DC1394_ON);                  
       if(error) throw(All("Could not start ISO transmission."));
     
