@@ -243,7 +243,7 @@ namespace CVD
 	/// transposed to account for GL's column major format.
 	/// @param m the transformation matrix
 	/// @ingroup gGL
-	template <int N> inline void glMultMatrix( const TooN::Matrix<N> & m )
+	template <int N, class A> inline void glMultMatrix( const TooN::FixedMatrix<N,N,A> & m )
 	{
 		GLdouble glm[16];
 		glm[0] = m[0][0]; glm[1] = m[1][0]; glm[2] = m[2][0]; glm[3] = m[3][0];
@@ -258,7 +258,7 @@ namespace CVD
 	/// The matrix is also transposed to account for GL's column major format.
 	/// @param m the transformation matrix
 	/// @ingroup gGL
-	template <> inline void glMultMatrix( const TooN::Matrix<3> & m )
+	template <class A> inline void glMultMatrix( const TooN::FixedMatrix<3,3,A> & m )
 	{
 		GLdouble glm[16];
 		glm[0] = m[0][0]; glm[1] = m[1][0]; glm[2] = m[2][0]; glm[3] = 0;
@@ -273,7 +273,7 @@ namespace CVD
 	/// identity matrix. The matrix is also transposed to account for GL's column major format.
 	/// @param m the transformation matrix
 	/// @ingroup gGL
-	template <> inline void glMultMatrix( const TooN::Matrix<2> & m )
+	template <class A> inline void glMultMatrix( const TooN::FixedMatrix<2,2,A> & m )
 	{
 		GLdouble glm[16];
 		glm[0] = m[0][0]; glm[1] = m[1][0]; glm[2] = 0; glm[3] = 0;
@@ -569,7 +569,7 @@ namespace CVD
     /// @defgroup gGLText OpenGL text rendering
     /// @ingroup gGL
     /// @{
- 
+
     /// sets the font to use for future font rendering commands. currently sans, serif and mono are available.
     /// @param fontname string containing font name
     void glSetFont( const std::string & fontname );
