@@ -119,6 +119,12 @@ The normal system works:
 
 libCVD fully supports parallel builds (<code>make -j2</code> for instance).
 
+\subsection slBugs Library bugs/issues
+	There are a few known library bugs which prevent the libraries working with libCVD
+
+	- TooN: If you have gcc >= 4.2.0 you need a version of TooN at least as recent as SNAPSHOT_20080725.
+
+
 \subsection scBugs Compiler bugs
 	There are a few known compiler bugs which affect libCVD on various platforms.
 

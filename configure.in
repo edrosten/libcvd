@@ -591,6 +591,25 @@ CHECK_FOR_OPTION(toon, [
 	AC_COMPILE_IFELSE([#include <TooN/TooN.h>
 	int main(){TooN::Vector<2> v;return 0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
 
+	AC_MSG_CHECKING([Old TooN])
+
+	AC_COMPILE_IFELSE([#include <TooN/TooN.h>
+	using namespace TooN;
+	int main()
+	{
+		Matrix<> m1(10,10);
+		Matrix<3,3> m2;
+		m1.slice(0,0,3,3) += m2;
+		return 0;
+	}], [AC_MSG_RESULT(no)],[AC_MSG_RESULT(yes); a=1]) 
+
+	if test x$a = x1 
+	then
+		AC_MSG_WARN([Your version of TooN is too old for this version of GCC.
+You need a recent version (SNAPSHOT_20080725 or later), or GCC version
+less than 4.2.0.
+		])
+	fi
 ])
 
 CHECK_FOR_OPTION(lapack, [

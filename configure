@@ -7937,6 +7937,60 @@ fi
 
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
+	{ echo "$as_me:$LINENO: checking Old TooN" >&5
+echo $ECHO_N "checking Old TooN... $ECHO_C" >&6; }
+
+	cat >conftest.$ac_ext <<_ACEOF
+#include <TooN/TooN.h>
+	using namespace TooN;
+	int main()
+	{
+		Matrix<> m1(10,10);
+		Matrix<3,3> m2;
+		m1.slice(0,0,3,3) += m2;
+		return 0;
+	}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_cxx_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	{ echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }; a=1
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+	if test x$a = x1
+	then
+		{ echo "$as_me:$LINENO: WARNING: Your version of TooN is too old for this version of GCC.
+You need a recent version (SNAPSHOT_20080725 or later), or GCC version
+less than 4.2.0.
+		" >&5
+echo "$as_me: WARNING: Your version of TooN is too old for this version of GCC.
+You need a recent version (SNAPSHOT_20080725 or later), or GCC version
+less than 4.2.0.
+		" >&2;}
+	fi
 
 
 		if test x$a == x
