@@ -95,7 +95,6 @@ png_in::png_in(std::istream& in)
 	if(png_sig_cmp(header, 0, 8))
 	{
 		throw Exceptions::Image_IO::MalformedImage("Not a PNG image");
-		exit(1);
 	}
 
 
