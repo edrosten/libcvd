@@ -21,8 +21,13 @@
 #ifndef CVD_LOAD_AND_SAVE_H
 #define CVD_LOAD_AND_SAVE_H
 
+#include <vector>
+
 #include <cvd/exceptions.h>
 #include <cvd/image_convert.h>
+#include <cvd/internal/convert_pixel_types.h>
+#include <cvd/internal/name_CVD_rgb_types.h>
+
 namespace CVD {
 
 	namespace Exceptions
@@ -90,6 +95,7 @@ namespace CVD {
 			struct ReadTypeMismatch: public All
 			{
 				ReadTypeMismatch(bool read8); ///< Constructor is passed <code>true</code> if it was trying to read 8-bit data
+				ReadTypeMismatch(const std::string& available, const std::string& requested);
 			};
 			
 			/// An error occurred in one of the helper libraries
@@ -120,20 +126,122 @@ namespace CVD {
 
 	namespace Internal
 	{
-	  template<class C, int i> struct save_default_
-	  {
-	    static const bool use_16bit=1;
-	  };
-	  
-	  template<class C> struct save_default_<C,1>
-	  {
-	    static const bool use_16bit=(CVD::Pixel::traits<typename CVD::Pixel::Component<C>::type>::bits_used) > 8;
-	  };
-	  
-	  template<class C> struct save_default
-	  {
-	    static const bool use_16bit = save_default_<C, CVD::Pixel::traits<typename CVD::Pixel::Component<C>::type>::integral>::use_16bit;
-	  };
+		template<class C, int i> struct save_default_
+		{
+			static const bool use_16bit=1;
+		};
+		  
+		template<class C> struct save_default_<C,1>
+		{
+			static const bool use_16bit=(CVD::Pixel::traits<typename CVD::Pixel::Component<C>::type>::bits_used) > 8;
+		};
+		  
+		template<class C> struct save_default
+		{
+			static const bool use_16bit = save_default_<C, CVD::Pixel::traits<typename CVD::Pixel::Component<C>::type>::integral>::use_16bit;
+		};
+
+
+		////////////////////////////////////////////////////////////////////////////////	
+		//Mechanisms for generic image loading
+		//
+		// Image readers are duck-types and must provide the following:
+		// typedef  Types         Typelist containing types which can be loaded
+		// string   datatype()    Stringified name of datatype on disk
+		// string   name()        Name of the reader (JPEG, TIFF, etc)
+		// ImageRef size()        size()
+		// void get_raw_pixel_lines(T, int nlines) Where T is available for everything in Types
+		// Constructor accepting istream;
+
+		
+		//Basic typelist.
+		struct Head{};
+		template<class A, class B> struct TypeList
+		{
+			typedef A Type;
+			typedef B Next;
+		};
+		
+
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		// Read data and process if necessary. 
+		// In the case where the in-memory and on-disk datatypes match, no processing 
+		// is performed.
+		template<class PixelType, class DiskPixelType, class ImageLoader> struct read_and_maybe_process
+		{
+			static void exec(BasicImage<PixelType>& im, ImageLoader& r)
+			{
+				std::vector<DiskPixelType> rowbuf(r.size().x);
+
+				for(int row = 0; row < r.size().y; row++)
+				{
+					r.get_raw_pixel_lines(&rowbuf[0], 1);
+					Pixel::ConvertPixels<DiskPixelType, PixelType>::convert(&rowbuf[0], im[row], r.size().x);
+				}
+			}
+		};
+
+		template<class PixelType, class ImageLoader> struct read_and_maybe_process<PixelType, PixelType, ImageLoader>
+		{
+			static void exec(BasicImage<PixelType>& im, ImageLoader& r)
+			{
+				r.get_raw_pixel_lines(im.data(), r.size().y);
+			}
+		};
+
+		////////////////////////////////////////////////////////////////////////////////	
+		//
+		// Iterate over the typelist, and decide which type to load. 
+		//
+		template<class PixelType, class ImageLoader, class List > struct Reader
+		{	
+			static void read(BasicImage<PixelType>& im, ImageLoader& r)
+			{
+				if(r.datatype() == PNM::type_name<typename List::Type>::name())
+				{
+					read_and_maybe_process<PixelType, typename List::Type, ImageLoader>::exec(im, r);
+				}
+				else
+					Reader<PixelType, ImageLoader, typename List::Next>::read(im, r);
+			}
+		};
+
+		template<class PixelType, class ImageLoader> struct Reader<PixelType, ImageLoader, Head>
+		{
+			static void read(BasicImage<PixelType>&, ImageLoader& r)
+			{	
+				throw Exceptions::Image_IO::UnsupportedImageSubType(r.name(), r.datatype() + " not yet supported");
+			}
+		};
+
+		
+		////////////////////////////////////////////////////////////////////////////////	
+		//
+		// Driver functions for loading images.
+		//
+
+		template<class T, class ImageLoader> void readImage(BasicImage<T>& im, ImageLoader& r)
+		{
+			Reader<T, ImageLoader, typename ImageLoader::Types>::read(im, r);
+		}
+
+		template <class T, class ImageLoader> void readImage(BasicImage<T>& im, std::istream& in)
+		{
+			ImageLoader loader(in);
+			ImageRef size = loader.size();
+			if (im.size() != size)
+				throw Exceptions::Image_IO::ImageSizeMismatch(size, im.size());
+
+			readImage(im, loader);
+		}
+
+		template <class T, class ImageLoader> void readImage(Image<T>& im, std::istream& in)
+		{
+		  ImageLoader loader(in);
+		  im.resize(loader.size());
+		  readImage(im, loader);
+		}
 	}
 
 

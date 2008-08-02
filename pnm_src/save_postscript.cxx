@@ -81,7 +81,7 @@ namespace PS
 	unsigned long int num = 0;
 	
 	for(int i=0; i <n; i++)
-		num |= buf[i] << ((3-i) * 8);
+		num |= ((unsigned long)buf[i]) << ((3-i) * 8);
 	
 	if(num == 0)
 		return "z";
