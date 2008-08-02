@@ -46,6 +46,7 @@ namespace TIFF
 
 			ImageRef size();
 
+			void get_raw_pixel_lines(bool*, unsigned long nlines);
 			void get_raw_pixel_lines(unsigned char*, unsigned long nlines);
 			void get_raw_pixel_lines(unsigned short*, unsigned long nlines);
 			void get_raw_pixel_lines(float*, unsigned long nlines);
@@ -65,7 +66,8 @@ namespace TIFF
 			std::string name();
 
 
-			typedef TypeList<byte, 
+			typedef TypeList<bool, 
+					TypeList<byte, 
 					TypeList<unsigned short,
 					TypeList<float,
 					TypeList<double,
@@ -77,7 +79,7 @@ namespace TIFF
 					TypeList<Rgba<unsigned short>, 
 					TypeList<Rgba<float>, 
 					TypeList<Rgba<double>, 
-					                      Head> > > > > > > > > > > > Types;
+					                      Head> > > > > > > > > > > > > Types;
 		
 		private:
 			TIFFPimpl* t; 

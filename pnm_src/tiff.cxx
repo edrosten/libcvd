@@ -135,6 +135,7 @@ template<class C> void invert(C* data, long num)
 }
 
 void attempt_invert(...) {}
+void attempt_invert(bool* data, long num) { invert(data, num);}
 void attempt_invert(unsigned char* data, long num) { invert(data, num);}
 void attempt_invert(unsigned short* data, long num) { invert(data, num);}
 void attempt_invert(float* data, long num) { invert(data, num);}
@@ -255,7 +256,9 @@ TIFFPimpl::TIFFPimpl(istream& is)
 		//Figure out the basic datatype
 		if(sampleformat == SAMPLEFORMAT_UINT)
 		{
-			if(bitspersample == 8)
+			if(bitspersample == 1)	
+				type = PNM::type_name<bool>::name();
+			else if(bitspersample == 8)
 				type = PNM::type_name<unsigned char>::name();
 			else if(bitspersample == 16)
 				type = PNM::type_name<unsigned short>::name();
@@ -361,12 +364,11 @@ ImageRef tiff_reader::size()
 };
 
 //Mechanically generate the pixel reading calls.
-#define GENF(X)\
-void tiff_reader::get_raw_pixel_lines(X*d, unsigned long n){t->get_raw_pixel_lines(d, n);}\
-void tiff_reader::get_raw_pixel_lines(Rgb<X>*d, unsigned long n){t->get_raw_pixel_lines(d, n);}\
-void tiff_reader::get_raw_pixel_lines(Rgba<X>*d, unsigned long n){t->get_raw_pixel_lines(d, n);}
+#define GEN1(X) void tiff_reader::get_raw_pixel_lines(X*d, unsigned long n){t->get_raw_pixel_lines(d, n);}
+#define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
 
-GENF(unsigned char)
-GENF(unsigned short)
-GENF(float)
-GENF(double)
+GEN1(bool)
+GEN3(unsigned char)
+GEN3(unsigned short)
+GEN3(float)
+GEN3(double)

@@ -21,7 +21,7 @@
 #ifndef CVD_LOAD_AND_SAVE_H
 #define CVD_LOAD_AND_SAVE_H
 
-#include <vector>
+#include <cvd/internal/simple_vector.h>
 
 #include <cvd/exceptions.h>
 #include <cvd/image_convert.h>
@@ -161,6 +161,7 @@ namespace CVD {
 			typedef A Type;
 			typedef B Next;
 		};
+
 		
 
 		////////////////////////////////////////////////////////////////////////////////
@@ -172,7 +173,7 @@ namespace CVD {
 		{
 			static void exec(BasicImage<PixelType>& im, ImageLoader& r)
 			{
-				std::vector<DiskPixelType> rowbuf(r.size().x);
+				simple_vector<DiskPixelType> rowbuf(r.size().x);
 
 				for(int row = 0; row < r.size().y; row++)
 				{
