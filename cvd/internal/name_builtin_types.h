@@ -28,6 +28,7 @@ namespace CVD
 namespace PNM
 {
 	template<class T> struct type_name{ static const std::string name(){ return"unknown"; }};
+	template<> struct  type_name<bool>{static const std::string name(){ return "bool";}};
 	template<> struct  type_name<char>{static const std::string name(){ return "char";}};
 	template<> struct  type_name<signed char>{static const std::string name(){ return "signed char";}};
 	template<> struct  type_name<unsigned char>{static const std::string name(){ return "unsigned char";}};

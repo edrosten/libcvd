@@ -44,6 +44,7 @@ class CVD::TIFF::TIFFPimpl
 		ImageRef size();
 		string datatype();
 		template<class C> void get_raw_pixel_lines(C* data, unsigned long n);
+		void get_raw_pixel_lines(bool* data, unsigned long n);
 
 	private:
 		istream& i;
@@ -56,6 +57,7 @@ class CVD::TIFF::TIFFPimpl
 		bool inverted_grey;
 
 		vector<uint32> raster_data;
+		vector<uint8>  bool_rowbuf;
 
 		static tsize_t write(thandle_t vis, tdata_t data, tsize_t count);
 		static tsize_t read(thandle_t vis, tdata_t data, tsize_t count);
@@ -182,6 +184,29 @@ template<class T> void TIFFPimpl::get_raw_pixel_lines(T* d, unsigned long nlines
 	}
 }
 
+void TIFFPimpl::get_raw_pixel_lines(bool* d, unsigned long nlines)
+{
+	if(datatype() != PNM::type_name<bool>::name())
+		throw ReadTypeMismatch(datatype(), PNM::type_name<bool>::name());
+
+	for(unsigned long i=0; i < nlines; i++, row++, d+=my_size.x)
+	{
+		if(TIFFReadScanline(tif, (void*)&bool_rowbuf[0], row) == -1)
+			throw MalformedImage(error_msg);
+
+		//Unpack the bools
+		for(int i=0; i < my_size.x  ;i++)
+			d[i] = (bool_rowbuf[i/8] >> (7-i%8)) & 1;
+
+		if(inverted_grey)
+			invert(d, my_size.x);
+	}
+
+
+}
+
+
+
 string TIFFPimpl::datatype()
 {
 	return type;
@@ -299,6 +324,10 @@ TIFFPimpl::TIFFPimpl(istream& is)
 		type = "CVD::Rgb<unsigned char>";
 		inverted_grey=0;
 	}
+
+	if(type == "bool")
+		bool_rowbuf.resize((size().x + 7)/8);
+
 
 
 	if(use_cooked_rgba_interface)

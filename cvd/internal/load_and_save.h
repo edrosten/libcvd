@@ -191,6 +191,12 @@ namespace CVD {
 			}
 		};
 
+
+		template<class C> std::string wtf()
+		{
+			return __PRETTY_FUNCTION__;
+		}
+
 		////////////////////////////////////////////////////////////////////////////////	
 		//
 		// Iterate over the typelist, and decide which type to load. 

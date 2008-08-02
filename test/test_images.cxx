@@ -109,6 +109,7 @@ int main(int ac, char** av)
 	
 	for(int i=1; i <ac; i++)
 	{
+		loadsave_safe<bool>(av[i]);
 		loadsave_safe<unsigned char>(av[i]);
 		loadsave_safe<signed char>(av[i]);
 		loadsave_safe<short>(av[i]);
