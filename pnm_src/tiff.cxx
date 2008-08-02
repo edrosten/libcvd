@@ -201,11 +201,7 @@ void TIFFPimpl::get_raw_pixel_lines(bool* d, unsigned long nlines)
 		if(inverted_grey)
 			invert(d, my_size.x);
 	}
-
-
 }
-
-
 
 string TIFFPimpl::datatype()
 {
