@@ -36,8 +36,13 @@ namespace TIFF
 	using CVD::Internal::TypeList;
 	using CVD::Internal::Head;
 
-	class TIFFPimpl;
 
+	////////////////////////////////////////////////////////////////////////////////
+	//
+	// TIFF reading
+	//
+
+	class TIFFPimpl;
 	class tiff_reader
 	{
 		public:
@@ -95,6 +100,85 @@ namespace TIFF
 	{
 		CVD::Internal::readImage<T, tiff_reader>(im, in);
 	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	//
+	// TIFF writing
+	//
+
+	//This is a really nasty way of doing pattern matching for ranges of numbers.
+	//The range is encoded un unary notation. The range is on some integer, x.
+	//g1 is set if x > 1. g8 is set if x > 8 and so on.
+	//This allows us to choose a type with a reasonable number of bits.
+	template<int g1, int g8> class IntMapper    { typedef unsigned short type;};
+	template<>               class IntMapper<1, 0> { typedef unsigned char type; };
+	template<>               class IntMapper<0, 0> { typedef unsigned char type; };
+
+
+	//Mapping for integral types
+	template<class ComponentIn, int is_integral> struct ComponentMapper_
+	{
+		typedef typename IntMapper<
+									(Pixel::traits<ComponentIn>::bits_used > 1),
+									(Pixel::traits<ComponentIn>::bits_used > 8)
+									>::type type;
+	};
+
+	//Mapping for non integral types
+	template<class ComponentIn> struct ComponentMapper_<ComponentIn, 0> { typedef double type; };
+	template<> struct ComponentMapper_<float, 0> { typedef float type; };
+	
+	template<class ComponentIn> struct ComponentMapper
+	{
+		typedef typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::is_integral>::type type;
+	};
+	
+	//Mapping for Rgbish types
+	template<class ComponentIn> struct ComponentMapper<Rgb<ComponentIn> >
+	{
+		typedef Rgb<typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::is_integral>::type> type;
+	};
+
+	template<class ComponentIn> struct ComponentMapper<Rgba<ComponentIn> >
+	{
+		typedef Rgba<typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::is_integral>::type> type;
+	};
+
+
+	
+	class TIFFWritePimpl;
+
+	class tiff_writer
+	{
+		public:
+			tiff_writer(std::ostream&, ImageRef size, const std::string& type);
+			~tiff_writer();
+
+			void write_raw_pixel_line(const bool*);
+			void write_raw_pixel_line(const unsigned char*);
+			void write_raw_pixel_line(const unsigned short*);
+			void write_raw_pixel_line(const float*);
+			void write_raw_pixel_line(const double*);
+
+			void write_raw_pixel_line(const Rgb<unsigned char>*);
+			void write_raw_pixel_line(const Rgb<unsigned short>*);
+			void write_raw_pixel_line(const Rgb<float>*);
+			void write_raw_pixel_line(const Rgb<double>*);
+
+			void write_raw_pixel_line(const Rgba<unsigned char>*);
+			void write_raw_pixel_line(const Rgba<unsigned short>*);
+			void write_raw_pixel_line(const Rgba<float>*);
+			void write_raw_pixel_line(const Rgba<double>*);
+
+			template<class Incoming> struct Outgoing
+			{		
+				typedef typename ComponentMapper<Incoming>::type type;
+			};		
+
+		private:
+			TIFFWritePimpl* t; 
+	};
+	
 
 }
 }

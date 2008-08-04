@@ -70,14 +70,19 @@ Exceptions::Image_IO::WriteError::WriteError(const string& s)
 	what = "Error writing " + s;
 }
 
+Exceptions::Image_IO::WriteTypeMismatch::WriteTypeMismatch(const string& avail, const string& req)
+{
+	what = "Image output (CVD internal error): Attempting to write " + req + " data to a file containing " + avail;
+}
+
 Exceptions::Image_IO::ReadTypeMismatch::ReadTypeMismatch(const string& avail, const string& req)
 {
-	what = "Image input: Attempting to read " + req + " data from a file containing " + avail;
+	what = "Image input (CVD internal error): Attempting to read " + req + " data from a file containing " + avail;
 }
 
 Exceptions::Image_IO::ReadTypeMismatch::ReadTypeMismatch(const bool read8)
 {
-	what = string("Image input: Attempting to read ") + (read8?"8":"16") + "bit data from " + (read8?"16":"8")  + "bit file (probably an internal error).";
+	what = string("Image input (CVD internal error): Attempting to read ") + (read8?"8":"16") + "bit data from " + (read8?"16":"8")  + "bit file (probably an internal error).";
 }
 
 Exceptions::Image_IO::UnseekableIstream::UnseekableIstream(const string& s)

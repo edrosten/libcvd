@@ -97,6 +97,13 @@ namespace CVD {
 				ReadTypeMismatch(bool read8); ///< Constructor is passed <code>true</code> if it was trying to read 8-bit data
 				ReadTypeMismatch(const std::string& available, const std::string& requested);
 			};
+
+			/// Type mismatch reading the image (image data is either 8- or 16-bit, and it must be the same in the file)
+			/// @ingroup gException
+			struct WriteTypeMismatch: public All
+			{
+				WriteTypeMismatch(const std::string& available, const std::string& requested);
+			};
 			
 			/// An error occurred in one of the helper libraries
 			/// @ingroup gException
@@ -244,6 +251,59 @@ namespace CVD {
 		  im.resize(loader.size());
 		  readImage(im, loader);
 		}
+
+		////////////////////////////////////////////////////////////////////////////////	
+		//
+		// Functions for attempting to choose an image type based on the datatype.
+		// The template code provides information detailing the ideal image type.
+		// The writer object is initialized with this information, and returns the type
+		// that it will write.
+		//
+		// Unlike loading, where the type on disk is known only dynamically, the type
+		// being saved and any necessary conversions can be deduced statically.
+		//
+		// The writer objects provide an interface with the following parts:
+		//
+		// template<class C> Outgoing::type              For a given incoming pixel type C, this is the outgoing type
+		// constructor(ostream&, ImageRef, string type)  Construct an image writer for a given type
+		// void write_raw_pixel_line(T*)                 Write pixels of type T.
+
+	
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		// Select an outgoing type, convert if necessary and then save.
+		//
+		template<class Pixel, class ImageWriter, class OutgoingPixel> class maybe_process_and_write
+		{	
+			static void write(std::ostream& os, const SubImage<Pixel>& im)
+			{
+				ImageWriter w(os, im.size(), CVD::PNM::type_name<OutgoingPixel>::name());
+				simple_vector<OutgoingPixel> row(im.size().x);
+
+				for(int r=0; r < im.size().y; r++)
+				{
+					CVD::Pixel::ConvertPixels<Pixel, OutgoingPixel>::convert(im[r], row.data(), im.size().x);
+					w.write_raw_pixel_line(row.data());
+				}
+			}
+		};
+
+		template<class Pixel, class ImageWriter> class maybe_process_and_write<Pixel, ImageWriter, Pixel>
+		{	
+			static void write(std::ostream& os, const SubImage<Pixel>& im)
+			{
+				ImageWriter w(os, im.size(), CVD::PNM::type_name<Pixel>::name());
+				for(int r=0; r < im.size().y; r++)
+					w.write_raw_pixel_line(im[r]);
+			}
+		};
+
+		template<class Pixel, class Writer> void writeImage(const SubImage<Pixel>& im, std::ostream& o)
+		{
+			maybe_process_and_write<Pixel, Writer, typename Writer::template Outgoing<Pixel>::type>(im, o);
+		}
+
+	
 	}
 
 

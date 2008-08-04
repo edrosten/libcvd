@@ -946,7 +946,7 @@ cvd_src/noarch/default_memalign                 END
 
 cvd_src/videodisplay,cvd_src/glwindow,cvd_src/gltext			videodisplay END
 pnm_src/jpeg									jpeg END
-pnm_src/tiff									tiff END
+pnm_src/tiff,pnm_src/tiffwrite					tiff END
 pnm_src/png										png END
 cvd_src/videofilebuffer							ffmpeg END
 cvd_src/globlist    							glob END
