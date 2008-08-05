@@ -91,7 +91,7 @@ namespace TIFF
 	};
 
 	
-	template <class T> void readTIFF(BasicImage<T>& im, std::istream& in)
+	template <class T> void readTIFF(SubImage<T>& im, std::istream& in)
 	{
 		CVD::Internal::readImage<T, tiff_reader>(im, in);
 	}
