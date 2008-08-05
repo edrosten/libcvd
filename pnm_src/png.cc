@@ -5,10 +5,15 @@
 #include <png.h>
 
 using namespace CVD;
+using namespace CVD::Exceptions;
+using namespace CVD::Exceptions::Image_IO;
 using namespace PNG;
 using namespace std;
 
-
+////////////////////////////////////////////////////////////////////////////////
+//
+// C++ istreams based I/O functions
+// 
 static void error_fn(png_structp png_ptr, png_const_charp error_msg)
 {
 	*(string*)(png_ptr->error_ptr) = error_msg;
@@ -29,9 +34,6 @@ static void read_fn(png_structp png_ptr, unsigned char*  data, size_t numbytes)
 	//to fail because it has internal checksums
 }
 
-
-
-
 static void write_fn(png_structp png_ptr, unsigned char*  data, size_t numbytes)
 {
 	ostream* o = (ostream*)png_get_io_ptr(png_ptr);
@@ -44,60 +46,68 @@ static void flush_fn(png_structp png_ptr)
 	(*o) << flush;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// PNG reading functions
+// 
 
-
-
-
-void png_in::unpack_to_bytes()
+string png_reader::datatype()
 {
-	//No error checking. Only call for Grey images
-	png_set_packing(png_ptr);
+	return type;
 }
 
-void png_in::expand_depth_to_8()
+string png_reader::name()
 {
-	//No error checking. Only call for Grey images
-	png_set_gray_1_2_4_to_8(png_ptr);
+	return "PNG";
 }
 
-void png_in::get_raw_pixel_lines(unsigned char** row_ptr, int nlines)
+ImageRef png_reader::size()
 {
-	if(depth == 16)
-		throw Exceptions::Image_IO::ReadTypeMismatch(1);
+	return my_size;
+}
+
+
+//Mechanically generate the pixel reading calls.
+#define GEN1(X) void png_reader::get_raw_pixel_line(X*d){read_pixels(d);}
+#define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
+GEN1(bool)
+GEN3(unsigned char)
+GEN3(unsigned short)
+
+
+
+template<class P> void png_reader::read_pixels(P* data)
+{
+	if(datatype() != PNM::type_name<P>::name())
+		throw ReadTypeMismatch(datatype(), PNM::type_name<P>::name());
+
+	if(row  > (unsigned long)my_size.y)
+		throw InternalLibraryError("CVD", "Read past end of image.");
+
 
 	if(setjmp(png_jmpbuf(png_ptr)))     
 		throw Exceptions::Image_IO::MalformedImage(error_string);
+	
+	unsigned char* cptr = reinterpret_cast<unsigned char*>(data);
+	unsigned char** row_ptr = &cptr;
 
-	//NB no check for read past end.
-	png_read_rows(png_ptr, row_ptr, NULL, nlines);
+	png_read_rows(png_ptr, row_ptr, NULL, 1);
 }
 
 
-void png_in::get_raw_pixel_lines(unsigned short** row_ptr, int nlines)
+
+png_reader::png_reader(std::istream& in)
+:i(in),type(""),row(0),png_ptr(0),info_ptr(0),end_info(0)
 {
-	if(depth != 16)
-		throw Exceptions::Image_IO::ReadTypeMismatch(0);
-
-	if(setjmp(png_jmpbuf(png_ptr)))     
-		throw Exceptions::Image_IO::MalformedImage(error_string);
-
-	//NB no check for read past end.
-	png_read_rows(png_ptr, (unsigned char**)row_ptr, NULL, nlines);
-}
-
-png_in::png_in(std::istream& in)
-:i(in)
-{
+	//Read the header and make sure it really is a PNG...
 	unsigned char header[8];
 
 	in.read((char*)header, 8);
 
 	if(png_sig_cmp(header, 0, 8))
-	{
 		throw Exceptions::Image_IO::MalformedImage("Not a PNG image");
-	}
 
-
+	
 	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
 
@@ -136,23 +146,42 @@ png_in::png_in(std::istream& in)
 	png_read_info(png_ptr, info_ptr);
 
 	png_uint_32 w, h;
-	int colour, interlace, dummy;
+	int colour, interlace, dummy, depth;
 
 	png_get_IHDR(png_ptr, info_ptr, &w, &h, &depth, &colour, &interlace, &dummy, &dummy);
+	
+	my_size.x = w;
+	my_size.y = h;
 
-	width = w;
-	height = h;
+	//Figure out the type name, and what processing to to.
+	if(depth == 1)
+	{	
+		//Unpack bools to bytes to ease loading.
+		png_set_packing(png_ptr);
+		type = PNM::type_name<bool>::name();
+	}
+	else if(depth <= 8)
+	{
+		//Expand nonbool colour depths up to 8bpp
+		if(depth < 8)
+			png_set_gray_1_2_4_to_8(png_ptr);
+
+		type = PNM::type_name<unsigned char>::name();
+	}
+	else
+		type = PNM::type_name<unsigned short>::name();
+
 	
 	if(colour & PNG_COLOR_MASK_COLOR)
 		if(colour & PNG_COLOR_MASK_ALPHA)
-			colour_type = RgbAlpha;
+			type = "CVD::Rgba<" + type + ">";
 		else
-			colour_type = Rgb;
+			type = "CVD::Rgb<" + type + ">";
 	else
 		if(colour & PNG_COLOR_MASK_ALPHA)
-			colour_type = GreyAlpha;
+			type = "CVD::GreyAlpha<" + type + ">";
 		else
-			colour_type = Grey;
+			type = type;
 	
 	//Get rid of palette, by transforming it to RGB
 	if(colour == PNG_COLOR_TYPE_PALETTE)
@@ -167,21 +196,22 @@ png_in::png_in(std::istream& in)
 	#endif
 }
 
-void png_in::read_end()
+png_reader::~png_reader()
 {
+	//Clear the stream of any remaining PNG bits.
 	//It doesn't matter if there's an error here
 	if(!setjmp(png_jmpbuf(png_ptr)))
 		png_read_end(png_ptr, end_info);
-}
 
-png_in::~png_in()
-{
 	//Destroy all PNG structs
 	png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
 }
 
 
-
+////////////////////////////////////////////////////////////////////////////////
+//
+// PNG writing functions.
+//
 
 png_out::png_out(int w, int h, colour_type t, int depth, std::ostream& out)
 :o(out)
