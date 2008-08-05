@@ -32,6 +32,7 @@ using namespace CVD::TIFF;
 using namespace CVD::Exceptions::Image_IO;
 using namespace std;
 
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Private implementation of TIFF reading
@@ -82,16 +83,63 @@ tsize_t TIFFWritePimpl::read(thandle_t, tdata_t, tsize_t)
 
 toff_t TIFFWritePimpl::seek(thandle_t vis, toff_t off, int dir)
 {
-	TIFFWritePimpl* o = (TIFFWritePimpl*)vis;
+	TIFFWritePimpl* p = (TIFFWritePimpl*)vis;
+	ostream& o(p->o);
 	
 	if(dir == SEEK_SET)
-		o->o.seekp(off, ios_base::beg);
+		o.seekp(off, ios_base::beg);
 	else if(dir == SEEK_CUR)
-		o->o.seekp(off, ios_base::cur);
+		o.seekp(off, ios_base::cur);
 	else if(dir == SEEK_END)
-		o->o.seekp(off, ios_base::end);
+		o.seekp(off, ios_base::end);
+	
 
-	return o->o.tellp();
+	//From comments in libtiff:
+
+	// Attempt to workaround problems with seeking past the end of the
+	// stream.  ofstream doesn't have a problem with this but
+	// ostrstream/ostringstream does. In that situation, add intermediate
+	// '\0' characters.
+	if(o.fail()) 
+	{
+		ios::iostate	old_state = o.rdstate();
+		ios::iostate	safe_state = old_state & ~ios_base::failbit;
+		streamoff		crnt=0;
+
+		// clear the fail bit so else tellp() works
+		o.clear(safe_state);
+		if(dir == SEEK_SET)
+			crnt = 0;
+		else if (dir == SEEK_CUR)
+			crnt = o.tellp();
+		else if(dir == SEEK_END)
+		{
+			o.seekp(0, ios_base::end);
+			crnt = o.tellp();
+		}
+
+		// restore original stream state
+		o.clear(old_state);	
+
+		// only do something if desired seek position is valid
+		if( crnt + off > 0 ) {
+
+			// clear the fail bit 
+			o.clear(safe_state);
+
+			// extend the stream by writing zeros
+			o.seekp(0, ios::end);
+			streamoff extra = crnt + off - o.tellp();
+			for(streamoff i = 0; i < extra; i++ )
+				o.put(0);
+
+			// retry the seek, just to make sure.
+			o.seekp(crnt + off, ios_base::beg);
+		}
+	}
+
+
+	return o.tellp();
 }
 
 toff_t TIFFWritePimpl::size(thandle_t vis)
@@ -100,10 +148,8 @@ toff_t TIFFWritePimpl::size(thandle_t vis)
 	return ii->length;
 }
 
-int TIFFWritePimpl::close(thandle_t vis)
+int TIFFWritePimpl::close(thandle_t)
 {
-	TIFFWritePimpl* o = (TIFFWritePimpl*)vis;
-	o->o << flush;
 	return 0;
 }
 
@@ -337,3 +383,25 @@ GEN3(unsigned char)
 GEN3(unsigned short)
 GEN3(float)
 GEN3(double)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

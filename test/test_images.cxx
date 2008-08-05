@@ -47,7 +47,7 @@ template<> struct randpix<double>
 {
 	static double r()
 	{
-		return rand() * 1./RAND_MAX;
+		return rand() * 10./RAND_MAX - 5;
 	}
 };
 
@@ -55,7 +55,7 @@ template<> struct randpix<float>
 {
 	static float r()
 	{
-		return rand() * 1./RAND_MAX;
+		return rand() * 10./RAND_MAX - 5;
 	}
 };
 
@@ -121,21 +121,21 @@ template<class T> void loadsave(string fin)
 	o.close();
 
 	//Save it
-	#ifdef CVD_IMAGE_HAVE_JPEG
+	#ifdef CVD_HAVE_JPEG
 		fout=make_output_file_name<T>(fin, "jpg");
 		cout << "Writing: " << fout << endl << endl;
 		o.open(fout.c_str());
 		img_save(im, o, ImageType::JPEG);
 		o.close();
 	#endif
-	#ifdef CVD_IMAGE_HAVE_PNG
+	#ifdef CVD_HAVE_PNG
 		fout=make_output_file_name<T>(fin, "png");
 		cout << "Writing: " << fout << endl << endl;
 		o.open(fout.c_str());
 		img_save(im, o, ImageType::PNG);
 		o.close();
 	#endif
-	#ifdef CVD_IMAGE_HAVE_TIFF
+	#ifdef CVD_HAVE_TIFF
 		fout=make_output_file_name<T>(fin, "tiff");
 		cout << "Writing: " << fout << endl << endl;
 		o.open(fout.c_str());
@@ -276,7 +276,7 @@ int main(int ac, char** av)
 			  TypeList<Rgb<unsigned short>,
 			  	       Head> > > > >::exec(ImageType::PNM);
 
-	#ifdef CVD_IMAGE_HAVE_PNG
+	#ifdef CVD_HAVE_PNG
 	cerr << "Testing PNG (type " << ImageType::PNG << ")\n";
 	randtest<
 			  TypeList<bool,
