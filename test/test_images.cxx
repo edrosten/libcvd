@@ -20,7 +20,11 @@
 */
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
+#include <cstdlib>
+#include <limits>
+#include <algorithm>
 
 
 #include <cvd/image_io.h>
@@ -28,6 +32,48 @@
 using namespace std;
 using namespace CVD;
 
+using CVD::Internal::TypeList;
+using CVD::Internal::Head;
+
+template<class C> struct randpix
+{
+	static C r()
+	{
+		return rand() % (1+numeric_limits<C>::max());
+	}
+};
+
+template<> struct randpix<double>
+{
+	static double r()
+	{
+		return rand() * 1./RAND_MAX;
+	}
+};
+
+template<> struct randpix<float>
+{
+	static float r()
+	{
+		return rand() * 1./RAND_MAX;
+	}
+};
+
+template<class C> struct randpix<Rgb<C> >
+{
+	static Rgb<C> r()
+	{
+		return Rgb<C>(randpix<C>::r(), randpix<C>::r(),randpix<C>::r());
+	}
+};
+
+template<class C> struct randpix<Rgba<C> >
+{
+	static Rgba<C> r()
+	{
+		return Rgba<C>(randpix<C>::r(), randpix<C>::r(),randpix<C>::r(), randpix<C>::r());
+	}
+};
 
 template<class T> string make_output_file_name(string fin, string type)
 {
@@ -82,6 +128,20 @@ template<class T> void loadsave(string fin)
 		img_save(im, o, ImageType::JPEG);
 		o.close();
 	#endif
+	#ifdef CVD_IMAGE_HAVE_PNG
+		fout=make_output_file_name<T>(fin, "png");
+		cout << "Writing: " << fout << endl << endl;
+		o.open(fout.c_str());
+		img_save(im, o, ImageType::PNG);
+		o.close();
+	#endif
+	#ifdef CVD_IMAGE_HAVE_TIFF
+		fout=make_output_file_name<T>(fin, "tiff");
+		cout << "Writing: " << fout << endl << endl;
+		o.open(fout.c_str());
+		img_save(im, o, ImageType::TIFF);
+		o.close();
+	#endif
 }
 
 template<class T> void loadsave_safe(const char*n)
@@ -96,17 +156,81 @@ template<class T> void loadsave_safe(const char*n)
 	}
 }
 
+template<class T> struct randtest
+{
+	typedef typename T::Type Type;
+
+	static void exec(ImageType::ImageType fmt)
+	{	
+		try{
+			//Make a random image
+			Image<Type> in(ImageRef(2,2)), out;
+
+			for(int y=0; y < in.size().y; y++)
+				for(int x=0; x < in.size().x; x++)
+					in[y][x] = randpix<Type>::r();
+
+			stringstream s;
+			
+			//Save the image
+			img_save(in, s, fmt);
+
+			s.seekg(0, ios_base::beg);
+			s.seekp(0, ios_base::beg);
+			
+			//Load the image
+			out = img_load(s);
+
+			//Compare the results
+			if(out.size() != in.size())
+				cerr << "Image R/W test for type " << fmt << " " << CVD::PNM::type_name<Type>::name() << " size mismatch.\n";
+			else if(!equal(in.begin(), in.end(), out.begin()))
+			{
+				cerr << "Image R/W test for type " << fmt << " " << CVD::PNM::type_name<Type>::name() << " data mismatch.\n";
+
+				typedef typename Pixel::Component<Type>::type  Ct;
+				double t=0, minval = HUGE_VAL, maxval=-HUGE_VAL;
+				for(int y=0; y < in.size().y; y++)
+					for(int x=0; x < in.size().x; x++)
+						for(unsigned int c=0; c < Pixel::Component<Type>::count; c++)
+						{
+							Ct p = Pixel::Component<Type>::get(in[y][x], c);
+							Ct p2 = Pixel::Component<Type>::get(out[y][x], c);
+							t += abs((double)p -  (double)p2);
+
+							maxval = max(maxval, (double)p);
+							minval = min(minval, (double)p);
+
+							cerr << p << " " << p2 << endl;
+
+						}
+
+				cerr << "Mismatch is " << 100* t * 1.0 / in.totalsize()/(maxval - minval) << "% per pixel\n";
+
+				cerr << "Min is: " << minval << endl;
+				cerr << "Max is: " << maxval << endl;
+
+			}
+			else
+				cerr << "Image R/W test for type " << fmt << " " << CVD::PNM::type_name<Type>::name() << " OK.\n";
+		}
+		catch(Exceptions::All w)
+		{
+			cerr << w.what << endl;
+		}
+
+		randtest<typename T::Next>::exec(fmt);
+	}
+};
 
 
+template<> struct randtest<Head>
+{
+	static void exec(ImageType::ImageType){}
+};
 
 int main(int ac, char** av)
 {
-	if(ac < 2)
-	{
-		cerr << "Error: give a filename\n";
-		exit(1);
-	}
-	
 	for(int i=1; i <ac; i++)
 	{
 		loadsave_safe<bool>(av[i]);
@@ -144,7 +268,48 @@ int main(int ac, char** av)
 		loadsave_safe<CVD::Rgba<unsigned int> >(av[i]);
 	}
 	
-	
+	cerr << "Testing PNM (type " << ImageType::PNM << ")\n";
+	randtest<
+			  TypeList<byte,
+			  TypeList<unsigned short,
+			  TypeList<Rgb<byte>,
+			  TypeList<Rgb<unsigned short>,
+			  	       Head> > > > >::exec(ImageType::PNM);
+
+	#ifdef CVD_IMAGE_HAVE_PNG
+	cerr << "Testing PNG (type " << ImageType::PNG << ")\n";
+	randtest<
+			  TypeList<bool,
+			  TypeList<byte,
+			  TypeList<unsigned short,
+			  TypeList<Rgb<byte>,
+			  TypeList<Rgb<unsigned short>,
+			  TypeList<Rgba<byte>,
+			  TypeList<Rgba<unsigned short>,
+			  	       Head> > > > > > > >::exec(ImageType::PNG);
+	#endif
+	#ifdef CVD_HAVE_TIFF
+	cerr << "Testing TIFF (type " << ImageType::TIFF << ")\n";
+	randtest<
+			  TypeList<bool,
+			  TypeList<byte,
+			  TypeList<unsigned short,
+			  TypeList<float,
+			  TypeList<double,
+
+			  TypeList<Rgb<byte>,
+			  TypeList<Rgb<unsigned short>,
+			  TypeList<Rgb<float>,
+			  TypeList<Rgb<double>,
+
+			  TypeList<Rgba<byte>,
+			  TypeList<Rgba<unsigned short>,
+			  TypeList<Rgba<float>,
+			  TypeList<Rgba<double>,
+
+			  	       Head> > > > > > > > > > > > > >::exec(ImageType::TIFF);
+	#endif
+
 	exit(0);
 }
 

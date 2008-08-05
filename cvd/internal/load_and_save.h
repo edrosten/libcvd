@@ -273,7 +273,7 @@ namespace CVD {
 		//
 		// Select an outgoing type, convert if necessary and then save.
 		//
-		template<class Pixel, class ImageWriter, class OutgoingPixel> class maybe_process_and_write
+		template<class Pixel, class ImageWriter, class OutgoingPixel> struct maybe_process_and_write
 		{	
 			static void write(std::ostream& os, const SubImage<Pixel>& im)
 			{
@@ -288,7 +288,7 @@ namespace CVD {
 			}
 		};
 
-		template<class Pixel, class ImageWriter> class maybe_process_and_write<Pixel, ImageWriter, Pixel>
+		template<class Pixel, class ImageWriter> struct maybe_process_and_write<Pixel, ImageWriter, Pixel>
 		{	
 			static void write(std::ostream& os, const SubImage<Pixel>& im)
 			{
@@ -300,7 +300,7 @@ namespace CVD {
 
 		template<class Pixel, class Writer> void writeImage(const SubImage<Pixel>& im, std::ostream& o)
 		{
-			maybe_process_and_write<Pixel, Writer, typename Writer::template Outgoing<Pixel>::type>(im, o);
+			maybe_process_and_write<Pixel, Writer, typename Writer::template Outgoing<Pixel>::type>::write(o, im);
 		}
 
 	

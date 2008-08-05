@@ -110,9 +110,9 @@ namespace TIFF
 	//The range is encoded un unary notation. The range is on some integer, x.
 	//g1 is set if x > 1. g8 is set if x > 8 and so on.
 	//This allows us to choose a type with a reasonable number of bits.
-	template<int g1, int g8> class IntMapper    { typedef unsigned short type;};
-	template<>               class IntMapper<1, 0> { typedef unsigned char type; };
-	template<>               class IntMapper<0, 0> { typedef unsigned char type; };
+	template<int g1, int g8> struct IntMapper    { typedef unsigned short type;};
+	template<>               struct IntMapper<1, 0> { typedef unsigned char type; };
+	template<>               struct IntMapper<0, 0> { typedef unsigned char type; };
 
 
 	//Mapping for integral types
@@ -130,18 +130,23 @@ namespace TIFF
 	
 	template<class ComponentIn> struct ComponentMapper
 	{
-		typedef typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::is_integral>::type type;
+		typedef typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::integral>::type type;
 	};
 	
 	//Mapping for Rgbish types
 	template<class ComponentIn> struct ComponentMapper<Rgb<ComponentIn> >
 	{
-		typedef Rgb<typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::is_integral>::type> type;
+		typedef Rgb<typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::integral>::type> type;
 	};
 
 	template<class ComponentIn> struct ComponentMapper<Rgba<ComponentIn> >
 	{
-		typedef Rgba<typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::is_integral>::type> type;
+		typedef Rgba<typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::integral>::type> type;
+	};
+
+	template<> struct ComponentMapper<Rgb8>
+	{
+		typedef Rgb<byte> type;
 	};
 
 

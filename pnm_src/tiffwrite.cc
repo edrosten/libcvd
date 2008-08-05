@@ -70,8 +70,9 @@ class CVD::TIFF::TIFFWritePimpl
 tsize_t TIFFWritePimpl::write(thandle_t vis, tdata_t data, tsize_t count)
 {
 	TIFFWritePimpl* o = (TIFFWritePimpl*)vis;
-	o->o.write((char*)data, count);
-	return o->o.tellp();
+	streamoff p = o->o.tellp();
+	o->o.write((const char*)data, count);
+	return o->o.tellp() - p;
 }
 
 tsize_t TIFFWritePimpl::read(thandle_t, tdata_t, tsize_t)
@@ -82,7 +83,7 @@ tsize_t TIFFWritePimpl::read(thandle_t, tdata_t, tsize_t)
 toff_t TIFFWritePimpl::seek(thandle_t vis, toff_t off, int dir)
 {
 	TIFFWritePimpl* o = (TIFFWritePimpl*)vis;
-
+	
 	if(dir == SEEK_SET)
 		o->o.seekp(off, ios_base::beg);
 	else if(dir == SEEK_CUR)
@@ -99,8 +100,10 @@ toff_t TIFFWritePimpl::size(thandle_t vis)
 	return ii->length;
 }
 
-int TIFFWritePimpl::close(thandle_t)
+int TIFFWritePimpl::close(thandle_t vis)
 {
+	TIFFWritePimpl* o = (TIFFWritePimpl*)vis;
+	o->o << flush;
 	return 0;
 }
 
@@ -198,6 +201,7 @@ TIFFWritePimpl::TIFFWritePimpl(ostream& os, ImageRef s, const string& t)
 	TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 	TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, 1);
 
+	uint16 alpha[] = {EXTRASAMPLE_UNASSALPHA};
 	if(t == "bool")
 	{
 		TIFFSetField(tif, TIFFTAG_FILLORDER, FILLORDER_MSB2LSB);
@@ -273,7 +277,7 @@ TIFFWritePimpl::TIFFWritePimpl(ostream& os, ImageRef s, const string& t)
 		TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
 		TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 4);
 		TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8);
-		TIFFSetField(tif, TIFFTAG_EXTRASAMPLES, EXTRASAMPLE_UNASSALPHA);
+		TIFFSetField(tif, TIFFTAG_EXTRASAMPLES, 1, alpha);
 	}
 	else if(t == "CVD::Rgba<unsigned short>")
 	{
@@ -281,7 +285,7 @@ TIFFWritePimpl::TIFFWritePimpl(ostream& os, ImageRef s, const string& t)
 		TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
 		TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 4);
 		TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 16);
-		TIFFSetField(tif, TIFFTAG_EXTRASAMPLES, EXTRASAMPLE_UNASSALPHA);
+		TIFFSetField(tif, TIFFTAG_EXTRASAMPLES, 1, alpha);
 	}
 	else if(t == "CVD::Rgba<float>")
 	{
@@ -290,7 +294,7 @@ TIFFWritePimpl::TIFFWritePimpl(ostream& os, ImageRef s, const string& t)
 		TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 4);
 		TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 32);
 		TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
-		TIFFSetField(tif, TIFFTAG_EXTRASAMPLES, EXTRASAMPLE_UNASSALPHA);
+		TIFFSetField(tif, TIFFTAG_EXTRASAMPLES, 1, alpha);
 	}
 	else if(t == "CVD::Rgba<double>")
 	{
@@ -299,7 +303,7 @@ TIFFWritePimpl::TIFFWritePimpl(ostream& os, ImageRef s, const string& t)
 		TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 4);
 		TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 64);
 		TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
-		TIFFSetField(tif, TIFFTAG_EXTRASAMPLES, EXTRASAMPLE_UNASSALPHA);
+		TIFFSetField(tif, TIFFTAG_EXTRASAMPLES, 1,  alpha);
 	}
 	else
 		throw UnsupportedImageSubType("TIFF", t);

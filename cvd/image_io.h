@@ -78,6 +78,9 @@ namespace CVD
 			#ifdef CVD_HAVE_PNG
 				PNG=5,
 			#endif
+			#ifdef CVD_HAVE_TIFF
+				TIFF=6,
+			#endif
 		};
 	}
 
@@ -132,9 +135,13 @@ namespace CVD
 			JPEG,
 			/// Windows BMP (or DIB) format. Uncompressed 8 bit grey scale and 24 bit RGB are supported.
 			BMP,
-			/// PNG imager format. 1, 8 and 16 bit, Greyscale, RGB and RGBA images are supported.
+			/// PNG image format. 1, 8 and 16 bit, Greyscale, RGB and RGBA images are supported.
 			/// This image type is only present if libpng is available.
 			PNG,
+			/// TIFF image format. 1, 8, 16, 32 (float) and 64 (double) suported. Greyscale, RGB and RGBA supported.
+			/// This image type is only present if libtiff is available. G4 FAX encoding is used for bools, otherwise
+			/// "Deflate" compression is used.
+			TIFF,
 			/// Postscript  format. This outputs a bare PostScript image with the coordinate system set up 
 			/// to that (x,y) corresponds to pixel (x,y), with (0,0) being at the top left of the pixel (0,0).
 			/// The Y axis is therefore inverted compared to normal postscript drawing, but is image aligned.
@@ -264,6 +271,7 @@ namespace CVD
 	void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t)
 	{
 	  switch (t) {
+	  default:
 	  case ImageType::PNM:  
 	  case ImageType::Automatic:
 	  case ImageType::Unknown:
@@ -273,6 +281,9 @@ namespace CVD
 	  #endif
 	  #ifdef CVD_HAVE_PNG
 		  case ImageType::PNG: PNG::writePNG(im,o); break;
+	  #endif
+	  #ifdef CVD_HAVE_TIFF
+		  case ImageType::TIFF: Internal::writeImage<PixelType, TIFF::tiff_writer>(im,o); break;
 	  #endif
 	  case ImageType::PS:   PS::writePS(im, o);  break;
 	  case ImageType::EPS:  PS::writeEPS(im,o);  break;

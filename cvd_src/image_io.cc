@@ -121,6 +121,10 @@ ImageType::ImageType string_to_image_type(const std::string& name)
  	else if (suffix == "png") 
 	         return  ImageType::PNG;
 #endif
+#ifdef CVD_HAVE_TIFF
+ 	else if (suffix == "tif" || suffix == "tiff")
+	         return  ImageType::TIFF;
+#endif
 	else if (suffix == "eps")
 		return  ImageType::EPS;
 	else if (suffix == "bmp") 
