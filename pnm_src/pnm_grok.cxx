@@ -79,6 +79,7 @@ data type).
 #define PPM 2
 
 using namespace std;
+using namespace CVD::Exceptions::Image_IO;
 
 namespace CVD
 {
@@ -504,6 +505,78 @@ namespace CVD
 	    out << size.x << " " << size.y << endl << maxval << endl;
 	}
 
+	pnm_writer::pnm_writer(std::ostream& out, ImageRef size_, const std::string& type_)
+	:row(0),o(out),size(size_),type(type_)
+	{
+		
+		if(type == "unsigned char")
+			writePNMHeader(out, 1, size, 255, 0, "");
+		else if(type == "unsigned short")
+			writePNMHeader(out, 1, size, 65535, 0, "");
+		else if(type == "CVD::Rgb<unsigned char>")
+			writePNMHeader(out, 3, size, 255, 0, "");
+		else if(type == "CVD::Rgb<unsigned short>")
+			writePNMHeader(out, 3, size, 65535, 0, "");
+		else
+		    throw UnsupportedImageSubType("PNM", type);
+	}
+
+	pnm_writer::~pnm_writer()
+	{}
+
+	void pnm_writer::write_shorts(const unsigned short* data, int n)
+	{
+	  
+		#ifdef CVD_ARCH_LITTLE_ENDIAN
+			const unsigned char* bdata = (const unsigned char*)data;
+			for (int i=0; i<n; i++, bdata+=2) 
+			{
+				unsigned char lohi[2] = {bdata[1], bdata[0]};
+				o.write((const char*)lohi,2);
+			}
+		#else
+			o.write((const char*)data, count*sizeof(unsigned short));
+		#endif
+	}
+
+	template<class P> void pnm_writer::sanity_check(const P*)
+	{
+	    if(type != PNM::type_name<P>::name())
+			throw WriteTypeMismatch(type, PNM::type_name<P>::name());
+	
+	    //Do some sanity checking
+	    if(row >= size.y)
+			throw InternalLibraryError("CVD", "Write past end of image.");
+	
+	    row++;
+	}
+
+	void pnm_writer::write_raw_pixel_line(const unsigned char* data)
+	{
+		sanity_check(data);
+		o.write(reinterpret_cast<const char*>(data), size.x);
+	}
+
+	void pnm_writer::write_raw_pixel_line(const unsigned short* data)
+	{
+		sanity_check(data);
+		write_shorts(data, size.x);
+	}
+
+	void pnm_writer::write_raw_pixel_line(const Rgb<unsigned char>* data)
+	{
+		sanity_check(data);
+		o.write(reinterpret_cast<const char*>(data), 3*size.x);
+	}
+
+	void pnm_writer::write_raw_pixel_line(const Rgb<unsigned short>* data)
+	{
+		sanity_check(data);
+		write_shorts(reinterpret_cast<const unsigned short*>(data), 3*size.x);
+	}
+
+
+/*
 	template <class T> void writePNMPixelsText(ostream& out, const T* data, size_t count) 
 	{
 	    size_t lines = count / 25;
@@ -517,30 +590,7 @@ namespace CVD
 		out << (int)(data[k++]);
 	    out << endl;
 	}
+*/
 
-	void writePNMPixels(ostream& out, const unsigned char* data, size_t count, bool text) 
-	{
-	    if (text)
-		writePNMPixelsText(out, data, count);
-	    else
-		out.write((const char*)data, count);
-	}
-
-	void writePNMPixels(ostream& out, const unsigned short* data, size_t count, bool text) 
-	{
-	    if (text)
-		writePNMPixelsText(out, data, count);
-	    else {
-#ifdef LONG_PNM_FAST_SAVE
-		out.write((const char*)data, count*sizeof(unsigned short));
-#else
-		const unsigned char* bdata = (const unsigned char*)data;
-		for (size_t i=0; i<count; i++, bdata+=2) {
-		    unsigned char lohi[2] = {bdata[1], bdata[0]};
-		    out.write((const char*)lohi,2);
-		}
-#endif
-	    }
-	}	
     }
 }

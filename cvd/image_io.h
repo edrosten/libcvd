@@ -275,7 +275,7 @@ namespace CVD
 	  case ImageType::PNM:  
 	  case ImageType::Automatic:
 	  case ImageType::Unknown:
-	  	PNM::writePNM(im, o); break;
+		Internal::writeImage<PixelType, PNM::pnm_writer>(im, o); break;
 	  #ifdef CVD_HAVE_JPEG
 		  case ImageType::JPEG: JPEG::writeJPEG(im,o); break;
 	  #endif

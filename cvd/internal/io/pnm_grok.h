@@ -154,93 +154,47 @@ namespace CVD
       	im.resize(ImageRef(pnm.x_size(), pnm.y_size()));
 	  	readPNM(im, pnm);
 	}
+	////////////////////////////////////////////////////////////////////////////////
+	//
+	// PNM writing.
+	//
+
+	template<int isRgb, int isbyte> struct ComponentMapper      { typedef Rgb<byte> type; };
+	template<>                      struct ComponentMapper<1,0> { typedef Rgb<unsigned short> type; };
+	template<>                      struct ComponentMapper<0,1> { typedef byte type; };
+	template<>                      struct ComponentMapper<0,0> { typedef unsigned short type; };
+
+	class pnm_writer
+	{
+		public:
+			pnm_writer(std::ostream&, ImageRef size, const std::string& type);
+			~pnm_writer();
+
+			//void write_raw_pixel_line(const bool*);
+			void write_raw_pixel_line(const unsigned char*);
+			void write_raw_pixel_line(const unsigned short*);
+			void write_raw_pixel_line(const Rgb<unsigned char>*);
+			void write_raw_pixel_line(const Rgb<unsigned short>*);
+
+			template<class Incoming> struct Outgoing
+			{		 
+				typedef typename Pixel::Component<Incoming>::type Element;
+				typedef typename ComponentMapper<Pixel::is_Rgb<Incoming>::value,
+												 std::numeric_limits<Element>::is_integer &&
+												 std::numeric_limits<Element>::digits <= 8>::type type;
+			};		
+		private:
+
+			template<class P> void sanity_check(const P*);
+			void write_shorts(const unsigned short*, int n);
+
+		long row;
+		std::ostream& o;
+		ImageRef size;
+		std::string type;
+	};
 
 
-    void writePNMHeader(std::ostream& out, int channels, ImageRef size, int maxval, bool text, const std::string& comments);
-
-    void writePNMPixels(std::ostream& out, const byte* data, size_t count, bool text);
-    void writePNMPixels(std::ostream& out, const unsigned short* data, size_t count, bool text);
-    
-    template <class T, int N, bool SixteenBit=CVD::Internal::save_default<typename Pixel::Component<T>::type>::use_16bit> struct PNMWriter;
-    template <class T> struct PNMWriter<T,3,true> {
-      typedef Rgb<unsigned short> array;
-      static void write(const BasicImage<T>& im, std::ostream& out) {
-	writePNMHeader(out, 3, im.size(), 65535, false, "");	
-	std::vector<array> rowbuf(im.size().x);
-	for (int r=0; r<im.size().y; r++) {
-	  Pixel::ConvertPixels<T, array>::convert(im[r], &(rowbuf[0]), im.size().x);
-	  writePNMPixels(out, (const unsigned short*)&(rowbuf[0]), im.size().x*3, false);
-	}	
-      }
-    };
-
-    template <class T> struct PNMWriter<T,3,false> {
-      typedef Rgb<byte> array;
-      static void write(const BasicImage<T>& im, std::ostream& out) {
-	writePNMHeader(out, 3, im.size(), 255, false, "");	
-	std::vector<array> rowbuf(im.size().x);
-	for (int r=0; r<im.size().y; r++) {
-	  Pixel::ConvertPixels<T, array>::convert(im[r], &(rowbuf[0]), im.size().x);
-	  writePNMPixels(out, (const byte*)&(rowbuf[0]), im.size().x*3, false);
-	}	
-      }
-    };
-
-    template <class T> struct PNMWriter<T,1,true> {
-      typedef unsigned short S;
-      static void write(const BasicImage<T>& im, std::ostream& out) {
-	writePNMHeader(out, 1, im.size(), 65535, false, "");	
-	std::vector<S> rowbuf(im.size().x);
-	for (int r=0; r<im.size().y; r++) {
-	  Pixel::ConvertPixels<T, S>::convert(im[r], &(rowbuf[0]), im.size().x);
-	  writePNMPixels(out, &(rowbuf[0]), im.size().x, false);
-	}	
-      }
-    };
-
-    template <class T> struct PNMWriter<T,1,false> {
-      typedef byte S;
-      static void write(const BasicImage<T>& im, std::ostream& out) {
-	writePNMHeader(out, 1, im.size(), 255, false, "");	
-	std::vector<S> rowbuf(im.size().x);
-	for (int r=0; r<im.size().y; r++) {
-	  Pixel::ConvertPixels<T, S>::convert(im[r], &(rowbuf[0]), im.size().x);
-	  writePNMPixels(out, &(rowbuf[0]), im.size().x, false);
-	}	
-      }
-    };
-
-    template <> struct PNMWriter<byte,1> {
-      static void write(const BasicImage<byte>& im, std::ostream& out) {
-	writePNMHeader(out, 1, im.size(), 255, false, "");	
-	writePNMPixels(out, im.data(), im.totalsize(), false);
-      }
-    };
-
-    template <> struct PNMWriter<Rgb<byte>,3> {
-      static void write(const BasicImage<Rgb<byte> >& im, std::ostream& out) {
-	writePNMHeader(out, 3, im.size(), 255, false, "");	
-	writePNMPixels(out, (const byte*)im.data(), im.totalsize()*3, false);
-      }
-    };
-
-    template <> struct PNMWriter<unsigned short,1> {
-      static void write(const BasicImage<unsigned short>& im, std::ostream& out) {
-	writePNMHeader(out, 1, im.size(), 65535, false, "");	
-	writePNMPixels(out, im.data(), im.totalsize(), false);
-      }
-    };
-
-    template <> struct PNMWriter<Rgb<unsigned short>,3> {
-      static void write(const BasicImage<Rgb<unsigned short> >& im, std::ostream& out) {
-	writePNMHeader(out, 3, im.size(), 65535, false, "");	
-	writePNMPixels(out, (const unsigned short*)im.data(), im.totalsize()*3, false);
-      }
-    };
-
-    template <class T> void writePNM(const BasicImage<T>& im, std::ostream& out) {
-      PNMWriter<T, Pixel::is_Rgb<T>::value ? 3 : 1>::write(im, out);
-    }
   }
 }
 #endif
