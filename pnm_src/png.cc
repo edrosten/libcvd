@@ -213,8 +213,8 @@ png_reader::~png_reader()
 // PNG writing functions.
 //
 
-png_out::png_out(int w, int h, colour_type t, int depth, std::ostream& out)
-:o(out)
+png_writer::png_writer(ostream& out, ImageRef sz, const string& type_)
+:row(0),o(out),size(sz),type(type_)
 {
 	//Create required structs
 	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, &error_string, error_fn, warn_fn);
@@ -238,68 +238,110 @@ png_out::png_out(int w, int h, colour_type t, int depth, std::ostream& out)
 	//Set up stream IO
 	png_set_write_fn(png_ptr, &o, write_fn, flush_fn);
 
-	int c_type;
-	switch(t)
+	int c_type=0;
+	int depth=0;
+
+	if(type == "bool")
 	{
-		case Grey: c_type = PNG_COLOR_TYPE_GRAY; break;
-		case GreyAlpha: c_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
-		case Rgb: c_type = PNG_COLOR_TYPE_RGB; break;
-		case RgbAlpha: c_type = PNG_COLOR_TYPE_RGB_ALPHA; break;
-		default:
-			throw Exceptions::Image_IO::MalformedImage("unknown pixel format");
+		c_type = PNG_COLOR_TYPE_GRAY;
+		depth=1;
 	}
+	else if(type == "unsigned char")
+	{
+		c_type = PNG_COLOR_TYPE_GRAY;
+		depth=8;
+	}
+	else if(type == "unsigned short")
+	{
+		c_type = PNG_COLOR_TYPE_GRAY;
+		depth=16;
+	}
+	else if(type == "CVD::Rgb<unsigned char>")
+	{
+		c_type = PNG_COLOR_TYPE_RGB;
+		depth=8;
+	}
+	else if(type == "CVD::Rgb8")
+	{
+		c_type = PNG_COLOR_TYPE_RGB;
+		depth=8;
+		//Note the existence of meaningless filler.
+		png_set_filler(png_ptr, 0, PNG_FILLER_AFTER);
+	}
+	else if(type == "CVD::Rgb<unsigned short>")
+	{
+		c_type = PNG_COLOR_TYPE_RGB;
+		depth=16;
+	}
+	else if(type == "CVD::Rgba<unsigned char>")
+	{
+		c_type = PNG_COLOR_TYPE_RGB_ALPHA;
+		depth = 8;
+	}
+	else if(type == "CVD::Rgba<unsigned short>")
+	{
+		c_type = PNG_COLOR_TYPE_RGB_ALPHA;
+		depth = 16;
+	}
+	else
+		throw UnsupportedImageSubType("TIFF", type);
 
 
 	//Set up the image type
-	png_set_IHDR(png_ptr, info_ptr, w, h, depth, c_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+	png_set_IHDR(png_ptr, info_ptr, size.x, size.y, depth, c_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
 	//Write the header 
 	png_write_info(png_ptr, info_ptr);
 	
 	//Write the transformations
 	#ifdef CVD_ARCH_LITTLE_ENDIAN
-		if (depth > 8)
+		if (depth == 16)
 			png_set_swap(png_ptr);
 	#endif
 
+	//Pack from C++ bools to packed PNG bools
+	//This has to be done _after_ writing the info struct.
+	if(type == "bool")
+		png_set_packing(png_ptr);
+
 }
 
-void png_out::pack()
-{
-	png_set_packing(png_ptr);
-}
+//Mechanically generate the pixel writing calls.
+#undef GEN1
+#undef GEN3
+#define GEN1(X) void png_writer::write_raw_pixel_line(const X*d){write_line(d);}
+#define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
+GEN1(bool)
+GEN1(Rgb8)
+GEN3(unsigned char)
+GEN3(unsigned short)
 
-void png_out::rgbx()
-{
-	png_set_filler(png_ptr, 0, PNG_FILLER_AFTER);
-}
 
-void png_out::write_raw_pixel_lines(const std::vector<const unsigned char*>& p)
+template<class P> void png_writer::write_line(const P* data)
 {
+	unsigned char* chardata = const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(data));
+
+	//Do some type checking
+	if(type != PNM::type_name<P>::name())
+		throw WriteTypeMismatch(type, PNM::type_name<P>::name());
+
+
 	//Set up error handling
 	if(setjmp(png_jmpbuf(png_ptr)))     
-	{         
-		png_destroy_write_struct(&png_ptr, &info_ptr);
 		throw Exceptions::Image_IO::MalformedImage(error_string);
-	}
 
-	png_write_rows(png_ptr, const_cast<unsigned char**>(&p[0]), p.size());
+	//Do some sanity checking
+	if(row > size.y)
+		throw InternalLibraryError("CVD", "Write past end of image.");
+
+
+	unsigned char** row_ptr =  & chardata;
+	png_write_rows(png_ptr, row_ptr, 1);
+
+	row++;
 }
 
-void png_out::write_raw_pixel_lines(const std::vector<const unsigned short*>& p)
-{
-	//Set up error handling
-	if(setjmp(png_jmpbuf(png_ptr)))     
-	{         
-		png_destroy_write_struct(&png_ptr, &info_ptr);
-		throw Exceptions::Image_IO::MalformedImage(error_string);
-	}
-
-	png_write_rows(png_ptr, reinterpret_cast<unsigned char**>(const_cast<unsigned short**>(&p[0])), p.size());
-
-}
-
-png_out::~png_out()
+png_writer::~png_writer()
 {
 	png_write_end(png_ptr, info_ptr);
 	png_destroy_write_struct(&png_ptr, &info_ptr);

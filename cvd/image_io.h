@@ -280,7 +280,7 @@ namespace CVD
 		  case ImageType::JPEG: JPEG::writeJPEG(im,o); break;
 	  #endif
 	  #ifdef CVD_HAVE_PNG
-		  case ImageType::PNG: PNG::writePNG(im,o); break;
+		  case ImageType::PNG: Internal::writeImage<PixelType, PNG::png_writer>(im,o); break;
 	  #endif
 	  #ifdef CVD_HAVE_TIFF
 		  case ImageType::TIFF: Internal::writeImage<PixelType, TIFF::tiff_writer>(im,o); break;

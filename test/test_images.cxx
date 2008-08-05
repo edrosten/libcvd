@@ -164,7 +164,7 @@ template<class T> struct randtest
 	{	
 		try{
 			//Make a random image
-			Image<Type> in(ImageRef(2,2)), out;
+			Image<Type> in(ImageRef(100,100)), out;
 
 			for(int y=0; y < in.size().y; y++)
 				for(int x=0; x < in.size().x; x++)
@@ -194,12 +194,12 @@ template<class T> struct randtest
 					for(int x=0; x < in.size().x; x++)
 						for(unsigned int c=0; c < Pixel::Component<Type>::count; c++)
 						{
-							Ct p = Pixel::Component<Type>::get(in[y][x], c);
-							Ct p2 = Pixel::Component<Type>::get(out[y][x], c);
-							t += abs((double)p -  (double)p2);
+							double p = Pixel::Component<Type>::get(in[y][x], c);
+							double p2 = Pixel::Component<Type>::get(out[y][x], c);
+							t += abs(p -  p2);
 
-							maxval = max(maxval, (double)p);
-							minval = min(minval, (double)p);
+							maxval = max(maxval, p);
+							minval = min(minval, p);
 
 							cerr << p << " " << p2 << endl;
 

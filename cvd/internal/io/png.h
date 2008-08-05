@@ -101,193 +101,85 @@ template <class T> void readPNG(Image<T>& im, std::istream& in)
 // How to convert Misc types in to PNG compatible types
 //
 
+//The range is encoded un unary notation. The range is on some integer, x.
+//g1 is set if x > 1. g8 is set if x > 8 and so on.
+//This allows us to choose a type with a reasonable number of bits.
+template<int g1, int g8> struct IntMapper    { typedef unsigned short type;};
+template<>               struct IntMapper<1, 0> { typedef unsigned char type; };
+template<>               struct IntMapper<0, 0> { typedef bool type; };
 
-template<class C, class D> void make_row_pointers(const SubImage<C>& im, std::vector<const D*>& rows)
+
+//Mapping for integral types
+template<class ComponentIn, int is_integral> struct ComponentMapper_
 {
-	rows.resize(im.size().y);
-	for(int r=0; r < im.size().y; r++)
-		rows[r] = (const D*)im[r];
-}
+	typedef typename IntMapper<
+								(Pixel::traits<ComponentIn>::bits_used > 1),
+								(Pixel::traits<ComponentIn>::bits_used > 8)
+								>::type type;
+};
 
-struct png_out
+
+//Mapping for non integral types
+template<class ComponentIn> struct ComponentMapper_<ComponentIn, 0> { typedef unsigned short type; };
+
+template<class ComponentIn> struct ComponentMapper
 {
-	typedef enum
-	{
-		Grey,
-		GreyAlpha,
-		Rgb,
-		RgbAlpha
-	}colour_type;
+	typedef typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::integral>::type type;
+};
 
-	png_out(int w, int h, colour_type t, int depth, std::ostream&);
-	~png_out();
 
-	void pack();
-	void rgbx();
+//Mapping for Rgbish types
+template<class ComponentIn> struct ComponentMapper<Rgb<ComponentIn> >
+{
+	typedef Rgb<typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::integral>::type> type;
+};
 
-	void write_raw_pixel_lines(const std::vector<const unsigned char*>&);
-	void write_raw_pixel_lines(const std::vector<const unsigned short*>&);
+template<class ComponentIn> struct ComponentMapper<Rgba<ComponentIn> >
+{
+	typedef Rgba<typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::integral>::type> type;
+};
 
-	void read_end();
+template<> struct ComponentMapper<Rgb8>
+{
+	typedef Rgb8 type;
+};
 
-	std::string error_string;
 
+
+
+class png_writer
+{
+	public:
+		png_writer(std::ostream&, ImageRef size, const std::string& type);
+		~png_writer();
+
+		void write_raw_pixel_line(const bool*);
+		void write_raw_pixel_line(const unsigned char*);
+		void write_raw_pixel_line(const unsigned short*);
+		void write_raw_pixel_line(const Rgb<unsigned char>*);
+		void write_raw_pixel_line(const Rgb8*);
+		void write_raw_pixel_line(const Rgb<unsigned short>*);
+		void write_raw_pixel_line(const Rgba<unsigned char>*);
+		void write_raw_pixel_line(const Rgba<unsigned short>*);
+
+		template<class Incoming> struct Outgoing
+		{		
+			typedef typename ComponentMapper<Incoming>::type type;
+		};		
+	private:
+
+		template<class P> void write_line(const P*);
+
+	long row;
 	std::ostream& o;
+	ImageRef size;
+	std::string type;
+	std::string error_string;
 
 	png_struct_def* png_ptr;
 	png_info_struct* info_ptr, *end_info;
+
 };
-
-template<int Components, bool use_16bit> struct PNGType;
-template<> struct PNGType<1,0>{ typedef byte type; static const png_out::colour_type Colour = png_out::Grey; static const int Depth=8;};
-template<> struct PNGType<1,1>{ typedef unsigned short type; static const png_out::colour_type Colour = png_out::Grey; static const int Depth=16;};
-template<> struct PNGType<3,0>{ typedef Rgb<byte> type; static const png_out::colour_type Colour = png_out::Rgb; static const int Depth=8;};
-template<> struct PNGType<3,1>{ typedef Rgb<unsigned short> type; static const png_out::colour_type Colour = png_out::Rgb; static const int Depth=16;};
-template<> struct PNGType<4,0>{ typedef Rgba<byte> type; static const png_out::colour_type Colour = png_out::RgbAlpha; static const int Depth=8;};
-template<> struct PNGType<4,1>{ typedef Rgba<unsigned short> type; static const png_out::colour_type Colour = png_out::RgbAlpha; static const int Depth=16;};
-
-
-template<class T> struct PNGWriter
-{
-	static void write(const SubImage<T>& i, std::ostream& o)
-	{
-		typedef PNGType<Pixel::Component<T>::count, Internal::save_default<T>::use_16bit> PNGInfo;
-
-		typedef typename PNGInfo::type Out;
-		typedef typename Pixel::Component<Out>::type Comp;
-		
-		png_out po(i.size().x, i.size().y, (png_out::colour_type)PNGInfo::Colour, PNGInfo::Depth, o);
-		std::vector<Out> row_buf(i.size().x);
-		std::vector<const Comp*> rows;
-		rows.push_back(reinterpret_cast<const Comp*>(&row_buf[0]));
-
-
-		
-		for(int r=0; r < i.size().y ; r++)
-		{
-			Pixel::ConvertPixels<T,Out>::convert(i[r], &row_buf[0], i.size().x);
-			po.write_raw_pixel_lines(rows);
-		}
-	}
-};
-
-template<class T> void writePNG(const SubImage<T>& i, std::ostream& o)
-{
-	PNGWriter<T>::write(i, o);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// Types which require no conversions
-//
-
-template<> struct PNGWriter<bool>
-{
-	static void write(const SubImage<bool>& i, std::ostream& o)
-	{
-		png_out po(i.size().x, i.size().y, png_out::Grey, 1, o);
-		po.pack();
-		std::vector<const byte*> rows;
-		make_row_pointers(i, rows);
-		po.write_raw_pixel_lines(rows);
-	}
-};
-
-template<> struct PNGWriter<byte>
-{
-	static void write(const SubImage<byte>& i, std::ostream& o)
-	{
-		png_out po(i.size().x, i.size().y, png_out::Grey, 8, o);
-		std::vector<const byte*> rows;
-		make_row_pointers(i, rows);
-		po.write_raw_pixel_lines(rows);
-	}
-};
-
-template<> struct PNGWriter<unsigned short>
-{
-	static void write(const SubImage<unsigned short>& i, std::ostream& o)
-	{
-		png_out po(i.size().x, i.size().y, png_out::Grey, 16, o);
-		std::vector<const unsigned short*> rows;
-		make_row_pointers(i, rows);
-		po.write_raw_pixel_lines(rows);
-	}
-};
-
-
-template<> struct PNGWriter<Rgb8>
-{
-	static void write(const SubImage<Rgb8>& i, std::ostream& o)
-	{
-		png_out po(i.size().x, i.size().y, png_out::RgbAlpha, 8, o);
-		po.rgbx();
-		std::vector<const byte*> rows;
-		make_row_pointers(i, rows);
-		po.write_raw_pixel_lines(rows);
-	}
-};
-
-
-template<> struct PNGWriter<Rgb<byte> >
-{
-	static void write(const SubImage<Rgb<byte> >& i, std::ostream& o)
-	{
-		png_out po(i.size().x, i.size().y, png_out::Rgb, 8, o);
-		std::vector<const byte*> rows;
-		make_row_pointers(i, rows);
-		po.write_raw_pixel_lines(rows);
-	}
-};
-
-template<> struct PNGWriter<Rgb<unsigned short> >
-{
-	static void write(const SubImage<Rgb<unsigned short> >& i, std::ostream& o)
-	{
-		png_out po(i.size().x, i.size().y, png_out::Rgb, 16, o);
-		std::vector<const byte*> rows;
-		make_row_pointers(i, rows);
-		po.write_raw_pixel_lines(rows);
-	}
-};
-
-template<> struct PNGWriter<Rgba<byte> >
-{
-	static void write(const SubImage<Rgba<byte> >& i, std::ostream& o)
-	{
-		png_out po(i.size().x, i.size().y, png_out::RgbAlpha, 8, o);
-		std::vector<const byte*> rows;
-		make_row_pointers(i, rows);
-		po.write_raw_pixel_lines(rows);
-	}
-};
-
-template<> struct PNGWriter<Rgba<unsigned short> >
-{
-	static void write(const SubImage<Rgba<unsigned short> >& i, std::ostream& o)
-	{
-		png_out po(i.size().x, i.size().y, png_out::RgbAlpha, 16, o);
-		std::vector<const byte*> rows;
-		make_row_pointers(i, rows);
-		po.write_raw_pixel_lines(rows);
-	}
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }}

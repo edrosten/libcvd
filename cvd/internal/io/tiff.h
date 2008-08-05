@@ -112,7 +112,7 @@ namespace TIFF
 	//This allows us to choose a type with a reasonable number of bits.
 	template<int g1, int g8> struct IntMapper    { typedef unsigned short type;};
 	template<>               struct IntMapper<1, 0> { typedef unsigned char type; };
-	template<>               struct IntMapper<0, 0> { typedef unsigned char type; };
+	template<>               struct IntMapper<0, 0> { typedef bool type; };
 
 
 	//Mapping for integral types
