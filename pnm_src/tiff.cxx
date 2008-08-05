@@ -43,8 +43,8 @@ class CVD::TIFF::TIFFPimpl
 		~TIFFPimpl();
 		ImageRef size();
 		string datatype();
-		template<class C> void get_raw_pixel_lines(C* data, unsigned long n);
-		void get_raw_pixel_lines(bool* data, unsigned long n);
+		template<class C> void get_raw_pixel_line(C* data);
+		void get_raw_pixel_line(bool* data);
 
 	private:
 		istream& i;
@@ -145,18 +145,18 @@ void attempt_invert(double* data, long num) { invert(data, num);}
 
 
 
-template<class T> void TIFFPimpl::get_raw_pixel_lines(T* d, unsigned long nlines)
+template<class T> void TIFFPimpl::get_raw_pixel_line(T* d)
 {
 	if(datatype() != PNM::type_name<T>::name())
 		throw ReadTypeMismatch(datatype(), PNM::type_name<T>::name());
 
-	if(row+nlines > (unsigned long)my_size.y)
+	if(row  > (unsigned long)my_size.y)
 		throw InternalLibraryError("CVD", "Read past end of image.");
 	
 	if(use_cooked_rgba_interface)
 	{
 		uint32* raster = &raster_data[row*my_size.x];
-		uint32* end = raster + nlines * my_size.x;
+		uint32* end = raster + my_size.x;
 
 		//We will only ever get here if the type is Rgba
 		Rgba<unsigned char>* data = reinterpret_cast<Rgba<unsigned char>* >(d);
@@ -169,38 +169,36 @@ template<class T> void TIFFPimpl::get_raw_pixel_lines(T* d, unsigned long nlines
 			data->alpha = TIFFGetA(*raster);
 		}
 
-		row += nlines;	
+		row ++;
 	}
 	else
 	{	
-		for(unsigned long i=0; i < nlines; i++, row++, d+=my_size.x)
-		{
-			if(TIFFReadScanline(tif, (void*)d, row) == -1)
-				throw MalformedImage(error_msg);
+		if(TIFFReadScanline(tif, (void*)d, row) == -1)
+			throw MalformedImage(error_msg);
 
-			if(inverted_grey)
-				attempt_invert(d, my_size.x);
-		}
+		if(inverted_grey)
+			attempt_invert(d, my_size.x);
+
+		row++;
 	}
 }
 
-void TIFFPimpl::get_raw_pixel_lines(bool* d, unsigned long nlines)
+void TIFFPimpl::get_raw_pixel_line(bool* d)
 {
 	if(datatype() != PNM::type_name<bool>::name())
 		throw ReadTypeMismatch(datatype(), PNM::type_name<bool>::name());
 
-	for(unsigned long i=0; i < nlines; i++, row++, d+=my_size.x)
-	{
-		if(TIFFReadScanline(tif, (void*)&bool_rowbuf[0], row) == -1)
-			throw MalformedImage(error_msg);
+	if(TIFFReadScanline(tif, (void*)&bool_rowbuf[0], row) == -1)
+		throw MalformedImage(error_msg);
 
-		//Unpack the bools
-		for(int i=0; i < my_size.x  ;i++)
-			d[i] = (bool_rowbuf[i/8] >> (7-i%8)) & 1;
+	//Unpack the bools
+	for(int i=0; i < my_size.x  ;i++)
+		d[i] = (bool_rowbuf[i/8] >> (7-i%8)) & 1;
 
-		if(inverted_grey)
-			invert(d, my_size.x);
-	}
+	if(inverted_grey)
+		invert(d, my_size.x);
+
+	row++;
 }
 
 string TIFFPimpl::datatype()
@@ -389,7 +387,7 @@ ImageRef tiff_reader::size()
 };
 
 //Mechanically generate the pixel reading calls.
-#define GEN1(X) void tiff_reader::get_raw_pixel_lines(X*d, unsigned long n){t->get_raw_pixel_lines(d, n);}
+#define GEN1(X) void tiff_reader::get_raw_pixel_line(X*d){t->get_raw_pixel_line(d);}
 #define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
 
 GEN1(bool)

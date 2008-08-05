@@ -51,21 +51,21 @@ namespace TIFF
 
 			ImageRef size();
 
-			void get_raw_pixel_lines(bool*, unsigned long nlines);
-			void get_raw_pixel_lines(unsigned char*, unsigned long nlines);
-			void get_raw_pixel_lines(unsigned short*, unsigned long nlines);
-			void get_raw_pixel_lines(float*, unsigned long nlines);
-			void get_raw_pixel_lines(double*, unsigned long nlines);
+			void get_raw_pixel_line(bool*);
+			void get_raw_pixel_line(unsigned char*);
+			void get_raw_pixel_line(unsigned short*);
+			void get_raw_pixel_line(float*);
+			void get_raw_pixel_line(double*);
 
-			void get_raw_pixel_lines(Rgb<unsigned char>*, unsigned long nlines);
-			void get_raw_pixel_lines(Rgb<unsigned short>*, unsigned long nlines);
-			void get_raw_pixel_lines(Rgb<float>*, unsigned long nlines);
-			void get_raw_pixel_lines(Rgb<double>*, unsigned long nlines);
+			void get_raw_pixel_line(Rgb<unsigned char>*);
+			void get_raw_pixel_line(Rgb<unsigned short>*);
+			void get_raw_pixel_line(Rgb<float>*);
+			void get_raw_pixel_line(Rgb<double>*);
 
-			void get_raw_pixel_lines(Rgba<unsigned char>*, unsigned long nlines);
-			void get_raw_pixel_lines(Rgba<unsigned short>*, unsigned long nlines);
-			void get_raw_pixel_lines(Rgba<float>*, unsigned long nlines);
-			void get_raw_pixel_lines(Rgba<double>*, unsigned long nlines);
+			void get_raw_pixel_line(Rgba<unsigned char>*);
+			void get_raw_pixel_line(Rgba<unsigned short>*);
+			void get_raw_pixel_line(Rgba<float>*);
+			void get_raw_pixel_line(Rgba<double>*);
 
 			std::string datatype();
 			std::string name();

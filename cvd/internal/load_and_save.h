@@ -21,8 +21,6 @@
 #ifndef CVD_LOAD_AND_SAVE_H
 #define CVD_LOAD_AND_SAVE_H
 
-#include <cvd/internal/simple_vector.h>
-
 #include <cvd/exceptions.h>
 #include <cvd/image_convert.h>
 #include <cvd/internal/convert_pixel_types.h>
@@ -157,7 +155,7 @@ namespace CVD {
 		// string   datatype()    Stringified name of datatype on disk
 		// string   name()        Name of the reader (JPEG, TIFF, etc)
 		// ImageRef size()        size()
-		// void get_raw_pixel_lines(T, int nlines) Where T is available for everything in Types
+		// void get_raw_pixel_line(T) Where T is available for everything in Types
 		// Constructor accepting istream;
 
 		
@@ -178,23 +176,24 @@ namespace CVD {
 		// is performed.
 		template<class PixelType, class DiskPixelType, class ImageLoader> struct read_and_maybe_process
 		{
-			static void exec(BasicImage<PixelType>& im, ImageLoader& r)
+			static void exec(SubImage<PixelType>& im, ImageLoader& r)
 			{
-				simple_vector<DiskPixelType> rowbuf(r.size().x);
+				Image<DiskPixelType> rowbuf(ImageRef(r.size().x, 0));
 
 				for(int row = 0; row < r.size().y; row++)
 				{
-					r.get_raw_pixel_lines(&rowbuf[0], 1);
-					Pixel::ConvertPixels<DiskPixelType, PixelType>::convert(&rowbuf[0], im[row], r.size().x);
+					r.get_raw_pixel_line(rowbuf.data());
+					Pixel::ConvertPixels<DiskPixelType, PixelType>::convert(rowbuf.data(), im[row], r.size().x);
 				}
 			}
 		};
 
 		template<class PixelType, class ImageLoader> struct read_and_maybe_process<PixelType, PixelType, ImageLoader>
 		{
-			static void exec(BasicImage<PixelType>& im, ImageLoader& r)
+			static void exec(SubImage<PixelType>& im, ImageLoader& r)
 			{
-				r.get_raw_pixel_lines(im.data(), r.size().y);
+				for(int row = 0; row < r.size().y; row++)
+					r.get_raw_pixel_line(im[row]);
 			}
 		};
 
@@ -205,7 +204,7 @@ namespace CVD {
 		//
 		template<class PixelType, class ImageLoader, class List > struct Reader
 		{	
-			static void read(BasicImage<PixelType>& im, ImageLoader& r)
+			static void read(SubImage<PixelType>& im, ImageLoader& r)
 			{
 				if(r.datatype() == PNM::type_name<typename List::Type>::name())
 				{
@@ -218,7 +217,7 @@ namespace CVD {
 
 		template<class PixelType, class ImageLoader> struct Reader<PixelType, ImageLoader, Head>
 		{
-			static void read(BasicImage<PixelType>&, ImageLoader& r)
+			static void read(SubImage<PixelType>&, ImageLoader& r)
 			{	
 				throw Exceptions::Image_IO::UnsupportedImageSubType(r.name(), r.datatype() + " not yet supported");
 			}
@@ -230,12 +229,12 @@ namespace CVD {
 		// Driver functions for loading images.
 		//
 
-		template<class T, class ImageLoader> void readImage(BasicImage<T>& im, ImageLoader& r)
+		template<class T, class ImageLoader> void readImage(SubImage<T>& im, ImageLoader& r)
 		{
 			Reader<T, ImageLoader, typename ImageLoader::Types>::read(im, r);
 		}
 
-		template <class T, class ImageLoader> void readImage(BasicImage<T>& im, std::istream& in)
+		template <class T, class ImageLoader> void readImage(SubImage<T>& im, std::istream& in)
 		{
 			ImageLoader loader(in);
 			ImageRef size = loader.size();
@@ -278,7 +277,7 @@ namespace CVD {
 			static void write(std::ostream& os, const SubImage<Pixel>& im)
 			{
 				ImageWriter w(os, im.size(), CVD::PNM::type_name<OutgoingPixel>::name());
-				simple_vector<OutgoingPixel> row(im.size().x);
+				Image<OutgoingPixel> row(ImageRef(im.size().x, 0));
 
 				for(int r=0; r < im.size().y; r++)
 				{
