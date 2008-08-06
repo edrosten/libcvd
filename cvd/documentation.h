@@ -45,14 +45,15 @@ It is released under the LGPL License.
     - Type-safe easy to use images
     - Flexible loading and saving from a variety of types:
 		- Native
-			- PNM 
+			- PNM   
 			- BMP
 			- PS   (saving only)
 			- EPS  (saving only)
 		- External libraries required
 			- JPEG
-			- TIFF (loading only)
+			- TIFF 
 			- PNG
+		- 1/8/16 bit integer and 32/64 bit floating point images in greyscale, RGB and RGBA.
 		- Optimum bit depth and colour depth selected automatically
     - Image grabbing from video sources:
 		  - Linux
