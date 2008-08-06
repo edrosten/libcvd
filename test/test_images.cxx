@@ -267,6 +267,12 @@ int main(int ac, char** av)
 		loadsave_safe<CVD::Rgba<unsigned char> >(av[i]);
 		loadsave_safe<CVD::Rgba<unsigned int> >(av[i]);
 	}
+
+	cerr << "Testing BMP (type " << ImageType::BMP << ")\n";
+	randtest<
+			  TypeList<byte,
+			  TypeList<Rgb<byte>,
+			  	       Head> > >::exec(ImageType::BMP);
 	
 	cerr << "Testing PNM (type " << ImageType::PNM << ")\n";
 	randtest<
