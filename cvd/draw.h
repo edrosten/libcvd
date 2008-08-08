@@ -32,6 +32,11 @@
 #include <vector>
 #include <algorithm>
 
+#include <cvd/config.h>
+#ifdef CVD_HAVE_TOON
+#include <TooN/TooN.h>
+#endif
+
 
 namespace CVD {
 
@@ -145,6 +150,22 @@ void drawLine(Image<T>& im, const ImageRef& p1, const ImageRef& p2, const T& c)
 {
     drawLine(im, double(p1.x), double(p1.y), double(p2.x), double(p2.y), c);
 }
+
+#ifdef CVD_HAVE_TOON
+/// draws a line defined by two TooN::Vector<2> with given color into an image.
+/// @param im image to draw in
+/// @param p1 start point
+/// @param p2 end point
+/// @param c color of the line
+/// @ingroup gGraphics
+template <class T>
+void drawLine(Image<T>& im, const TooN::Vector<2>& p1, const TooN::Vector<2>& p2, const T& c)
+{
+    drawLine(im, p1[0], p1[1], p2[0], p2[1], c);
+}
+#endif
+
+
 
 /// draws a polyline defined by a set of points into an image. A given offset is added
 /// to all points.
