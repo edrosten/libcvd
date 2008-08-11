@@ -5,7 +5,7 @@ using namespace std;
 
 namespace CVD {
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 inline __m128 operator+( const __m128 & a, const __m128 & b){
     return _mm_add_ps(a,b);
 }

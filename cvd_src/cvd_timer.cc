@@ -28,7 +28,7 @@
 #include "cvd/timer.h"
 #include <iostream>
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 #include "Win32/win32.h"
 #else
 #include <sys/time.h>  //gettimeofday
