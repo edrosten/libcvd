@@ -892,6 +892,7 @@ Optional Packages:
     --with-mmxext         force presence or absence of MMXEXT (x86 only)
     --with-sse            force presence or absence of SSE  (x86 only)
     --with-sse2           force presence or absence of SSE2  (x86 only)
+    --with-assembler     force presence or absence of asm
   --without-dvbuffer      compile without dvbuffer (libDC1394v1) support (Linux only)
   --without-dvbuffer3     compile without dvbuffer3 (libDC1394v{1,2}) support (Linux only)
   --without-dc1394v2      do not use libDC1394v2 (use v1 instead) for dvbuffer3 (Linux only)
@@ -4250,6 +4251,12 @@ if test "${with_sse2+set}" = set; then
 
 fi;
 
+# Check whether --with-asmembler or --without-asmembler was given.
+if test "${with_asmembler+set}" = set; then
+  withval="$with_asmembler"
+
+fi;
+
 case "$host" in
 	*86*)
 		have_x86=yes
@@ -5194,17 +5201,53 @@ then
 
 fi
 
-echo "$as_me:$LINENO: checking assembler supports .type pseudo-op" >&5
+
+
+	if test "$with_assembler" != no && test "$have_assembler" != yes
+	then
+		if test "$with_assembler" == ""
+		then
+			with_assembler=yes
+		fi
+
+		save_LIBS="$LIBS"
+		save_CXXFLAGS="$CXXFLAGS"
+		a=
+
+	echo "$as_me:$LINENO: checking assembler supports .type pseudo-op" >&5
 echo $ECHO_N "checking assembler supports .type pseudo-op... $ECHO_C" >&6
-if echo '.globl test
-.type test, @function' | as &> /dev/null; then
-  have_assembler=yes
- echo "$as_me:$LINENO: result: yes" >&5
+	if echo '.globl test
+	.type test, @function' | as &> /dev/null; then
+  echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
 else
   echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
+echo "${ECHO_T}no" >&6;a=1
 fi
+
+
+
+		if test x$a == x
+		then
+			cat >>confdefs.h <<\_ACEOF
+#define CVD_HAVE_ASSEMBLER 1
+_ACEOF
+
+			have_assembler=yes
+
+			options="$options assembler"
+
+		else
+			LIBS="$save_LIBS"
+			CXXFLAGS="$save_CXXFLAGS"
+		fi
+	fi
+
+	if test "$have_assembler" != yes
+	then
+		:
+
+	fi
 
 
 ################################################################################

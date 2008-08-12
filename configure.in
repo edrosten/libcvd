@@ -310,6 +310,7 @@ AC_ARG_WITH(mmx, [    --with-mmx            force presence or absence of MMX  (x
 AC_ARG_WITH(mmxext, [    --with-mmxext         force presence or absence of MMXEXT (x86 only) ])	
 AC_ARG_WITH(sse, [    --with-sse            force presence or absence of SSE  (x86 only)])	
 AC_ARG_WITH(sse2, [    --with-sse2           force presence or absence of SSE2  (x86 only)])	
+AC_ARG_WITH(asmembler, [    --with-assembler     force presence or absence of asm])	
 
 case "$host" in
 	*86*)
@@ -373,11 +374,14 @@ then
 	AC_SUBST(have_32bit,yes)
 fi
 
-AC_MSG_CHECKING([assembler supports .type pseudo-op])
-AS_IF([echo '.globl test
-.type test, @function' | as &> /dev/null], 
-	[AC_SUBST(have_assembler,yes) AC_MSG_RESULT(yes)],
-	[AC_MSG_RESULT(no)])
+
+CHECK_FOR_OPTION(assembler, [
+	AC_MSG_CHECKING([assembler supports .type pseudo-op])
+	AS_IF([echo '.globl test
+	.type test, @function' | as &> /dev/null], 
+		[AC_MSG_RESULT(yes)],
+		[AC_MSG_RESULT(no);a=1])
+])
 
 ################################################################################
 #
