@@ -35,9 +35,18 @@
 #include <cvd/byte.h>
 #include <cvd/rgb.h>
 
+#include <cvd/config.h>
+
 extern "C" {
-#include <ffmpeg/avcodec.h>
-#include <ffmpeg/avformat.h>
+#ifdef CVD_INTERNAL_HAVE_FFMPEG_OLD_HEADERS
+	#include <ffmpeg/avcodec.h>
+	#include <ffmpeg/avformat.h>
+	#include <ffmpeg/swscale.h>
+#else
+	#include <libavcodec/avcodec.h>
+	#include <libavformat/avformat.h>
+	#include <libswscale/swscale.h>
+#endif
 }
 
 struct AVFormatContext;
@@ -175,6 +184,7 @@ namespace CVD
 			AVCodecContext* pCodecContext;
 		    AVFrame* pFrame; 
     		AVFrame* pFrameRGB;
+			SwsContext *img_convert_ctx;
 			
 			CVD::Image<CVD::Rgb<byte> > next_frame_rgb;
 			CVD::Image<CVD::byte> next_frame;

@@ -398,6 +398,8 @@ echo -----------------------------------------------
 echo Checking for operating system specific features
 echo -----------------------------------------------
 
+AC_ARG_ENABLE(gpl,       [  --enable-gpl            Allow the use of GPL libraries.])
+
 AC_ARG_WITH(dvbuffer,  [  --without-dvbuffer      compile without dvbuffer (libDC1394v1) support (Linux only)])
 AC_ARG_WITH(dvbuffer3, [  --without-dvbuffer3     compile without dvbuffer3 (libDC1394v{1,2}) support (Linux only)])
 AC_ARG_WITH(dc1394v2,  [  --without-dc1394v2      do not use libDC1394v2 (use v1 instead) for dvbuffer3 (Linux only)])
@@ -751,20 +753,48 @@ fi
 
 
 CHECK_FOR_OPTION(ffmpeg, [
-	if test "$with_ffmpeg" != yes
+	if test "$enable_gpl" != no && test "$enable_gpl" != ""
 	then
-		APPEND(LIBS, [-L $with_ffmpeg])
-	fi
-	if test "`$CXX -dumpversion`" = 4.1.0
-	then
-		APPEND(CXXFLAGS, -D__STDC_CONSTANT_MACROS)
-	fi
 
-	AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h, [], [a=1])
-	AC_CHECK_LIB(avutil, main, [], [a=1])
-	AC_CHECK_LIB(avformat, av_open_input_file, [], [a=1])
-	AC_CHECK_LIB(avformat, av_read_frame, [ffmpeg_recent=yes], [a=1]) #only in >= 0.4.9
-	AC_CHECK_LIB(avcodec, avcodec_open, [], [a=1])
+		AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h ffmpeg/swscale.h, [ffmpeg_old_headers=1], [])
+		AC_CHECK_HEADERS(libavcodec/avcodec.h libavformat/avformat.h libswscale/swscale.h, [ffmpeg_new_headers=1], [a=1])
+
+
+		if test "$ffmpeg_old_headers" == 1 || test "$ffmpeg_new_headers" == 1
+		then
+			if test "$ffmpeg_old_headers" == 1
+			then
+				AC_DEFINE(CVD_INTERNAL_HAVE_FFMPEG_OLD_HEADERS, 1)
+			fi
+
+			AC_CHECK_LIB(avutil, main, [], [a=1])
+			AC_CHECK_LIB(avformat, av_open_input_file, [], [a=1])
+			AC_CHECK_LIB(avformat, av_read_frame, [ffmpeg_recent=yes], [a=1]) #only in >= 0.4.9
+			AC_CHECK_LIB(avcodec, avcodec_open, [], [a=1])
+			AC_CHECK_LIB(swscale, sws_getContext, [], [a=1])
+		else
+			a=1
+		fi
+	else
+		a=1
+		AC_MSG_WARN([FFMPEG currently requires the use of --enable-gpl])
+	fi
+	#if test "$with_ffmpeg" != yes
+	#then
+#		APPEND(LIBS, [-L $with_ffmpeg])
+#	fi
+#	if test "`$CXX -dumpversion`" = 4.1.0
+#	then
+#		APPEND(CXXFLAGS, -D__STDC_CONSTANT_MACROS)
+#	fi
+
+	#Old ffmpeg?
+	#AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h, [], [a=1])
+	#AC_CHECK_LIB(avutil, main, [], [a=1])
+	#AC_CHECK_LIB(avformat, av_open_input_file, [], [a=1])
+	#AC_CHECK_LIB(avformat, av_read_frame, [ffmpeg_recent=yes], [a=1]) #only in >= 0.4.9
+	#AC_CHECK_LIB(avcodec, avcodec_open, [], [a=1])
+
 ])
 
 AC_CHECK_PROG(docs, doxygen, docs, no)

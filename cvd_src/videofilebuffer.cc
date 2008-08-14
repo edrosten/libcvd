@@ -79,6 +79,7 @@ RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, bool rgbp) :
 	pFrame(0), 
 	pFrameRGB(0),
 	//buffer(0),
+	img_convert_ctx(0),
 	frame_time(0.0),
 	is_rgb(rgbp)
 {
@@ -265,11 +266,23 @@ bool RawVideoFileBuffer::read_next_frame()
 			// Did we get a video frame?
 			if(got_picture)
 			{
+				
+				if(img_convert_ctx == NULL)
+				{
+					img_convert_ctx = sws_getContext(pCodecContext->width, pCodecContext->height, pCodecContext->pix_fmt, //Src format
+													 pCodecContext->width, pCodecContext->height, is_rgb?PIX_FMT_RGB24:PIX_FMT_GRAY8, //Dest format
+													 SWS_POINT, //The nastiest scaler should be OK, since we're not scaling. Right?
+													 NULL, NULL, NULL);
+				}
+
+				/*
 				// Convert the image from its native format to RGB
 				img_convert((AVPicture *)pFrameRGB, is_rgb?PIX_FMT_RGB24:PIX_FMT_GRAY8, 
 					(AVPicture*)pFrame, pCodecContext->pix_fmt, 
 					pCodecContext->width, pCodecContext->height);
-				
+				*/
+
+				sws_scale(img_convert_ctx, pFrame->data, pFrame->linesize, 0, pCodecContext->height, pFrameRGB->data, pFrameRGB->linesize);
 			}
 		}
 
