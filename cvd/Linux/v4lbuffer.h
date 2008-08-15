@@ -204,6 +204,8 @@ public:
 	}
 	}
 
+    const std::string & device_name() const { return devname; }
+    
  private:
     struct V4LFrame : public VideoFrame<T> {
 	V4LFrame(int i, double t, void* data, ImageRef size) : VideoFrame<T>(t,reinterpret_cast<T*>(data),size), id(i) {}

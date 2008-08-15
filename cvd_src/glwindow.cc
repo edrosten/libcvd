@@ -240,7 +240,7 @@ void CVD::GLWindow::handle_events(EventHandler& handler)
 	case ConfigureNotify:
 	    if (event.xconfigure.width != state->size.x || event.xconfigure.height != state->size.y) {
 		activate();
-		state->size = ImageRef(event.xconfigure.width & (~0x3), event.xconfigure.height & (~0x3));
+		state->size = ImageRef(event.xconfigure.width, event.xconfigure.height);
 		glViewport(0, 0, state->size.x, state->size.y);
 		//glRasterPos2f(0,0);
 		//glPixelZoom(float(event.xconfigure.width)/myWidth,-float(event.xconfigure.height)/myHeight);

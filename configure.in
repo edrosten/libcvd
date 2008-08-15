@@ -310,7 +310,7 @@ AC_ARG_WITH(mmx, [    --with-mmx            force presence or absence of MMX  (x
 AC_ARG_WITH(mmxext, [    --with-mmxext         force presence or absence of MMXEXT (x86 only) ])	
 AC_ARG_WITH(sse, [    --with-sse            force presence or absence of SSE  (x86 only)])	
 AC_ARG_WITH(sse2, [    --with-sse2           force presence or absence of SSE2  (x86 only)])	
-AC_ARG_WITH(asmembler, [    --with-assembler     force presence or absence of asm])	
+AC_ARG_WITH(assembler, [    --with-assembler     force presence or absence of asm])
 
 case "$host" in
 	*86*)
@@ -968,6 +968,7 @@ cvd_src/Linux/dvbuffer3_dc1394v1     					dvbuffer3 dvbuffer END
 cvd_src/Linux/v4l1buffer						v4l1buffer END
 cvd_src/Linux/v4lbuffer,V4LBUFFER				v4l2buffer linux_2_6 END
 cvd_src/Linux/v4l2buffer	                 	v4l2buffer END
+cvd_src/Linux/v4lcontrol						v4l2buffer linux_2_6 END
 cvd_src/IRIX/O2buffer,cvd_src/IRIX/sgi-video	o2buffer END
 cvd_src/OSX/qtbuffer							qtbuffer END
 
