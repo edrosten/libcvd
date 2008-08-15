@@ -731,7 +731,11 @@ int main(int argc, char* argv[])
 	    videoBuffer->put_frame(vframe);
 	    vframe = videoBuffer->get_frame();
 	}
-	Image<float> gray = convert_image<float>(*vframe);
+	// leave this in, we cannot assume that vframe has a datatype that can be
+	// directly used in the glTexImage call later on (e.g. its yuv422 on OSX)
+	Image<byte> temp = convert_image(*vframe);
+	Image<float> gray = convert_image(temp);
+	videoBuffer->put_frame(vframe);
 
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_RECTANGLE_NV);
@@ -739,21 +743,19 @@ int main(int argc, char* argv[])
 	glTexParameterf( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 	glTexParameterf( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-	glTexImage2D(*vframe, 0, GL_TEXTURE_RECTANGLE_NV);
+	glTexImage2D(temp, 0, GL_TEXTURE_RECTANGLE_NV);
 	glBegin(GL_QUADS);
 	glTexCoord2i(0, 0);
 	glVertex2i(0,0);
-	glTexCoord2i(vframe->size().x, 0);
+	glTexCoord2i(temp.size().x, 0);
 	glVertex2i(640,0);
-	glTexCoord2i(vframe->size().x,vframe->size().y);
+	glTexCoord2i(temp.size().x,temp.size().y);
 	glVertex2i(640,480);
-	glTexCoord2i(0, vframe->size().y);
+	glTexCoord2i(0, temp.size().y);
 	glVertex2i(0, 480);
 	glEnd ();
 	glDisable(GL_TEXTURE_RECTANGLE_NV);
 	glEnable(GL_BLEND);
-
-	videoBuffer->put_frame(vframe);
 
 	//this is the bit that does the calibrating
 	vector<pair<size_t, Vector<2> > > measurements;
