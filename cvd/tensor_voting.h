@@ -112,7 +112,7 @@ namespace CVD
 				double gy = ((double)image[y+1][x] - image[y-1][x])/2.;
 
 				double scale = sqrt(gx*gx + gy*gy);
-				unsigned int direction = TensorVoting::quantize_half_angle(M_PI/2 + atan(gy / gx), num_divs);
+				unsigned int direction = TensorVoting::quantize_half_angle(M_PI/2 + atan2(gy,gx), num_divs);
 
 				const vector<pair<TV_coord, Matrix<2> > >& kernel = kernels[direction];
 
