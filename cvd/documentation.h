@@ -102,6 +102,7 @@ It is released under the LGPL License.
 			- .dylib libraries
 	- Cygwin: x86
 	- MinGW: x86 (native and cross compile)
+	- Win32: Visual Studio 2005
 
   -Has worked on (current status unknown):
 	- Linux: PPC
