@@ -178,7 +178,7 @@ namespace CVD {
 		{
 			static void exec(SubImage<PixelType>& im, ImageLoader& r)
 			{
-				Image<DiskPixelType> rowbuf(ImageRef(r.size().x, 0));
+				Image<DiskPixelType> rowbuf(ImageRef(r.size().x, 1));
 
 				for(int row = 0; row < r.size().y; row++)
 				{
