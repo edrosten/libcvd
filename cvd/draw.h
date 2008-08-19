@@ -217,6 +217,15 @@ void drawCross(Image<T>& im, const ImageRef& p, double len, const T& c)
 /// @ingroup gGraphics
 std::vector<ImageRef> getCircle(int radius);
 
+
+/// returns coordinate for a disc of given radius around the origin. The result can be
+/// used with drawShape to draw it into an image.
+/// @param radius radius of the circle in pixels
+/// @return vector containig ImageRef for the circle
+/// @ingroup gGraphics
+std::vector<ImageRef> getDisc(float radius);
+
+
 /// joins two images side-by-side to create a larger image, any remaining empty region will be blacked out
 /// @param a input image a to copy from
 /// @param b input image b to copy from

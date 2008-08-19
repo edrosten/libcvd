@@ -41,4 +41,21 @@ std::vector<ImageRef> getCircle(int radius) {
         points.push_back(ImageRef(points[i-1].x, -points[i-1].y));
     return points;
 }
+
+std::vector<ImageRef> getDisc(float radius)
+{
+    std::vector<ImageRef> points;
+
+	int r = (int)ceil(radius + 1);
+
+	for(ImageRef p(0,-r); p.y <= r; p.y++)
+		for(p.x = -r; p.x <= r; p.x++)
+			if(p.mag_squared() <= radius*radius)
+				points.push_back(p);
+
+
+	
+	return points;
+}
+
 };
