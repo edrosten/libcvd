@@ -277,7 +277,7 @@ namespace CVD {
 			static void write(std::ostream& os, const SubImage<Pixel>& im)
 			{
 				ImageWriter w(os, im.size(), CVD::PNM::type_name<OutgoingPixel>::name());
-				Image<OutgoingPixel> row(ImageRef(im.size().x, 0));
+				Image<OutgoingPixel> row(ImageRef(im.size().x, 1));
 
 				for(int r=0; r < im.size().y; r++)
 				{
