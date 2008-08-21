@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
 			VideoFrame<Rgb<byte> >* frame = buffer.get_frame();
 			glDrawPixels(*frame);
 			buffer.put_frame(frame);
+                      glFlush();
 		}
 	}
 	catch(CVD::Exceptions::All& e)
