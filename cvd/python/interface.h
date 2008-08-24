@@ -28,14 +28,14 @@
 
 #include <Python.h>
 #include <numpy/arrayobject.h>
-#include <vector>
 #include <sstream>
+#include <string>
 #include <cvd/image.h>
 #include <cvd/image_io.h>
-#include <cvd/vector_image_ref.h>
 #include <cvd/convolution.h>
 
 #include "types.h"
+#include "selector.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -48,21 +48,56 @@ namespace PyCVD {
   template <class T>
   PyArrayObject *fromBasicImageToNumpy(const CVD::BasicImage<T> &image) {
     npy_intp a[] = {image.size().y, image.size().x};
-    PyArrayObject *retval = (PyArrayObject*)PyArray_SimpleNew(2, a, NumpyType<T>::type);
+    PyArrayObject *retval = (PyArrayObject*)PyArray_SimpleNew(2, a, NumpyType<T>::num);
     T *data = (T*)retval->data;
     copy(image.begin(), image.end(), data);
     return retval;
   }
 
   template <class T>
-  void allocateNumpyCVDImageSiblings(int width, int height,
-				     /**out: */ CVD::BasicImage<T> *image,
-				     PyArrayObject **numpy) {
+  CVD::BasicImage<T> allocateNumpyCVDImageSiblings(int width, int height,
+						   /**out: */
+						   PyArrayObject **numpy) {
     npy_intp a[] = {height, width};
-    *numpy = (PyArrayObject*)PyArray_SimpleNew(2, a, NumpyType<T>::type);
-    *image = CVD::BasicImage<T>((T*)(*numpy)->data, CVD::ImageRef(width, height));
+    *numpy = (PyArrayObject*)PyArray_SimpleNew(2, a, NumpyType<T>::num);
+    return CVD::BasicImage<T>((T*)(*numpy)->data, CVD::ImageRef(width, height));
   }
 
+  template<class I>
+    CVD::BasicImage<I> fromNumpyToBasicImage(PyObject *p, const std::string &n="") {
+    
+    if (!PyArray_Check(p)
+	|| PyArray_NDIM(p) != 2 
+	|| !PyArray_ISCONTIGUOUS(p) 
+	|| PyArray_TYPE(p) != NumpyType<I>::num) {
+      throw std::string(n + " must be a contiguous array of " + NumpyType<I>::name() + " (type code " + NumpyType<I>::code() + ")!");
+    }
+
+    PyArrayObject* image = (PyArrayObject*)p;
+    
+    int sm = image->dimensions[1];
+    int sn = image->dimensions[0];
+    CVD::BasicImage <I> img((I*)image->data, CVD::ImageRef(sm, sn));
+    return img;
+  }
+
+  template<class I>
+    CVD::BasicImage<I> fromNumpyToBasicImage(PyArrayObject *image, const std::string& n="") {
+    
+    if (PyArray_NDIM(image) != 2 
+	|| !PyArray_ISCONTIGUOUS(image) 
+	|| PyArray_TYPE(image) != NumpyType<I>::num) {
+      throw std::string(n + " must be a contiguous array of " + NumpyType<I>::name() + " (type code " + NumpyType<I>::code() + ")!");
+    }
+    
+    int sm = image->dimensions[1];
+    int sn = image->dimensions[0];
+    CVD::BasicImage <I> img((I*)image->data, CVD::ImageRef(sm, sn));
+    return img;
+  }
+
+
 }
+
 
 #endif

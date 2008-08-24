@@ -8,9 +8,9 @@
  * Copyright (C) 2005 The Authors
  *
  * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -32,9 +32,9 @@ namespace PyCVD {
 #define DEFINE_NUMPY_TYPE(Type, PyType)		\
 template<> struct NumpyType<Type>\
 {\
-	static const int   type = PyType;\
-	static std::string name(){ return #Type;}	\
-	static char code(){ return PyType##LTR;}\
+  static const int   num = PyType;			\
+  static std::string name(){ return #Type;}		\
+  static char code(){ return PyType##LTR;}		\
 }
 
   template<class C> struct NumpyType
@@ -70,6 +70,10 @@ template<> struct NumpyType<Type>\
                    TypeList<float,
 		   TypeList<double, End> > > > > > > > > CVDTypes;
 
+
+
+  typedef TypeList<float,
+                   TypeList<double, End> > CVDFloatTypes;
 }
 
 #endif
