@@ -11,6 +11,7 @@ AC_PROG_LN_S
 AC_PROG_RANLIB
 #Switch testing language to C++
 AC_LANG(C++)
+AC_REQUIRE_CPP
 #Start the compiler
 
 cvd_major=`echo $PACKAGE_VERSION | $AWK -F'\\\\.' '{print $1}'`
@@ -580,7 +581,13 @@ CHECK_FOR_OPTION(videodisplay,[
 		APPEND(CXXFLAGS, -I$x_includes)
 	fi
 
-	APPEND(LIBS, [-L$x_libraries -lX11 -lXext])
+	if test "$host_vendor" == apple
+	then
+		APPEND(LIBS, [-L$x_libraries -lX11 -lXext -dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib])
+	else
+		APPEND(LIBS, [-L$x_libraries -lX11 -lXext])
+	fi
+	
 	AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
 ])
 
@@ -757,7 +764,7 @@ CHECK_FOR_OPTION(ffmpeg, [
 	then
 
 		AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h ffmpeg/swscale.h, [ffmpeg_old_headers=1], [])
-		AC_CHECK_HEADERS(libavcodec/avcodec.h libavformat/avformat.h libswscale/swscale.h, [ffmpeg_new_headers=1], [a=1])
+		AC_CHECK_HEADERS(libavcodec/avcodec.h libavformat/avformat.h libswscale/swscale.h, [ffmpeg_new_headers=1], [])
 
 
 		if test "$ffmpeg_old_headers" == 1 || test "$ffmpeg_new_headers" == 1
