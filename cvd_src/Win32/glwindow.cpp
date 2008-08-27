@@ -119,11 +119,7 @@ void GLWindow::init(const ImageRef& size, int bpp, const std::string& title)
 	}
 
     RECT oldRect = WindowRect;
-    cout << WindowRect.left << " " << WindowRect.top << " " << WindowRect.right << " " << WindowRect.bottom << endl;
-
 	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);		// Adjust Window To True Requested Size
-
-    cout << WindowRect.left << " " << WindowRect.top << " " << WindowRect.right << " " << WindowRect.bottom << endl;
 
 	// Create The Window
     HWND hWnd;
@@ -210,7 +206,6 @@ void GLWindow::init(const ImageRef& size, int bpp, const std::string& title)
     state->position_offset.y = WindowRect.top - oldRect.top;
 
     state->position = -state->position_offset;
-    cout << state->size_offset << state->position_offset << endl;
 }
 
 GLWindow::~GLWindow()
