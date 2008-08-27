@@ -241,14 +241,14 @@ ImageRef GLWindow::size() const { return state->size; }
 
 void GLWindow::set_size(const ImageRef & s_){
     state->size = s_;
-    MoveWindow(state->hWnd, state->position.x, state->position.y, state->size.x, state->size.y, FALSE);
+    MoveWindow(state->hWnd, state->position.x + state->position_offset.x, state->position.y + state->position_offset.y, state->size.x + state->size_offset.x, state->size.y + state->size_offset.y, FALSE);
 }
 
 ImageRef GLWindow::position() const { return state->position; }
 
 void GLWindow::set_position(const ImageRef & p_){
     state->position = p_;
-    MoveWindow(state->hWnd, state->position.x, state->position.y, state->size.x, state->size.y, FALSE);
+    MoveWindow(state->hWnd, state->position.x + state->position_offset.x, state->position.y + state->position_offset.y, state->size.x + state->size_offset.x, state->size.y + state->size_offset.y, FALSE);
 }
 
 void GLWindow::set_cursor_position(const ImageRef& where)
@@ -499,8 +499,10 @@ LRESULT CALLBACK WndProc(	HWND	hWnd,			// Handle For This Window
                 state.size = newSize;
                 state.parent->activate();
                 glViewport(0, 0, state.size.x, state.size.y);
-    		    assert(currentHandler != NULL);
-                currentHandler->on_resize(*state.parent, state.size);
+                if(currentHandler != NULL)
+                    currentHandler->on_resize(*state.parent, state.size);
+                else
+                    cerr << "Event outside of cvd control for " << state.title << endl;
             }
             state.position = ImageRef(pos->x, pos->y) - state.position_offset;
             return 0;
