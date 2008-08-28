@@ -82,6 +82,7 @@ namespace CVD {
     {
 	throw VideoSourceException("DiskBuffer2 cannot handle type yuv422");
     }
+    void get_jpegstream_options(const VideoSource& vs, int& fps);
 
 
    	
@@ -173,9 +174,23 @@ namespace CVD {
 
     template <class T> VideoBuffer<T>* open_video_source(const VideoSource& vs)
     {
+	using std::auto_ptr;
 	if(vs.protocol == "jpegstream")
 	{
-	    return makeJPEGStream<T>(vs.identifier);
+		int ra_frames=0;
+		get_jpegstream_options(vs, ra_frames);
+
+		auto_ptr<VideoBuffer<T> > jpeg_buffer(makeJPEGStream<T>(vs.identifier));
+
+		if(ra_frames == 0)
+			return jpeg_buffer.release();
+		else
+		{
+			auto_ptr<VideoBuffer<T> > b(new ReadAheadVideoBuffer<T>(*(jpeg_buffer.get()), ra_frames));
+			auto_ptr<VideoBufferData> h(new VideoBufferDataAuto<VideoBuffer<T> >(jpeg_buffer.release()));
+			b->extra_data = h;
+			return b.release();
+		}
 	}
 #if CVD_HAVE_GLOB
 	else if (vs.protocol == "files") {
@@ -332,6 +347,11 @@ then open a source with:
 @verbatim
 jpegstream:///tmp/video
 @endverbatim
+If the argument is provided from a ahell such as BASH, then then
+redirection can be used:
+@verbatim
+jpegstream://<(wget http//my.camera/file_representing_video -O - )
+@endverbatim
 
 
 
@@ -365,6 +385,7 @@ Options supported by the various protocols are:
       showsettings = 0 | 1 (default 0)
 
 'jpegstream' protocol (ServerPushJpegBuffer): identifier is path to file
+       read_ahead  [= <number>] (default is 50 if specified without value)
 
 @endverbatim
 

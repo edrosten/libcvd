@@ -198,6 +198,22 @@ namespace CVD {
     
     }
 
+    void get_jpegstream_options(const VideoSource& vs, int& ra_frames)
+    {
+	ra_frames = 0;
+
+	for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it) {	    
+	    if (it->first == "read_ahead") {
+		ra_frames = 50;
+		if (it->second.length())
+		    ra_frames = atoi(it->second.c_str());
+	    }
+	    else
+		throw VideoSourceException("invalid option for files protocol: "+it->first +
+					   "\n\t valid options: read_ahead");
+	}
+    }
+
     void get_files_options(const VideoSource& vs, int& fps, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob)
     {
 	fps = 30;

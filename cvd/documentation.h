@@ -64,9 +64,12 @@ It is released under the LGPL License.
           		- DMedia video capture
 		  - OSX
 		  		- QuickTime video capture
+		  - All UNIX platforms
+		        - Live capture from HTTP server push JPEG cameras.
 		  - All platforms
           		- AVI and MPEG file (all codecs supported by ffmpeg)
           		- list of images
+				- Server push multipart JPEG streams.
 		  - Convenient run-time selection using a URL-like syntax
     - Colorspace conversions on images and video streams
     - Various image processing tools
