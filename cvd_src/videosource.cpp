@@ -226,6 +226,57 @@ namespace CVD {
     }
 
 
+
+#if CVD_HAVE_V4L1BUFFER
+    template <> CVD::VideoBuffer<CVD::byte>* makeV4L1Buffer(const std::string& dev, const CVD::ImageRef& size)
+    {
+	return new CVD::V4L1Buffer<CVD::byte>(dev, size);
+    }
+
+    template <> CVD::VideoBuffer<CVD::yuv422>* makeV4L1Buffer(const std::string& dev, const CVD::ImageRef& size)
+    {
+	return new CVD::V4L1Buffer<CVD::yuv422>(dev, size);
+    }
+    template <> CVD::VideoBuffer<CVD::Rgb<CVD::byte> >* makeV4L1Buffer(const std::string& dev, const CVD::ImageRef& size)
+    {
+	return new CVD::V4L1Buffer<CVD::Rgb<CVD::byte> >(dev, size);
+    }
+
+    template <> CVD::VideoBuffer<CVD::bayer>* makeV4L1Buffer(const std::string& dev, const CVD::ImageRef& size)
+    {
+	return new CVD::V4LBuffer<CVD::bayer>(dev, size);
+    }
+
+    void get_v4l1_options(const VideoSource& vs, ImageRef& size)
+    {
+	size = ImageRef(0,0);
+
+	for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it) {
+	    if (it->first == "size") {		
+		std::string s = it->second;
+		tolower(s);
+		if (s == "vga")
+		    size = ImageRef(640,480);
+		else if (s == "qvga")
+		    size = ImageRef(320,240);
+		else if (s == "pal") 
+		    size = ImageRef(720,576);
+		else if (s == "ntsc")
+		    size = ImageRef(720,480);
+		else {
+		    std::istringstream size_in(s);
+		    char x;
+		    if (!(size_in >> size.x >> x >> size.y))
+			throw ParseException("invalid image size specification: '"+it->second+"'\n\t valid specs: vga, qvga, pal, ntsc, <width>x<height>");
+		}
+	    } else
+		throw VideoSourceException("invalid option for 'v4l2' protocol: "+it->first+"\n\t valid options: size, input, interlaced, fields");
+	}
+    }
+
+#endif
+
+
 #if CVD_INTERNAL_HAVE_V4LBUFFER
     template <> CVD::VideoBuffer<CVD::byte>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced)
     {

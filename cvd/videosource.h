@@ -22,6 +22,10 @@
 #include <cvd/Linux/v4lbuffer.h>
 #endif
 
+#if CVD_HAVE_V4L1BUFFER
+#include <cvd/Linux/v4l1buffer.h>
+#endif
+
 #if CVD_HAVE_DVBUFFER
 #include <cvd/Linux/dvbuffer.h>
 #endif
@@ -69,6 +73,22 @@ namespace CVD {
 #endif
 
     void get_files_options(const VideoSource& vs, int& fps, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob);
+    
+#if CVD_HAVE_V4L1BUFFER
+    template <class T> VideoBuffer<T>* makeV4L1Buffer(const std::string& dev, const ImageRef& size)
+    {
+	throw VideoSourceException("V4L1Buffer cannot handle types other than byte, bayer, yuv422, Rgb<byte>");
+    }
+
+    template <> VideoBuffer<byte>* makeV4L1Buffer(const std::string& dev, const ImageRef& size);
+    template <> VideoBuffer<bayer>* makeV4L1Buffer(const std::string& dev, const ImageRef& size);
+    template <> VideoBuffer<yuv422>* makeV4L1Buffer(const std::string& dev, const ImageRef& size);
+    template <> VideoBuffer<Rgb<byte> >* makeV4L1Buffer(const std::string& dev, const ImageRef& size);
+
+    void get_v4l1_options(const VideoSource& vs, ImageRef& size);
+
+#endif
+
     
 #if CVD_INTERNAL_HAVE_V4LBUFFER
     template <class T> VideoBuffer<T>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced)
@@ -140,6 +160,14 @@ namespace CVD {
 	}
 #endif
 
+
+#if CVD_HAVE_V4L1BUFFER
+	else if (vs.protocol == "v4l1") {
+	    ImageRef size;
+	    get_v4l1_options(vs, size);
+	    return makeV4L1Buffer<T>(vs.identifier, size);
+	} 
+#endif
 #if CVD_INTERNAL_HAVE_V4LBUFFER
 	else if (vs.protocol == "v4l2") {
 	    ImageRef size;
@@ -184,6 +212,9 @@ namespace CVD {
 #endif
 #if CVD_INTERNAL_HAVE_V4LBUFFER
 				       "v4l2, "
+#endif
+#if CVD_HAVE_V4L1BUFFER
+				       "v4l1, "
 #endif
 #if CVD_HAVE_DVBUFFER
 				       "dc1394, "

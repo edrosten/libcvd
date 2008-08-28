@@ -167,6 +167,8 @@ void RawV4L1::commitSettings()
     struct video_picture pic;
     if(ioctl(myDevice, VIDIOCGPICT, &pic) !=0)
         throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "get video_picture");
+
+	again:
     pic.brightness=(unsigned short)(myBrightness*65535+0.5);
     pic.whiteness=(unsigned short)(myWhiteness*65535+0.5);
     pic.colour=(unsigned short)(mySaturation*65535+0.5);
@@ -175,7 +177,13 @@ void RawV4L1::commitSettings()
     pic.depth=myBpp;
     pic.palette=myPalette;
     if(ioctl(myDevice, VIDIOCSPICT, &pic) !=0)
-        throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "set video_picture");
+		if(myPalette == VIDEO_PALETTE_GREY)
+		{
+			myPalette = VIDEO_PALETTE_YUV420P;
+			goto again;
+		}
+		else
+			throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "set video_picture");
 
     retrieveSettings();
 }
