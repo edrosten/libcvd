@@ -41,7 +41,7 @@ string videoDevice = "qt://0";
 #else
 string videoDevice = "v4l2:///dev/video0";
 #endif
-Vector<6> cameraParameters = (make_Vector, 500, 500,  320,  240,  0,  0);
+Vector<6> cameraParameters = (make_Vector, -1, -1, -1, -1, -1, -1);
 int bottomLeftWhite = 1;
 int gridx = 11;
 int gridy = 7;
@@ -642,7 +642,7 @@ int main(int argc, char* argv[])
     getOptions(argc, argv);
 
     string titlePrefix = "Calibrate: Align grid ([ and ] to resize)";
-    GLWindow disp(ImageRef(640,480), titlePrefix);
+    GLWindow disp(videoBuffer->size(), titlePrefix);
     GLWindow::EventSummary events;
     //VideoDisplay disp (0.0, 0.0, 640.0, 480.0);
     Camera::Quintic cameraModel;
@@ -651,12 +651,15 @@ int main(int argc, char* argv[])
     vector<SE3> poses;
     ImageRef imageSize;
 
+	if(cameraParameters[0] == -1)
+		cameraParameters = (make_Vector, 500, 500,  videoBuffer->size().x/2,  videoBuffer->size().y/2,  0,  0);
+
     //XEvent e;
     //disp.select_events(KeyPressMask);
     bool doParams = true;
     int stage = 2; // 2 is init, 1 record, 0 done
 
-    //disp.set_title(titlePrefix);
+    disp.set_title(titlePrefix);
 
     double curr = timer.get_time();
     srand48(static_cast<long int>(curr));
@@ -726,11 +729,11 @@ int main(int argc, char* argv[])
 	}
 	    
 	VideoFrame<CAMERA_PIXEL>* vframe = videoBuffer->get_frame();
-	while(videoBuffer->frame_pending())
+	/*while(videoBuffer->frame_pending())
 	{
 	    videoBuffer->put_frame(vframe);
 	    vframe = videoBuffer->get_frame();
-	}
+	}*/
 	// leave this in, we cannot assume that vframe has a datatype that can be
 	// directly used in the glTexImage call later on (e.g. its yuv422 on OSX)
 	Image<byte> temp = convert_image(*vframe);
@@ -748,11 +751,11 @@ int main(int argc, char* argv[])
 	glTexCoord2i(0, 0);
 	glVertex2i(0,0);
 	glTexCoord2i(temp.size().x, 0);
-	glVertex2i(640,0);
+	glVertex2i(disp.size().x,0);
 	glTexCoord2i(temp.size().x,temp.size().y);
-	glVertex2i(640,480);
+	glVertex2i(disp.size().x,disp.size().y);
 	glTexCoord2i(0, temp.size().y);
-	glVertex2i(0, 480);
+	glVertex2i(0, disp.size().y);
 	glEnd ();
 	glDisable(GL_TEXTURE_RECTANGLE_NV);
 	glEnable(GL_BLEND);
