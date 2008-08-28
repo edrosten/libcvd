@@ -23,8 +23,33 @@
 
 #include <cvd/videoframe.h>
 #include <cvd/exceptions.h>
+#include <memory>
 
 namespace CVD {
+
+/// Base class for objects that a video buffer can 
+/// manage the lifetime of.
+class VideoBufferData
+{
+	public:
+		virtual ~VideoBufferData(){}
+};
+
+template<class T> class VideoBufferDataAuto: public VideoBufferData
+{
+	private:
+		T* data;
+
+	public:
+		VideoBufferDataAuto(T* d)
+		:data(d)
+		{}
+
+		virtual ~VideoBufferDataAuto()
+		{
+			delete data;
+		}
+};
 
 /// Base class for objects which provide a video stream. A video 
 /// stream is a sequence of video frames (derived from VideoFrame).
@@ -51,6 +76,12 @@ class VideoBuffer
 		/// \param t The frame time in seconds
 		virtual void seek_to(double)
 		{}
+		
+		/// Certain video buffers, especially the decorator classes, and buffers
+		/// such as ServerPushJpegBuffer have additional data 
+		/// with the same lifetime as the buffer. This is a tool to allow management of
+		/// this data.
+		std::auto_ptr<VideoBufferData> extra_data;
 };
 
 namespace Exceptions

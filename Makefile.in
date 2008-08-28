@@ -177,7 +177,7 @@ endif
 LDFLAGS = -L. @LDFLAGS@
 LOADLIBES = @LIBS@
 
-PROGS=@progs@
+PROGS=@progs@ progs/video_play_source
 TESTPROGS=@testprogs@
 
 $(PROGS):$(soname)

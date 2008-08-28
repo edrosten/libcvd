@@ -13,6 +13,7 @@
 #include <cvd/colourspaces.h>
 
 #include <cvd/diskbuffer2.h>
+#include <cvd/serverpushjpegbuffer.h>
 
 #if CVD_HAVE_FFMPEG
 #include <cvd/videofilebuffer.h>
@@ -56,6 +57,33 @@ namespace CVD {
     std::ostream& operator<<(std::ostream& out, const VideoSource& vs);
 
     void parse(std::istream& in, VideoSource& vs);
+
+    template <class T> VideoBuffer<T>* makeJPEGStream(const std::string& filename)
+    {
+    	using std::auto_ptr;
+	using std::ifstream;
+
+    	auto_ptr<ifstream> stream(new ifstream(filename.c_str()));
+	
+	ServerPushJpegBuffer<T>* b = new ServerPushJpegBuffer<T>(*stream.get());
+	
+	auto_ptr<VideoBufferData> h(new VideoBufferDataAuto<ifstream>(stream.release()));
+
+	b->extra_data = h;
+	return b;
+    }
+
+    template <> inline VideoBuffer<vuy422> * makeJPEGStream(const std::string&)
+    {
+	throw VideoSourceException("DiskBuffer2 cannot handle type vuy422");
+    }
+
+    template <> inline VideoBuffer<yuv422> * makeJPEGStream(const std::string&)
+    {
+	throw VideoSourceException("DiskBuffer2 cannot handle type yuv422");
+    }
+
+
    	
 #ifdef CVD_HAVE_GLOB
     template <class T> VideoBuffer<T>* makeDiskBuffer2(const std::vector<std::string>& files, double fps, VideoBufferFlags::OnEndOfBuffer eob)
@@ -145,8 +173,9 @@ namespace CVD {
 
     template <class T> VideoBuffer<T>* open_video_source(const VideoSource& vs)
     {
-	if(0)
+	if(vs.protocol == "jpegstream")
 	{
+	    return makeJPEGStream<T>(vs.identifier);
 	}
 #if CVD_HAVE_GLOB
 	else if (vs.protocol == "files") {
@@ -207,6 +236,7 @@ namespace CVD {
 #endif
 	else
 	    throw VideoSourceException("undefined video source protocol: '" + vs.protocol + "'\n\t valid protocols: "
+	                               "jpegstream, "
 #if CVD_HAVE_FFMPEG
 				       "file, "
 #endif
@@ -249,7 +279,7 @@ open_video_source<T>(url) to get a VideoBuffer<T>*.
 The url syntax is the following:
 @verbatim
 url      := protocol ':' [ '[' options ']' ] // identifier
-protocol := "files" | "file" | "v4l2" | "dc1394" | "qt"
+protocol := "files" | "file" | "v4l2" | "v4l1" | "jpegstream" | "dc1394" | "qt"
 options  := option [ ',' options ]
 option   := name [ '=' value ]
 @endverbatim
@@ -292,6 +322,19 @@ Open the first QuickTime camera and show the settings dialog
 qt:[showsettings=1]//0
 @endverbatim
 
+Open an HTTP camera. First create a named pipe from the shell, 
+and start grabbing video:
+@verbatim
+mkfifo /tmp/video
+wget http//my.camera/file_representing_video -O /tmp/video
+@endverbatim
+then open a source with:
+@verbatim
+jpegstream:///tmp/video
+@endverbatim
+
+
+
 Options supported by the various protocols are:
 @verbatim
 'files' protocol (DiskBuffer2):  identifier is glob pattern
@@ -302,6 +345,9 @@ Options supported by the various protocols are:
 'file' protocol (VideoFileBuffer): identifier is path to file
        read_ahead  [= <number>] (default is 50 if specified without value)
        on_end = repeat_last | unset_pending | loop (default is repeat_last)
+
+'v4l1' protocol (V4L1Buffer): identifier is device name
+       size = vga | qvga | pal | ntsc | <width>x<height>  (default is 0x0)
 
 'v4l2' protocol (V4LBuffer): identifier is device name
        size = vga | qvga | pal | ntsc | <width>x<height>  (default vga)
@@ -317,6 +363,8 @@ Options supported by the various protocols are:
 'qt' protocol (QTBuffer): identifier is camera number
       size = vga | qvga | <width>x<height>  (default vga)
       showsettings = 0 | 1 (default 0)
+
+'jpegstream' protocol (ServerPushJpegBuffer): identifier is path to file
 
 @endverbatim
 
