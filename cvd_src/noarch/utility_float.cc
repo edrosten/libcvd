@@ -7,7 +7,7 @@ namespace CVD
 		differences<float, float>(a, b, diff, size);
 	}
 
-	void add_multiple_of_sum(const float* a, const float* b, const float& c,  float* out, unsigned int count)
+	void add_multiple_of_sum(const float* a, const float* b, const float& c,  float* out, size_t count)
 	{
 		add_multiple_of_sum<float, float>(a, b, c, out, count);
 	}
