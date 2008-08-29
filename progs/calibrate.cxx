@@ -42,7 +42,7 @@ string videoDevice = "qt://0";
 string videoDevice = "v4l2:///dev/video0";
 #endif
 
-typedef Camera::Quintic CameraModel;
+typedef Camera::SHarris CameraModel;
 static const int NumCameraParams = CameraModel::num_parameters;
 
 Vector<NumCameraParams> badVector()
@@ -669,7 +669,13 @@ int main(int argc, char* argv[])
     ImageRef imageSize;
 
 	if(cameraParameters[0] == -1)
-		cameraParameters = (make_Vector, 500, 500,  videoBuffer->size().x/2,  videoBuffer->size().y/2,  0, 0);
+	{
+		Zero(cameraParameters);
+		cameraParameters[0] = 500;
+		cameraParameters[1] = 500;
+		cameraParameters[2] = videoBuffer->size().x/2;
+		cameraParameters[3] = videoBuffer->size().y/2;
+	}
 
     //XEvent e;
     //disp.select_events(KeyPressMask);
