@@ -99,7 +99,7 @@ namespace Camera {
     /// Fast linear projection for working out what's there
     inline TooN::Vector<2> linearproject(const TooN::Vector<2>& camframe, double scale=1); 
 	/// Project from Euclidean camera frame to image plane
-    inline TooN::Vector<2> project(const TooN::Vector<2>& camframe); 
+    inline TooN::Vector<2> project(const TooN::Vector<2>& camframe) const; 
 	/// Project from image plane to a Euclidean camera
     inline TooN::Vector<2> unproject(const TooN::Vector<2>& imframe); 
     
@@ -126,7 +126,7 @@ namespace Camera {
 
   private:
     TooN::Vector<num_parameters> my_camera_parameters; // f_u, f_v, u_0, v_0
-    TooN::Vector<2> my_last_camframe;
+    mutable TooN::Vector<2> my_last_camframe;
   };
 
 
@@ -244,19 +244,23 @@ namespace Camera {
 			///Load parameters from a stream 
 			///@param is The stream to use
 			inline void load(std::istream& is);
+
 			/// Save parameters to a stream 
 			///@param os The stream to use
-			inline void save(std::ostream& os);
+			inline void save(std::ostream& os)
+			{
+				os << my_camera_parameters;
+			}
 
 
 			/// Fast linear projection for working out what's there
-			inline TooN::Vector<2> linearproject(const TooN::Vector<2>& camframe, double scale=1)
+			inline TooN::Vector<2> linearproject(const TooN::Vector<2>& camframe, double scale=1) const
 			{
 				return TooN::Vector<2>(scale * diagmult(camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
 			}
 
 			/// Project from Euclidean camera frame to image plane
-			inline TooN::Vector<2> project(const TooN::Vector<2>& camframe)
+			inline TooN::Vector<2> project(const TooN::Vector<2>& camframe) const 
 			{
 				my_last_camframe = camframe;
 				return linearproject(radial_distort(camframe));
@@ -318,19 +322,19 @@ namespace Camera {
 
 				//Derivatives of x_image:
 				result[0][0] = mod_camframe[0];
-				result[0][1] = 0;
-				result[0][2] = 1;
-				result[0][3] = 0;
-				result[0][4] = - fu * xc * r2 / 2 * g3;
+				result[1][0] = 0;
+				result[2][0] = 1;
+				result[3][0] = 0;
+				result[4][0] = - fu * xc * r2 / 2 * g3;
 
 
 
 				//Derivatives of y_image:
-				result[0][0] = 0;
-				result[0][1] = mod_camframe[1];
-				result[0][2] = 0;
-				result[0][3] = 1;
-				result[0][4] = - fv * yc * r2 / 2 * g3;
+				result[0][1] = 0;
+				result[1][1] = mod_camframe[1];
+				result[2][1] = 0;
+				result[3][1] = 1;
+				result[4][1] = - fv * yc * r2 / 2 * g3;
 
 				return result;
 			}
@@ -357,7 +361,7 @@ namespace Camera {
 
 		  private:
 			TooN::Vector<num_parameters> my_camera_parameters; // f_u, f_v, u_0, v_0, alpha
-			TooN::Vector<2> my_last_camframe;
+			mutable TooN::Vector<2> my_last_camframe;
 	};
 
 
@@ -445,7 +449,7 @@ inline TooN::Vector<2> Camera::Cubic::linearproject(const TooN::Vector<2>& camfr
   return TooN::Vector<2>(scale * diagmult(camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
 }
 
-inline TooN::Vector<2> Camera::Cubic::project(const TooN::Vector<2>& camframe){
+inline TooN::Vector<2> Camera::Cubic::project(const TooN::Vector<2>& camframe) const{
   my_last_camframe = camframe;
   TooN::Vector<2> mod_camframe = camframe * (1+SAT(my_camera_parameters[4]*(camframe*camframe)));
   return TooN::Vector<2>(diagmult(mod_camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());

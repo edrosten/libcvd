@@ -41,7 +41,21 @@ string videoDevice = "qt://0";
 #else
 string videoDevice = "v4l2:///dev/video0";
 #endif
-Vector<6> cameraParameters = (make_Vector, -1, -1, -1, -1, -1, -1);
+
+typedef Camera::Quintic CameraModel;
+static const int NumCameraParams = CameraModel::num_parameters;
+
+Vector<NumCameraParams> badVector()
+{
+	Vector<NumCameraParams> v;
+	for(int i=0; i < NumCameraParams; i++)
+		v[i] = -1;
+
+	return v;
+}
+
+
+Vector<NumCameraParams> cameraParameters = badVector();
 int bottomLeftWhite = 1;
 int gridx = 11;
 int gridy = 7;
@@ -93,11 +107,14 @@ void drawCross(ImageRef pos, int size)
 }
 
 template <class CamModel, class P>
-SE3 find_pose(const SE3& start, const vector<Vector<3> >& x, const vector<pair<size_t,P> >& p, const CamModel& camModel, double noise)
+SE3 find_pose(const SE3& start, const vector<Vector<3> >& x, const vector<pair<size_t,P> >& p, CamModel& camModel, double noise)
 {
     vector<pair<Vector<2>, Matrix<2> > > unprojected(p.size());
+
     for (size_t i=0; i<p.size(); ++i) {
-	unprojected[i] = camModel.unproject(p[i].second, Identity<2>(noise));
+	unprojected[i].first = camModel.unproject(p[i].second);
+	Matrix<2> Jinv = inverse(camModel.get_derivative());
+	unprojected[i].second = Jinv * Identity<2>(noise) * Jinv.T();
     }
 
     SE3 bestSE3;
@@ -260,7 +277,7 @@ vector<Vector<2> > makeGrid(int gx, int gy, double cellSize)
 }
 
 template <class CM>
-void drawPoints(const vector<Vector<2> >& points, const SE3& pose, const CM& cm)
+void drawPoints(const vector<Vector<2> >& points, const SE3& pose, CM& cm)
 {
     glColor3f(0,1,0);
     for (size_t i=0; i<points.size(); i++)
@@ -340,7 +357,7 @@ void improveLM(vector<MeasurementSet>& ms, vector<SE3>& pose, CM& cm, double lam
     Vector<> JTe(JTJ.num_rows());
 
     Zero(JTJ);
-    Vector<CM::num_parameters> JTep = zeros<6>();
+    Vector<CM::num_parameters> JTep = zeros<CM::num_parameters>();
 
     for (size_t i=0; i<ms.size(); i++)
     {
@@ -389,7 +406,7 @@ void improveLM(vector<MeasurementSet>& ms, vector<SE3>& pose, CM& cm, double lam
 }
 
 template <class CM>
-void getUncertainty(const vector<MeasurementSet>& ms, const vector<SE3>& pose, const CM& cm, Matrix<CM::num_parameters>& C)
+void getUncertainty(const vector<MeasurementSet>& ms, const vector<SE3>& pose, CM& cm, Matrix<CM::num_parameters>& C)
 {
     Matrix<> JTJ(CM::num_parameters+ms.size()*6,CM::num_parameters+ms.size()*6);
     Zero(JTJ);
@@ -430,7 +447,7 @@ void getUncertainty(const vector<MeasurementSet>& ms, const vector<SE3>& pose, c
     }
 }
 
-inline Vector<2> imagePoint(const Vector<2>& inPoint, const SE3& pose, const Camera::Quintic& cm, const double& factor)
+inline Vector<2> imagePoint(const Vector<2>& inPoint, const SE3& pose, CameraModel& cm, const double& factor)
 {
     Vector<3> point3D = unproject(inPoint);
     Vector<2> plane = project(pose*point3D);
@@ -440,7 +457,7 @@ inline Vector<2> imagePoint(const Vector<2>& inPoint, const SE3& pose, const Cam
 }
 
 inline float imageVal(image_interpolate<Interpolate::Bilinear, float> &imgInter, const Vector<2>& inPoint, const SE3& pose,
-                      const Camera::Quintic& cm, const double& factor, const bool& boundsCheck)
+                      CameraModel& cm, const double& factor, const bool& boundsCheck)
 {
     Vector<2> imageVec = imagePoint(inPoint, pose, cm, factor);
     if(!boundsCheck) //Slight speed-up
@@ -482,7 +499,7 @@ inline float minMargin(const Vector<2>& imagePoint, const Vector<2>& minCoord, c
 }
 
 inline float minMarginSquare(const Vector<2>& inPoint, image_interpolate<Interpolate::Bilinear, float>& imgInter, const SE3& pose,
-                             const Camera::Quintic& cm, double factor, float cellSize)
+                             CameraModel& cm, double factor, float cellSize)
 {
     Vector<2> posVec = (make_Vector, cellSize/2, cellSize/2);
     Vector<2> negVec = (make_Vector, cellSize/2, -cellSize/2);
@@ -500,7 +517,7 @@ inline float minMarginSquare(const Vector<2>& inPoint, image_interpolate<Interpo
 }
 
 bool sanityCheck(const Vector<2>& inPoint, image_interpolate<Interpolate::Bilinear, float>& imgInter, const SE3& pose,
-                 const Camera::Quintic& cm, double factor, bool blWhite, float cellSize)
+                 CameraModel& cm, double factor, bool blWhite, float cellSize)
 {
     Vector<2> posVec = (make_Vector, cellSize/2, cellSize/2);
     Vector<2> negVec = (make_Vector, cellSize/2, -cellSize/2);
@@ -539,7 +556,7 @@ bool sanityCheck(const Vector<2>& inPoint, image_interpolate<Interpolate::Biline
 }
 
 bool findInitialIntersectionEstimate(image_interpolate<Interpolate::Bilinear, float> &imgInter, Vector<2>& initialPoint,
-                                     const SE3& pose, const Camera::Quintic& cm, double factor,
+                                     const SE3& pose, CameraModel& cm, double factor,
                                      bool boundsCheck, const Vector<4>& likelySquare, double cellSize)
 {
     bool looksOK = true;
@@ -570,7 +587,7 @@ bool findInitialIntersectionEstimate(image_interpolate<Interpolate::Bilinear, fl
 }
 
 bool optimiseIntersection(image_interpolate<Interpolate::Bilinear, float> &imgInter, Vector<2>& inPoint,
-                          const SE3& pose, const Camera::Quintic& cm, double factor, bool boundsCheck,
+                          const SE3& pose, CameraModel& cm, double factor, bool boundsCheck,
                           const Vector<4>& likelySquare, double cellSize, bool blWhite)
 {
     Vector<2> largeX = (make_Vector, 0.004, 0);
@@ -645,14 +662,14 @@ int main(int argc, char* argv[])
     GLWindow disp(videoBuffer->size(), titlePrefix);
     GLWindow::EventSummary events;
     //VideoDisplay disp (0.0, 0.0, 640.0, 480.0);
-    Camera::Quintic cameraModel;
+    CameraModel cameraModel;
     double factor=1.0;
     vector<MeasurementSet> measurementSets;
     vector<SE3> poses;
     ImageRef imageSize;
 
 	if(cameraParameters[0] == -1)
-		cameraParameters = (make_Vector, 500, 500,  videoBuffer->size().x/2,  videoBuffer->size().y/2,  0,  0);
+		cameraParameters = (make_Vector, 500, 500,  videoBuffer->size().x/2,  videoBuffer->size().y/2,  0, 0);
 
     //XEvent e;
     //disp.select_events(KeyPressMask);
@@ -1025,7 +1042,7 @@ int main(int argc, char* argv[])
     double lambda = 1;
     while (lambda < 1e12)
     {
-	Vector<6> params = cameraModel.get_parameters();
+	Vector<NumCameraParams> params = cameraModel.get_parameters();
 	vector<SE3> oldposes = poses;
 	improveLM(measurementSets, poses, cameraModel, lambda);
 	double error = getReprojectionError(measurementSets, poses, cameraModel);
@@ -1063,14 +1080,15 @@ int main(int argc, char* argv[])
     }
 
     cerr << "Estimating uncertainty..." << endl;
-    Matrix<6> Cov;
+    Matrix<NumCameraParams> Cov;
     getUncertainty(measurementSets, poses, cameraModel, Cov);
-    Cov.slice<4,4,2,2>() *= factor*factor;
-    Cov.slice<0,4,4,2>() *= factor;
-    Cov.slice<4,0,2,4>() *= factor;
+    static const int NumRadialParams = NumCameraParams - 4;
+    Cov.slice<4,4,NumRadialParams,NumRadialParams>() *= factor*factor;
+    Cov.slice<0,4,4,NumRadialParams>() *= factor;
+    Cov.slice<4,0,NumRadialParams,4>() *= factor;
 
-    Vector<6> uncertainty;
-    for (size_t i=0; i<6; i++)
+    Vector<NumCameraParams> uncertainty;
+    for (int i=0; i<NumCameraParams; i++)
 	uncertainty[i]= 3*sqrt(Cov[i][i]);
 
     cameraModel.get_parameters().slice<0,4>() /= factor;
