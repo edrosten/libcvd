@@ -535,7 +535,7 @@ namespace CVD
 				o.write((const char*)lohi,2);
 			}
 		#else
-			o.write((const char*)data, count*sizeof(unsigned short));
+			o.write((const char*)data, n*sizeof(unsigned short));
 		#endif
 	}
 
