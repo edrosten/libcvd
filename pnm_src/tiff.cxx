@@ -336,6 +336,8 @@ TIFFPimpl::TIFFPimpl(istream& is)
 			//Read the whole (upside-down) image
 			if(TIFFReadRGBAImage(tif, my_size.x, my_size.y, &raster_data[0], 0) == -1)
 				throw MalformedImage(error_msg);
+
+			int xs = my_size.x, ys = my_size.y;
 			
 			//Flip the image, a row pair at a time
 			vector<uint32> buffer(xs);
@@ -343,8 +345,8 @@ TIFFPimpl::TIFFPimpl(istream& is)
 			{
 				uint32* bp, *tp;
 
-				tp = raster_data + top * xs;
-				bp = raster_data + bot * xs;
+				tp = &raster_data[0] + top * xs;
+				bp = &raster_data[0] + bot * xs;
 
 				memcpy(&buffer[0], tp, xs*sizeof(uint32));
 				memcpy(tp, bp,  xs*sizeof(uint32));
