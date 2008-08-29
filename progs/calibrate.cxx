@@ -42,7 +42,7 @@ string videoDevice = "qt://0";
 string videoDevice = "v4l2:///dev/video0";
 #endif
 
-typedef Camera::SHarris CameraModel;
+typedef Camera::Quintic CameraModel;
 static const int NumCameraParams = CameraModel::num_parameters;
 
 Vector<NumCameraParams> badVector()
