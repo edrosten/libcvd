@@ -1021,6 +1021,7 @@ progs/img_play             videodisplay          	END
 progs/cvd_display_image    videodisplay          	END
 progs/img_play_bw          videodisplay          	END
 progs/img_play_deinterlace videodisplay          	END
+progs/video_play_source    videodisplay  END
 progs/video_play           videodisplay  ffmpeg  	END
 progs/video_play_bw        videodisplay  ffmpeg  	END
 ENDPROGS
