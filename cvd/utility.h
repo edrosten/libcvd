@@ -107,7 +107,7 @@ in the output image
   /// Compute pointwise (a_i + b_i) * c and add to out_i
   /// This is accelerated using SIMD for some platforms and data types (alignment is checked at runtime)
   /// Do not specify template parameters explicitly so that overloading can choose the right implementation
-  template <class A, class B> inline void add_multiple_of_sum(const A* a, const A* b, const A& c,  B* out, size_t count)
+  template <class A, class B> inline void add_multiple_of_sum(const A* a, const A* b, const float& c,  B* out, size_t count)
   {
       while (count--)
 	  *(out++) += (*(a++) + *(b++)) * c;
