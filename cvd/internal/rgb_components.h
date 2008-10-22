@@ -183,15 +183,15 @@ namespace CVD
 		template <class T, class S> inline Rgba<T>& operator/=(Rgba<T>& a, const S& b) { Rgba_ops<Rgba<T> >::div(a,b); return a; }
 
 		template <class T> struct La_ops {
-		  template <class S> static inline T sum(const T& a, const S& b) { return T(a.red+b.red, a.alpha+b.alpha); }
-		  template <class S> static inline void add(T& a, const S& b) { a.red+=b.red; a.alpha+=b.alpha;}
-		  template <class S> static inline T diff(const T& a, const S& b) { return T(a.red-b.red, a.alpha-b.alpha); }
-		  template <class S> static inline void sub(T& a, const S& b) { a.red-=b.red; a.alpha-=b.alpha; }
-		  template <class S> static inline T prod(const T& a, const S& b) { return T(a.red*b, a.alpha*b); }
-		  template <class S> static inline void mul(T& a, const S& b) { a.red*=b; a.alpha*=b; }
-		  template <class S> static inline T quot(const T& a, const S& b) { return T(a.red/b, a.alpha/b); }
-		  template <class S> static inline void div(T& a, const S& b) { a.red/=b; a.alpha/=b;}
-		  template <class S> static inline void assign(T& a, const S& b) { a.red=b.red; a.alpha=b.alpha; }
+		  template <class S> static inline T sum(const T& a, const S& b) { return T(a.luminance+b.luminance, a.alpha+b.alpha); }
+		  template <class S> static inline void add(T& a, const S& b) { a.luminance+=b.luminance; a.alpha+=b.alpha;}
+		  template <class S> static inline T diff(const T& a, const S& b) { return T(a.luminance-b.luminance, a.alpha-b.alpha); }
+		  template <class S> static inline void sub(T& a, const S& b) { a.luminance-=b.luminance; a.alpha-=b.alpha; }
+		  template <class S> static inline T prod(const T& a, const S& b) { return T(a.luminance*b, a.alpha*b); }
+		  template <class S> static inline void mul(T& a, const S& b) { a.luminance*=b; a.alpha*=b; }
+		  template <class S> static inline T quot(const T& a, const S& b) { return T(a.luminance/b, a.alpha/b); }
+		  template <class S> static inline void div(T& a, const S& b) { a.luminance/=b; a.alpha/=b;}
+		  template <class S> static inline void assign(T& a, const S& b) { a.luminance=b.luminance; a.alpha=b.alpha; }
 		};
 
 		template <class T, class S> inline La<T> operator+(const La<T>& a, const La<S>& b) { return La_ops<La<T> >::sum(a,b); }
