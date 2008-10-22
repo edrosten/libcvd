@@ -46,8 +46,6 @@ namespace CVD {
     La(T l, T a) : luminance(l), alpha(a) {}
 
       T luminance; ///< The luminance component
-      T green; ///< The green component
-      T blue; ///< The blue component
       T alpha; ///< The alpha component
 
       /// Assignment operator
