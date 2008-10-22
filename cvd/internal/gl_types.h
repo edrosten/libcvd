@@ -29,6 +29,7 @@
 #include <cvd/byte.h>
 #include <cvd/rgb8.h>
 #include <cvd/rgba.h>
+#include <cvd/la.h>
 
 namespace CVD
 {
@@ -189,6 +190,57 @@ namespace CVD
 			static const int format=GL_RGBA;
 			static const int type  =GL_DOUBLE;
 		};
+
+
+		//La<*> types
+		template<> struct data<La<unsigned char> >
+		{
+			static const int format=GL_LUMINANCE_ALPHA;
+			static const int type  =GL_UNSIGNED_BYTE;
+		};
+
+		template<> struct data<La<signed char> >
+		{
+			static const int format=GL_LUMINANCE_ALPHA;
+			static const int type  =GL_BYTE;
+		};
+		
+		template<> struct data<La<unsigned  short> >
+		{
+			static const int format=GL_LUMINANCE_ALPHA;
+			static const int type  =GL_UNSIGNED_SHORT;
+		};
+
+		template<> struct data<La<short> >
+		{
+			static const int format=GL_LUMINANCE_ALPHA;
+			static const int type  =GL_SHORT;
+		};
+
+		template<> struct data<La<unsigned int> >
+		{
+			static const int format=GL_LUMINANCE_ALPHA;
+			static const int type  =GL_UNSIGNED_INT;
+		};
+
+		template<> struct data<La<int> >
+		{
+			static const int format=GL_LUMINANCE_ALPHA;
+			static const int type  =GL_INT;
+		};
+		
+		template<> struct data<La<float> >
+		{
+			static const int format=GL_LUMINANCE_ALPHA;
+			static const int type  =GL_FLOAT;
+		};
+
+		template<> struct data<La<double> >
+		{
+			static const int format=GL_LUMINANCE_ALPHA;
+			static const int type  =GL_DOUBLE;
+		};
+
 		//Rgb8 type
 
 		template<> struct data<Rgb8>
