@@ -207,6 +207,14 @@ namespace Pixel {
     };
     template <int N> const TooN::Vector<N> traits<TooN::Vector<N> >::max_intensity = TooN::Vector<N>(1.0);
 
+    template<int N, int M> struct traits<TooN::Matrix<N,M> >
+    {
+      typedef TooN::Matrix<N,M> wider_type;
+      typedef TooN::Matrix<N,M> float_type;
+      static const bool integral = false;
+      static const bool is_signed = true;
+    };
+
 #endif
 
 

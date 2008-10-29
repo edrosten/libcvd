@@ -102,6 +102,22 @@ namespace CVD
 	return pixel[i];
       }
     };
+
+    template<int N, int M> struct Component<TooN::Matrix<N,M> >
+    {
+      typedef double type;
+      static const size_t count=N*M;
+      
+      static const type& get(const TooN::Matrix<N,M>& pixel, size_t i)
+      {
+	return pixel[i/M][i%M];
+      }
+
+      static inline type& get(TooN::Matrix<N,M>& pixel, size_t i)
+      {
+	return pixel[i/M][i%M];
+      }
+    };
 #endif
 		
   }
