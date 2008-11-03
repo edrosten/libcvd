@@ -3,6 +3,7 @@
 #include "cvd/config.h"
 
 #include <png.h>
+#include <cstdlib>
 
 using namespace CVD;
 using namespace CVD::Exceptions;
