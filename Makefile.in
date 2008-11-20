@@ -210,13 +210,18 @@ install-headers:
 	mkdir -p $(includedir)
 	cp -r cvd $(includedir)
 
-install-libs:$(soname) libcvd.a
+install-libs-so:$(soname)
 	mkdir -p $(libdir)
 	cp $(soname2) $(libdir)
 	rm -f  $(libdir)/$(soname1) $(libdir)/$(soname)
 	ln -s  $(libdir)/$(soname2) $(libdir)/$(soname1)
 	ln -s  $(libdir)/$(soname1) $(libdir)/$(soname)
+
+install-libs-a:libcvd.a
+	mkdir -p $(libdir)
 	cp libcvd.a $(libdir)
+
+install-libs:install-libs-so install-libs-a
 
 install-libs-debug:$(dsoname) libcvd_debug.a
 	mkdir -p $(libdir)
