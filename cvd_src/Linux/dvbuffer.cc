@@ -21,9 +21,9 @@
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.14 $$Name:  $
-**       $Date: 2008/01/29 14:43:20 $
-**   Copyright: LGPL $Author: georgklein $
+**   $Revision: 1.15 $$Name:  $
+**       $Date: 2008/11/25 12:08:57 $
+**   Copyright: LGPL $Author: edrosten $
 ** Description:
 **
 **    Get one gray image using libdc1394 and store it as portable gray map
@@ -32,6 +32,9 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
+**  Revision 1.15  2008/11/25 12:08:57  edrosten
+**  Fixed mad return.
+**
 **  Revision 1.14  2008/01/29 14:43:20  georgklein
 **  Replaced some more DVBuffer constructor exit()s with exceptions
 **
@@ -853,9 +856,10 @@ void DC::RawDCVideo::set_feature_value(unsigned int feature, unsigned int value)
 
 unsigned int DC::RawDCVideo::get_feature_value(unsigned int feature)
 {
-  unsigned int value;
+  unsigned int value=-1;
   if(dc1394_get_feature_value(my_handle, my_node, feature, &value) != DC1394_SUCCESS)
     fprintf(stderr, "couldn't get feature value.\n");
+  return value;
 }
 
 std::pair<unsigned int, unsigned int> DC::RawDCVideo::get_feature_min_max(unsigned int feature)
