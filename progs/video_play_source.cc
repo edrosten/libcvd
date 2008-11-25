@@ -38,26 +38,44 @@
 using namespace std;
 using namespace CVD;
 
+template<class C> void play(string s)
+{
+	VideoBuffer<C> *buffer = open_video_source<C>(s);
+	
+	VideoDisplay display(buffer->size());
+	
+	while(buffer->frame_pending())
+	{
+		VideoFrame<C>* frame = buffer->get_frame();
+		glDrawPixels(*frame);
+		buffer->put_frame(frame);
+				  glFlush();
+	}
+}
+
 int main(int argc, char* argv[])
 {
-	if(argc != 2)
+	bool mono=0;
+	
+	int arg=1;
+	
+	if(argc-1 >=1 && argv[arg] == string("-mono"))
+	{
+		arg++;
+		mono=1;
+	}
+
+	if(arg != argc-1)
 	{	
 		cerr << "Error: specify the video source\n";
 		return 1;
 	}
 	try
 	{
-		VideoBuffer<Rgb<byte> > *buffer = open_video_source<Rgb<byte> >(argv[1]);	
-		
-		VideoDisplay display(buffer->size());
-		
-		while(buffer->frame_pending())
-		{
-			VideoFrame<Rgb<byte> >* frame = buffer->get_frame();
-			glDrawPixels(*frame);
-			buffer->put_frame(frame);
-                      glFlush();
-		}
+		if(mono)
+			play<byte>(argv[arg]);
+		else
+			play<Rgb<byte> >(argv[arg]);
 	}
 	catch(CVD::Exceptions::All& e)
 	{
