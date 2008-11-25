@@ -117,7 +117,7 @@ namespace V4L
 	    unsigned char* data;
 	    double when;
 	};
-	V4L2Client(int fd, unsigned int fmt, ImageRef size, int input, bool fields, int frame_per_second);
+	V4L2Client(int fd, unsigned int fmt, ImageRef size, int input, bool fields, int frame_per_second, bool verbose);
 	ImageRef getSize();
 	Buffer getFrame();
 	void releaseFrame(int id);
@@ -145,13 +145,13 @@ namespace V4L
 template <class T> class V4LBuffer : public VideoBuffer<T>
 {
 public:
- V4LBuffer(const std::string & dev, ImageRef size, int input=-1, bool fields=false, int frames_per_second=0) : devname(dev)
+ V4LBuffer(const std::string & dev, ImageRef size, int input=-1, bool fields=false, int frames_per_second=0, bool verbose=0) : devname(dev)
     {
 	int device = open(devname.c_str(), O_RDWR | O_NONBLOCK);
 	if (device == -1)
 	    throw Exceptions::V4LBuffer::DeviceOpen(dev);
 	try {
-	  v4l2 = new V4L::V4L2Client(device, V4L::format<T>::v4l2_fmt, size, input, fields,frames_per_second);
+	  v4l2 = new V4L::V4L2Client(device, V4L::format<T>::v4l2_fmt, size, input, fields,frames_per_second, verbose);
 	}
 	catch (std::string& s) {
 	    v4l2 = 0;

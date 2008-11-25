@@ -52,6 +52,53 @@ Exceptions::V4LBuffer::GetFrame::GetFrame(string device, string msg)
     what = "V4LBuffer: GetFrame on " + device + " failed: " + msg;
 }
 
+
+class VPrint_
+{
+	public:
+		VPrint_(bool _p)
+		:p(_p)
+		{}
+
+		template<class C> VPrint_& operator<<(const C& c)
+		{
+			if(p)
+				cerr << c;
+			
+			return *this;
+		}
+	
+	bool p;
+};
+
+class VPrint: public VPrint_
+{
+	public:
+	VPrint(bool _b)
+	:VPrint_(_b){}
+
+		template<class C> VPrint_& operator<<(const C& c)
+		{
+			if(p)
+				cerr << "V4L2Client: " << c;
+			
+			return *this;
+		}
+
+};
+
+string unfourcc(unsigned long c)
+{
+	string ret;
+	ret.resize(4);
+
+	ret[0] = c & 0xff;
+	ret[1] = (c>>8) & 0xff;
+	ret[2] = (c>>16) & 0xff;
+	ret[3] = (c>>24) & 0xff;
+	return ret;
+}
+
 namespace V4L { // V4L
 
     struct V4L2Client::State {
@@ -66,14 +113,41 @@ namespace V4L { // V4L
 	v4l2_buffer refbuf;
     };
 
-  V4L2Client::V4L2Client(int fd, unsigned int fmt, ImageRef size, int input, bool fields, int frames_per_second)
-    {
+  V4L2Client::V4L2Client(int fd, unsigned int fmt, ImageRef size, int input, bool fields, int frames_per_second, bool verbose)
+	{
 	state = 0;
+
+	VPrint log(verbose);
+
+	log << "verbose operation. Initializing\n";
 
 	struct v4l2_capability caps;
 	if (0 != ioctl(fd, VIDIOC_QUERYCAP, &caps))
+	{
 	    throw string("VIDIOC_QUERYCAP failed");
-	
+	}
+
+	log << "Capabilities: driver: " << caps.driver << "\n";
+	log << "Capabilities: card: " << caps.card << "\n";
+	log << "Capabilities: bus_info: " << caps.bus_info << "\n";
+	log << "Capabilities: version: " << caps.version  << "\n";
+	log << "Capabilities: capabilities: 0x" << hex << caps.capabilities << dec << "\n";
+	log << "Capabilities:              V4L2_CAP_VIDEO_CAPTURE        = " << !!(caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) << "\n";
+	log << "Capabilities:              V4L2_CAP_VIDEO_OUTPUT         = " << !!(caps.capabilities & V4L2_CAP_VIDEO_OUTPUT) << "\n";
+	log << "Capabilities:              V4L2_CAP_VIDEO_OVERLAY        = " << !!(caps.capabilities & V4L2_CAP_VIDEO_OVERLAY) << "\n";
+	log << "Capabilities:              V4L2_CAP_VBI_CAPTURE          = " << !!(caps.capabilities & V4L2_CAP_VBI_CAPTURE) << "\n";
+	log << "Capabilities:              V4L2_CAP_VBI_OUTPUT           = " << !!(caps.capabilities & V4L2_CAP_VBI_OUTPUT) << "\n";
+	log << "Capabilities:              V4L2_CAP_SLICED_VBI_CAPTURE   = " << !!(caps.capabilities & V4L2_CAP_SLICED_VBI_CAPTURE) << "\n";
+	log << "Capabilities:              V4L2_CAP_SLICED_VBI_OUTPUT    = " << !!(caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) << "\n";
+	log << "Capabilities:              V4L2_CAP_RDS_CAPTURE          = " << !!(caps.capabilities & V4L2_CAP_SLICED_VBI_OUTPUT) << "\n";
+	log << "Capabilities:              V4L2_CAP_VIDEO_OUTPUT_OVERLAY = " << !!(caps.capabilities & V4L2_CAP_VIDEO_OUTPUT_OVERLAY) << "\n";
+	log << "Capabilities:              V4L2_CAP_TUNER                = " << !!(caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) << "\n";
+	log << "Capabilities:              V4L2_CAP_AUDIO                = " << !!(caps.capabilities & V4L2_CAP_TUNER) << "\n";
+	log << "Capabilities:              V4L2_CAP_RADIO                = " << !!(caps.capabilities & V4L2_CAP_RADIO) << "\n";
+	log << "Capabilities:              V4L2_CAP_READWRITE            = " << !!(caps.capabilities & V4L2_CAP_READWRITE) << "\n";
+	log << "Capabilities:              V4L2_CAP_ASYNCIO              = " << !!(caps.capabilities & V4L2_CAP_ASYNCIO) << "\n";
+	log << "Capabilities:              V4L2_CAP_STREAMING            = " << !!(caps.capabilities & V4L2_CAP_STREAMING) << "\n";
+
 	if (strcmp((const char*)caps.driver, "bttv")==0) {
 	    v4l2_std_id stdId=V4L2_STD_PAL;
 	    if(ioctl(fd, VIDIOC_S_STD, &stdId ))
@@ -93,27 +167,39 @@ namespace V4L { // V4L
 	
 	if (0 != ioctl(fd, VIDIOC_G_FMT, &format))
 	    throw string("VIDIOC_G_FMT");
-	
+
+	log << 	"G_FMT gives size/format/fields: " << format.fmt.pix.width  << "x" << 	format.fmt.pix.height << " / " 
+	    << unfourcc(format.fmt.pix.pixelformat) << hex << " (0x" << format.fmt.pix.pixelformat << dec << ") / " << format.fmt.pix.field << "\n";
+
 	format.fmt.pix.width = size.x;
 	format.fmt.pix.height = size.y;
 	format.fmt.pix.pixelformat = fmt;
 	format.fmt.pix.field = fields ? V4L2_FIELD_ALTERNATE : V4L2_FIELD_ANY;
+	
+	log << 	"S_FMT with size/format/fields: " << format.fmt.pix.width  << "x" << 	format.fmt.pix.height << " / " 
+	    << unfourcc(format.fmt.pix.pixelformat) << hex << " (0x" << format.fmt.pix.pixelformat << dec << ") / " << format.fmt.pix.field << "\n";
 	
 	if (0 != ioctl(fd, VIDIOC_S_FMT, &format))
 	    throw string("VIDIOC_S_FMT");
 
 	if (0 != ioctl(fd, VIDIOC_G_FMT, &format))
 	    throw string("VIDIOC_G_FMT");
+
+	log << 	"G_FMT gives size/format/fields: " << format.fmt.pix.width  << "x" << 	format.fmt.pix.height << " / " 
+	    << unfourcc(format.fmt.pix.pixelformat) << hex << " (0x" << format.fmt.pix.pixelformat << dec << ") / " << format.fmt.pix.field << "\n";
+
 	
 	if (fmt != format.fmt.pix.pixelformat)
 	    throw string("Requested format not supported");
-	
+
 	struct v4l2_requestbuffers reqbufs;
 	reqbufs.count = 10;
 	reqbufs.memory = V4L2_MEMORY_MMAP;
 	reqbufs.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	if (0 != ioctl(fd,VIDIOC_REQBUFS,&reqbufs))
 	    throw string("VIDIOC_REQBUFS");
+
+	cerr << "wtttf\n";
 
 	num_bufs = reqbufs.count;
 	

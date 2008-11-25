@@ -3,7 +3,34 @@
 #include <cvd/colourspaces.h>
 
 namespace CVD {
+	
+    void tolower(std::string& s)
+    {
+	for (size_t i=0; i<s.length(); ++i)
+	    s[i] = ::tolower(s[i]);
+    }
 
+	void tolower(char* s)
+    {
+	for (size_t i=0; s[i]; ++i)
+	    s[i] = ::tolower(s[i]);
+    }
+
+	using std::tolower;
+	
+	//If the flag is specified at all, but no parameter is
+	//given, this implies true.
+	bool parseBoolFlag(std::string s)
+	{
+		tolower(s);
+		if(s == "" || s == "yes" || s == "true" || s=="1")
+			return 1;
+		else if(s == "no" || s == "false" || s=="0")
+			return 0;
+		else
+			throw ParseException("invalid interlaced/fields setting '"+s+"' (must be true/false or yes/no or 1/0)");
+	}
+	
     std::string escape(char c)
     {
 	static std::string escaped[256];
@@ -135,11 +162,6 @@ namespace CVD {
     }
 
 
-    void tolower(std::string& s)
-    {
-	for (size_t i=0; i<s.length(); ++i)
-	    s[i] = ::tolower(s[i]);
-    }
 
     void parse(std::istream& in, VideoSource& vs)
     {
@@ -294,27 +316,27 @@ namespace CVD {
 
 
 #if CVD_INTERNAL_HAVE_V4LBUFFER
-    template <> CVD::VideoBuffer<CVD::byte>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced)
+    template <> CVD::VideoBuffer<CVD::byte>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
     {
-	return new CVD::V4LBuffer<CVD::byte>(dev, size, input, interlaced);
+	return new CVD::V4LBuffer<CVD::byte>(dev, size, input, interlaced, 0, verbose);
     }
 
     #ifdef V4L2_PIX_FMT_SBGGR8
-	template <> CVD::VideoBuffer<CVD::bayer>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced)
+	template <> CVD::VideoBuffer<CVD::bayer>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
 	{
-	    return new CVD::V4LBuffer<CVD::bayer>(dev, size, input, interlaced);
+	    return new CVD::V4LBuffer<CVD::bayer>(dev, size, input, interlaced, 0, verbose);
 	}
     #endif
-    template <> CVD::VideoBuffer<CVD::yuv422>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced)
+    template <> CVD::VideoBuffer<CVD::yuv422>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
     {
-	return new CVD::V4LBuffer<CVD::yuv422>(dev, size, input, interlaced);
+	return new CVD::V4LBuffer<CVD::yuv422>(dev, size, input, interlaced, 0, verbose);
     }
-    template <> CVD::VideoBuffer<CVD::Rgb<CVD::byte> >* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced)
+    template <> CVD::VideoBuffer<CVD::Rgb<CVD::byte> >* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
     {
-	return new CVD::V4LBuffer<CVD::Rgb<CVD::byte> >(dev, size, input, interlaced);
+	return new CVD::V4LBuffer<CVD::Rgb<CVD::byte> >(dev, size, input, interlaced, 0, verbose);
     }
 
-    void get_v4l2_options(const VideoSource& vs, ImageRef& size, int& input, bool& interlaced)
+    void get_v4l2_options(const VideoSource& vs, ImageRef& size, int& input, bool& interlaced, bool& verbose)
     {
 	size = ImageRef(640,480);
 	input = -1;
@@ -337,20 +359,12 @@ namespace CVD {
 		    if (!(size_in >> size.x >> x >> size.y))
 			throw ParseException("invalid image size specification: '"+it->second+"'\n\t valid specs: vga, qvga, pal, ntsc, <width>x<height>");
 		}
-	    } else if (it->first == "input") {
+	  } else if (it->first == "input") {
 		input = atoi(it->second.c_str());
+	    } else if (it->first == "verbose") {
+			verbose = parseBoolFlag(it->second);
 	    } else if (it->first == "interlaced" || it->first == "fields") {
-		if (it->second.length()) {
-		    std::string s = it->second;
-		    tolower(s);
-		    if (s == "true" || s=="yes")
-			interlaced = true;
-		    else if (s == "false" || s == "no")
-			interlaced = false;
-		    else
-			throw ParseException("invalid interlaced/fields setting '"+s+"' (must be true/false or yes/no)");
-		} else
-		    interlaced = true;
+			interlaced = parseBoolFlag(it->second);
 	    } else
 		throw VideoSourceException("invalid option for 'v4l2' protocol: "+it->first+"\n\t valid options: size, input, interlaced, fields");
 	}
