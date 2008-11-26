@@ -99,6 +99,14 @@ string unfourcc(unsigned long c)
 	return ret;
 }
 
+typedef const char fourcc_string[5];
+
+unsigned int fourcc(const fourcc_string& s)
+{
+	return v4l2_fourcc(s[0], s[1], s[2], s[3]);
+}
+
+
 namespace V4L { // V4L
 
     struct V4L2Client::State {
@@ -120,56 +128,106 @@ namespace V4L { // V4L
 	VPrint log(verbose);
 
 	log << "verbose operation. Initializing\n";
-
+	log << "Querying capabilities.\n";
 	struct v4l2_capability caps;
 	if (0 != ioctl(fd, VIDIOC_QUERYCAP, &caps))
 	{
 	    throw string("VIDIOC_QUERYCAP failed");
 	}
 
-	log << "Capabilities: driver: " << caps.driver << "\n";
-	log << "Capabilities: card: " << caps.card << "\n";
-	log << "Capabilities: bus_info: " << caps.bus_info << "\n";
-	log << "Capabilities: version: " << caps.version  << "\n";
-	log << "Capabilities: capabilities: 0x" << hex << caps.capabilities << dec << "\n";
-	log << "Capabilities:              V4L2_CAP_VIDEO_CAPTURE        = " << !!(caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) << "\n";
-	log << "Capabilities:              V4L2_CAP_VIDEO_OUTPUT         = " << !!(caps.capabilities & V4L2_CAP_VIDEO_OUTPUT) << "\n";
-	log << "Capabilities:              V4L2_CAP_VIDEO_OVERLAY        = " << !!(caps.capabilities & V4L2_CAP_VIDEO_OVERLAY) << "\n";
-	log << "Capabilities:              V4L2_CAP_VBI_CAPTURE          = " << !!(caps.capabilities & V4L2_CAP_VBI_CAPTURE) << "\n";
-	log << "Capabilities:              V4L2_CAP_VBI_OUTPUT           = " << !!(caps.capabilities & V4L2_CAP_VBI_OUTPUT) << "\n";
-	log << "Capabilities:              V4L2_CAP_SLICED_VBI_CAPTURE   = " << !!(caps.capabilities & V4L2_CAP_SLICED_VBI_CAPTURE) << "\n";
-	log << "Capabilities:              V4L2_CAP_SLICED_VBI_OUTPUT    = " << !!(caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) << "\n";
-	log << "Capabilities:              V4L2_CAP_RDS_CAPTURE          = " << !!(caps.capabilities & V4L2_CAP_SLICED_VBI_OUTPUT) << "\n";
-	log << "Capabilities:              V4L2_CAP_VIDEO_OUTPUT_OVERLAY = " << !!(caps.capabilities & V4L2_CAP_VIDEO_OUTPUT_OVERLAY) << "\n";
-	log << "Capabilities:              V4L2_CAP_TUNER                = " << !!(caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) << "\n";
-	log << "Capabilities:              V4L2_CAP_AUDIO                = " << !!(caps.capabilities & V4L2_CAP_TUNER) << "\n";
-	log << "Capabilities:              V4L2_CAP_RADIO                = " << !!(caps.capabilities & V4L2_CAP_RADIO) << "\n";
-	log << "Capabilities:              V4L2_CAP_READWRITE            = " << !!(caps.capabilities & V4L2_CAP_READWRITE) << "\n";
-	log << "Capabilities:              V4L2_CAP_ASYNCIO              = " << !!(caps.capabilities & V4L2_CAP_ASYNCIO) << "\n";
-	log << "Capabilities:              V4L2_CAP_STREAMING            = " << !!(caps.capabilities & V4L2_CAP_STREAMING) << "\n";
+	log << "   driver: " << caps.driver << "\n";
+	log << "   card: " << caps.card << "\n";
+	log << "   bus_info: " << caps.bus_info << "\n";
+	log << "   version: " << caps.version  << "\n";
+	log << "   capabilities: 0x" << hex << caps.capabilities << dec << "\n";
+	log << "                V4L2_CAP_VIDEO_CAPTURE        = " << !!(caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) << "\n";
+	log << "                V4L2_CAP_VIDEO_OUTPUT         = " << !!(caps.capabilities & V4L2_CAP_VIDEO_OUTPUT) << "\n";
+	log << "                V4L2_CAP_VIDEO_OVERLAY        = " << !!(caps.capabilities & V4L2_CAP_VIDEO_OVERLAY) << "\n";
+	log << "                V4L2_CAP_VBI_CAPTURE          = " << !!(caps.capabilities & V4L2_CAP_VBI_CAPTURE) << "\n";
+	log << "                V4L2_CAP_VBI_OUTPUT           = " << !!(caps.capabilities & V4L2_CAP_VBI_OUTPUT) << "\n";
+	log << "                V4L2_CAP_SLICED_VBI_CAPTURE   = " << !!(caps.capabilities & V4L2_CAP_SLICED_VBI_CAPTURE) << "\n";
+	log << "                V4L2_CAP_SLICED_VBI_OUTPUT    = " << !!(caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) << "\n";
+	log << "                V4L2_CAP_RDS_CAPTURE          = " << !!(caps.capabilities & V4L2_CAP_SLICED_VBI_OUTPUT) << "\n";
+	log << "                V4L2_CAP_VIDEO_OUTPUT_OVERLAY = " << !!(caps.capabilities & V4L2_CAP_VIDEO_OUTPUT_OVERLAY) << "\n";
+	log << "                V4L2_CAP_TUNER                = " << !!(caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) << "\n";
+	log << "                V4L2_CAP_AUDIO                = " << !!(caps.capabilities & V4L2_CAP_TUNER) << "\n";
+	log << "                V4L2_CAP_RADIO                = " << !!(caps.capabilities & V4L2_CAP_RADIO) << "\n";
+	log << "                V4L2_CAP_READWRITE            = " << !!(caps.capabilities & V4L2_CAP_READWRITE) << "\n";
+	log << "                V4L2_CAP_ASYNCIO              = " << !!(caps.capabilities & V4L2_CAP_ASYNCIO) << "\n";
+	log << "                V4L2_CAP_STREAMING            = " << !!(caps.capabilities & V4L2_CAP_STREAMING) << "\n";
 
-	if (strcmp((const char*)caps.driver, "bttv")==0) {
+
+	log << "Requested format: " << unfourcc(fmt) << "\n";
+	unsigned int actual_fmt=fourcc("None");
+
+	log << "Enumerating formats.\n";
+
+	struct v4l2_fmtdesc f;
+	f.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	log   << "   Index  FourCC     Flags    Description\n";
+	for(f.index=0; ioctl(fd, VIDIOC_ENUM_FMT, &f) == 0; f.index++)
+	{
+		log << "     " << setw(3) << setfill(' ') << f.index << "   "<< unfourcc(f.pixelformat) 
+				<< "   0x" << hex <<  setfill('0')  << setw(8) << f.flags << dec << "  " 
+				<< f.description << "\n";
+
+		if(fmt == f.pixelformat)
+			actual_fmt = fmt;
+
+		//Hack. Some cameras won't send GREY, but the planar formats
+		//are close enough, since the first chunk is the same as GREY
+		if(fmt == V4L2_PIX_FMT_GREY && actual_fmt == fourcc("None") && (
+		   f.pixelformat == fourcc("422P") ||
+		   f.pixelformat == fourcc("YU12") ||
+		   f.pixelformat == fourcc("YV12") ||
+		   f.pixelformat == fourcc("411P") ||
+		   f.pixelformat == fourcc("YUV9") ||
+		   f.pixelformat == fourcc("YVU9")))
+		{
+			actual_fmt = f.pixelformat;
+		}
+
+		//Turbobodge!!!! Remove this!! FIXME FIXME FIXME
+		if(fmt == fourcc("RGB3") && f.pixelformat == fourcc("BGR3"))
+			actual_fmt = f.pixelformat;
+	}
+
+	if(errno != EINVAL)
+		throw string("VIDIOC_ENUM_FMT");
+	
+	fmt = actual_fmt;
+	log << "Seleced format: " << unfourcc(fmt) << "\n";
+
+
+/*	if (caps.driver == string("bttv"))
+	{
 	    v4l2_std_id stdId=V4L2_STD_PAL;
 	    if(ioctl(fd, VIDIOC_S_STD, &stdId ))
-		throw string("VIDIOC_S_STD");
+				throw string("VIDIOC_S_STD");
 	}
 	
 	if (input != -1) {
 	    struct v4l2_input v4l2Input;
 	    v4l2Input.index=input; 
 	    if (0 != ioctl(fd, VIDIOC_S_INPUT, &v4l2Input))
-		throw string("VIDIOC_S_INPUT");
+				throw string("VIDIOC_S_INPUT");
 	}
-
+*/
 	// Get / Set capture format.
 	struct v4l2_format format;
 	format.type=V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+	log << "Getting format (VIDIOC_G_FMT)\n";
 	
 	if (0 != ioctl(fd, VIDIOC_G_FMT, &format))
 	    throw string("VIDIOC_G_FMT");
 
-	log << 	"G_FMT gives size/format/fields: " << format.fmt.pix.width  << "x" << 	format.fmt.pix.height << " / " 
-	    << unfourcc(format.fmt.pix.pixelformat) << hex << " (0x" << format.fmt.pix.pixelformat << dec << ") / " << format.fmt.pix.field << "\n";
+	log << "   size: " << format.fmt.pix.width  << "x" << 	format.fmt.pix.height << "\n";
+	log << "   format: " << unfourcc(format.fmt.pix.pixelformat) << "\n";
+	log << "   field flag: " << format.fmt.pix.field << "\n";
+	log << "   bytes per line: " << format.fmt.pix.bytesperline << "\n";
+	log << "   image size: " << format.fmt.pix.sizeimage << "\n";
+	log << "   colourspace: " << format.fmt.pix.colorspace << "\n";
 
 	format.fmt.pix.width = size.x;
 	format.fmt.pix.height = size.y;
