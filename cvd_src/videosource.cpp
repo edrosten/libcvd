@@ -336,11 +336,17 @@ namespace CVD {
 	return new CVD::V4LBuffer<CVD::Rgb<CVD::byte> >(dev, size, input, interlaced, 0, verbose);
     }
 
+    template <> CVD::VideoBuffer<CVD::Rgb8>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
+    {
+	return new CVD::V4LBuffer<CVD::Rgb8>(dev, size, input, interlaced, 0, verbose);
+    }
+
     void get_v4l2_options(const VideoSource& vs, ImageRef& size, int& input, bool& interlaced, bool& verbose)
     {
 	size = ImageRef(640,480);
 	input = -1;
 	interlaced = false;
+	verbose=0;
 	for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it) {
 	    if (it->first == "size") {		
 		std::string s = it->second;

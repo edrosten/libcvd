@@ -37,6 +37,7 @@
 #include <cvd/videobuffer.h>
 #include <cvd/byte.h>
 #include <cvd/rgb.h>
+#include <cvd/rgb8.h>
 #include <cvd/timer.h>
 #include <cvd/colourspaces.h>
 #include <fcntl.h>
@@ -106,6 +107,12 @@ namespace V4L
     {
 		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_RGB24;
         static const unsigned int v4l1_palette = VIDEO_PALETTE_RGB24;
+    };
+
+    template<> struct format<Rgb8>
+    {
+		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_RGB32;
+        static const unsigned int v4l1_palette = VIDEO_PALETTE_RGB32;
     };
 #endif
     

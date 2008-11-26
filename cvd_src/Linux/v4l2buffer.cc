@@ -289,8 +289,9 @@ V4L2Buffer_Base::V4L2Buffer_Base(const char *devname, bool fields, V4L2BufferBlo
 	sv4l2RequestBuffers.count=num_buffers;
 	sv4l2RequestBuffers.type=V4L2_BUF_TYPE_VIDEO_CAPTURE; //|V4L2_BUF_ATTR_DEVICEMEM;
 	sv4l2RequestBuffers.memory=V4L2_MEMORY_MMAP;
-
-	if(0!=ioctl(m_nVideoFileDesc,VIDIOC_REQBUFS,&sv4l2RequestBuffers))
+	
+	//bttv now returns num_buffers
+	if(ioctl(m_nVideoFileDesc,VIDIOC_REQBUFS,&sv4l2RequestBuffers)==-1)
 		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Request capture buffers");
 
 	num_buffers = sv4l2RequestBuffers.count;

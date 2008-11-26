@@ -44,7 +44,8 @@ template<class C> void play(string s)
 	
 	VideoDisplay display(buffer->size());
 	
-	while(buffer->frame_pending())
+	//while(buffer->frame_pending())
+	for(;;)
 	{
 		VideoFrame<C>* frame = buffer->get_frame();
 		glDrawPixels(*frame);
@@ -55,14 +56,22 @@ template<class C> void play(string s)
 
 int main(int argc, char* argv[])
 {
-	bool mono=0;
+	int type =0;
 	
 	int arg=1;
 	
-	if(argc-1 >=1 && argv[arg] == string("-mono"))
+	if(argc-1 >=1)
 	{
-		arg++;
-		mono=1;
+	    if(argv[arg] == string("-mono"))
+		{
+			arg++;
+			type=1;
+		}
+	    else if(argv[arg] == string("-rgb8"))
+		{
+			arg++;
+			type=2;
+		}
 	}
 
 	if(arg != argc-1)
@@ -72,8 +81,10 @@ int main(int argc, char* argv[])
 	}
 	try
 	{
-		if(mono)
+		if(type == 1)
 			play<byte>(argv[arg]);
+		else if(type == 2)
+			play<Rgb8>(argv[arg]);
 		else
 			play<Rgb<byte> >(argv[arg]);
 	}

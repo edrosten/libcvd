@@ -104,7 +104,7 @@ namespace CVD {
     void get_files_options(const VideoSource& vs, int& fps, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob);
     
 #if CVD_HAVE_V4L1BUFFER
-    template <class T> VideoBuffer<T>* makeV4L1Buffer(const std::string& dev, const ImageRef& size)
+    template <class T> VideoBuffer<T>* makeV4L1Buffer(const std::string&, const ImageRef& )
     {
 	throw VideoSourceException("V4L1Buffer cannot handle types other than byte, bayer, yuv422, Rgb<byte>");
     }
@@ -129,6 +129,7 @@ namespace CVD {
     template <> VideoBuffer<bayer>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
     template <> VideoBuffer<yuv422>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
     template <> VideoBuffer<Rgb<byte> >* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
+    template <> VideoBuffer<Rgb8>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
 
     void get_v4l2_options(const VideoSource& vs, ImageRef& size, int& input, bool& interlaced, bool& verbose);
 
@@ -136,7 +137,7 @@ namespace CVD {
 
 
 #if CVD_HAVE_FFMPEG    
-    template <class T> VideoBuffer<T>* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob)
+    template <class T> VideoBuffer<T>* makeVideoFileBuffer(const std::string& , VideoBufferFlags::OnEndOfBuffer )
     {
 	throw VideoSourceException("VideoFileBuffer cannot handle types other than byte, Rgb<byte>");
     }
@@ -149,7 +150,7 @@ namespace CVD {
 #endif
 
 #if CVD_HAVE_DVBUFFER
-    template <class T> VideoBuffer<T>* makeDVBuffer2(int cam, int dmabufs, int bright, int exposure, int fps)
+    template <class T> VideoBuffer<T>* makeDVBuffer2(int , int , int , int , int )
     {
 	throw VideoSourceException("DVBuffer2 cannot handle types other than byte, Rgb<byte>");
     }
@@ -162,7 +163,7 @@ namespace CVD {
 #endif
 
 #if CVD_HAVE_QTBUFFER
-    template <class T> VideoBuffer<T> * makeQTBuffer( const ImageRef & size, int input, bool showsettings)
+    template <class T> VideoBuffer<T> * makeQTBuffer( const ImageRef & , int , bool )
     {
 	throw VideoSourceException("QTBuffer cannot handle types other than vuy422");
     }

@@ -186,10 +186,6 @@ namespace V4L { // V4L
 		{
 			actual_fmt = f.pixelformat;
 		}
-
-		//Turbobodge!!!! Remove this!! FIXME FIXME FIXME
-		if(fmt == fourcc("RGB3") && f.pixelformat == fourcc("BGR3"))
-			actual_fmt = f.pixelformat;
 	}
 
 	if(errno != EINVAL)
@@ -199,7 +195,7 @@ namespace V4L { // V4L
 	log << "Seleced format: " << unfourcc(fmt) << "\n";
 
 
-/*	if (caps.driver == string("bttv"))
+	if (strcmp((const char*)caps.driver,"bttv") == 0)
 	{
 	    v4l2_std_id stdId=V4L2_STD_PAL;
 	    if(ioctl(fd, VIDIOC_S_STD, &stdId ))
@@ -212,7 +208,7 @@ namespace V4L { // V4L
 	    if (0 != ioctl(fd, VIDIOC_S_INPUT, &v4l2Input))
 				throw string("VIDIOC_S_INPUT");
 	}
-*/
+
 	// Get / Set capture format.
 	struct v4l2_format format;
 	format.type=V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -234,17 +230,27 @@ namespace V4L { // V4L
 	format.fmt.pix.pixelformat = fmt;
 	format.fmt.pix.field = fields ? V4L2_FIELD_ALTERNATE : V4L2_FIELD_ANY;
 	
-	log << 	"S_FMT with size/format/fields: " << format.fmt.pix.width  << "x" << 	format.fmt.pix.height << " / " 
-	    << unfourcc(format.fmt.pix.pixelformat) << hex << " (0x" << format.fmt.pix.pixelformat << dec << ") / " << format.fmt.pix.field << "\n";
-	
+	log << "Setting format (VIDIOC_S_FMT)\n";
+	log << "   size: " << format.fmt.pix.width  << "x" << 	format.fmt.pix.height << "\n";
+	log << "   format: " << unfourcc(format.fmt.pix.pixelformat) << "\n";
+	log << "   field flag: " << format.fmt.pix.field << "\n";
+	log << "   bytes per line: " << format.fmt.pix.bytesperline << "\n";
+	log << "   image size: " << format.fmt.pix.sizeimage << "\n";
+	log << "   colourspace: " << format.fmt.pix.colorspace << "\n";
+
 	if (0 != ioctl(fd, VIDIOC_S_FMT, &format))
 	    throw string("VIDIOC_S_FMT");
 
+	log << "Getting format (VIDIOC_G_FMT)\n";
 	if (0 != ioctl(fd, VIDIOC_G_FMT, &format))
 	    throw string("VIDIOC_G_FMT");
 
-	log << 	"G_FMT gives size/format/fields: " << format.fmt.pix.width  << "x" << 	format.fmt.pix.height << " / " 
-	    << unfourcc(format.fmt.pix.pixelformat) << hex << " (0x" << format.fmt.pix.pixelformat << dec << ") / " << format.fmt.pix.field << "\n";
+	log << "   size: " << format.fmt.pix.width  << "x" << 	format.fmt.pix.height << "\n";
+	log << "   format: " << unfourcc(format.fmt.pix.pixelformat) << "\n";
+	log << "   field flag: " << format.fmt.pix.field << "\n";
+	log << "   bytes per line: " << format.fmt.pix.bytesperline << "\n";
+	log << "   image size: " << format.fmt.pix.sizeimage << "\n";
+	log << "   colourspace: " << format.fmt.pix.colorspace << "\n";
 
 	
 	if (fmt != format.fmt.pix.pixelformat)
@@ -254,12 +260,21 @@ namespace V4L { // V4L
 	reqbufs.count = 10;
 	reqbufs.memory = V4L2_MEMORY_MMAP;
 	reqbufs.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	if (0 != ioctl(fd,VIDIOC_REQBUFS,&reqbufs))
+
+	log << "Issuing VIDIOC_REQBUFS ioctl.\n";
+	int ret = ioctl(fd,VIDIOC_REQBUFS,&reqbufs);
+	log << "   Return code: " << ret << "\n";
+	
+	//WARNING!!!!!
+	//The documentation says -1 for error, 0 otherwise.
+	//The BTTV driver returns num_bufs on success!
+	//So the test against 0 fails.
+	if (ioctl(fd,VIDIOC_REQBUFS,&reqbufs) == -1)
 	    throw string("VIDIOC_REQBUFS");
 
-	cerr << "wtttf\n";
-
 	num_bufs = reqbufs.count;
+
+	log << "Number of buffers: " << num_bufs << "\n";
 	
 	if (reqbufs.count < 2)
 	    throw string("Insufficient buffers available");
