@@ -1,147 +1,161 @@
 BEGIN{
-	key=0
+	revision_key=0
 }
 
+function gline()
+{
+	if(!getline)
+		error("Unexpected EOF")
+	return 1
+}
 
+function error(s)
+{
+	print s > "/dev/stderr"
+	exit(1)
+}
 
+/^?/{next}
 
-#A log entry
-/RCS file:/{
-	getline
-	sub(/^Working file: /,"")
-	filename=$0
+#Process a file entry
+/^Working file:/{
 
+	#Get the filename
+	filename=$3
+	
+	#Find the tags
+	while(gline() && !/^symbolic names:/);
+
+	#Extract tags
+	delete revision_to_tag
+	while(gline() && ! /^keyword substitution:/)
+	{
+		tagname=substr($1, 1, length($1)-1)
+		revision_to_tag[$2]=tagname
+	}
+	
+	#Skip over the rest until the revisions
+	while(gline() && !/^----------------/);
+	
+	#There is always at least one revision
 	do
-		getline
-	while(!/symbolic names/)
-
-	delete sym
-
-	getline
-	for(;!/keyword substitution/;getline)
 	{
-		sub(/:/,"",$1)
-		sym[$2]=$1
-	}
-
-
-	while(!/----------/)
-		getline
-
-	while(1)
-	{
-		getline
+		#The revision number
+		gline()
 		revision=$2
-		getline
-		date=$2" "$3
 
-		datestamp=date
-		gsub(/[^0-9]+/, " ", datestamp)
+		#The commit line
+		gline()
+		commit_line=$0
+		author=substr($6, 1, length($6)-1)
+		
+		#Store the date* 10 for extra precision
+		date = $2" "$3
+		gsub(/[^0-9]+/, " ", date)
+		date=mktime(date)*10
+		
+		#The commit message
+		message=""
+		while(gline() && !/^[-=]+$/)
+			message = message $0 "\n"
 
-		epoch=mktime(datestamp)
-		date = strftime("%a %e %b, %Y %H:%M:%S", epoch)
-
-
-		author = $6
-		sub(/;$/, "", author)
-
-		#Try to build a checkin stamp
-			
-		tag=sym[revision]
-	
-		#Find the most recent date for the tag (if present)
-		if(tag != "" && alltags[tag] < datestamp)
-			alltags[tag] = datestamp
-
-		text=""
-		#Get text
-		while(getline && !/-----/ && !/======/)
-			text=text (text == "" ? "" : "\n") $0
-
-		#Now we have: filename revision date datestamp author tag text key
-		authors[key] = author
-		revisions[key] = revision
-		tags[key] =  tag
-		texts[key] = text
-		files[key] = filename
-	
-		dates[datestamp] = date
-
-		entries[datestamp] = entries[datestamp] " " key
-
-		key++
-
-		if(/========/)
-			break
+		#The commit line is the primary key.
+		
+		#Keep track of commits
+		date_to_line[date]=commit_line
+		line_to_message[commit_line]=message
+		line_to_author[commit_line]=author
+		line_to_files[commit_line]=line_to_files[commit_line] " " filename
+		line_to_revision[commit_line]=line_to_revision[commit_line] " " revision
+		
+		#The last file commit which has a certain tag 
+		#happens just before the tag.
+		if(tag_to_date[revision_to_tag[revision]] < date)
+			tag_to_date[revision_to_tag[revision]] = date
 	}
+	while(!/^=+$/)
 }
-
 
 
 END{
-	#Put tags in to entries
-	for(i in alltags)
-		entries[alltags[i]] = "tag " i
+	#Delete the null tag for untagged revisions
+	delete tag_to_date[""]
+
+	#The last
+	for(i in tag_to_date)
+	{	
+		#Put the tag in just after the last commit
+		date = tag_to_date[i] + 1
+		date_to_line[date]="hello"
+		date_to_tag[date]=i
+	}
 
 
-	n = asorti(entries, se)
-
-	for(i=n; i >0; i--)
+	#Sort commits by date
+	num_dates=asorti(date_to_line, sorted_dates)
+	
+	#Iterate through all commits, newest first
+	for(i=num_dates; i > 0; i--)
 	{
-		ds = se[i]
-		keylist = entries[ds]
-		nk = split(keylist, keys)
+		date = sorted_dates[i]
 
-		#Try to concatenate non-atomic commits
-		concat=""
-		nc=1
-		for(;;)
+		if(date in date_to_tag)
 		{
-			ds1 = se[i-1]
-			kl1 = entries[ds1]
-			nk1 = split(kl1, k1)
-			if(authors[keys[1]] == authors[k1[1]] && texts[keys[1]] == texts[k1[1]])
-			{
-				keylist = keylist " " kl1
-				nk = split(keylist, keys)
-				i--
-				concat = concat ", "(ds1 - ds) "s"
-				nc++
-			}
-			else
-				break
-		}
-
-		if(concat != "")
-			concat = "(Concatenated " nc " entries at 0s" concat ")"
-
-
-		
-
-		if(keys[1] == "tag")
-		{
-			print "====================================================================="
-			print "Repository tagged as " keys[2]
-			print "====================================================================="
-			print ""
-			print ""
+			print "=========================================="
+			print "Repository tagged as " date_to_tag[date]
+			print "=========================================="
 		}
 		else
 		{
-			print dates[ds] " author: " authors[keys[1]] " " concat
+			line = date_to_line[date]
 
-			for(j=1; j <= nk; j++)
+			author=line_to_author[line]
+			message=line_to_message[line]
+
+			file_list=line_to_files[line]
+			rev_list=line_to_revision[line]
+			
+			print ""
+			#Long commits can get spread over several seconds.
+			#Try to concatenate entries which differ by a few 
+			#seconds, but have the same commit messsage and 
+			#author
+			#We allow 20 seconds
+			concatenation=""
+			num_concat=0
+			for(j=i-1; j>0 && 
+					   author==line_to_author[date_to_line[sorted_dates[j]]] &&
+					   message==line_to_message[date_to_line[sorted_dates[j]]] &&
+					   date - sorted_dates[j] < 20; j--)
 			{
-				k = keys[j]
-				print "   File: " files[k] " (Rev. " revisions[k] ")" 
+				#Reset i, so that the fragment appears once only.
+				i=j
+				
+				#Append to the file and revision list
+				file_list=file_list " " line_to_files[date_to_line[sorted_dates[j]]];
+				rev_list=rev_list " " line_to_revision[date_to_line[sorted_dates[j]]];
+
+				#Make a note of teh concatenations
+				concatenation=concatenation ", " date - sorted_dates[j] "s"
+				num_concat++
 			}
 
-			print ""
-			print texts[keys[1]]
-			print ""
-			print "-----------------------------------"
-			print ""
+			#Create a message based on concatenation
+			if(num_concat)
+				concatenation = " (Concatenated " num_concat+1 " entries at " substr(concatenation, 3) ")"
+			
+			#Leader line
+			print strftime("%a %e %b, %Y %H:%M:%S", date/10) " author: " author concatenation
+			
+			#List files commit happened on
+			numfiles=split(file_list, files);
+			split(rev_list, revisions);
+
+			for(j=1; j <= numfiles; j++)
+				print "    File: " files[j] " (Rev. " revisions[j] ")"
+			
+			#Print the commit message
+			print "\n" message "\n--------------"
 		}
 	}
-
 }
