@@ -192,12 +192,18 @@ template <class T> class V4L1Buffer : public VideoBuffer<T>, public V4L1::RawV4L
 public:
     /// Construct a video buffer
     /// @param dev file name of the device to use
-    V4L1Buffer(const std::string & dev) : RawV4L1( dev, V4L1::cam_type<T>::mode, ImageRef(0,0)) {}
+    V4L1Buffer(const std::string & dev) 
+	:VideoBuffer<T>(VideoBuffer<T>::Flushable),
+	 RawV4L1( dev, V4L1::cam_type<T>::mode, ImageRef(0,0)) 
+	{}
 
     /// Construct a video buffer
     /// @param dev file name of the device to use
     /// @param size Size of the video stream to grab
-    V4L1Buffer(const std::string & dev, ImageRef size) : RawV4L1( dev, V4L1::cam_type<T>::mode,size ) {}
+    V4L1Buffer(const std::string & dev, ImageRef size) 
+	:VideoBuffer<T>(VideoBuffer<T>::Flushable),
+	 RawV4L1( dev, V4L1::cam_type<T>::mode,size ) 
+	{}
 
     virtual ImageRef size()
     {

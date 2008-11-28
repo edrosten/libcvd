@@ -752,7 +752,7 @@ int main(int argc, char* argv[])
 	}
 	    
 	VideoFrame<CAMERA_PIXEL>* vframe = videoBuffer->get_frame();
-	while(videoBuffer->frame_pending())
+	while(videoBuffer->type() == VideoBuffer<CAMERA_PIXEL>::Flushable && videoBuffer->frame_pending())
 	{
 	    videoBuffer->put_frame(vframe);
 	    vframe = videoBuffer->get_frame();

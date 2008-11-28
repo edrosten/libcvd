@@ -152,7 +152,9 @@ namespace V4L
 template <class T> class V4LBuffer : public VideoBuffer<T>
 {
 public:
- V4LBuffer(const std::string & dev, ImageRef size, int input=-1, bool fields=false, int frames_per_second=0, bool verbose=0) : devname(dev)
+ V4LBuffer(const std::string & dev, ImageRef size, int input=-1, bool fields=false, int frames_per_second=0, bool verbose=0) 
+ :VideoBuffer<T>(VideoBuffer<T>::Flushable), 
+  devname(dev)
     {
 	int device = open(devname.c_str(), O_RDWR | O_NONBLOCK);
 	if (device == -1)

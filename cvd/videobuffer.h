@@ -59,7 +59,25 @@ template <class T>
 class VideoBuffer 
 {
 	public:
-		virtual ~VideoBuffer(){}
+		enum Type
+		{
+			NotLive,
+			Live,
+			Flushable
+		};
+		
+		///Default to the most general semantics
+		VideoBuffer()
+		:m_type(NotLive)
+		{}
+		
+		///Construct the buffer with the known semantics
+		VideoBuffer(Type _type)
+		:m_type(_type)
+		{}
+
+		virtual ~VideoBuffer()
+		{}
 
 		/// The size of the VideoFrames returned by this buffer
 		virtual ImageRef size()=0;
@@ -69,7 +87,33 @@ class VideoBuffer
 		/// \param f The frame that you are finished with.
 		virtual void put_frame(VideoFrame<T>* f)=0;
 		/// Is there a frame waiting in the buffer? This function does not block. 
+		/// See is_live and is_flushable.
 		virtual bool frame_pending()=0;
+
+		/// Returns the type of the video stream
+		///
+		/// A video with live semantics has frames fed at
+		/// some externally controlled rate, such as from a 
+		/// video camera. 
+		///
+		/// A stream with live semantics also may be flushable, in
+		/// that all current frames can be removed from the stream
+		/// while frame_pending() is 1, and then the next get_frame()
+		/// will sleep until a frame arrives. This ensures that the latency
+		/// is low by discarding any old frames. Buffers flushable in this
+		/// manner have a type of VideoBuffer::Type::Flushable.
+		/// 
+		/// Some live streams are not flushable because it is not possible
+		/// to determine the state of frame_pending(). These have the type
+		/// VideoBuffer::Type::Live, and frame_pending() is always 1.
+		///
+		/// Otherwise, streams have a type VideoBuffer::Type::NotLive, and
+		/// frame_pending is always 1
+		Type type()
+		{
+			return m_type;
+		}
+
 		/// What is the (expected) frame rate of this video buffer, in frames per second?		
 		virtual double frame_rate()=0;
 		/// Go to a particular point in the video buffer (only implemented in buffers of recorded video)
@@ -82,6 +126,9 @@ class VideoBuffer
 		/// with the same lifetime as the buffer. This is a tool to allow management of
 		/// this data.
 		std::auto_ptr<VideoBufferData> extra_data;
+
+	private:
+		Type m_type;
 };
 
 namespace Exceptions
