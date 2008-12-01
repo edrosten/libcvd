@@ -42,7 +42,8 @@ namespace CVD {
 	VideoBuffer<T>& vbuffer;
     public:
 	virtual ~ReadAheadVideoBuffer() {}
-	ReadAheadVideoBuffer(VideoBuffer<T>& vb, size_t maxReadAhead=10) : vbuffer(vb) {}
+	ReadAheadVideoBuffer(VideoBuffer<T>& vb, size_t maxReadAhead=10) 
+	: VideoBuffer<T>(vb.type()),vbuffer(vb) {}
 	/// The size of the VideoFrames returned by this buffer
 	ImageRef size() { return vbuffer.size(); }
 	/// Returns the next frame from the buffer. This function blocks until a frame is ready.
@@ -75,6 +76,18 @@ namespace CVD {
 	Synchronized vblock;
 	EventObject qevent;
 	Thread thread;
+
+	typedef typename VideoBuffer<T>::Type Type;
+	
+
+	static Type type_update(Type t)
+	{
+		if(t== VideoBuffer<T>::NotLive)
+			return t; 
+		else
+			return VideoBuffer<T>::Flushable;
+	}
+
     public:
 	virtual ~ReadAheadVideoBuffer() {
 	    qevent.lock();
@@ -83,7 +96,8 @@ namespace CVD {
 	    qevent.unlock();
 	    thread.join();	    
 	}
-	ReadAheadVideoBuffer(VideoBuffer<T>& vb, size_t maxReadAhead=10) : vbuffer(vb), maxRA(maxReadAhead) {
+	ReadAheadVideoBuffer(VideoBuffer<T>& vb, size_t maxReadAhead=10) 
+	: VideoBuffer<T>(type_update(vb.type())), vbuffer(vb), maxRA(maxReadAhead) {
 	    thread.start(this);	    
 	}
 
