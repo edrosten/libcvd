@@ -177,6 +177,7 @@ void RawV4L1::commitSettings()
     pic.depth=myBpp;
     pic.palette=myPalette;
     if(ioctl(myDevice, VIDIOCSPICT, &pic) !=0)
+	{
 		if(myPalette == VIDEO_PALETTE_GREY)
 		{
 			myPalette = VIDEO_PALETTE_YUV420P;
@@ -184,6 +185,7 @@ void RawV4L1::commitSettings()
 		}
 		else
 			throw Exceptions::V4L1Buffer::DeviceSetup(deviceName, "set video_picture");
+	}
 
     retrieveSettings();
 }
