@@ -113,6 +113,17 @@ class VideoBuffer
 		{
 			return m_type;
 		}
+		
+		/// Flush all old frames out of the video buffer,
+		/// on a flushable buffer, causing the next get_frame()
+		/// to sleep until a frame arrives. On a non-flushable
+		/// buffer, this does nothing.
+		virtual void flush()
+		{
+			if(type() == Flushable)
+				while(frame_pending())
+					put_frame(get_frame());
+		}
 
 		/// What is the (expected) frame rate of this video buffer, in frames per second?		
 		virtual double frame_rate()=0;
@@ -148,6 +159,16 @@ namespace Exceptions
 		struct BadPutFrame: public All
 		{
 			BadPutFrame();
+		};
+		
+		/// The videobuffer was unable to successfully initialize grabbing in the 
+		/// specified colourspace.
+		/// @ingroup gException
+		struct BadColourSpace: public All
+		{
+			/// @param colourspace Specify the failed colourspace.
+			/// @param b Specify the failed buffer.
+			BadColourSpace(const std::string& colourspace, const std::string& b); 
 		};
 	}
 }
