@@ -28,6 +28,7 @@
 #include <cvd/timer.h>
 
 #include <vector>
+#include <iomanip>
 using namespace std;
 
 namespace CVD { // CVD
