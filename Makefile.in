@@ -248,7 +248,7 @@ distclean: clean
 	rm -f .sourcefiles
 	find . -name "*.cxx" -o -name "*.cc" -o -name "*.cpp" -o -name "*.c" -o -name "*.C" > .sourcefiles
 	rm -f .deps
-	bash generate_dependencies.bash "-I. $(CPPFLAGS)" > .deps
+	bash generate_dependencies.bash "-I. $(CPPFLAGS) $(CXXFLAGS)" > .deps
 
 depend: .deps
 
