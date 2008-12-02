@@ -130,7 +130,8 @@ namespace CVD
     DVBuffer3(unsigned int nCamNumber=0, 
 	      ImageRef irSize = ImageRef(-1,-1), 
 	      float fFPS = -1.0)
-      : RawDVBuffer3(DV3::CSConvert<pixel_T>::space, nCamNumber, irSize, fFPS)
+      : VideoBuffer<pixel_T>(VideoBufferType::Live),
+	    RawDVBuffer3(DV3::CSConvert<pixel_T>::space, nCamNumber, irSize, fFPS)
 	{
 	}
       

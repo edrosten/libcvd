@@ -751,12 +751,10 @@ int main(int argc, char* argv[])
 	    }
 	}
 	    
+	
+	videoBuffer->flush();
 	VideoFrame<CAMERA_PIXEL>* vframe = videoBuffer->get_frame();
-	while(videoBuffer->type() == VideoBuffer<CAMERA_PIXEL>::Flushable && videoBuffer->frame_pending())
-	{
-	    videoBuffer->put_frame(vframe);
-	    vframe = videoBuffer->get_frame();
-	}
+	
 	// leave this in, we cannot assume that vframe has a datatype that can be
 	// directly used in the glTexImage call later on (e.g. its yuv422 on OSX)
 	Image<byte> temp = convert_image(*vframe);

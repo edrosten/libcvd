@@ -193,7 +193,7 @@ public:
     /// Construct a video buffer
     /// @param dev file name of the device to use
     V4L1Buffer(const std::string & dev) 
-	:VideoBuffer<T>(VideoBuffer<T>::Flushable),
+	:VideoBuffer<T>(VideoBufferType::Flushable),
 	 RawV4L1( dev, V4L1::cam_type<T>::mode, ImageRef(0,0)) 
 	{}
 
@@ -201,7 +201,7 @@ public:
     /// @param dev file name of the device to use
     /// @param size Size of the video stream to grab
     V4L1Buffer(const std::string & dev, ImageRef size) 
-	:VideoBuffer<T>(VideoBuffer<T>::Flushable),
+	:VideoBuffer<T>(VideoBufferType::Flushable),
 	 RawV4L1( dev, V4L1::cam_type<T>::mode,size ) 
 	{}
 

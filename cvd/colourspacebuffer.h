@@ -55,7 +55,7 @@ template <class T, class From> class ColourspaceBuffer : public CVD::LocalVideoB
 		/// Construct a ColourspaceBuffer by wrapping it around another VideoBuffer
 		/// @param buf The buffer that will provide the raw frames
    		ColourspaceBuffer(CVD::VideoBuffer<From>& buf)
-		:m_vidbuf(buf),m_size(buf.size())
+		:LocalVideoBuffer<T>(buf.type()),m_vidbuf(buf),m_size(buf.size())
 		{
 		}
  

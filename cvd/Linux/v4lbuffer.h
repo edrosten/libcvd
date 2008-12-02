@@ -153,7 +153,7 @@ template <class T> class V4LBuffer : public VideoBuffer<T>
 {
 public:
  V4LBuffer(const std::string & dev, ImageRef size, int input=-1, bool fields=false, int frames_per_second=0, bool verbose=0) 
- :VideoBuffer<T>(VideoBuffer<T>::Flushable), 
+ :VideoBuffer<T>(VideoBufferType::Flushable), 
   devname(dev)
     {
 	int device = open(devname.c_str(), O_RDWR | O_NONBLOCK);

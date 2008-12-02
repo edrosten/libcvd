@@ -77,15 +77,13 @@ namespace CVD {
 	EventObject qevent;
 	Thread thread;
 
-	typedef typename VideoBuffer<T>::Type Type;
-	
 
-	static Type type_update(Type t)
+	static VideoBufferType::Type type_update(VideoBufferType::Type t)
 	{
-		if(t== VideoBuffer<T>::NotLive)
+		if(t== VideoBufferType::NotLive)
 			return t; 
 		else
-			return VideoBuffer<T>::Flushable;
+			return VideoBufferType::Flushable;
 	}
 
     public:

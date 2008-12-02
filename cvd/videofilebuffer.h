@@ -214,7 +214,7 @@ namespace CVD
 			/// Construct a VideoFileBuffer to play this file
 			/// @param file The path to the video file
 			VideoFileBuffer(const std::string& file)
-			:vf(file, VFB::rgb<T>::p)
+			:LocalVideoBuffer<T>(VideoBufferType::NotLive),vf(file, VFB::rgb<T>::p)
 			{
 			}
 

@@ -135,7 +135,7 @@ namespace CVD
 	//
 	template<typename T>
 	inline DiskBuffer2<T>::DiskBuffer2(const std::vector<std::string>& names, double fps, VideoBufferFlags::OnEndOfBuffer eob) 
-	:end_of_buffer_behaviour(eob)
+	:LocalVideoBuffer<T>(VideoBufferType::NotLive),end_of_buffer_behaviour(eob)
 	{
 		frames_per_sec = fps;
 

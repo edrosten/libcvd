@@ -43,7 +43,7 @@ template<class C> class ServerPushJpegBuffer: public LocalVideoBuffer<C>
 		///@param warnings Whether to print warnings if mis-sized frames arrive. 
 		///@param eat_frames Number of frames to discard on initialization.
 		ServerPushJpegBuffer<C>(std::istream& i, bool warnings_=0, int eat_frames=0)
-		:is(i),warnings(warnings_)
+		:LocalVideoBuffer<C>(VideoBufferType::Live),is(i),warnings(warnings_)
 		{
 			std::string tmp;
 			//Eat the first 10 frames because the camera sometimes takes a while to

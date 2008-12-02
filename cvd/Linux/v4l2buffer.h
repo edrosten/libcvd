@@ -149,7 +149,7 @@ class V4L2BufferT : public VideoBuffer<T>,
 {
 	public:
 		V4L2BufferT(const char *devname, bool fields, V4L2BufferBlockMethod block, int input=1, int numbufs=V4L2BUFFERS)
-		:V4L2Buffer_Base(devname, fields, block, input, numbufs, V4L2_Traits<T>::pix_code)
+		:VideoBuffer<T>(VideoBufferType::Flushable),V4L2Buffer_Base(devname, fields, block, input, numbufs, V4L2_Traits<T>::pix_code)
 		{}
 
 		virtual ImageRef size() 

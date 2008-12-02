@@ -51,6 +51,25 @@ template<class T> class VideoBufferDataAuto: public VideoBufferData
 		}
 };
 
+///The semsntics of the videobuffer. See VideoFrame::type()
+class VideoBufferType
+{
+	enum Type
+	{
+		///The buffer does not have live semantics: frames
+		///are not throttled by something external. 
+		///VideoBuffer::frame_pending() is true until the last frame has 
+		///been retrieved, after which is is set to false.
+		NotLive, 
+		///The buffer has live semantics: frames are throttled by
+		///something externa, but VideoBuffer::frame_pending() always returns true.
+		Live,
+		///The buffer is flushable: it is live and VideoBuffer::frame_pending() returns
+		///an accurate result.
+		Flushable
+	};
+};
+
 /// Base class for objects which provide a video stream. A video 
 /// stream is a sequence of video frames (derived from VideoFrame).
 /// @param T The pixel type of the video frames
@@ -59,20 +78,8 @@ template <class T>
 class VideoBuffer 
 {
 	public:
-		enum Type
-		{
-			NotLive,
-			Live,
-			Flushable
-		};
-		
-		///Default to the most general semantics
-		VideoBuffer()
-		:m_type(NotLive)
-		{}
-		
 		///Construct the buffer with the known semantics
-		VideoBuffer(Type _type)
+		VideoBuffer(VideoBufferType::Type _type)
 		:m_type(_type)
 		{}
 
@@ -109,7 +116,7 @@ class VideoBuffer
 		///
 		/// Otherwise, streams have a type VideoBuffer::Type::NotLive, and
 		/// frame_pending is always 1
-		Type type()
+		VideoBufferType::Type type()
 		{
 			return m_type;
 		}
@@ -120,7 +127,7 @@ class VideoBuffer
 		/// buffer, this does nothing.
 		virtual void flush()
 		{
-			if(type() == Flushable)
+			if(type() == VideoBufferType::Flushable)
 				while(frame_pending())
 					put_frame(get_frame());
 		}
@@ -139,7 +146,7 @@ class VideoBuffer
 		std::auto_ptr<VideoBufferData> extra_data;
 
 	private:
-		Type m_type;
+		VideoBufferType::Type m_type;
 };
 
 namespace Exceptions

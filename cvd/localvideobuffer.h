@@ -36,6 +36,10 @@ template <class T>
 class LocalVideoBuffer: public  CVD::VideoBuffer<T>
 {
 	public:
+		LocalVideoBuffer(typename VideoBufferType::Type t)
+		:VideoBuffer<T>(t)
+		{}
+
 		virtual ~LocalVideoBuffer(){}
 
 		virtual ImageRef size()=0;

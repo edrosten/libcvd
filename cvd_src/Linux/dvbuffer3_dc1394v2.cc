@@ -280,7 +280,7 @@ namespace CVD
   
     bool RawDVBuffer3::frame_pending()
     {
-      return false;
+      return true;
     }
 
     VideoFrame<byte>* RawDVBuffer3::get_frame()

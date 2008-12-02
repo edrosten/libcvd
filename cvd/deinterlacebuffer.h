@@ -130,6 +130,7 @@ class DeinterlaceBuffer : public VideoBuffer<T>
 //
 template <typename T>
 DeinterlaceBuffer<T>::DeinterlaceBuffer(CVD::VideoBuffer<T>& vidbuf, Fields fields) :
+	VideoBuffer<T>(vidbuf.type()),
 	m_vidbuf(vidbuf),
 	m_fields(fields),
 	m_loadnewframe(true)

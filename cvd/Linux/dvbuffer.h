@@ -251,8 +251,10 @@ template<class T> class DVBuffer2: public VideoBuffer<T>, public DC::RawDCVideo
 		/// @param exposure The exposure correction (default = -1 = automatic)
 		/// @param fps The number of frames per second (default = 30fps)
 		DVBuffer2(int cam_no, int num_dma_buffers, int bright=-1, int exposure=-1, double fps=DC::cam_type<T>::fps)
-		:RawDCVideo(cam_no, num_dma_buffers, bright, exposure, DC::cam_type<T>::mode, fps)
+		:VideoBuffer<T>(VideoBufferType::Live),RawDCVideo(cam_no, num_dma_buffers, bright, exposure, DC::cam_type<T>::mode, fps)
 		{
+			//Apparently, DVBuffer isn't flushable.
+			//This should probably be fixed.
 		}
 
 		virtual ~DVBuffer2()
