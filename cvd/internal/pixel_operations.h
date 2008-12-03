@@ -22,6 +22,7 @@
 #ifndef CVD_PIXEL_OPERATIONS_H_
 #define CVD_PIXEL_OPERATIONS_H_
 
+#include <cmath>
 #include <cvd/internal/pixel_traits.h>
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/internal/builtin_components.h>
