@@ -46,8 +46,16 @@ function error(s)
 
 		#The commit line
 		gline()
-		commit_line=$0
 		author=substr($6, 1, length($6)-1)
+		
+		#Remove the variable line count.
+		if($9 == "lines:")
+		{
+			$10 = ""
+			$11 = ""
+		}
+		$0=$0
+		commit_line=$0
 		
 		#Store the date* 10 for extra precision
 		date = $2" "$3
@@ -126,7 +134,7 @@ END{
 			for(j=i-1; j>0 && 
 					   author==line_to_author[date_to_line[sorted_dates[j]]] &&
 					   message==line_to_message[date_to_line[sorted_dates[j]]] &&
-					   date - sorted_dates[j] < 20; j--)
+					   date - sorted_dates[j] < 100; j--)
 			{
 				#Reset i, so that the fragment appears once only.
 				i=j
@@ -136,7 +144,7 @@ END{
 				rev_list=rev_list " " line_to_revision[date_to_line[sorted_dates[j]]];
 
 				#Make a note of teh concatenations
-				concatenation=concatenation ", " date - sorted_dates[j] "s"
+				concatenation=concatenation ", " (date - sorted_dates[j])/10 "s"
 				num_concat++
 			}
 
