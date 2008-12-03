@@ -1,0 +1,114 @@
+/*                       
+	This file is part of the CVD Library.
+
+	Copyright (C) 2005 The Authors
+
+	This library is free software; you can redistribute it and/or
+	modify it under the terms of the GNU Lesser General Public
+	License as published by the Free Software Foundation; either
+	version 2.1 of the License, or (at your option) any later version.
+
+	This library is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	Lesser General Public License for more details.
+
+	You should have received a copy of the GNU Lesser General Public
+	License along with this library; if not, write to the Free Software
+	Foundation, Inc., 
+    51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+#ifndef CVD_HAAR_H
+#define CVD_HAAR_H
+
+#include <vector>
+#include <cmath>
+#include <cvd/image.h>
+
+namespace CVD {
+
+namespace Internal {
+    template<class It, class TempIt>
+    inline void haar1D(It from, int w, TempIt store){
+        for(int i = 0; i < w; ++i){
+            store[i] = (from[2*i] + from[2*i+1]) * M_SQRT1_2;
+            store[i+w] = (from[2*i] - from[2*i+1]) * M_SQRT1_2;
+        }
+        std::copy(store, store+2*w, from);
+    }
+}
+
+
+/// computes the 1D Haar transform of a signal in place. This version takes
+/// two iterators, and the data between them will be transformed. Will only work
+/// correctly on 2^N data points.
+/// @param from iterator pointing to the beginning of the data
+/// @param to iterator pointing to the end (after the last element)
+/// @ingroup gVision
+template<class It>
+inline void haar1D(It from, It to){
+    std::vector<typename std::iterator_traits<It>::value_type> store(std::distance(from,to), typename std::iterator_traits<It>::value_type());
+    int w = std::distance(from,to);
+    while(w>1){
+        w /= 2;
+        Internal::haar1D(from, w, store.begin());
+    }
+}
+
+/// computes the 1D Haar transform of a signal in place. Will only work
+/// correctly on 2^N data points.
+/// @param from iterator pointing to the beginning of the data
+/// @param size number of data points, should be 2^N
+/// @ingroup gVision
+template<class It>
+inline void haar1D(It from, int size){
+    haar1D(from, from + size);
+}
+
+/// computes the 2D Haar transform of a signal in place. Works only with 
+/// data with power of two dimensions, 2^N x 2^ M.
+/// @param from iterator pointing to the beginning of the data
+/// @param width columns of data, should be 2^N
+/// @param height rows of data, should be 2^M
+/// @param stride offset between rows, if negative will be set to width
+/// @ingroup gVision
+template<class It>
+inline void haar2D(It from, const int width, const int height, int stride = -1){
+    if(stride < 0) stride = width;
+    typedef typename std::iterator_traits<It>::value_type T;
+    std::vector<T> column(height, T());
+    std::vector<T> store(std::max(width,height), T());
+    int w = width;
+    int h = height;
+    while(w > 1 || h > 1){
+        if(w > 1){
+            for(int i = 0; i < h; ++i){
+                Internal::haar1D(from + stride * i, w/2, store.begin());
+            }
+        }
+        if(h > 1){
+            for(int i = 0; i < w; ++i){
+                for(int j = 0; j < h; ++j)
+                    column[j] = from[stride * j + i];
+                Internal::haar1D(column.begin(), h/2, store.begin());
+                for(int j = 0; j < h; ++j)
+                    from[stride * j + i] = column[j];
+            }
+        }
+        if(w>1) w/=2;
+        if(h>1) h/=2;
+    }
+}
+
+/// computes the 2D Haar transform of an image in place. Works only with 
+/// images with power of two dimensions, 2^N x 2^ M.
+/// @param I image to be transformed
+/// @ingroup gVision
+template<class T>
+inline void haar2D( SubImage<T> & I ){
+    haar2D(I.data(), I.size().x, I.size().y, I.row_stride());
+}
+
+}
+
+#endif // CVD_HAAR_H
