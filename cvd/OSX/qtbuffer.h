@@ -135,7 +135,7 @@ template <class T> class QTBuffer : public VideoBuffer<T>, public QT::RawQT
 public:
     /// Construct a video buffer
     /// @param dev file name of the device to use
-    QTBuffer(const ImageRef & size, unsigned int number = 0, bool showSettingsDialog=false ) : RawQT( size, 0, number, showSettingsDialog ) {}
+    QTBuffer(const ImageRef & size, unsigned int number = 0, bool showSettingsDialog=false ) : VideoBuffer<T>(VideoBufferType::Live), RawQT( size, 0, number, showSettingsDialog ) {}
 	
     virtual ImageRef size()
     {
