@@ -6,7 +6,7 @@ cvd_asm_yuv422_to_rgb:
 	movl	%esp, %ebp
 	subl	$16, %esp
 	
-	call	mcount
+/*	call	mcount*/
 
 	movl	8(%ebp), %esi	/* yuv */
 	movl	12(%ebp), %edi	/* rgb */

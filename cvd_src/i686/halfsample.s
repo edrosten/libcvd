@@ -30,7 +30,7 @@ cvd_asm_halfsample_mmx:
 	pushl	%edx
 	pushl	%edi
 	pushl	%esi
-	call	mcount
+/*	call	mcount*/
 	movl	8(%ebp), %esi
 	movl	12(%ebp), %edi
 	movl	16(%ebp), %ebx

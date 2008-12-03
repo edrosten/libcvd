@@ -14,7 +14,7 @@ cvd_asm_yuv422_to_grey:
 	pushl	%edi
 	
 	subl	$12, %esp
-	call	mcount
+/*	call	mcount */
 	movl	8(%ebp), %esi	/* yuv */
 	movl	12(%ebp), %edi	/* grey */
 	movl	16(%ebp), %ecx  /* size */

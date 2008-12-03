@@ -10,7 +10,7 @@ cvd_asm_rgb_to_gray:
 	pushl	%edx
 	pushl	%esi
 	pushl	%edi
-	call	mcount
+/*	call	mcount*/
 	movl	8(%ebp), %esi
 	movl	12(%ebp), %edi
 	movl	16(%ebp), %ecx
