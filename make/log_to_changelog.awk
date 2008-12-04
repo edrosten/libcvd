@@ -134,7 +134,7 @@ END{
 			for(j=i-1; j>0 && 
 					   author==line_to_author[date_to_line[sorted_dates[j]]] &&
 					   message==line_to_message[date_to_line[sorted_dates[j]]] &&
-					   date - sorted_dates[j] < 100; j--)
+					   date - sorted_dates[j] < 1000; j--)
 			{
 				#Reset i, so that the fragment appears once only.
 				i=j
