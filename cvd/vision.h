@@ -230,12 +230,14 @@ inline void gradient(const BasicImage<byte>& im, BasicImage<short[2]>& out);
 
 template <class T, class S> inline void sample(const BasicImage<S>& im, double x, double y, T& result)
 {
+  typedef typename Pixel::Component<S>::type SComp;
+  typedef typename Pixel::Component<T>::type TComp;
   int lx = (int)x;
   int ly = (int)y;
   x -= lx;
   y -= ly;
   for(unsigned int i = 0; i < Pixel::Component<T>::count; i++){
-    Pixel::Component<T>::get(result,i) = static_cast<typename Pixel::Component<T>::type>(
+    Pixel::Component<T>::get(result,i) = Pixel::scalar_convert<TComp,SComp>(
         (1-y)*((1-x)*Pixel::Component<S>::get(im[ly][lx],i) + x*Pixel::Component<S>::get(im[ly][lx+1], i)) +
           y * ((1-x)*Pixel::Component<S>::get(im[ly+1][lx],i) + x*Pixel::Component<S>::get(im[ly+1][lx+1],i)));
   }
@@ -275,8 +277,8 @@ inline void sample(const BasicImage<float>& im, double x, double y, float& resul
  * @return the number of pixels not in the in image 
  * @Note: this will collide with transform in the std namespace
  */
-template <class T> 
-int transform(const BasicImage<T>& in, BasicImage<T>& out, const TooN::Matrix<2>& M, const TooN::Vector<2>& inOrig, const TooN::Vector<2>& outOrig, const T defaultValue = T())
+template <class T, class S>
+int transform(const BasicImage<S>& in, BasicImage<T>& out, const TooN::Matrix<2>& M, const TooN::Vector<2>& inOrig, const TooN::Vector<2>& outOrig, const T defaultValue = T())
 {
     const int w = out.size().x, h = out.size().y, iw = in.size().x, ih = in.size().y; 
     const TooN::Vector<2> across = M.T()[0];
