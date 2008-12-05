@@ -35,7 +35,7 @@ namespace CVD {
 	///@param v List of pixel positions
 	///@param r List of segments.
 	///@ingroup gVision
-	void connected_components(const vector<ImageRef>& v, vector<vector<ImageRef> >& r);
+	void connected_components(const std::vector<ImageRef>& v, std::vector<std::vector<ImageRef> >& r);
 }
 
 #endif

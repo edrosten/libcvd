@@ -1,4 +1,7 @@
 #include "cvd/connected_components.h"
+#include <climits> 
+#include <algorithm> 
+
 using namespace std;
 namespace CVD{
 static unsigned int root_of(const vector<unsigned int>& parents, unsigned int n) 
@@ -7,6 +10,14 @@ static unsigned int root_of(const vector<unsigned int>& parents, unsigned int n)
 		n = parents[n];
 	return n;
 }
+
+struct CompareFistIntLessThan
+{
+	bool operator()(const pair<int, int>& p1, const pair<int, int>& p2)
+	{
+		return p1.first < p2.first;
+	}
+};
 
 void connected_components(const vector<ImageRef>& v, vector<vector<ImageRef> >& r)
 {
