@@ -6,7 +6,6 @@
 
 #include <cvd/byte.h>
 #include <cvd/image.h>
-#include <cvd/cpu_hacks.h>
 
 namespace CVD
 {
