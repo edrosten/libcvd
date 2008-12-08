@@ -149,7 +149,9 @@ namespace V4L { // V4L
 	log << "                V4L2_CAP_SLICED_VBI_CAPTURE   = " << !!(caps.capabilities & V4L2_CAP_SLICED_VBI_CAPTURE) << "\n";
 	log << "                V4L2_CAP_SLICED_VBI_OUTPUT    = " << !!(caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) << "\n";
 	log << "                V4L2_CAP_RDS_CAPTURE          = " << !!(caps.capabilities & V4L2_CAP_SLICED_VBI_OUTPUT) << "\n";
-	log << "                V4L2_CAP_VIDEO_OUTPUT_OVERLAY = " << !!(caps.capabilities & V4L2_CAP_VIDEO_OUTPUT_OVERLAY) << "\n";
+	#ifdef V4L2_CAP_VIDEO_OUTPUT_OVERLAY
+		log << "                V4L2_CAP_VIDEO_OUTPUT_OVERLAY = " << !!(caps.capabilities & V4L2_CAP_VIDEO_OUTPUT_OVERLAY) << "\n";
+	#endif
 	log << "                V4L2_CAP_TUNER                = " << !!(caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) << "\n";
 	log << "                V4L2_CAP_AUDIO                = " << !!(caps.capabilities & V4L2_CAP_TUNER) << "\n";
 	log << "                V4L2_CAP_RADIO                = " << !!(caps.capabilities & V4L2_CAP_RADIO) << "\n";
