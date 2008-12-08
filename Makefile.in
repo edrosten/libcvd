@@ -34,8 +34,6 @@ LOADLIBES = @LIBS@
 INSTALL = @INSTALL@
 AR=ar
 
-DESTDIR =
-
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -146,13 +144,13 @@ all: libcvd.a $(soname) progs $(DTARGETS) libcvd_debug.a $(dsoname)
 
 $(soname): $(OBJS)
 	rm -f $(sos)
-	$(LD) $(shared) -o $(soname2) $(OBJS) $(LDFLAGS) $(LOADLIBES)
+	$(LD) $(shared) -o $(soname2) $(OBJS) $(LDFLAGS) $(LOADLIBES) -Wl,-soname,libcvd.so.@major@
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
 $(dsoname): $(DEBUG_OBJS)
 	rm -f $(dsos)
-	$(LD) $(shared) -o $(dsoname2) $(DEBUG_OBJS) $(LDFLAGS) $(LOADLIBES)
+	$(LD) $(shared) -o $(dsoname2) $(DEBUG_OBJS) $(LDFLAGS) $(LOADLIBES) -Wl,-soname,libcvd_debug.so.@major@
 	ln -s $(dsoname2) $(dsoname1)
 	ln -s $(dsoname1) $(dsoname)
 
@@ -204,33 +202,33 @@ man: libcvd.a
 install: install-progs install-headers install-libs install-libs-debug
 
 install-progs:progs
-	mkdir -p $(bindir)
-	[ "$(PROGS)" = "" ] || cp $(PROGS) $(bindir)
+	mkdir -p $(DESTDIR)$(bindir)
+	[ "$(PROGS)" = "" ] || cp $(PROGS) $(DESTDIR)$(bindir)
 
 install-headers:
-	mkdir -p $(includedir)
-	cp -r cvd $(includedir)
+	mkdir -p $(DESTDIR)$(includedir)
+	cp -r cvd $(DESTDIR)$(includedir)
 
 install-libs-so:$(soname)
-	mkdir -p $(libdir)
-	cp $(soname2) $(libdir)
-	rm -f  $(libdir)/$(soname1) $(libdir)/$(soname)
-	ln -s  $(libdir)/$(soname2) $(libdir)/$(soname1)
-	ln -s  $(libdir)/$(soname1) $(libdir)/$(soname)
+	mkdir -p $(DESTDIR)$(libdir)
+	cp $(soname2) $(DESTDIR)$(libdir)
+	rm -f  $(libdir)/$(soname1) $(DESTDIR)$(libdir)/$(soname)
+	ln -s  $(libdir)/$(soname2) $(DESTDIR)$(libdir)/$(soname1)
+	ln -s  $(libdir)/$(soname1) $(DESTDIR)$(libdir)/$(soname)
 
 install-libs-a:libcvd.a
-	mkdir -p $(libdir)
-	cp libcvd.a $(libdir)
+	mkdir -p $(DESTDIR)$(libdir)
+	cp libcvd.a $(DESTDIR)$(libdir)
 
 install-libs:install-libs-so install-libs-a
 
 install-libs-debug:$(dsoname) libcvd_debug.a
-	mkdir -p $(libdir)
-	cp $(dsoname2) $(libdir)
-	rm -f  $(libdir)/$(dsoname1) $(libdir)/$(dsoname)
-	ln -s  $(libdir)/$(dsoname2) $(libdir)/$(dsoname1)
-	ln -s  $(libdir)/$(dsoname1) $(libdir)/$(dsoname)
-	cp libcvd_debug.a $(libdir)
+	mkdir -p $(DESTDIR)$(libdir)
+	cp $(dsoname2) $(DESTDIR)$(libdir)
+	rm -f  $(libdir)/$(dsoname1) $(DESTDIR)$(libdir)/$(dsoname)
+	ln -s  $(libdir)/$(dsoname2) $(DESTDIR)$(libdir)/$(dsoname1)
+	ln -s  $(libdir)/$(dsoname1) $(DESTDIR)$(libdir)/$(dsoname)
+	cp libcvd_debug.a $(DESTDIR)$(libdir)
 
 
 
