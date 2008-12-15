@@ -52,7 +52,7 @@ template<class T> class VideoBufferDataAuto: public VideoBufferData
 };
 
 ///The semsntics of the videobuffer. See VideoFrame::type()
-class VideoBufferType
+struct VideoBufferType
 {
 	enum Type
 	{
