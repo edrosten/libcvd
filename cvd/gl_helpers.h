@@ -326,9 +326,9 @@ namespace CVD
         /// n.b. You first need to set up the matrix environment yourself,
 	/// e.g. glMatrixMode(GL_PROJECTION); glLoadIdentity();
 	/// @param size ImageRef containing the size of the GL window.
-	inline void glOrtho( const CVD::ImageRef & size, const double near = -1.0, const double far = 1.0)
+	inline void glOrtho( const CVD::ImageRef & size, const double nearPlane = -1.0, const double farPlane = 1.0)
 	{
-	         ::glOrtho(-0.375, size.x - 0.375, size.y - 0.375, -0.375, near, far);
+	    ::glOrtho( -0.375, size.x - 0.375, size.y - 0.375, -0.375, nearPlane, farPlane );
 	}
 
 	/// Sets up an ortho projection from a simple Vector<6>
