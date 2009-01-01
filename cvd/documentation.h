@@ -48,7 +48,7 @@ It is released under the LGPL License.
 			- PNM   
 			- BMP
 			- FITS
-			  - Support for FITS images of 1, 2 or 3 dimensions.
+			  - Support for FITS images of 1, 2 or 3 dimensions (reading only).
 			- PS   (saving only)
 			- EPS  (saving only)
 		- External libraries required

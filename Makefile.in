@@ -95,6 +95,7 @@ CVD_OBJS=   cvd_src/cvd_timer.o                             \
 			cvd_src/yuv420.o                                \
 			pnm_src/pnm_grok.o                              \
 			pnm_src/bmp.o                                   \
+			pnm_src/fits.o                                  \
 			pnm_src/save_postscript.o                       \
 			cvd_src/fast_corner.o                           \
 			cvd_src/convolution.o                           \

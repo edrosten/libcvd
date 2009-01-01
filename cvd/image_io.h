@@ -36,6 +36,7 @@
 #include <cvd/internal/io/pnm_grok.h>
 #include <cvd/internal/io/save_postscript.h>
 #include <cvd/internal/io/bmp.h>
+#include <cvd/internal/io/fits.h>
 
 
 #ifdef CVD_HAVE_JPEG
@@ -231,6 +232,8 @@ namespace CVD
 #endif
 	  else if(c == 'B')
 	    BMP::readBMP(im, i);
+	  else if(c == 'S')
+	    FITS::readFITS(im, i);
 	  else
 	    throw Exceptions::Image_IO::UnsupportedImageType();
 	}
@@ -331,6 +334,15 @@ namespace CVD
 	/// Load a PNM image from a stream.
 	/// @b Deprecated Use img_load(Image<I>& im, std::istream& i) instead. This can handle 
 	/// and automatically detect other file formats as well.
+	///
+	///	Loading is simplistic, and automatic conversions of values are performed.
+	/// So, for instance bytes are assumed to be in the range 0--255 and floats in
+	/// the range 0--1, so loading bytes in to an Image<float> will result in an
+	/// image with floats in the range 0--1. In the reverse direction, 
+	/// floats falling outside the range 0--1, will wrap when converted to bytes.
+	///
+	/// The image loader ignores the data range given by the file, if it is given.
+	///
 	/// @param PixelType The pixel type of the image
 	/// @param im The image
 	/// @param i The stream

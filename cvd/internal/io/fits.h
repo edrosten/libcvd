@@ -1,0 +1,188 @@
+/*                       
+	This file is part of the CVD Library.
+
+	Copyright (C) 2005 The Authors
+
+	This library is free software; you can redistribute it and/or
+	modify it under the terms of the GNU Lesser General Public
+	License as published by the Free Software Foundation; either
+	version 2.1 of the License, or (at your option) any later version.
+
+	This library is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	Lesser General Public License for more details.
+
+	You should have received a copy of the GNU Lesser General Public
+	License along with this library; if not, write to the Free Software
+	Foundation, Inc., 
+    51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+#ifndef CVD_INCLUDE_INTERNAL_IO_FITS_H
+#define CVD_INCLUDE_INTERNAL_IO_FITS_H
+
+#include <iostream>
+#include <memory>
+#include <vector>
+#include <string>
+#include <cvd/image.h>
+#include <cvd/internal/load_and_save.h>
+
+namespace CVD
+{
+namespace FITS
+{
+
+	using CVD::Internal::TypeList;
+	using CVD::Internal::Head;
+
+	//Probably not the best way to deal with FITS. Data is unlikely to be RGBA, for
+	//instance. Maybe it would be best to implement loading of tr1::array and Vector.
+
+	////////////////////////////////////////////////////////////////////////////////
+	//
+	// FITS reading
+	//
+
+	class ReadPimpl;
+	class reader
+	{
+		public:
+			reader(std::istream&);
+			~reader();
+
+			ImageRef size();
+
+			void get_raw_pixel_line(unsigned char*);
+			void get_raw_pixel_line(signed short*);
+			void get_raw_pixel_line(signed int*);
+			void get_raw_pixel_line(float*);
+			void get_raw_pixel_line(double*);
+
+			void get_raw_pixel_line(Rgb<unsigned char>*);
+			void get_raw_pixel_line(Rgb<signed short>*);
+			void get_raw_pixel_line(Rgb<signed int>*);
+			void get_raw_pixel_line(Rgb<float>*);
+			void get_raw_pixel_line(Rgb<double>*);
+
+			void get_raw_pixel_line(Rgba<unsigned char>*);
+			void get_raw_pixel_line(Rgba<signed short>*);
+			void get_raw_pixel_line(Rgba<signed int>*);
+			void get_raw_pixel_line(Rgba<float>*);
+			void get_raw_pixel_line(Rgba<double>*);
+
+			std::string datatype();
+			std::string name();
+
+
+			typedef TypeList<byte, 
+					TypeList<signed short,
+					TypeList<signed int,
+					TypeList<float,
+					TypeList<double,
+					TypeList<Rgb<byte>, 
+					TypeList<Rgb<signed short>, 
+					TypeList<Rgb<signed int>, 
+					TypeList<Rgb<float>, 
+					TypeList<Rgb<double>, 
+					TypeList<Rgba<byte>, 
+					TypeList<Rgba<signed short>, 
+					TypeList<Rgba<signed int>, 
+					TypeList<Rgba<float>, 
+					TypeList<Rgba<double>, 
+					                      Head> > > > > > > > > > > > > > > Types;
+		
+		private:
+			ReadPimpl* t; 
+	};
+
+	
+	template <class T> void readFITS(SubImage<T>& im, std::istream& in)
+	{
+		CVD::Internal::readImage<T, CVD::FITS::reader>(im, in);
+	}
+
+	template <class T> void readFITS(Image<T>& im, std::istream& in)
+	{
+		CVD::Internal::readImage<T, CVD::FITS::reader>(im, in);
+	}
+#if 0
+	////////////////////////////////////////////////////////////////////////////////
+	//
+	// FITS writing, copied and midified from tiff.h
+	//
+
+	template<int g8> struct IntMapper    { typedef unsigned short type;};
+	template<>       struct IntMapper<1> { typedef unsigned char type; };
+
+
+	//Mapping for integral types
+	template<class ComponentIn, int is_integral> struct ComponentMapper_
+	{
+		typedef typename IntMapper< (Pixel::traits<ComponentIn>::bits_used > 8) >::type type;
+	};
+
+	//Mapping for non integral types
+	template<class ComponentIn> struct ComponentMapper_<ComponentIn, 0> { typedef double type; };
+	template<> struct ComponentMapper_<float, 0> { typedef float type; };
+	
+	template<class ComponentIn> struct ComponentMapper
+	{
+		typedef typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::integral>::type type;
+	};
+	
+	//Mapping for Rgbish types
+	template<class ComponentIn> struct ComponentMapper<Rgb<ComponentIn> >
+	{
+		typedef Rgb<typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::integral>::type> type;
+	};
+
+	template<class ComponentIn> struct ComponentMapper<Rgba<ComponentIn> >
+	{
+		typedef Rgba<typename ComponentMapper_<ComponentIn, Pixel::traits<ComponentIn>::integral>::type> type;
+	};
+
+	template<> struct ComponentMapper<Rgb8>
+	{
+		typedef Rgb<byte> type;
+	};
+
+
+	
+	class WritePimpl;
+
+	class writer
+	{
+		public:
+			writer(std::ostream&, ImageRef size, const std::string& type);
+			~writer();
+
+			void write_raw_pixel_line(const unsigned char*);
+			void write_raw_pixel_line(const unsigned short*);
+			void write_raw_pixel_line(const float*);
+			void write_raw_pixel_line(const double*);
+
+			void write_raw_pixel_line(const Rgb<unsigned char>*);
+			void write_raw_pixel_line(const Rgb<unsigned short>*);
+			void write_raw_pixel_line(const Rgb<float>*);
+			void write_raw_pixel_line(const Rgb<double>*);
+
+			void write_raw_pixel_line(const Rgba<unsigned char>*);
+			void write_raw_pixel_line(const Rgba<unsigned short>*);
+			void write_raw_pixel_line(const Rgba<float>*);
+			void write_raw_pixel_line(const Rgba<double>*);
+
+			template<class Incoming> struct Outgoing
+			{		
+				typedef typename ComponentMapper<Incoming>::type type;
+			};		
+
+		private:
+			WritePimpl* t; 
+	};
+	
+#endif 
+
+}
+}
+#endif
