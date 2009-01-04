@@ -456,6 +456,12 @@ template<class T> class SubImage
 			return SubImage(ptr, size, my_stride);
 		}
 
+		/// Return a reference to a SubImage. Useful for passing anonymous SubImages to functions.
+		SubImage& ref()
+		{
+			return *this;
+		}
+
 	protected:
 		T* my_data;       ///< The raw image data
 		ImageRef my_size; ///< The size of the image
