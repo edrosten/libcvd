@@ -32,7 +32,7 @@ namespace CVD
   // The most general case: one row at a time
 
   template <class From, class To, class Conv=typename Pixel::DefaultConversion<From,To>::type, int both_pod=Internal::is_POD<From>::is_pod && Internal::is_POD<To>::is_pod> struct ConvertImage {
-    static void convert(const BasicImage<From>& from, BasicImage<To>& to) {
+    static void convert(const SubImage<From>& from, SubImage<To>& to) {
       for (int r=0; r<from.size().y; r++)
 	Pixel::ConvertPixels<From,To,Conv>::convert(from[r], to[r], from.size().x);
     };
@@ -40,27 +40,34 @@ namespace CVD
 
   // The blat case: memcpy all data at once 
   template <class T> struct ConvertImage<T,T,Pixel::GenericConversion<T,T>,1> {
-    static void convert(const BasicImage<T>& from, BasicImage<T>& to) {
+    static void convert(const SubImage<T>& from, SubImage<T>& to) {
       memcpy(to.data(), from.data(), from.totalsize() * sizeof(T));
     };
   };
 
   template <> struct ConvertImage<Rgb<byte>, byte, Pixel::CIE<Rgb<byte>, byte>, 1> {
-      static void convert(const BasicImage<Rgb<byte> >& from, BasicImage<byte>& to);
+      static void convert(const SubImage<Rgb<byte> >& from, SubImage<byte>& to);
   };
   
-  template<class Conv, class C, class D> void convert_image(const BasicImage<C>& from, BasicImage<D>& to)
+  template<class Conv, class C, class D> void convert_image(const SubImage<C>& from, SubImage<D>& to)
   {
     if (from.size() != to.size())
       throw Exceptions::Image::IncompatibleImageSizes(__FUNCTION__);
     ConvertImage<C,D,Conv>::convert(from, to);
   }
   
-  template<template <class From, class To> class Conv, class C, class D> void convert_image(const BasicImage<C>& from, BasicImage<D>& to)
+  template<template <class From, class To> class Conv, class C, class D> void convert_image(const SubImage<C>& from, SubImage<D>& to)
   {
     if (from.size() != to.size())
       throw Exceptions::Image::IncompatibleImageSizes(__FUNCTION__);
     ConvertImage<C,D,Conv<C,D> >::convert(from, to);
+  }
+
+  template<class C, class D> void convert_image(const SubImage<C>& from, SubImage<D>& to)
+  {
+      if (from.size() != to.size())
+	  throw Exceptions::Image::IncompatibleImageSizes(__FUNCTION__);
+      ConvertImage<C,D>::convert(from, to);
   }
 
   template<class C, class D> void convert_image(const BasicImage<C>& from, BasicImage<D>& to)
@@ -76,14 +83,14 @@ namespace CVD
   /// @param Conv The conversion to use
   /// @param from The image to convert from
   /// @ingroup gImageIO
-  template<class D, class Conv, class C> Image<D> convert_image(const BasicImage<C>& from)
+  template<class D, class Conv, class C> Image<D> convert_image(const SubImage<C>& from)
   {
     Image<D> to(from.size());
     convert_image<Conv>(from, to);
     return to;
   }
     
-  template<class D, template <class From, class To> class Conv, class C> Image<D> convert_image(const BasicImage<C>& from)
+  template<class D, template <class From, class To> class Conv, class C> Image<D> convert_image(const SubImage<C>& from)
   {
     Image<D> to(from.size());
     convert_image<Conv>(from, to);
@@ -95,7 +102,7 @@ namespace CVD
   /// @param C The source image pixel type
   /// @param from The image to convert from
   /// @ingroup gImageIO
-  template<class D, class C> Image<D> convert_image(const BasicImage<C>& from)
+  template<class D, class C> Image<D> convert_image(const SubImage<C>& from)
   {
     Image<D> to(from.size());
     convert_image(from, to);
