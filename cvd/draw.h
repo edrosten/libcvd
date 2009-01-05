@@ -189,7 +189,7 @@ void drawShape(Image<T>& im, const ImageRef& offset, const std::vector<ImageRef>
 /// @param c color of the box
 /// @ingroup gGraphics
 template <class T>
-void drawBox(Image<T> &im, const ImageRef & upperleft, ImageRef & lowerright, const T& c)
+void drawBox(Image<T> &im, const ImageRef & upperleft, const ImageRef & lowerright, const T& c)
 {
     drawLine(im, upperleft.x, upperleft.y, upperleft.x, lowerright.y, c);
     drawLine(im, upperleft.x, upperleft.y, lowerright.x, upperleft.y, c);
