@@ -55,18 +55,21 @@ namespace FITS
 
 			void get_raw_pixel_line(unsigned char*);
 			void get_raw_pixel_line(signed short*);
+			void get_raw_pixel_line(unsigned short*);
 			void get_raw_pixel_line(signed int*);
 			void get_raw_pixel_line(float*);
 			void get_raw_pixel_line(double*);
 
 			void get_raw_pixel_line(Rgb<unsigned char>*);
 			void get_raw_pixel_line(Rgb<signed short>*);
+			void get_raw_pixel_line(Rgb<unsigned short>*);
 			void get_raw_pixel_line(Rgb<signed int>*);
 			void get_raw_pixel_line(Rgb<float>*);
 			void get_raw_pixel_line(Rgb<double>*);
 
 			void get_raw_pixel_line(Rgba<unsigned char>*);
 			void get_raw_pixel_line(Rgba<signed short>*);
+			void get_raw_pixel_line(Rgba<unsigned short>*);
 			void get_raw_pixel_line(Rgba<signed int>*);
 			void get_raw_pixel_line(Rgba<float>*);
 			void get_raw_pixel_line(Rgba<double>*);
@@ -77,20 +80,23 @@ namespace FITS
 
 			typedef TypeList<byte, 
 					TypeList<signed short,
+					TypeList<unsigned short,
 					TypeList<signed int,
 					TypeList<float,
 					TypeList<double,
 					TypeList<Rgb<byte>, 
 					TypeList<Rgb<signed short>, 
+					TypeList<Rgb<unsigned short>, 
 					TypeList<Rgb<signed int>, 
 					TypeList<Rgb<float>, 
 					TypeList<Rgb<double>, 
 					TypeList<Rgba<byte>, 
 					TypeList<Rgba<signed short>, 
+					TypeList<Rgba<unsigned short>, 
 					TypeList<Rgba<signed int>, 
 					TypeList<Rgba<float>, 
 					TypeList<Rgba<double>, 
-					                      Head> > > > > > > > > > > > > > > Types;
+					                      Head> > > > > > > > > > > > > > > > > > Types;
 		
 		private:
 			ReadPimpl* t; 

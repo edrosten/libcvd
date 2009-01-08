@@ -89,7 +89,7 @@ static int get_int(const string& s)
 	istringstream is(s);
 	is >> i;
 
-	if(is.bad())
+	if(s.size() == 0 || is.bad())
 		throw(Exceptions::Image_IO::MalformedImage("Invalid integer: `" + s + "'"));
 	return i;
 }
@@ -100,10 +100,22 @@ static int get_uint(const string& s)
 	istringstream is(s);
 	is >> i;
 
-	if(is.bad())
+	if(s.size() == 0 || is.bad())
 		throw(Exceptions::Image_IO::MalformedImage("Invalid unsigned integer: `" + s + "'"));
 	return i;
 }
+
+static double get_double(const string& s)
+{
+	double i;
+	istringstream is(s);
+	is >> i;
+
+	if(s.size() == 0 || is.bad())
+		throw(Exceptions::Image_IO::MalformedImage("Invalid double: `" + s + "'"));
+	return i;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -118,6 +130,11 @@ class CVD::FITS::ReadPimpl
 		ImageRef size();
 		string datatype();
 		template<class C> void get_raw_pixel_line(C* data);
+
+		template<class C> void           convert_raw_pixel_line(unsigned char*, C* data);
+		template<template<class> class C> void convert_raw_pixel_line(unsigned char*, C<unsigned short>* data);
+		void                             convert_raw_pixel_line(unsigned char*, unsigned short* data);
+
 
 	private:
 		istream& i;
@@ -197,10 +214,35 @@ template<class T> void ReadPimpl::get_raw_pixel_line(T* d)
 	if(row  > (unsigned long)my_size.y)
 		throw InternalLibraryError("CVD", "Read past end of image.");
 
+
 	unsigned char* rowp = &data[row * bytes_per_pixel * my_size.x];
 	row++;
+
+	convert_raw_pixel_line(rowp, d);
+}
+
+template<class T> void ReadPimpl::convert_raw_pixel_line(unsigned char* rowp, T* d)
+{
 	copy(rowp, rowp + my_size.x * bytes_per_pixel,	(unsigned char*)(d));
 }
+
+template<template<class> class T> void ReadPimpl::convert_raw_pixel_line(unsigned char* rowp, T<unsigned short>* d)
+{	
+	unsigned short* ds = (unsigned short*)d;
+	int elements=my_size.x * sizeof(T<unsigned short>)/sizeof(unsigned short);
+	for(int i=0; i < elements; i++)
+		ds[i] = (unsigned short)(static_cast<int>( ((short*)(rowp))[i]) + 32768);
+}
+
+
+void ReadPimpl::convert_raw_pixel_line(unsigned char* rowp, unsigned short* d)
+{
+	for(int i=0; i < my_size.x; i++)
+		d[i] = (unsigned short)(static_cast<int>( ((short*)(rowp))[i]) + 32768);
+}
+
+
+
 
 string ReadPimpl::datatype()
 {
@@ -227,7 +269,7 @@ ReadPimpl::ReadPimpl(istream& is)
 	next_card();
 	expect_keyword("BITPIX");
 	int bpp = get_int(get_numeric_field());
-
+	
 	if(bpp == 8)
 		type = PNM::type_name<byte>::name();
 	else if(bpp == 16)
@@ -270,7 +312,37 @@ ReadPimpl::ReadPimpl(istream& is)
 			a3 = get_uint(get_numeric_field());
 		}
 	}
+	my_size.x = a1;
+	my_size.y = a2;
+	
+	double add_for_zero=0;
+	string bzero;
 
+	//Read the rest of the header
+	//The last useful card has END as the first keyword, but no separator.
+	//The remaining cards in the current stack should be blank.
+	//Since we read a stack at a time, the read pointer will be in the
+	//correct place.
+	for(;;)
+	{
+		next_card();
+		if(get_keyword() == "BZERO")
+		{
+			check_for_seperator();
+			add_for_zero = get_double(bzero=get_numeric_field());
+		}
+		else if(get_keyword() == "END")
+			break;
+	}
+cerr << add_for_zero << endl;
+	if(add_for_zero == 0) //OK
+	{}
+	else if(add_for_zero == 32768. && bpp == 16)
+		type = "unsigned short";
+	else
+		throw Exceptions::Image_IO::UnsupportedImageSubType("FITS", "BZERO is " + bzero + ". Only 0 or 32768 (for int16 images) supported");
+
+	
 	//Figure out the colourspace
 	if(a3 == 1)
 		type = type;
@@ -283,20 +355,6 @@ ReadPimpl::ReadPimpl(istream& is)
 	else 
 		throw Exceptions::Image_IO::UnsupportedImageSubType("FITS", "3rd axis (colour planes) has"+ get_numeric_field() + " elements(1, 2, 3 or 4 supported).");
 
-	my_size.x = a1;
-	my_size.y = a2;
-
-	//Read the rest of the header
-	//The last useful card has END as the first keyword, but no separator.
-	//The remaining cards in the current stack should be blank.
-	//Since we read a stack at a time, the read pointer will be in the
-	//correct place.
-	for(;;)
-	{
-		next_card();
-		if(get_keyword() == "END")
-			break;
-	}
 
 	//We should really use BZERO, too.
 	
@@ -370,6 +428,7 @@ ImageRef reader::size()
 
 GEN3(unsigned char)
 GEN3(signed short)
+GEN3(unsigned short)
 GEN3(signed int)
 GEN3(float)
 GEN3(double)

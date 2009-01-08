@@ -47,15 +47,14 @@ It is released under the LGPL License.
 		- Native
 			- PNM   
 			- BMP
-			- FITS
-			  - Support for FITS images of 1, 2 or 3 dimensions (reading only).
+			- FITS (reading only)
 			- PS   (saving only)
 			- EPS  (saving only)
 		- External libraries required
 			- JPEG
 			- TIFF 
 			- PNG
-		- 1/8/16 bit integer and 32/64 bit floating point images in greyscale, RGB and RGBA.
+		- 1/8/16/32 bit integer and 32/64 bit floating point images in greyscale, RGB and RGBA.
 		- Optimum bit depth and colour depth selected automatically
     - Image grabbing from video sources:
 		  - Linux
