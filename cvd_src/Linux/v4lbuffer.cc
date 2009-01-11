@@ -333,6 +333,8 @@ namespace V4L { // V4L
     V4L2Client::~V4L2Client() {
 	if (state == 0)
 	    return;
+	if(0 != ioctl(state->fd, VIDIOC_STREAMOFF, &state->refbuf.type))
+	  throw string("streamoff failed");
 	for (size_t i=0; i<state->frames.size(); i++) {
 	    if (0 != munmap(state->frames[i].data, state->frames[i].length))
 		throw string("munmap failed");
