@@ -221,7 +221,7 @@ namespace CVD
 	    JPEG::readJPEG(im, i);
 #endif
 #ifdef CVD_HAVE_TIFF
-	  else if(c == 'I')
+	  else if(c == 'I' || c == 'M') //Little or big endian TIFF
 	    TIFF::readTIFF(im, i);
 #endif
 #ifdef CVD_HAVE_PNG
