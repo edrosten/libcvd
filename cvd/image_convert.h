@@ -108,6 +108,18 @@ namespace CVD
     convert_image(from, to);
     return to;
   }
+
+  /// Convert an image from one type to another using the default.
+  /// @param D The destination image pixel type
+  /// @param C The source image pixel type
+  /// @param from The image to convert from
+  /// @ingroup gImageIO
+  template<class D, class C> Image<D> convert_image(const BasicImage<C>& from)
+  {
+    Image<D> to(from.size());
+    convert_image(from, to);
+    return to;
+  }
   
   // Function name changed from 'convert_image' to prevent compile-time
   // error arising from the clash with a function of same name declared above.
