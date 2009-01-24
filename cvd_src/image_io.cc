@@ -131,6 +131,8 @@ ImageType::ImageType string_to_image_type(const std::string& name)
 		return  ImageType::BMP;
 	else if (suffix == "pnm" || suffix == "ppm" || suffix == "pgm" || suffix == "pbm") 
 		return  ImageType::PNM;
+	else if (suffix == "txt")
+		return ImageType::TXT;
 	else
 		return ImageType::Unknown;
 }

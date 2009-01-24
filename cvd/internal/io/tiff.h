@@ -87,19 +87,9 @@ namespace TIFF
 					                      Head> > > > > > > > > > > > > Types;
 		
 		private:
-			TIFFPimpl* t; 
+			std::auto_ptr<TIFFPimpl> t; 
 	};
 
-	
-	template <class T> void readTIFF(SubImage<T>& im, std::istream& in)
-	{
-		CVD::Internal::readImage<T, tiff_reader>(im, in);
-	}
-
-	template <class T> void readTIFF(Image<T>& im, std::istream& in)
-	{
-		CVD::Internal::readImage<T, tiff_reader>(im, in);
-	}
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
@@ -181,7 +171,7 @@ namespace TIFF
 			};		
 
 		private:
-			TIFFWritePimpl* t; 
+			std::auto_ptr<TIFFWritePimpl> t; 
 	};
 	
 

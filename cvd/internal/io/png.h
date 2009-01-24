@@ -83,18 +83,6 @@ class png_reader
 
 };
 
-template <class T> void readPNG(SubImage<T>& im, std::istream& in)
-{
-	CVD::Internal::readImage<T, png_reader>(im, in);
-}
-
-template <class T> void readPNG(Image<T>& im, std::istream& in)
-{
-	CVD::Internal::readImage<T, png_reader>(im, in);
-}
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //

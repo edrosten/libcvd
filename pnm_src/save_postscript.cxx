@@ -22,6 +22,7 @@
 
 #include <cvd/internal/load_and_save.h>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <iomanip>
 using namespace std;
@@ -67,8 +68,45 @@ void output_eps_footer(ostream& o)
 
 namespace PS
 {
+	
+	class WritePimpl
+	{
+		public:
+			WritePimpl(std::ostream&, ImageRef size, const string& type, const string& extra_header="");
 
-  string ps_out::bytes_to_base85(int n)
+			void 	write_raw_pixel_lines(const unsigned char*, unsigned long);
+			~WritePimpl();
+			int channels(){return m_channels;}
+			long  x_size() const {return xs;}
+			long  y_size() const {return ys;}
+
+			std::ostream& 	o;
+
+		private:
+			long	xs, ys;
+			int	m_channels;
+			std::string bytes_to_base85(int n);
+			void output_header();
+			int lines;
+			unsigned char buf[4];
+			int  num_in_buf;
+			string currentline;
+	};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  string WritePimpl::bytes_to_base85(int n)
 {
 	//This function converts 4 raw bytes to 5 base-85 bytes. If there
 	//are less than 4 bytes, then the data is zero padded.
@@ -100,7 +138,7 @@ namespace PS
 }
 
 
-void ps_out::output_header()
+void WritePimpl::output_header()
 {
 	//Output the required instructions. This sets up a 72 dpi image, the ``right'' way up, 
 	//going from 0,0 - xs, ys. Since numbers are 72 per inch, the image is 72 dpi
@@ -117,53 +155,60 @@ void ps_out::output_header()
 
 
 
-ps_out::ps_out(std::ostream& out)
+WritePimpl::WritePimpl(std::ostream& out, ImageRef size, const string& type, const string& extra_header)
 :o(out)
 {
-	num_in_buf = lines = 0;
-}
-
-ps_out::ps_out(std::ostream& out, int xsize, int ysize, int try_channels)
-:o(out)
-{
-	xs = xsize;
-	ys = ysize;
+	xs = size.x;
+	ys = size.y;
 	num_in_buf = lines = 0;
 
 
-	if(try_channels < 3)
+	if(type == "unsigned char")
 		m_channels = 1;
-	else
+	else if(type == "CVD::Rgb<unsigned char>")
 		m_channels = 3;
+	else
+		throw Exceptions::Image_IO::UnsupportedImageSubType("PS", type);
 
+	out << extra_header;
 	output_header();
-
+	currentline.reserve(80);
 }
 
-ps_out::~ps_out()
+WritePimpl::~WritePimpl()
 {
+	//Is there anything left in the buffer?
+	if(num_in_buf != 0)
+			currentline += bytes_to_base85(num_in_buf);
+
+	//Output if there is anything left
+	if(currentline.size())
+		o << currentline << endl;
+
+	//Delimit the data
+	if(lines == ys)
+		o << "~>\n";
 }
 
-void ps_out::write_raw_pixel_lines(const unsigned char* data, unsigned long nlines)
+void WritePimpl::write_raw_pixel_lines(const unsigned char* data, unsigned long nlines)
 {
 	if((long)nlines + lines > ys)
-		throw CVD::Exceptions::Image_IO::WriteError("Postscript: Internal error: attempting to write too many lines.");
+		throw CVD::Exceptions::Image_IO::InternalLibraryError("CVD", "Write past end of image.");
 
 	const unsigned char* end = data + (nlines * xs)*m_channels;	
 	const unsigned char* d = data;
-	
-	string currentline;
-	currentline.reserve(80);
-	
-	while(d < end)
+
+	for(; d < end; d++)
 	{
 		//Stuff 4 bytes in to the buffer
-		for(; num_in_buf < 4 && d < end; num_in_buf++, d++)
-			buf[num_in_buf] = *d;
-		
-		//Append the base-85 encoded bytes
-		currentline += bytes_to_base85(num_in_buf);
-		num_in_buf = 0;
+		buf[num_in_buf++] = *d;
+
+		//Stuff the processed bytes in to a string, if need be
+		if(num_in_buf == 4)
+		{
+			currentline += bytes_to_base85(num_in_buf);
+			num_in_buf = 0;
+		}
 
 		//Output the line of it is wide enough
 		if(currentline.size() >= 75)
@@ -173,36 +218,60 @@ void ps_out::write_raw_pixel_lines(const unsigned char* data, unsigned long nlin
 		}
 	}
 	
-	//Output if there is anything left
-	if(currentline.size())
-		o << currentline << endl;
-
 	lines += nlines;
 	
-	//Delimit the data
-	if(lines == ys)
-		o << "~>\n";
 }
 
-eps_out::eps_out(std::ostream& out, int xsize, int ysize, int try_channels)
-:ps_out(out)
+////////////////////////////////////////////////////////////////////////////////
+//
+// Public interfaces to image writing.
+//
+
+writer::writer(ostream& o, ImageRef size, const string& s)
+:t(new WritePimpl(o, size, s))
+{}
+
+writer::~writer()
+{}
+
+void writer::write_raw_pixel_line(const byte* data)
 {
-	xs = xsize;
-	ys = ysize;
-
-	if(try_channels < 3)
-		m_channels = 1;
-	else
-		m_channels = 3;
-
-	output_eps_header(o, xs, ys);
-	output_header();
-
+	t->write_raw_pixel_lines(data, 1);
 }
 
-eps_out::~eps_out()
+void writer::write_raw_pixel_line(const Rgb<byte>* data)
 {
+	t->write_raw_pixel_lines((byte*)data, 1);
+}
+
+
+string eps_header(ImageRef s)
+{
+	ostringstream os;
+	output_eps_header(os, s);
+	return os.str();
+}
+
+eps_writer::eps_writer(ostream& o, ImageRef size, const string& s)
+:t(new WritePimpl(o, size, s, eps_header(size)))
+{}
+
+eps_writer::~eps_writer()
+{
+	ostream& o = t->o;
+	//Destruct the PS writer to print the footer.,
+	t.reset();	
 	output_eps_footer(o);
+}
+
+void eps_writer::write_raw_pixel_line(const byte* data)
+{
+	t->write_raw_pixel_lines(data, 1);
+}
+
+void eps_writer::write_raw_pixel_line(const Rgb<byte>* data)
+{
+	t->write_raw_pixel_lines((byte*)data, 1);
 }
 
 }

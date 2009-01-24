@@ -371,8 +371,7 @@ tiff_writer::tiff_writer(ostream& o, ImageRef size, const string& type)
 
 tiff_writer::~tiff_writer()
 {
-	delete t;
-};
+}
 
 //Mechanically generate the pixel reading calls.
 #define GEN1(X) void tiff_writer::write_raw_pixel_line(const X*d){t->write_raw_pixel_line(d);}

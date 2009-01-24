@@ -34,78 +34,63 @@ namespace CVD
 namespace PS
 {
 
-	class ps_out
+	class WritePimpl;
+
+
+	class writer
 	{
 		public:
-			ps_out(std::ostream&, int  xsize, int ysize, int ch);
+			writer(std::ostream&, ImageRef size, const std::string& type);
+			~writer();
 
-			void 	write_raw_pixel_lines(const unsigned char*, unsigned long);
-			virtual ~ps_out();
-			int channels(){return m_channels;}
-			long  x_size() const {return xs;}
-			long  y_size() const {return ys;}
+			void write_raw_pixel_line(const byte*);
+			void write_raw_pixel_line(const Rgb<byte>*);
+
+			template<class Incoming> struct Outgoing
+			{		
+				typedef byte type;
+			};		
 
 		protected:
-			long	xs, ys;
-			int	m_channels;
-			std::string bytes_to_base85(int n);
-			void output_header();
-			int lines;
-			unsigned char buf[4];
-			int  num_in_buf;
-			ps_out(std::ostream&);
-			std::ostream& 	o;
+			std::auto_ptr<WritePimpl> t; 
 	};
 
-	class eps_out: public ps_out
+	template<class C> struct writer::Outgoing<Rgb<C> > 
+	{
+		typedef Rgb<byte> type;
+	};
+
+
+	template<class C> struct writer::Outgoing<Rgba<C> > 
+	{
+		typedef Rgb<byte> type;
+	};
+
+	template<> struct writer::Outgoing<Rgb8> 
+	{
+		typedef Rgb<byte> type;
+	};
+
+		
+	class eps_writer
 	{
 		public:
-			virtual ~eps_out();
-			eps_out(std::ostream&, int  xsize, int ysize, int ch);
-	};
+			eps_writer(std::ostream&, ImageRef size, const std::string& type);
+			~eps_writer();
 
-	template <class T, class S> struct PSWriter {
-	  static void write(const BasicImage<T>& im, ps_out& ps) {
-	    std::auto_ptr<S> rowbuf(new S[im.size().x]);
-	    for (int r=0; r<ps.y_size(); r++) {
-	      Pixel::ConvertPixels<T,S>::convert(im[r], rowbuf.get(), im.size().x);
-	      ps.write_raw_pixel_lines((const byte*)rowbuf.get(), 1);
-	    }	    
-	  }
-	};
+			void write_raw_pixel_line(const byte*);
+			void write_raw_pixel_line(const Rgb<byte>*);
 
-	template <> struct PSWriter<byte,byte> {
-	  static void write(const BasicImage<byte>& im, ps_out& ps) {
-	    ps.write_raw_pixel_lines(im.data(), ps.y_size());
-	  }
-	};
+			template<class Incoming> struct Outgoing
+			{		
+				typedef typename writer::Outgoing<Incoming>::type type;
+			};		
 
-	template <> struct PSWriter<Rgb<byte>,Rgb<byte> > {
-	  static void write(const BasicImage<Rgb<byte> >& im, ps_out& ps) {
-	    ps.write_raw_pixel_lines((const byte*)im.data(), ps.y_size());
-	  }
+		protected:
+			std::auto_ptr<WritePimpl> t; 
 	};
-	
-	template <class T, int C=Pixel::Component<T>::count> struct PSWriterChooser{
-	  typedef PSWriter<T,byte> type;
-	  enum {channels = 1};
-	};
-	template <class T> struct PSWriterChooser<T,3> {
-	  typedef PSWriter<T,Rgb<byte> > type;
-	  enum {channels = 3};
-	};
-
-	template <class T> void writePS(const BasicImage<T>& im, std::ostream& out) {
-	  typedef typename PSWriterChooser<T>::type Writer;
-	  ps_out ps(out, im.size().x, im.size().y, PSWriterChooser<T>::channels);
-	  Writer::write(im, ps);	  
-	}
-	template <class T> void writeEPS(const BasicImage<T>& im, std::ostream& out) {
-	  typedef typename PSWriterChooser<T>::type Writer;
-	  eps_out eps(out, im.size().x, im.size().y, PSWriterChooser<T>::channels);
-	  Writer::write(im, eps);  
-	}
 
 }
 }
 #endif
+

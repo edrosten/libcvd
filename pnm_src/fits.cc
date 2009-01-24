@@ -404,8 +404,7 @@ reader::reader(istream& i)
 
 reader::~reader()
 {
-	delete t;
-};
+}
 
 string reader::datatype()
 {

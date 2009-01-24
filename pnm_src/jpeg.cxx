@@ -18,6 +18,11 @@
 	Foundation, Inc., 
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
+#include <stdio.h>
+extern "C"{
+#include <jpeglib.h>
+}
 #include "cvd/internal/io/jpeg.h"
 
 #include "cvd/image_io.h"
@@ -27,10 +32,75 @@ using namespace std;
 #include <iomanip>
 #include <setjmp.h>
 
+
 namespace CVD
 {
 namespace JPEG
 {
+
+class ReadPimpl
+{
+	public:
+		ReadPimpl(std::istream&);
+		int channels(){return m_channels;}
+		long  x_size() const {return xs;}
+		long  y_size() const {return ys;}
+		long  elements_per_line() const {return xs * m_channels;}
+		void get_raw_pixel_lines(unsigned char*, unsigned long nlines);
+		~ReadPimpl();
+		string datatype()
+		{
+			return type;
+		}
+		
+		template<class T> void get_raw_pixel_line(T* d)
+		{
+			if(datatype() != PNM::type_name<T>::name())
+				throw CVD::Exceptions::Image_IO::ReadTypeMismatch(datatype(), PNM::type_name<T>::name());
+
+			get_raw_pixel_lines((unsigned char*)d, 1);
+			//FIXME: check rows.
+		}
+
+	private:
+		long	xs, ys;
+		int	m_channels;
+		struct jpeg_decompress_struct cinfo;
+		struct jpeg_error_mgr jerr;
+		std::istream&	i;
+		string type;
+};
+
+ImageRef reader::size()
+{
+	return ImageRef(t->x_size(), t->y_size());
+}
+
+void reader::get_raw_pixel_line(unsigned char* d)
+{
+	t->get_raw_pixel_line(d);
+}
+
+void reader::get_raw_pixel_line(Rgb<byte>* d)
+{
+	t->get_raw_pixel_line(d);
+}
+
+string reader::datatype()
+{
+	return t->datatype();
+}
+string reader::name()
+{
+	return "JPEG";
+}
+
+reader::~reader()
+{}
+
+reader::reader(std::istream& i)
+:t(new ReadPimpl(i))
+{}
 
 struct jpeg_istream_src: public jpeg_source_mgr
 {
@@ -156,7 +226,7 @@ struct jpeg_error_mgr * jumpy_error_manager (struct jpeg_error_mgr * err)
 	return err;
 }
 
-jpeg_in::jpeg_in(istream& in)
+ReadPimpl::ReadPimpl(istream& in)
 :i(in)
 {
 	cinfo.err = jumpy_error_manager(&jerr);
@@ -183,9 +253,14 @@ jpeg_in::jpeg_in(istream& in)
 	ys = cinfo.output_height;
 
 	m_channels = cinfo.out_color_components;
+
+	if(m_channels == 1)
+		type = "unsigned char";
+	else
+		type = "CVD::Rgb<unsigned char>";
 }
 
-void jpeg_in::get_raw_pixel_lines(unsigned char*data, unsigned long nlines)
+void ReadPimpl::get_raw_pixel_lines(unsigned char*data, unsigned long nlines)
 {
 	jmp_buf env;
 	cinfo.client_data = &env;
@@ -208,7 +283,7 @@ void jpeg_in::get_raw_pixel_lines(unsigned char*data, unsigned long nlines)
 	}
 }
 
-jpeg_in::~jpeg_in()
+ReadPimpl::~ReadPimpl()
 {
 	jpeg_finish_decompress(&cinfo);
 	jpeg_destroy_decompress(&cinfo);
@@ -268,19 +343,49 @@ struct jpeg_ostream_dest: public jpeg_destination_mgr
 };
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// JPEG writing.
+//
+
+class WritePimpl
+{
+	public:
+  WritePimpl(std::ostream&, int  xsize, int ysize, const string& type, const std::string& comm="");
+		int channels(){return m_channels;}
+		long  x_size() const {return xs;}
+		long  y_size() const {return ys;}
+		long  elements_per_line() const {return xs * m_channels;}
+		void 	write_raw_pixel_lines(const unsigned char*, unsigned long);
+		template<class C> 	void write_raw_pixel_line(const C*);
+		~WritePimpl();
+		
+	private:
+		long	xs, ys, row;
+		int	m_channels;
+		struct jpeg_compress_struct cinfo;
+		struct jpeg_error_mgr jerr;
+		std::ostream& 	o;
+		string type;
+};
 
 
-jpeg_out::jpeg_out(std::ostream& out, int xsize, int ysize, int try_channels, const string& comm)
+
+WritePimpl::WritePimpl(std::ostream& out, int xsize, int ysize, const string& t, const string& comm)
 :o(out)
 {
 	xs = xsize;
 	ys = ysize;
-
-	if(try_channels < 3)
-		m_channels = 1;
-	else
-		m_channels = 3;
+	type = t;
+	row=0;
 	
+	if(type == "unsigned char")
+		m_channels = 1;
+	else if(type == "CVD::Rgb<unsigned char>")
+		m_channels = 3;
+	else
+		throw Exceptions::Image_IO::UnsupportedImageSubType("JPEG", type);
+
 	//Set up setjmp/lonjmp error handling
 	cinfo.err = jumpy_error_manager(&jerr);
 	jmp_buf env;
@@ -325,11 +430,14 @@ jpeg_out::jpeg_out(std::ostream& out, int xsize, int ysize, int try_channels, co
 	jpeg_write_marker(&cinfo, JPEG_COM, (JOCTET*)comm.c_str(), comm.length());
 }
 
-void jpeg_out::write_raw_pixel_lines(const unsigned char* data, unsigned long nlines)
+void WritePimpl::write_raw_pixel_lines(const unsigned char* data, unsigned long nlines)
 {
 	jmp_buf env;
 	cinfo.client_data = &env;
 	long elem = elements_per_line();
+
+	if(nlines + row > (unsigned long) ys)
+		throw CVD::Exceptions::Image_IO::InternalLibraryError("CVD", "Write past end of image.");
 	
 	//Catch "exceptions" and throw proper exceptions
 	if(setjmp(env))
@@ -345,15 +453,45 @@ void jpeg_out::write_raw_pixel_lines(const unsigned char* data, unsigned long nl
 	{
 		jpeg_write_scanlines(&cinfo, (JSAMPLE**)datap, 1);
 		data += elem;
+		row++;
 	}
 }
+template<class C> 	void WritePimpl::write_raw_pixel_line(const C*d)
+{
+	if(type != PNM::type_name<C>::name())
+		throw CVD::Exceptions::Image_IO::WriteTypeMismatch(type, PNM::type_name<C>::name());
 
-jpeg_out::~jpeg_out()
+	write_raw_pixel_lines((const unsigned char*)d, 1); 
+}
+
+WritePimpl::~WritePimpl()
 {
 	jpeg_finish_compress(&cinfo);
 	jpeg_destroy_compress(&cinfo);
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Public interfaces to image writing.
+//
+
+writer::writer(ostream& o, ImageRef size, const string& s)
+:t(new WritePimpl(o, size.x, size.y, s))
+{}
+
+writer::~writer()
+{}
+
+void writer::write_raw_pixel_line(const byte* data)
+{
+	t->write_raw_pixel_line(data);
+}
+
+void writer::write_raw_pixel_line(const Rgb<byte>* data)
+{
+	t->write_raw_pixel_line(data);
+}
 
 }
 }

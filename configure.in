@@ -163,6 +163,7 @@ define(SIMD_TEST, [
 #
 TEST_AND_SET_CXXFLAG(-Wall)
 TEST_AND_SET_CXXFLAG(-Wextra)
+TEST_AND_SET_CXXFLAG(-pipe)
 
 APPEND(CPPFLAGS, [-I"$(eval echo $includedir)"])
 

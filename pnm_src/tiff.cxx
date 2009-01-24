@@ -370,8 +370,7 @@ tiff_reader::tiff_reader(istream& i)
 
 tiff_reader::~tiff_reader()
 {
-	delete t;
-};
+}
 
 string tiff_reader::datatype()
 {

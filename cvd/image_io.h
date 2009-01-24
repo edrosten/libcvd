@@ -32,11 +32,13 @@
 #include <memory>
 #include <string>
 #include <fstream>
+#include <cctype>
 
 #include <cvd/internal/io/pnm_grok.h>
 #include <cvd/internal/io/save_postscript.h>
 #include <cvd/internal/io/bmp.h>
 #include <cvd/internal/io/fits.h>
+#include <cvd/internal/io/text.h>
 
 
 #ifdef CVD_HAVE_JPEG
@@ -82,6 +84,8 @@ namespace CVD
 			#ifdef CVD_HAVE_TIFF
 				TIFF=6,
 			#endif
+			TXT=7,
+			TEXT=7,
 		};
 	}
 
@@ -153,6 +157,10 @@ namespace CVD
 			PS,
 			/// EPS format. This outputs a complete EPS (Encapsulated PostScript) figure.
 			EPS,
+			/// Plain text format. Grey-scale floating point only. This can be read in to MATLAB
+			/// with the load() function. There is no metadata, so it is not possible to support 
+			/// multiple types. 
+			TXT,
 		};
 	}
 	#endif
@@ -218,22 +226,22 @@ namespace CVD
 	    PNM::readPNM(im, i);
 #ifdef CVD_HAVE_JPEG
 	  else if(c == 0xff)
-	    JPEG::readJPEG(im, i);
+	    CVD::Internal::readImage<I, JPEG::reader>(im, i);
 #endif
 #ifdef CVD_HAVE_TIFF
 	  else if(c == 'I' || c == 'M') //Little or big endian TIFF
-	    TIFF::readTIFF(im, i);
+	    CVD::Internal::readImage<I, TIFF::tiff_reader>(im, i);
 #endif
 #ifdef CVD_HAVE_PNG
 	  else if(c == 0x89)
-	  {
-	    PNG::readPNG(im, i);
-	}
+	    CVD::Internal::readImage<I, PNG::png_reader>(im, i);
 #endif
 	  else if(c == 'B')
 	    BMP::readBMP(im, i);
 	  else if(c == 'S')
-	    FITS::readFITS(im, i);
+	    CVD::Internal::readImage<I, FITS::reader>(im, i);
+	  else if(c == ' ' || c == '\t' || isdigit(c) || c == '-' || c == '+')
+	    CVD::Internal::readImage<I, TEXT::reader>(im, i);
 	  else
 	    throw Exceptions::Image_IO::UnsupportedImageType();
 	}
@@ -266,9 +274,6 @@ namespace CVD
 	/// @param im The image to save
 	/// @param o The stream 
 	/// @param t The image file format to use (see ImageType::ImageType for a list of supported formats)
-	/// @param cv The image instance conversion to use, if necessary (see Pixel for a list of common conversions)
-	/// @param channels dunno
-	/// @param use_16bit dunno
 	/// @ingroup gImageIO
 	template<class PixelType> 
 	void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t)
@@ -280,7 +285,7 @@ namespace CVD
 	  case ImageType::Unknown:
 		Internal::writeImage<PixelType, PNM::pnm_writer>(im, o); break;
 	  #ifdef CVD_HAVE_JPEG
-		  case ImageType::JPEG: JPEG::writeJPEG(im,o); break;
+		  case ImageType::JPEG: Internal::writeImage<PixelType, JPEG::writer>(im,o); break;
 	  #endif
 	  #ifdef CVD_HAVE_PNG
 		  case ImageType::PNG: Internal::writeImage<PixelType, PNG::png_writer>(im,o); break;
@@ -288,9 +293,10 @@ namespace CVD
 	  #ifdef CVD_HAVE_TIFF
 		  case ImageType::TIFF: Internal::writeImage<PixelType, TIFF::tiff_writer>(im,o); break;
 	  #endif
-	  case ImageType::PS:   PS::writePS(im, o);  break;
-	  case ImageType::EPS:  PS::writeEPS(im,o);  break;
-	  case ImageType::BMP:  BMP::writeBMP(im,o);  break;
+	  case ImageType::BMP: BMP::writeBMP(im, o); break;
+	  case ImageType::TXT: Internal::writeImage<PixelType, TEXT::writer>(im, o); break;
+	  case ImageType::PS:   Internal::writeImage<PixelType, PS::writer>(im, o); break;
+	  case ImageType::EPS:   Internal::writeImage<PixelType, PS::eps_writer>(im, o); break;
 	  }
 	}
 

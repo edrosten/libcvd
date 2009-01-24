@@ -163,56 +163,59 @@ template<class T> struct randtest
 	static void exec(ImageType::ImageType fmt)
 	{	
 		try{
-			//Make a random image
-			Image<Type> in(ImageRef(100,100)), out;
-
-			for(int y=0; y < in.size().y; y++)
-				for(int x=0; x < in.size().x; x++)
-					in[y][x] = randpix<Type>::r();
-
-			stringstream s;
-			
-			//Save the image
-			img_save(in, s, fmt);
-
-			s.seekg(0, ios_base::beg);
-			s.seekp(0, ios_base::beg);
-			
-			//Load the image
-			out = img_load(s);
-
-			//Compare the results
-			if(out.size() != in.size())
-				cerr << "Image R/W test for type " << fmt << " " << CVD::PNM::type_name<Type>::name() << " size mismatch.\n";
-			else if(!equal(in.begin(), in.end(), out.begin()))
+			for(int i=0; i < 10; i++)
 			{
-				cerr << "Image R/W test for type " << fmt << " " << CVD::PNM::type_name<Type>::name() << " data mismatch.\n";
+				//Make a random image
+				Image<Type> in(ImageRef(1000,1000)), out;
 
-				typedef typename Pixel::Component<Type>::type  Ct;
-				double t=0, minval = HUGE_VAL, maxval=-HUGE_VAL;
 				for(int y=0; y < in.size().y; y++)
 					for(int x=0; x < in.size().x; x++)
-						for(unsigned int c=0; c < Pixel::Component<Type>::count; c++)
-						{
-							double p = Pixel::Component<Type>::get(in[y][x], c);
-							double p2 = Pixel::Component<Type>::get(out[y][x], c);
-							t += abs(p -  p2);
+						in[y][x] = randpix<Type>::r();
 
-							maxval = max(maxval, p);
-							minval = min(minval, p);
+				stringstream s;
+				
+				//Save the image
+				img_save(in, s, fmt);
 
-							cerr << p << " " << p2 << endl;
+				s.seekg(0, ios_base::beg);
+				s.seekp(0, ios_base::beg);
+				
+				//Load the image
+				out = img_load(s);
 
-						}
+				//Compare the results
+				if(out.size() != in.size())
+					cerr << "Image R/W test for type " << fmt << " " << CVD::PNM::type_name<Type>::name() << " size mismatch.\n";
+				else if(!equal(in.begin(), in.end(), out.begin()))
+				{
+					cerr << "Image R/W test for type " << fmt << " " << CVD::PNM::type_name<Type>::name() << " data mismatch.\n";
 
-				cerr << "Mismatch is " << 100* t * 1.0 / in.totalsize()/(maxval - minval) << "% per pixel\n";
+					typedef typename Pixel::Component<Type>::type  Ct;
+					double t=0, minval = HUGE_VAL, maxval=-HUGE_VAL;
+					for(int y=0; y < in.size().y; y++)
+						for(int x=0; x < in.size().x; x++)
+							for(unsigned int c=0; c < Pixel::Component<Type>::count; c++)
+							{
+								double p = Pixel::Component<Type>::get(in[y][x], c);
+								double p2 = Pixel::Component<Type>::get(out[y][x], c);
+								t += abs(p -  p2);
 
-				cerr << "Min is: " << minval << endl;
-				cerr << "Max is: " << maxval << endl;
+								maxval = max(maxval, p);
+								minval = min(minval, p);
 
+								cerr << p << " " << p2 << endl;
+
+							}
+
+					cerr << "Mismatch is " << 100* t * 1.0 / in.totalsize()/(maxval - minval) << "% per pixel\n";
+
+					cerr << "Min is: " << minval << endl;
+					cerr << "Max is: " << maxval << endl;
+
+				}
+				else
+					cerr << "Image R/W test for type " << fmt << " " << CVD::PNM::type_name<Type>::name() << " OK.\n";
 			}
-			else
-				cerr << "Image R/W test for type " << fmt << " " << CVD::PNM::type_name<Type>::name() << " OK.\n";
 		}
 		catch(Exceptions::All w)
 		{
@@ -231,6 +234,7 @@ template<> struct randtest<Head>
 
 int main(int ac, char** av)
 {
+
 	for(int i=1; i <ac; i++)
 	{
 		loadsave_safe<bool>(av[i]);
@@ -267,6 +271,12 @@ int main(int ac, char** av)
 		loadsave_safe<CVD::Rgba<unsigned char> >(av[i]);
 		loadsave_safe<CVD::Rgba<unsigned int> >(av[i]);
 	}
+
+	cerr << "Testing TEXT (type " << ImageType::BMP << ")\n";
+	randtest<
+			  TypeList<double,
+		      TypeList<float,
+			  	       Head> > >::exec(ImageType::TEXT);
 
 	cerr << "Testing BMP (type " << ImageType::BMP << ")\n";
 	randtest<

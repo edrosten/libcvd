@@ -99,19 +99,10 @@ namespace FITS
 					                      Head> > > > > > > > > > > > > > > > > > Types;
 		
 		private:
-			ReadPimpl* t; 
+			std::auto_ptr<ReadPimpl> t; 
 	};
 
 	
-	template <class T> void readFITS(SubImage<T>& im, std::istream& in)
-	{
-		CVD::Internal::readImage<T, CVD::FITS::reader>(im, in);
-	}
-
-	template <class T> void readFITS(Image<T>& im, std::istream& in)
-	{
-		CVD::Internal::readImage<T, CVD::FITS::reader>(im, in);
-	}
 #if 0
 	////////////////////////////////////////////////////////////////////////////////
 	//
