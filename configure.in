@@ -154,8 +154,6 @@ define(SIMD_TEST, [
 		fi
 	fi])
 
-
-
 ################################################################################
 #
 # Compiler flags and optimization
@@ -650,8 +648,17 @@ CHECK_FOR_OPTION(lapack, [
 	AC_CHECK_FUNC(dgesvd_, [], [a=1])
 ])
 
+
+
 CHECK_FOR_OPTION(lapack, [
 	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
+])
+
+CHECK_FOR_OPTION(lapack, [
+	AC_MSG_CHECKING(if blas is needed for LAPACK)
+	AC_MSG_RESULT()
+	APPEND(LIBS, -lblas)
+	AC_CHECK_LIB(lapack, zupmtr_, [], [a=1])
 ])
 
 CHECK_FOR_OPTION(lapack, [
@@ -662,14 +669,14 @@ CHECK_FOR_OPTION(lapack, [
 ])
 
 CHECK_FOR_OPTION(lapack, [
-	AC_MSG_CHECKING(if f2c is needed for LAPACK)
+	AC_MSG_CHECKING(if g2c is needed for LAPACK)
 	AC_MSG_RESULT()
 	APPEND(LIBS, -lg2c)
 	AC_CHECK_LIB(lapack, dpotrs_, [], [a=1])
 ])
 
 CHECK_FOR_OPTION(lapack, [
-	AC_MSG_CHECKING(if f2c is needed for LAPACK)
+	AC_MSG_CHECKING(if gfortran is needed for LAPACK)
 	AC_MSG_RESULT()
 	APPEND(LIBS, -lgfortran)
 	AC_CHECK_LIB(lapack, dpotri_, [], [a=1])
@@ -729,6 +736,8 @@ CHECK_FOR_OPTION(tiff, [
 	AC_CHECK_HEADERS(tiffio.h,[],[a=1])
 	AC_CHECK_LIB(tiff, TIFFReadRGBAImage,[],[a=1])
 ])
+
+
 
 CHECK_FOR_OPTION(tiff, [
 	AC_MSG_CHECKING([if perhaps libtiff requires zlib])
