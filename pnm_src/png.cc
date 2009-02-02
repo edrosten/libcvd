@@ -233,7 +233,7 @@ png_writer::png_writer(ostream& out, ImageRef sz, const string& type_)
 	if(setjmp(png_jmpbuf(png_ptr)))     
 	{         
 		png_destroy_write_struct(&png_ptr, &info_ptr);
-		throw Exceptions::Image_IO::MalformedImage(error_string);
+		throw Exceptions::Image_IO::WriteError(error_string);
 	}
 
 	//Set up stream IO
@@ -329,7 +329,7 @@ template<class P> void png_writer::write_line(const P* data)
 
 	//Set up error handling
 	if(setjmp(png_jmpbuf(png_ptr)))     
-		throw Exceptions::Image_IO::MalformedImage(error_string);
+		throw Exceptions::Image_IO::WriteError(error_string);
 
 	//Do some sanity checking
 	if(row > size.y)
