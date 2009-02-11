@@ -57,6 +57,7 @@ void connected_components(const vector<ImageRef>& v, vector<vector<ImageRef> >& 
 		
 		if(pos.y != prev_row)
 		{	
+			prev_x=INT_MIN;
 			row_above.swap(row_curent);
 			row_curent.clear();
 
