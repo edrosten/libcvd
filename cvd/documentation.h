@@ -47,6 +47,7 @@ It is released under the LGPL License.
 		- Native
 			- PNM   
 			- BMP
+			- ASCII text
 			- FITS (reading only)
 			- PS   (saving only)
 			- EPS  (saving only)
@@ -75,13 +76,16 @@ It is released under the LGPL License.
     - Colorspace conversions on images and video streams
     - Various image processing tools
 	      - FAST corner detection
-		  - Image interpolation
+		  - Harris/Shi-Tomasi corner detection
+		  - Connect components analysis
+		  - Image interpolation and resampling
 		  - Convolutions
 		  - Drawing in to images
 		  - Flipping, pasting, etc
 		  - Interpolation, warping and resampling
 		  - Integral images
-    - %Camera calibration support: Linear, Cubic and Quintic 
+    - %Camera calibration support: Linear, Cubic, Quintic and Harris
+		  - Program to calibrate cameras from video
 
 \subsection Mathematical
 

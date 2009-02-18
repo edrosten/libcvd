@@ -21,7 +21,6 @@
 #include "cvd/internal/io/fits.h"
 #include "cvd/image_io.h"
 #include "cvd/config.h"
-#include <tiffio.h>
 #include <algorithm>
 #include <vector>
 #include <deque>
