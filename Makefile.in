@@ -131,6 +131,9 @@ else
 	dsoname1=libcvd_debug.so.@major@
 	dsoname2=libcvd_debug.so.@major@.@minor@
 
+	set_soname=-Wl,-soname,libcvd.so.@major@
+	set_dsoname=-Wl,-soname,libcvd_debug.so.@major@
+
 	shared=-shared
 endif
 
@@ -147,13 +150,13 @@ all: libcvd.a $(soname) progs $(DTARGETS) libcvd_debug.a $(dsoname)
 
 $(soname): $(OBJS)
 	rm -f $(sos)
-	$(LD) $(shared) -o $(soname2) $(OBJS) $(LDFLAGS) $(LOADLIBES) -Wl,-soname,libcvd.so.@major@
+	$(LD) $(shared) -o $(soname2) $(OBJS) $(LDFLAGS) $(LOADLIBES) $(sed_soname)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
 $(dsoname): $(DEBUG_OBJS)
 	rm -f $(dsos)
-	$(LD) $(shared) -o $(dsoname2) $(DEBUG_OBJS) $(LDFLAGS) $(LOADLIBES) -Wl,-soname,libcvd_debug.so.@major@
+	$(LD) $(shared) -o $(dsoname2) $(DEBUG_OBJS) $(LDFLAGS) $(LOADLIBES) $(set_dsoname)
 	ln -s $(dsoname2) $(dsoname1)
 	ln -s $(dsoname1) $(dsoname)
 
