@@ -97,6 +97,12 @@ namespace V4L
         static const unsigned int v4l1_palette = VIDEO_PALETTE_YUV422;
     };
 
+    template<> struct format<vuy422>
+    {
+		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_UYVY;
+        static const unsigned int v4l1_palette = VIDEO_PALETTE_UYVY;
+    };
+
     template<> struct format<yuv420p>
     {
 		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_YUV420;

@@ -331,6 +331,10 @@ namespace CVD {
     {
 	return new CVD::V4LBuffer<CVD::yuv422>(dev, size, input, interlaced, 0, verbose);
     }
+    template <> CVD::VideoBuffer<CVD::vuy422>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
+    {
+	return new CVD::V4LBuffer<CVD::vuy422>(dev, size, input, interlaced, 0, verbose);
+    }
     template <> CVD::VideoBuffer<CVD::Rgb<CVD::byte> >* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
     {
 	return new CVD::V4LBuffer<CVD::Rgb<CVD::byte> >(dev, size, input, interlaced, 0, verbose);

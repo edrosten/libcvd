@@ -122,12 +122,13 @@ namespace CVD {
 #if CVD_INTERNAL_HAVE_V4LBUFFER
     template <class T> VideoBuffer<T>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose)
     {
-	throw VideoSourceException("V4LBuffer cannot handle types other than byte, bayer, yuv422, Rgb<byte>");
+	throw VideoSourceException("V4LBuffer cannot handle types other than byte, bayer, yuv422, vuy422, Rgb<byte>");
     }
 
     template <> VideoBuffer<byte>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
     template <> VideoBuffer<bayer>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
     template <> VideoBuffer<yuv422>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
+    template <> VideoBuffer<vuy422>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
     template <> VideoBuffer<Rgb<byte> >* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
     template <> VideoBuffer<Rgb8>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
 
