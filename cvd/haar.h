@@ -36,6 +36,15 @@ namespace Internal {
         }
         std::copy(store, store+2*w, from);
     }
+
+    template<class It, class TempIt>
+    inline void inv_haar1D(It from, int w, TempIt store){
+        for(int i = 0; i < w; ++i){
+            store[2*i] = (from[i] + from[w+i]) * M_SQRT1_2;
+            store[2*i+1] = (from[i] - from[w+i]) * M_SQRT1_2;
+        }
+        std::copy(store, store+2*w, from);
+    }
 }
 
 
@@ -48,11 +57,21 @@ namespace Internal {
 template<class It>
 inline void haar1D(It from, It to){
     std::vector<typename std::iterator_traits<It>::value_type> store(std::distance(from,to), typename std::iterator_traits<It>::value_type());
-    int w = std::distance(from,to);
-    while(w>1){
-        w /= 2;
+    for(int w = std::distance(from,to)/2; w > 0; w /= 2)
         Internal::haar1D(from, w, store.begin());
-    }
+}
+
+/// computes the inverse 1D Haar transform of a signal in place. This version takes
+/// two iterators, and the data between them will be transformed. Will only work
+/// correctly on 2^N data points.
+/// @param from iterator pointing to the beginning of the data
+/// @param to iterator pointing to the end (after the last element)
+/// @ingroup gVision
+template<class It>
+inline void inv_haar1D(It from, It to){
+    std::vector<typename std::iterator_traits<It>::value_type> store(std::distance(from,to), typename std::iterator_traits<It>::value_type());
+    for(int w = 1; w < std::distance(from,to); w *= 2)
+        Internal::inv_haar1D(from, w, store.begin());
 }
 
 /// computes the 1D Haar transform of a signal in place. Will only work
@@ -63,6 +82,16 @@ inline void haar1D(It from, It to){
 template<class It>
 inline void haar1D(It from, int size){
     haar1D(from, from + size);
+}
+
+/// computes the inverse 1D Haar transform of a signal in place. Will only work
+/// correctly on 2^N data points.
+/// @param from iterator pointing to the beginning of the data
+/// @param size number of data points, should be 2^N
+/// @ingroup gVision
+template<class It>
+inline void inv_haar1D(It from, int size){
+    inv_haar1D(from, from + size);
 }
 
 /// computes the 2D Haar transform of a signal in place. Works only with 
