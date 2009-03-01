@@ -134,7 +134,7 @@ template<class T> class ConstSubImage;
 template<class T> class ConstSubImageIterator
 {
 	public:
-		void operator++()
+		const ConstSubImageIterator& operator++()
 		{
 			ptr++;
 			if(ptr == row_end)
@@ -145,6 +145,7 @@ template<class T> class ConstSubImageIterator
 				if(ptr >= end)
 					end = NULL;
 			}
+			return *this;
 		}
 
 		void operator++(int)
