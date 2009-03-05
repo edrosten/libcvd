@@ -62,6 +62,8 @@ It is released under the LGPL License.
 		  		- Video for Linux devices
           		- Video for Linux 2 devices
          	 	- Firewire cameras
+                - Firewire over USB cameras produced by PointGrey - see http://www.ptgrey.com/products/fireflymv/index.asp \n
+                  Use DVBuffer3 for that and make sure to set an image resolution
 		  - IRIX
           		- DMedia video capture
 		  - OSX
