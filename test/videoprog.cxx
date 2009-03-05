@@ -131,9 +131,8 @@ int mymain(int argc, char** argv)
 			video.push_back(i);
 			cout << frame_num++ << " " <<flush;
 		}
-	
 		glDrawPixels(*vf);
-
+		glFlush();
 		vbuf->put_frame(vf);
 	}
 	

@@ -408,14 +408,14 @@ AC_ARG_WITH(v4l2,      [  --without-v4l2buffer	  compile without v4l2buffer (Vid
 AC_ARG_WITH(o2buffer,  [  --without-o2buffer	  compile without sgi video (IRIX only)])
 AC_ARG_WITH(qtbuffer,  [  --without-qtbuffer	  compile without quicktime buffer support (MacOSX only)])
 
+CHECK_FOR_OPTION(dc1394v2, [
+	AC_CHECK_HEADERS(dc1394/dc1394.h, [], [a=1])
+	AC_CHECK_LIB(dc1394, main,[],[a=1])
+])
+
 case "$host" in
 	*linux*)
 		os_all_options="dc1394v2 dvbuffer dvbuffer3 v4l2buffer v4l1buffer v4lbuffer"
-
-		CHECK_FOR_OPTION(dc1394v2, [
-			AC_CHECK_HEADERS(dc1394/dc1394.h, [], [a=1])
-			AC_CHECK_LIB(dc1394, main,[],[a=1])
-		])
 
 		CHECK_FOR_OPTION(dvbuffer, [
 			AC_CHECK_HEADERS(libraw1394/raw1394.h libdc1394/dc1394_control.h, [], [a=1])
@@ -537,7 +537,7 @@ then
 	APPEND(CPPFLAGS, [-I/usr/X11R6/include])
 	AC_MSG_NOTICE([Adding /usr/X11R6/include to the build path.])
 	AC_SUBST(osx_hacks,yes)
-	os_all_options="qtbuffer"
+	os_all_options="qtbuffer dc1394v2 dvbuffer3"
 
 	CHECK_FOR_OPTION(qtbuffer,[
 		APPEND(LIBS, [-framework Carbon -framework QuickTime])
@@ -547,6 +547,14 @@ then
 							int main(){InitCursor();EnterMovies();return 0;}],
 							[AC_MSG_RESULT(yes)], 
 							[AC_MSG_RESULT(no); a=1]) 
+	])
+	
+
+	CHECK_FOR_OPTION(dvbuffer3, [
+		if test "$have_dc1394v2" != yes
+		then
+			a=1
+		fi
 	])
 fi
 
@@ -1044,6 +1052,7 @@ test/fast_test					videodisplay faster_test sse2   END
 test/diskbuffer2				videodisplay					END
 test/dvbuffer_mono  			videodisplay dc1394v1			END
 test/dvbuffer_yuvrgb  			videodisplay dc1394v1			END
+test/dvbuffer3_mono				videodisplay dvbuffer3			END
 test/test_images       											END
 test/v4l1buffer_mono  			videodisplay v4l1buffer			END
 test/v4l2buffer					videodisplay v4l2buffer			END
