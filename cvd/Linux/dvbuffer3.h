@@ -53,7 +53,7 @@ namespace CVD
     enum DV3Feature { BRIGHTNESS,  EXPOSURE,  SHARPNESS,
 		      WHITE_BALANCE,  HUE,  SATURATION,
 		      GAMMA,  SHUTTER,  GAIN,  IRIS,
-		      FOCUS, ZOOM,   PAN,  TILT};
+		      FOCUS, ZOOM,   PAN,  TILT, FRAME_RATE};
     
     /// This enumerates all the colourspace types supported by DC1394
     /// N.b. only a small fraction of these map 1:1 to libCVD types
@@ -61,6 +61,11 @@ namespace CVD
 			  RGB8,	  RGB16,   RGB16S,
 			  YUV411, YUV422,  YUV444,
 			  RAW8,	  RAW16};
+    
+    /// This enumerates the different colour filter tile patterns for Bayer
+    /// images. This can be queried from the RawDVBuffer3 for a Bayer mode.
+    /// This is only supported for DC1394 v2
+    enum DV3ColourFilter { RGGB, GBRG, GRBG, BGGR };
     
 #ifndef DOXYGEN_IGNORE_INTERNAL
     // Translation helper classes to go from CVD-types to the above
@@ -77,6 +82,8 @@ namespace CVD
       {	static const DV3ColourSpace space = YUV422;};
     template<> struct CSConvert<Rgb<byte> > 
       {	static const DV3ColourSpace space = RGB8;};
+    template<> struct CSConvert<bayer>
+      { static const DV3ColourSpace space = RAW8; }; 
     
     struct LibDCParams;
 #endif
@@ -84,23 +91,30 @@ namespace CVD
     /// Non-templated libDC1394 interface. This is used by DVBuffer3. If you want 
     /// typed video frames, you should use DVBuffer 3 instead..
     /// The implementation of this class depends on which version of libDC1394 is 
-    /// installed on the system.
+    /// installed on the system. Format 7 support is only present for libDC1394 V2.
     class RawDVBuffer3
     {
     public:
-      /// Mode-selecting constructor for all standard modes (not Mode7)
+      /// Mode-selecting constructor for all standard modes & Format 7. First it tries
+      /// to find a standard mode, then it looks at the Format 7 modes. If an offset
+      /// is given, standard modes are skipped (they don't allow offsets).
       /// @param colourspace Enumerated colourspace requested
       /// @param nCamNumber Which camera on the bus to use
       /// @param irSize Requested video size; if left at (-1,-1) use biggest available
       /// @param fFrameRate Requested frame-rate; if negative, use fastest available
+      /// @param irOffset offset of video frame in CCD; if left at (-1,-1) use default modes or center window
       RawDVBuffer3(DV3ColourSpace colourspace,
 		   unsigned int nCamNumber=0, 
 		   ImageRef irSize = ImageRef(-1,-1),
-		   float fFrameRate=-1.0);
+		   float fFrameRate=-1.0, 
+		   ImageRef irOffset = ImageRef(-1,-1));
       
       ~RawDVBuffer3();
       inline ImageRef size() {return mirSize;}
+      inline ImageRef offset() {return mirOffset;}
       inline double frame_rate() {return mdFramerate;}
+      inline DV3ColourFilter colour_filter() { return mColourfilter; }
+      
       VideoFrame<byte>* get_frame();
       void put_frame(VideoFrame<byte>* f);
       bool frame_pending();
@@ -112,7 +126,9 @@ namespace CVD
       
     private:
       ImageRef mirSize;
+      ImageRef mirOffset;
       double mdFramerate;
+      DV3ColourFilter mColourfilter;
       /// This encapsulates the actual libDC1394 variables
       LibDCParams *mpLDCP;
     };
@@ -129,9 +145,10 @@ namespace CVD
     public:
     DVBuffer3(unsigned int nCamNumber=0, 
 	      ImageRef irSize = ImageRef(-1,-1), 
-	      float fFPS = -1.0)
+	      float fFPS = -1.0, 
+	      ImageRef irOffset = ImageRef(-1,-1))
       : VideoBuffer<pixel_T>(VideoBufferType::Live),
-	    RawDVBuffer3(DV3::CSConvert<pixel_T>::space, nCamNumber, irSize, fFPS)
+	    RawDVBuffer3(DV3::CSConvert<pixel_T>::space, nCamNumber, irSize, fFPS, irOffset)
 	{
 	}
       

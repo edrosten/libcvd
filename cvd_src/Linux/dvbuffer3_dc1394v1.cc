@@ -65,7 +65,8 @@ namespace CVD
     RawDVBuffer3::RawDVBuffer3(DV3ColourSpace colourspace,
 			       unsigned int nCamNumber,
 			       ImageRef irSize,
-			       float fFrameRate)
+			       float fFrameRate,
+			       ImageRef irOffset)
     {
       
       int mode;
