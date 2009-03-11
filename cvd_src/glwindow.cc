@@ -134,7 +134,8 @@ CVD::GLWindow::~GLWindow()
 ImageRef CVD::GLWindow::size() const { return state->size; }
 
 void CVD::GLWindow::set_size(const ImageRef & s_){
-    state->size = s_;
+    // we don't set state->size here, so that it changes through the event system
+    // and we react to it there
     XResizeWindow(state->display, state->window, s_.x, s_.y);
 }
 
