@@ -137,16 +137,16 @@ dnl On success, "name" is appended to simd_options
 define(SIMD_TEST, [
 	if test "$with_simd" != no
 	then
-		if test "$with_$1" == "yes"
+		if test "$with_[]m4_tolower($1)" == "yes"
 		then
-			have_$1=yes
-		elif test "$with_$1" != "no"
+			have_[]m4_tolower($1)=yes
+		elif test "$with_[]m4_tolower($1)" != "no"
 		then
 			TEST_AND_SET_CXXFLAG([$2], [$3], [for $1 support],run)
-			have_$1="$ts_success"
+			have_[]m4_tolower($1)="$ts_success"
 		fi
 
-		if test "$have_$1" == yes
+		if test "$have_[]m4_tolower($1)" == yes
 		then
 			AC_DEFINE(CVD_HAVE_$1, 1)
 			AC_SUBST(have_[]m4_tolower($1), yes)
@@ -311,6 +311,7 @@ AC_ARG_WITH(mmxext, [    --with-mmxext         force presence or absence of MMXE
 AC_ARG_WITH(sse, [    --with-sse            force presence or absence of SSE  (x86 only)])	
 AC_ARG_WITH(sse2, [    --with-sse2           force presence or absence of SSE2  (x86 only)])	
 AC_ARG_WITH(assembler, [    --with-assembler     force presence or absence of asm])
+AC_ARG_WITH(inline_asm, [    --with-inline_asm     force presence or absence of inline asm])
 
 case "$host" in
 	*86*)
@@ -374,6 +375,14 @@ then
 	AC_SUBST(have_32bit,yes)
 fi
 
+
+
+CHECK_FOR_OPTION(inline_asm, [
+	AC_MSG_CHECKING([for inline asm statement])
+	AC_COMPILE_IFELSE([int main() { asm(""); }],
+		[AC_MSG_RESULT(yes)],
+		[AC_MSG_RESULT(no);a=1])
+])
 
 CHECK_FOR_OPTION(assembler, [
 	AC_MSG_CHECKING([assembler supports .type pseudo-op])
@@ -933,8 +942,8 @@ done > config.have_bits
 cat config.have_bits - <<ENDDEPS  | awk -f make/compile_deps.awk > config.dep_tmp
 
 #SIMD dependencies
-cvd_src/i686/yuv411_to_stuff_MMX			mmxext 32bit x86
-cvd_src/i686/yuv411_to_stuff_MMX_64			mmxext x86
+cvd_src/i686/yuv411_to_stuff_MMX			inline_asm mmxext 32bit x86
+cvd_src/i686/yuv411_to_stuff_MMX_64			inline_asm mmxext x86
 cvd_src/yuv411_to_stuff					END
 
 cvd_src/i686/halfsample,HALFSAMPLE_MMX8		mmx 32bit x86 assembler END

@@ -688,6 +688,7 @@ have_sse
 have_sse2
 have_sse3
 have_32bit
+have_inline_asm
 have_assembler
 have_dc1394v2
 have_dvbuffer
@@ -1351,6 +1352,7 @@ Optional Packages:
     --with-sse            force presence or absence of SSE  (x86 only)
     --with-sse2           force presence or absence of SSE2  (x86 only)
     --with-assembler     force presence or absence of asm
+    --with-inline_asm     force presence or absence of inline asm
   --without-dvbuffer      compile without dvbuffer (libDC1394v1) support (Linux only)
   --without-dvbuffer3     compile without dvbuffer3 (libDC1394v{1,2}) support (Linux only)
   --without-dc1394v2      do not use libDC1394v2 (use v1 instead) for dvbuffer3 (Linux only)
@@ -5239,6 +5241,12 @@ if test "${with_assembler+set}" = set; then
 fi
 
 
+# Check whether --with-inline_asm was given.
+if test "${with_inline_asm+set}" = set; then
+  withval=$with_inline_asm;
+fi
+
+
 case "$host" in
 	*86*)
 		have_x86=yes
@@ -5248,10 +5256,10 @@ case "$host" in
 
 	if test "$with_simd" != no
 	then
-		if test "$with_MMX" == "yes"
+		if test "$with_mmx" == "yes"
 		then
-			have_MMX=yes
-		elif test "$with_MMX" != "no"
+			have_mmx=yes
+		elif test "$with_mmx" != "no"
 		then
 
 	if test "for MMX support" == ""
@@ -5330,10 +5338,10 @@ echo "${ECHO_T}no" >&6; }
 		ts_success=no
 	fi
 
-			have_MMX="$ts_success"
+			have_mmx="$ts_success"
 		fi
 
-		if test "$have_MMX" == yes
+		if test "$have_mmx" == yes
 		then
 			cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_MMX 1
@@ -5348,10 +5356,10 @@ _ACEOF
 
 	if test "$with_simd" != no
 	then
-		if test "$with_MMXEXT" == "yes"
+		if test "$with_mmxext" == "yes"
 		then
-			have_MMXEXT=yes
-		elif test "$with_MMXEXT" != "no"
+			have_mmxext=yes
+		elif test "$with_mmxext" != "no"
 		then
 
 	if test "for MMXEXT support" == ""
@@ -5429,10 +5437,10 @@ echo "${ECHO_T}no" >&6; }
 		ts_success=no
 	fi
 
-			have_MMXEXT="$ts_success"
+			have_mmxext="$ts_success"
 		fi
 
-		if test "$have_MMXEXT" == yes
+		if test "$have_mmxext" == yes
 		then
 			cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_MMXEXT 1
@@ -5447,10 +5455,10 @@ _ACEOF
 
 	if test "$with_simd" != no
 	then
-		if test "$with_SSE" == "yes"
+		if test "$with_sse" == "yes"
 		then
-			have_SSE=yes
-		elif test "$with_SSE" != "no"
+			have_sse=yes
+		elif test "$with_sse" != "no"
 		then
 
 	if test "for SSE support" == ""
@@ -5529,10 +5537,10 @@ echo "${ECHO_T}no" >&6; }
 		ts_success=no
 	fi
 
-			have_SSE="$ts_success"
+			have_sse="$ts_success"
 		fi
 
-		if test "$have_SSE" == yes
+		if test "$have_sse" == yes
 		then
 			cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_SSE 1
@@ -5547,10 +5555,10 @@ _ACEOF
 
 	if test "$with_simd" != no
 	then
-		if test "$with_SSE2" == "yes"
+		if test "$with_sse2" == "yes"
 		then
-			have_SSE2=yes
-		elif test "$with_SSE2" != "no"
+			have_sse2=yes
+		elif test "$with_sse2" != "no"
 		then
 
 	if test "for SSE2 support" == ""
@@ -5629,10 +5637,10 @@ echo "${ECHO_T}no" >&6; }
 		ts_success=no
 	fi
 
-			have_SSE2="$ts_success"
+			have_sse2="$ts_success"
 		fi
 
-		if test "$have_SSE2" == yes
+		if test "$have_sse2" == yes
 		then
 			cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_SSE2 1
@@ -5647,10 +5655,10 @@ _ACEOF
 
 	if test "$with_simd" != no
 	then
-		if test "$with_SSE3" == "yes"
+		if test "$with_sse3" == "yes"
 		then
-			have_SSE3=yes
-		elif test "$with_SSE3" != "no"
+			have_sse3=yes
+		elif test "$with_sse3" != "no"
 		then
 
 	if test "for SSE3 support" == ""
@@ -5729,10 +5737,10 @@ echo "${ECHO_T}no" >&6; }
 		ts_success=no
 	fi
 
-			have_SSE3="$ts_success"
+			have_sse3="$ts_success"
 		fi
 
-		if test "$have_SSE3" == yes
+		if test "$have_sse3" == yes
 		then
 			cat >>confdefs.h <<\_ACEOF
 #define CVD_HAVE_SSE3 1
@@ -6156,6 +6164,77 @@ then
 	have_32bit=yes
 
 fi
+
+
+
+
+	if test "$with_inline_asm" != no && test "$have_inline_asm" != yes
+	then
+		if test "$with_inline_asm" == ""
+		then
+			with_inline_asm=yes
+		fi
+
+		save_LIBS="$LIBS"
+		save_CXXFLAGS="$CXXFLAGS"
+		a=
+
+	{ echo "$as_me:$LINENO: checking for inline asm statement" >&5
+echo $ECHO_N "checking for inline asm statement... $ECHO_C" >&6; }
+	cat >conftest.$ac_ext <<_ACEOF
+int main() { asm(""); }
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_cxx_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; };a=1
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+
+		if test x$a == x
+		then
+			cat >>confdefs.h <<\_ACEOF
+#define CVD_HAVE_INLINE_ASM 1
+_ACEOF
+
+			have_inline_asm=yes
+
+			options="$options inline_asm"
+
+		else
+			LIBS="$save_LIBS"
+			CXXFLAGS="$save_CXXFLAGS"
+		fi
+	fi
+
+	if test "$have_inline_asm" != yes
+	then
+		:
+
+	fi
 
 
 
@@ -11850,8 +11929,8 @@ done > config.have_bits
 cat config.have_bits - <<ENDDEPS  | awk -f make/compile_deps.awk > config.dep_tmp
 
 #SIMD dependencies
-cvd_src/i686/yuv411_to_stuff_MMX			mmxext 32bit x86
-cvd_src/i686/yuv411_to_stuff_MMX_64			mmxext x86
+cvd_src/i686/yuv411_to_stuff_MMX			inline_asm mmxext 32bit x86
+cvd_src/i686/yuv411_to_stuff_MMX_64			inline_asm mmxext x86
 cvd_src/yuv411_to_stuff					END
 
 cvd_src/i686/halfsample,HALFSAMPLE_MMX8		mmx 32bit x86 assembler END
@@ -12738,6 +12817,7 @@ have_sse!$have_sse$ac_delim
 have_sse2!$have_sse2$ac_delim
 have_sse3!$have_sse3$ac_delim
 have_32bit!$have_32bit$ac_delim
+have_inline_asm!$have_inline_asm$ac_delim
 have_assembler!$have_assembler$ac_delim
 have_dc1394v2!$have_dc1394v2$ac_delim
 have_dvbuffer!$have_dvbuffer$ac_delim
@@ -12760,7 +12840,6 @@ have_jpeg!$have_jpeg$ac_delim
 have_tiff!$have_tiff$ac_delim
 have_ffmpeg!$have_ffmpeg$ac_delim
 docs!$docs$ac_delim
-have_glob!$have_glob$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -12802,6 +12881,7 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+have_glob!$have_glob$ac_delim
 have_memalign!$have_memalign$ac_delim
 have_fast7!$have_fast7$ac_delim
 have_fast8!$have_fast8$ac_delim
@@ -12820,7 +12900,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 16; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 17; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
