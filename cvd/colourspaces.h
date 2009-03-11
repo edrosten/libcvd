@@ -28,6 +28,8 @@
 namespace CVD
 {
 
+	/// Bayer datatype representing the colour filter pattern BGGR
+	/// @ingroup gVideoBuffer
 	struct bayer_bggr
 	{
 		unsigned char val;
@@ -36,6 +38,8 @@ namespace CVD
 		bayer_bggr(unsigned char v) : val(v) {}
 	};
 	
+	/// Bayer datatype representing the colour filter pattern GBRG
+	/// @ingroup gVideoBuffer
 	struct bayer_gbrg
 	{
 		unsigned char val;
@@ -44,6 +48,8 @@ namespace CVD
 		bayer_gbrg(unsigned char v) : val(v) {}
 	};
 	
+	/// Bayer datatype representing the colour filter pattern GRBG
+	/// @ingroup gVideoBuffer
 	struct bayer_grbg
 	{
 		unsigned char val;
@@ -52,6 +58,8 @@ namespace CVD
 		bayer_grbg(unsigned char v) : val(v) {}
 	};
 
+	/// Bayer datatype representing the colour filter pattern RGGB
+	/// @ingroup gVideoBuffer
 	struct bayer_rggb
 	{
 		unsigned char val;
@@ -60,9 +68,9 @@ namespace CVD
 		bayer_rggb(unsigned char v) : val(v) {}
 	};
 	
-	/// A dedicated bayer datatype to configure the V4L1 device to return bayer images.
-    	/// It is probably only supported in Ethan's hacked driver for USB2.0 devices.
-    	/// @ingroup gVideoBuffer
+	/// typedef to support old bayer datatype
+	/// @ingroup gVideoBuffer
+	/// @deprecated
 	typedef bayer_bggr bayer;
 	
 	/// A datatype to represent yuv411 (uyyvyy) data, typically from firewire
