@@ -65,7 +65,7 @@ namespace CVD
     /// This enumerates the different colour filter tile patterns for Bayer
     /// images. This can be queried from the RawDVBuffer3 for a Bayer mode.
     /// This is only supported for DC1394 v2
-    enum DV3ColourFilter { RGGB, GBRG, GRBG, BGGR };
+    enum DV3ColourFilter { UNDEFINED = -1, RGGB = 0, GBRG = 1, GRBG = 2, BGGR = 3 };
     
 #ifndef DOXYGEN_IGNORE_INTERNAL
     // Translation helper classes to go from CVD-types to the above
@@ -82,9 +82,21 @@ namespace CVD
       {	static const DV3ColourSpace space = YUV422;};
     template<> struct CSConvert<Rgb<byte> > 
       {	static const DV3ColourSpace space = RGB8;};
-    template<> struct CSConvert<bayer>
+    template<> struct CSConvert<bayer_bggr>
       { static const DV3ColourSpace space = RAW8; }; 
-    
+    template<> struct CSConvert<bayer_gbrg>
+      { static const DV3ColourSpace space = RAW8; }; 
+    template<> struct CSConvert<bayer_grbg>
+      { static const DV3ColourSpace space = RAW8; }; 
+    template<> struct CSConvert<bayer_rggb>
+      { static const DV3ColourSpace space = RAW8; }; 
+
+    template<class C> struct CSFilter { static const DV3ColourFilter filter = UNDEFINED; };
+    template<> struct CSFilter<bayer_bggr> { static const DV3ColourFilter filter = BGGR; };
+    template<> struct CSFilter<bayer_gbrg> { static const DV3ColourFilter filter = GBRG; };
+    template<> struct CSFilter<bayer_grbg> { static const DV3ColourFilter filter = GRBG; };
+    template<> struct CSFilter<bayer_rggb> { static const DV3ColourFilter filter = RGGB; };
+
     struct LibDCParams;
 #endif
     
@@ -150,6 +162,8 @@ namespace CVD
       : VideoBuffer<pixel_T>(VideoBufferType::Live),
 	    RawDVBuffer3(DV3::CSConvert<pixel_T>::space, nCamNumber, irSize, fFPS, irOffset)
 	{
+		if(DV3::CSFilter<pixel_T>::filter != DV3::UNDEFINED && colour_filter() != DV3::CSFilter<pixel_T>::filter )
+			throw(Exceptions::DVBuffer3::All("wrong colour filter expected"));
 	}
       
       virtual ~DVBuffer3()   {}
@@ -170,9 +184,3 @@ namespace CVD
 }
 
 #endif
-
-
-
-
-
-

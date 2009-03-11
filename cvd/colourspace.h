@@ -44,20 +44,61 @@ namespace CVD
 		void yuv411_to_rgb_y(const unsigned char* yuv411, int npix, unsigned char* outc, unsigned char* outy);
 
 		
-		/// Convert Bayer pattern of the form ??? to greyscale data
+		/// Convert Bayer pattern of the form bggr to greyscale data
 		/// @param bggr The input data
 		/// @param grey The output data
 		/// @param width The width of the image
 		/// @param height The height of the image
-		void bayer_to_grey(const unsigned char* bggr, unsigned char* grey, unsigned int width, unsigned int height);
+		void bayer_to_grey_bggr(const unsigned char* bggr, unsigned char* grey, unsigned int width, unsigned int height);
 
-		/// Convert Bayer pattern of the form ??? to rgb444 data
+		/// Convert Bayer pattern of the form gbrg to greyscale data
 		/// @param bggr The input data
 		/// @param grey The output data
 		/// @param width The width of the image
 		/// @param height The height of the image
-		void bayer_to_rgb(const unsigned char* bggr, unsigned char* rgb, unsigned int width, unsigned int height);
+		void bayer_to_grey_gbrg(const unsigned char* gbrg, unsigned char* grey, unsigned int width, unsigned int height);
 
+		/// Convert Bayer pattern of the form grbg to greyscale data
+		/// @param bggr The input data
+		/// @param grey The output data
+		/// @param width The width of the image
+		/// @param height The height of the image
+		void bayer_to_grey_grbg(const unsigned char* grbg, unsigned char* grey, unsigned int width, unsigned int height);
+		
+		/// Convert Bayer pattern of the form rggb to greyscale data
+		/// @param bggr The input data
+		/// @param grey The output data
+		/// @param width The width of the image
+		/// @param height The height of the image
+		void bayer_to_grey_rggb(const unsigned char* rggb, unsigned char* grey, unsigned int width, unsigned int height);
+		
+		/// Convert Bayer pattern of the form bggr to rgb444 data
+		/// @param bggr The input data
+		/// @param grey The output data
+		/// @param width The width of the image
+		/// @param height The height of the image
+		void bayer_to_rgb_bggr(const unsigned char* bggr, unsigned char* rgb, unsigned int width, unsigned int height);
+
+		/// Convert Bayer pattern of the form gbrg to rgb444 data
+		/// @param bggr The input data
+		/// @param grey The output data
+		/// @param width The width of the image
+		/// @param height The height of the image
+		void bayer_to_rgb_gbrg(const unsigned char* gbrg, unsigned char* rgb, unsigned int width, unsigned int height);
+
+		/// Convert Bayer pattern of the form grbg to rgb444 data
+		/// @param bggr The input data
+		/// @param grey The output data
+		/// @param width The width of the image
+		/// @param height The height of the image
+		void bayer_to_rgb_grbg(const unsigned char* grbg, unsigned char* rgb, unsigned int width, unsigned int height);
+		
+		/// Convert Bayer pattern of the form rggb to rgb444 data
+		/// @param bggr The input data
+		/// @param grey The output data
+		/// @param width The width of the image
+		/// @param height The height of the image
+		void bayer_to_rgb_rggb(const unsigned char* rggb, unsigned char* rgb, unsigned int width, unsigned int height);
 
 		/// Convert yuv422 to rgb444.
 		/// @param yuv The yuv422 data: yuyvyuyv....

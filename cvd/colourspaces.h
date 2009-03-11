@@ -28,21 +28,43 @@
 namespace CVD
 {
 
-	/// A dedicated bayer datatype to configure the V4L1 device to return bayer images.
-    /// It is probably only supported in Ethan's hacked driver for USB2.0 devices.
-    /// @ingroup gVideoBuffer
-	struct bayer
+	struct bayer_bggr
 	{
 		unsigned char val;
-		operator unsigned char() const {
-			return val;
-		}
-		template <typename T> bayer( T in ) : val((unsigned char) in)
-		{}
-		bayer(void) : val(0)
-		{}
+		operator unsigned char() const { return val; }
+		bayer_bggr() {}
+		bayer_bggr(unsigned char v) : val(v) {}
+	};
+	
+	struct bayer_gbrg
+	{
+		unsigned char val;
+		operator unsigned char() const { return val; }
+		bayer_gbrg() {}
+		bayer_gbrg(unsigned char v) : val(v) {}
+	};
+	
+	struct bayer_grbg
+	{
+		unsigned char val;
+		operator unsigned char() const { return val; }
+		bayer_grbg() {}
+		bayer_grbg(unsigned char v) : val(v) {}
 	};
 
+	struct bayer_rggb
+	{
+		unsigned char val;
+		operator unsigned char() const { return val; }
+		bayer_rggb() {}
+		bayer_rggb(unsigned char v) : val(v) {}
+	};
+	
+	/// A dedicated bayer datatype to configure the V4L1 device to return bayer images.
+    	/// It is probably only supported in Ethan's hacked driver for USB2.0 devices.
+    	/// @ingroup gVideoBuffer
+	typedef bayer_bggr bayer;
+	
 	/// A datatype to represent yuv411 (uyyvyy) data, typically from firewire
 	/// cameras. It can be used to configure dvbuffer to return this format.
 	/// @ingroup gVideoBuffer
@@ -75,12 +97,37 @@ namespace CVD
 	};
 
   namespace Pixel {
-      // Should be able to delete the following, since Component now defaults to 1 for unknown types
-      //template<> struct Component<bayer> : public component_base<bayer, 1>
-      //{
-      //};
-      
-        template<int LIFT> struct traits<bayer, LIFT>
+        template<int LIFT> struct traits<bayer_bggr, LIFT>
+        {
+            typedef int wider_type;
+            typedef float float_type;
+            static const bool integral = true;
+            static const bool is_signed = false;
+            static const int bits_used = 8;
+            static const unsigned char max_intensity=(1 << bits_used) - 1;
+        };
+
+	template<int LIFT> struct traits<bayer_rggb, LIFT>
+        {
+            typedef int wider_type;
+            typedef float float_type;
+            static const bool integral = true;
+            static const bool is_signed = false;
+            static const int bits_used = 8;
+            static const unsigned char max_intensity=(1 << bits_used) - 1;
+        };
+
+	template<int LIFT> struct traits<bayer_gbrg, LIFT>
+        {
+            typedef int wider_type;
+            typedef float float_type;
+            static const bool integral = true;
+            static const bool is_signed = false;
+            static const int bits_used = 8;
+            static const unsigned char max_intensity=(1 << bits_used) - 1;
+        };
+	
+	template<int LIFT> struct traits<bayer_grbg, LIFT>
         {
             typedef int wider_type;
             typedef float float_type;
@@ -95,7 +142,19 @@ namespace CVD
 #ifndef DOXYGEN_IGNORE_INTERNAL
     namespace Internal
     {
-      template<> struct is_POD<bayer>
+      template<> struct is_POD<bayer_bggr>
+      {
+	enum { is_pod = 1 };
+      };
+      template<> struct is_POD<bayer_gbrg>
+      {
+	enum { is_pod = 1 };
+      };
+      template<> struct is_POD<bayer_grbg>
+      {
+	enum { is_pod = 1 };
+      };
+      template<> struct is_POD<bayer_rggb>
       {
 	enum { is_pod = 1 };
       };

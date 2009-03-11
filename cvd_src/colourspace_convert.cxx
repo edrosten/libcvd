@@ -28,18 +28,54 @@
 namespace CVD
 {
 	
-  template<> void convert_image(const BasicImage<bayer>& from, BasicImage<Rgb<byte> >& to)
+  template<> void convert_image(const BasicImage<bayer_bggr>& from, BasicImage<Rgb<byte> >& to)
   {
-    ColourSpace::bayer_to_rgb(reinterpret_cast<const unsigned char*>(from.data()), 
+    ColourSpace::bayer_to_rgb_bggr(reinterpret_cast<const unsigned char*>(from.data()), 
 			      reinterpret_cast<unsigned char*>(to.data()), 
 			      from.size().x, from.size().y);
   }
 
-  template<> void convert_image(const BasicImage<bayer>& from, BasicImage<byte>& to)
+  template<> void convert_image(const BasicImage<bayer_gbrg>& from, BasicImage<Rgb<byte> >& to)
   {
-    ColourSpace::bayer_to_grey(reinterpret_cast<const unsigned char*>(from.data()), to.data(), from.size().x, from.size().y);
+    ColourSpace::bayer_to_rgb_gbrg(reinterpret_cast<const unsigned char*>(from.data()),
+			      reinterpret_cast<unsigned char*>(to.data()), 
+			      from.size().x, from.size().y);
+  }
+
+  template<> void convert_image(const BasicImage<bayer_grbg>& from, BasicImage<Rgb<byte> >& to)
+  {
+    ColourSpace::bayer_to_rgb_grbg(reinterpret_cast<const unsigned char*>(from.data()),
+			      reinterpret_cast<unsigned char*>(to.data()), 
+			      from.size().x, from.size().y);
+  }
+  
+  template<> void convert_image(const BasicImage<bayer_rggb>& from, BasicImage<Rgb<byte> >& to)
+  {
+    ColourSpace::bayer_to_rgb_rggb(reinterpret_cast<const unsigned char*>(from.data()),
+			      reinterpret_cast<unsigned char*>(to.data()), 
+			      from.size().x, from.size().y);
+  }
+
+  template<> void convert_image(const BasicImage<bayer_bggr>& from, BasicImage<byte>& to)
+  {
+    ColourSpace::bayer_to_grey_bggr(reinterpret_cast<const unsigned char*>(from.data()), to.data(), from.size().x, from.size().y);
+  }
+  
+  template<> void convert_image(const BasicImage<bayer_gbrg>& from, BasicImage<byte>& to)
+  {
+    ColourSpace::bayer_to_grey_gbrg(reinterpret_cast<const unsigned char*>(from.data()), to.data(), from.size().x, from.size().y);
+  }
+  
+  template<> void convert_image(const BasicImage<bayer_grbg>& from, BasicImage<byte>& to)
+  {
+    ColourSpace::bayer_to_grey_grbg(reinterpret_cast<const unsigned char*>(from.data()), to.data(), from.size().x, from.size().y);
   }
 	
+  template<> void convert_image(const BasicImage<bayer_rggb>& from, BasicImage<byte>& to)
+  {
+    ColourSpace::bayer_to_grey_rggb(reinterpret_cast<const unsigned char*>(from.data()), to.data(), from.size().x, from.size().y);
+  }
+  
   template<> void convert_image(const BasicImage<yuv411>& from, BasicImage<Rgb<byte> >& to)
   {
     ColourSpace::yuv411_to_rgb(reinterpret_cast<const unsigned char*>(from.data()),

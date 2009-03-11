@@ -30,7 +30,7 @@ using namespace CVD;
 using namespace DV3;
 using CVD::Exceptions::DVBuffer3::All;
 
-namespace CVD 
+namespace CVD
 {
 
   namespace DV3
@@ -141,7 +141,7 @@ namespace CVD
       dc1394color_coding_t nTargetColourCoding = DC_from_DV3_ColourSpace(colourspace);
       bool foundAStandardMode = false;
 	dc1394video_mode_t nMode;
-
+	mColourfilter = UNDEFINED;
 	if(irOffset.x == -1){
 		try {
 			// First, get a list of the modes which the camera supports.
@@ -264,7 +264,7 @@ namespace CVD
 			if(i == mode.color_codings.num) continue;
 			if(irSize.x != -1){
 				// can it support the size ?
-				if((irSize.x + mirOffset.x) > mode.max_size_x || (irSize.y + mirOffset.y) > mode.max_size_y || irSize.x % mode.unit_size_x != 0 || irSize.y % mode.unit_size_y != 0)
+				if((irSize.x + mirOffset.x) > (int)mode.max_size_x || (irSize.y + mirOffset.y) > (int)mode.max_size_y || irSize.x % mode.unit_size_x != 0 || irSize.y % mode.unit_size_y != 0)
 					continue;
 			} else {
 				irSize.x = mode.max_size_x;

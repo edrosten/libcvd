@@ -280,9 +280,9 @@ namespace CVD {
 	return new CVD::V4L1Buffer<CVD::Rgb<CVD::byte> >(dev, size);
     }
 
-    template <> CVD::VideoBuffer<CVD::bayer>* makeV4L1Buffer(const std::string& dev, const CVD::ImageRef& size)
+    template <> CVD::VideoBuffer<CVD::bayer_grbg>* makeV4L1Buffer(const std::string& dev, const CVD::ImageRef& size)
     {
-	return new CVD::V4LBuffer<CVD::bayer>(dev, size);
+	return new CVD::V4LBuffer<CVD::bayer_grbg>(dev, size);
     }
 
     void get_v4l1_options(const VideoSource& vs, ImageRef& size)
@@ -322,9 +322,9 @@ namespace CVD {
     }
 
     #ifdef V4L2_PIX_FMT_SBGGR8
-	template <> CVD::VideoBuffer<CVD::bayer>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
+	template <> CVD::VideoBuffer<CVD::bayer_grbg>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
 	{
-	    return new CVD::V4LBuffer<CVD::bayer>(dev, size, input, interlaced, 0, verbose);
+	    return new CVD::V4LBuffer<CVD::bayer_grbg>(dev, size, input, interlaced, 0, verbose);
 	}
     #endif
     template <> CVD::VideoBuffer<CVD::yuv422>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)

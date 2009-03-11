@@ -28,17 +28,23 @@
 namespace CVD
 {
 		
-	/// Convert Bayer pattern of the form ??? to greyscale data
+	/// Convert Bayer pattern of various forms to greyscale data
 	/// @param from The input data
 	/// @param to The output data
 	/// @ingroup gImageIO
-	template<> void convert_image(const BasicImage<bayer>& from, BasicImage<byte>& to);	
+	template<> void convert_image(const BasicImage<bayer_bggr>& from, BasicImage<byte>& to);
+	template<> void convert_image(const BasicImage<bayer_grbg>& from, BasicImage<byte>& to);
+	template<> void convert_image(const BasicImage<bayer_gbrg>& from, BasicImage<byte>& to);
+	template<> void convert_image(const BasicImage<bayer_rggb>& from, BasicImage<byte>& to);
 	
-	/// Convert Bayer pattern of the form ??? to rgb444 data
+	/// Convert Bayer pattern of various forms to rgb data
 	/// @param from The input data
 	/// @param to The output data
 	/// @ingroup gImageIO
-    template<> void convert_image(const BasicImage<bayer>& from, BasicImage<Rgb<byte> >& to);
+	template<> void convert_image(const BasicImage<bayer_bggr>& from, BasicImage<Rgb<byte> >& to);
+	template<> void convert_image(const BasicImage<bayer_grbg>& from, BasicImage<Rgb<byte> >& to);
+	template<> void convert_image(const BasicImage<bayer_gbrg>& from, BasicImage<Rgb<byte> >& to);
+	template<> void convert_image(const BasicImage<bayer_rggb>& from, BasicImage<Rgb<byte> >& to);
 	 
 	
 	/// Convert YUV 411 pixel data to RGB

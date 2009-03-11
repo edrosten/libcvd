@@ -29,7 +29,7 @@ AC_SUBST(minor, $cvd_minor)
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthread glob memalign tr1_shared_ptr assembler"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthread glob memalign tr1_shared_ptr assembler inline_asm"
 dodginess_options=
 options=
 simd_all_options=
@@ -1062,8 +1062,10 @@ test/diskbuffer2				videodisplay					END
 test/dvbuffer_mono  			videodisplay dc1394v1			END
 test/dvbuffer_yuvrgb  			videodisplay dc1394v1			END
 test/dvbuffer3_mono				videodisplay dvbuffer3			END
+test/dvbuffer3_bayerrgb				videodisplay dvbuffer3			END
 test/test_images       											END
-test/v4l1buffer_mono  			videodisplay v4l1buffer			END
+test/v4lbuffer_mono  			videodisplay v4l2buffer			END
+test/v4lbuffer_bayerrgb  			videodisplay v4l2buffer			END
 test/v4l2buffer					videodisplay v4l2buffer			END
 test/dvbuffer_controls 			videodisplay dc1394v1 			END
 test/dvbuffer_rgb   			videodisplay dc1394v1			END

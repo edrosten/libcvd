@@ -205,7 +205,9 @@ man: libcvd.a
 	touch man
 
 
-install: install-progs install-headers install-libs install-libs-debug
+install: install-nodebug install-libs-debug
+
+install-nodebug: install-progs install-headers install-libs 
 
 install-progs:progs
 	mkdir -p $(DESTDIR)$(bindir)

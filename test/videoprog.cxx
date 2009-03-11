@@ -32,7 +32,7 @@
 using namespace CVD;
 using namespace std;
 
-int mymain(int argc, char** argv)
+int mymain(int /*argc*/, char** argv)
 {
 	VideoBuffer<pix>* vbuf = get_vbuf();
 	VideoDisplay vd(0, 0, vbuf->size().x, vbuf->size().y);
