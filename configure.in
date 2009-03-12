@@ -605,6 +605,8 @@ CHECK_FOR_OPTION(videodisplay,[
 	fi
 	
 	AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
+	AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
+	AC_CHECK_LIB(GLU,gluGetString, [], [a=1])
 ])
 
 CHECK_FOR_OPTION(tr1_shared_ptr, [
