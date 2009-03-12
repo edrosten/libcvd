@@ -1361,7 +1361,7 @@ Optional Packages:
   --without-o2buffer	  compile without sgi video (IRIX only)
   --without-qtbuffer	  compile without quicktime buffer support (MacOSX only)
   --with-linux=UNAME      specify the output of uname -r
-  --without-vidoedisplay  compile without videodisplay support
+  --without-videodisplay  compile without videodisplay support
   --without-pthread       compile without PThread support
   --without-jpeg          compile without JPEG support
   --with-jpegbuffer=N     Set JPEG read buffer size. N>1 will not be able to read multiple JPEGS from a stream.
@@ -1369,8 +1369,8 @@ Optional Packages:
   --with-tiff=forceold    Debug/wierd build environment only. Force use of older library facilities.
   --without-png           compile without PNG support
   --without-ffmpeg	  compile without FFMPEG support
-  --withot-toon          Compile without TooN support
-  --withot-tr1_shared_ptr          Compile without tr1::shared_ptr support
+  --without-toon          Compile without TooN support
+  --without-tr1_shared_ptr          Compile without tr1::shared_ptr support
   --without-lapack        Disable BLAS and LAPACK.
   --with-acml[=directory] Use BLAS and LAPACK routines from the ACML library [located in the specified directory]
   --with-x                use the X Window System
