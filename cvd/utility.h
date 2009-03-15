@@ -104,7 +104,7 @@ in the output image
   {
 	  //Fill the top and bottom
 	  for(int n=0; n < w; n++)
-		  for(int x=0;  i < im.size().x; x++)
+		  for(int x=0;  x < im.size().x; x++)
 		  {
 			  	im[n][x] = pix;
 				im[im.size().y-1-n][x] = pix;
