@@ -95,6 +95,33 @@ in the output image
     zeroPixels(I[I.size().y-1], I.size().x);
   }
 
+  /// Fill image borders
+  /// @param im Image fo fill borders in
+  /// @param pix Fill value
+  /// @param w border width 
+  /// @ingroup gUtility
+  template<class T> void fillBorders(SubImage<T>& im, const T& pix, int w=1)
+  {
+	  //Fill the top and bottom
+	  for(int n=0; n < w; n++)
+		  for(int x=0;  i < im.size().x; x++)
+		  {
+			  	im[n][x] = pix;
+				im[im.size().y-1-n][x] = pix;
+		  }
+	
+	  for(int y=w; y < im.size().y - w; y++)
+		  for(int n=0; n < w; n++)
+		  {
+			  im[y][n] = pix;
+			  im[y][im.size().x - 1 - n] = pix;
+		  }	
+
+  }
+
+
+
+
   /// Compute pointwise differences (a_i - b_i) and store in diff_i
   /// This is accelerated using SIMD for some platforms and data types (alignment is checked at runtime)
   /// Do not specify template parameters explicitly so that overloading can choose the right implementation
