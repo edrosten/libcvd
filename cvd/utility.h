@@ -134,12 +134,12 @@ in the output image
   /// Compute pointwise (a_i + b_i) * c and add to out_i
   /// This is accelerated using SIMD for some platforms and data types (alignment is checked at runtime)
   /// Do not specify template parameters explicitly so that overloading can choose the right implementation
-  template <class A, class B> inline void add_multiple_of_sum(const A* a, const A* b, const float& c,  B* out, size_t count)
+  template <class A, class B, class C> inline void add_multiple_of_sum(const A* a, const A* b, const C& c,  B* out, size_t count)
   {
       while (count--)
 	  *(out++) += (*(a++) + *(b++)) * c;
   }
-  
+
   /// Compute pointwise a_i * c and store in out_i
   /// This is accelerated using SIMD for some platforms and data types (alignment is checked at runtime)
   /// Do not specify template parameters explicitly so that overloading can choose the right implementation
@@ -218,7 +218,7 @@ in the output image
 
   void differences(const int32_t* a, const int32_t* b, int32_t* diff, size_t size);
   void differences(const double* a, const double* b, double* diff, size_t size);
-  void add_multiple_of_sum(const double* a, const double* b, const float& c,  double* out, size_t count);
+  void add_multiple_of_sum(const double* a, const double* b, const double& c,  double* out, size_t count);
   void assign_multiple(const double* a, const double& c,  double* out, size_t count);
   double inner_product(const double* a, const double* b, size_t count);
   double sum_squared_differences(const double* a, const double* b, size_t count);

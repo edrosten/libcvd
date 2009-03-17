@@ -204,7 +204,7 @@ namespace CVD {
 
     void add_multiple_of_sum(const double* a, const double* b, const double& c,  double* out, size_t count)
     {
-	maybe_aligned_add_mul_add<SSE2_funcs, double, double, 16, 2>(a,b,c,out,count);
+		maybe_aligned_add_mul_add<SSE2_funcs, double, double, 16, 2>(a,b,c,out,count);
     }
 
     void assign_multiple(const double* a, const double& c,  double* out, size_t count)
