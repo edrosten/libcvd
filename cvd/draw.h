@@ -226,6 +226,17 @@ std::vector<ImageRef> getCircle(int radius);
 std::vector<ImageRef> getDisc(float radius);
 
 
+#if defined CVD_HAVE_TOON || defined DOXYGEN_IGNORE_INTERNAL
+/// returns coordinates for a solid ellipse origin. The result can be
+/// used with drawShape to draw it into an image. 
+/// @param r1 First radius
+/// @param r2 Second radius
+/// @param theta Orientation of the ellipse
+/// @return vector containig ImageRef for the ellipse
+/// @ingroup gGraphics
+std::vector<ImageRef> getSolidEllipse(float r1, float r2, float theta);
+#endif
+
 /// joins two images side-by-side to create a larger image, any remaining empty region will be blacked out
 /// @param a input image a to copy from
 /// @param b input image b to copy from

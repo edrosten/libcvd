@@ -12224,6 +12224,7 @@ cvd_src/globlist    							glob END
 
 #Numerics dependencies
 cvd_src/tensor_voting,cvd_src/brezenham			toon END
+cvd_src/draw_toon                       		toon END
 
 ENDDEPS
 
