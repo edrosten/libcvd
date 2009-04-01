@@ -35,27 +35,29 @@ namespace CVD
 	/// @param in The source image.
 	/// @param out The source image.
 	/// @ingroup gVision
+		
 	template<class S, class D> void integral_image(const SubImage<S>& in, SubImage<D>& out)
 	{
 		if( in.size() != out.size())
 			throw Exceptions::Vision::IncompatibleImageSizes("integral_image");
-		
+
+		out[0][0] = in[0][0];
 		//Do the first row. 
-		D sum = 0;
-		for(int x=0; x < in.size().x; x++)
-		{
-			sum += in[0][x];
-			out[0][x] = sum;
-		}
+		for(int x=1; x < in.size().x; x++)
+			out[0][x] =out[0][x-1] + in[0][x];
+
+		//Do the first column. 
+		for(int y=1; y < in.size().y; y++)
+			out[y][0] =out[y-1][0] + in[y][0];
 
 		//Do the remainder of the image
 		for(int y=1; y < in.size().y; y++)
 		{
-			D sum = 0;
+			D sum = in[y][0];
 
-			for(int x=0; x < in.size().x; x++)
+			for(int x=1; x < in.size().x; x++)
 			{
-				sum += in[y][x];
+				sum+= in[y][x];
 				out[y][x] = sum + out[y-1][x];
 			}
 		}
