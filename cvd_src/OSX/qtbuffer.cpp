@@ -39,6 +39,8 @@ Foundation, Inc.,
 #include <QuickTimeComponents.h>
 #endif
 
+#undef check
+
 #include <iostream>
 
 using namespace std;
