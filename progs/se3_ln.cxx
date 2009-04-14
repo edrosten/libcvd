@@ -26,7 +26,7 @@ using namespace std;
 
 int main()
 {
-	SE3 se3;
+	SE3<> se3;
 
 	cin >> se3;
 	cout << se3.ln() << endl;

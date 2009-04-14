@@ -243,7 +243,7 @@ namespace CVD
 	/// transposed to account for GL's column major format.
 	/// @param m the transformation matrix
 	/// @ingroup gGL
-	template <int N, class A> inline void glMultMatrix( const TooN::FixedMatrix<N,N,A> & m )
+	template <int N, class P, class A> inline void glMultMatrix( const TooN::Matrix<N,N,P,A> & m )
 	{
 		GLdouble glm[16];
 		glm[0] = m[0][0]; glm[1] = m[1][0]; glm[2] = m[2][0]; glm[3] = m[3][0];
@@ -258,7 +258,7 @@ namespace CVD
 	/// The matrix is also transposed to account for GL's column major format.
 	/// @param m the transformation matrix
 	/// @ingroup gGL
-	template <class A> inline void glMultMatrix( const TooN::FixedMatrix<3,3,A> & m )
+	template <class P, class A> inline void glMultMatrix( const TooN::Matrix<3,3,P,A> & m )
 	{
 		GLdouble glm[16];
 		glm[0] = m[0][0]; glm[1] = m[1][0]; glm[2] = m[2][0]; glm[3] = 0;
@@ -273,7 +273,7 @@ namespace CVD
 	/// identity matrix. The matrix is also transposed to account for GL's column major format.
 	/// @param m the transformation matrix
 	/// @ingroup gGL
-	template <class A> inline void glMultMatrix( const TooN::FixedMatrix<2,2,A> & m )
+	template <class P, class A> inline void glMultMatrix( const TooN::Matrix<2,2,P,A> & m )
 	{
 		GLdouble glm[16];
 		glm[0] = m[0][0]; glm[1] = m[1][0]; glm[2] = 0; glm[3] = 0;
@@ -286,7 +286,8 @@ namespace CVD
 	/// multiplies a SO3 onto the current matrix stack
 	/// @param so3 the SO3
 	/// @ingroup gGL
-	inline void glMultMatrix( const CVD::SO3 & so3 )
+	template <typename P>
+	inline void glMultMatrix( const TooN::SO3<P> & so3 )
 	{
 		glMultMatrix( so3.get_matrix());
 	}
@@ -295,7 +296,8 @@ namespace CVD
 	/// the SO3 and the translation in order.
 	/// @param se3 the SE3
 	/// @ingroup gGL
-	inline void glMultMatrix( const CVD::SE3 & se3 )
+	template <typename P>
+	inline void glMultMatrix( const TooN::SE3<P> & se3 )
 	{
 		glTranslate( se3.get_translation());
 		glMultMatrix( se3.get_rotation());
@@ -304,7 +306,8 @@ namespace CVD
 	/// multiplies a SO2 onto the current matrix stack
 	/// @param so2 the SO2
 	/// @ingroup gGL
-	inline void glMultMatrix( const CVD::SO2 & so2 )
+	template <typename P>
+	inline void glMultMatrix( const TooN::SO2<P> & so2 )
 	{
 		glMultMatrix( so2.get_matrix());
 	}
@@ -313,7 +316,8 @@ namespace CVD
 	/// the SO2 and the translation in order.
 	/// @param se3 the SE2
 	/// @ingroup gGL
-	inline void glMultMatrix( const CVD::SE2 & se2 )
+	template <typename P>
+	inline void glMultMatrix( const TooN::SE2<P> & se2 )
 	{
 		glTranslate( se2.get_translation());
 		glMultMatrix( se2.get_rotation());
@@ -352,8 +356,8 @@ namespace CVD
 	/// @param near near clipping plane
 	/// @param far far clipping plane
 	/// @ingroup gGL
-	template <class A>
-	inline void glFrustum( const TooN::FixedVector<4,A> & params, double width, double height, double near = 0.1, double far = 100)
+	template <typename P, typename A>
+	inline void glFrustum( const TooN::Vector<4,P,A> & params, double width, double height, double near = 0.1, double far = 100)
 	{
 		GLdouble left, right, bottom, top;
 		left = -near * params[2] / params[0];

@@ -130,7 +130,7 @@ namespace CVD
 
 			TooN::Vector<2> min()
 			{
-				return (TooN::make_Vector, 0, 0);
+				return TooN::makeVector( 0, 0);
 			}
 
 			TooN::Vector<2> max()
@@ -148,12 +148,12 @@ namespace CVD
 
 			TooN::Vector<2> floor(const TooN::Vector<2>& v)
 			{
-				return (TooN::make_Vector, ::floor(v[0]), ::floor(v[1]));
+				return TooN::makeVector( ::floor(v[0]), ::floor(v[1]));
 			}
 
 			TooN::Vector<2> ceil(const TooN::Vector<2>& v)
 			{
-				return (TooN::make_Vector, ::ceil(v[0]), ::ceil(v[1]));
+				return TooN::makeVector( ::ceil(v[0]), ::ceil(v[1]));
 			}
 
 			typedef typename Pixel::traits<T>::float_type FT;
@@ -202,7 +202,7 @@ namespace CVD
 
 			TooN::Vector<2> min()
 			{
-				return (TooN::make_Vector, 0, 0);
+				return TooN::makeVector( 0, 0);
 			}
 
 			TooN::Vector<2> max()
@@ -265,12 +265,12 @@ namespace CVD
 
 			TooN::Vector<2> min()
 			{
-				return (TooN::make_Vector, 1, 1);
+				return TooN::makeVector( 1, 1);
 			}
 
 			TooN::Vector<2> max()
 			{
-				return (TooN::make_Vector, im->size().x - 2, im->size().y - 2);
+				return TooN::makeVector( im->size().x - 2, im->size().y - 2);
 			}
 
 	};

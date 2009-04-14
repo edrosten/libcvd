@@ -27,11 +27,11 @@ using namespace TooN;
 
 int main()
 {
-	SE3 se3;
+	SE3<> se3;
 	Vector<6> v;
 
 	cin >> v;
-	se3 = SE3::exp(v);
+	se3 = SE3<>::exp(v);
 
 	cout << (se3.inverse()).ln() << endl;
 	return 0;

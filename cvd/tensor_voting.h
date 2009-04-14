@@ -84,8 +84,7 @@ namespace CVD
 		using std::vector;
 		using TensorVoting::TV_coord;
 
-		Matrix<2> zero;
-		TooN::Zero(zero);
+		Matrix<2> zero = TooN::Zero;
 		Image<Matrix<2> > field(image.size(), zero);
 
 

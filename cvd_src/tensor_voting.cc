@@ -15,7 +15,9 @@ namespace CVD
 
 		Matrix<2> rot(double angle)
 		{
-			double v[]= {cos(angle), sin(angle), -sin(angle), cos(angle)};
+			Matrix<2> v;
+			v[0] = makeVector(cos(angle), sin(angle));
+			v[1] = makeVector(-sin(angle), cos(angle));
 			return v;
 		}
 	

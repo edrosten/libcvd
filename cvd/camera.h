@@ -615,8 +615,8 @@ inline TooN::Vector<2> Camera::Cubic::unproject(const TooN::Vector<2>& imframe){
 }
 
 TooN::Matrix<2,2> Camera::Cubic::get_derivative(){
-  TooN::Matrix<2,2> result;
-  Identity(result,1+my_camera_parameters[4]*(my_last_camframe*my_last_camframe));
+  TooN::Matrix<2,2> result = TooN::Identity;
+  result *= 1+my_camera_parameters[4]*(my_last_camframe*my_last_camframe);
   result += (2*my_camera_parameters[4]*my_last_camframe.as_col()) * my_last_camframe.as_row();
   result[0] *= my_camera_parameters[0];
   result[1] *= my_camera_parameters[1];
@@ -731,10 +731,10 @@ inline std::pair<TooN::Vector<2>, TooN::Matrix<2> > Camera::Quintic::unproject(c
 
 
 TooN::Matrix<2,2> Camera::Quintic::get_derivative() const {
-  TooN::Matrix<2,2> result;
+  TooN::Matrix<2,2> result = TooN::Identity;
   double temp1=my_last_camframe*my_last_camframe;
   double temp2=my_camera_parameters[5]*temp1;
-  Identity(result,1+temp1*(my_camera_parameters[4]+temp2));
+  result *= 1+temp1*(my_camera_parameters[4]+temp2);
   result += (2*(my_camera_parameters[4]+2*temp2)*my_last_camframe.as_col()) * my_last_camframe.as_row();
   result[0] *= my_camera_parameters[0];
   result[1] *= my_camera_parameters[1];
@@ -744,12 +744,12 @@ TooN::Matrix<2,2> Camera::Quintic::get_derivative() const {
 
 
 TooN::Matrix<2,2> Camera::Quintic::get_inv_derivative() const {
-  TooN::Matrix<2,2> result;
+  TooN::Matrix<2,2> result = TooN::Identity;
   double temp1=my_last_camframe*my_last_camframe;
   double temp2=my_camera_parameters[5]*temp1;
   double temp3=2.0*(my_camera_parameters[4]+2.0*temp2);
    
-  Identity(result,1+temp1*(my_camera_parameters[4]+temp2));
+  result *= 1+temp1*(my_camera_parameters[4]+temp2);
 
   result[0][0] +=  my_last_camframe[1]*my_last_camframe[1]*temp3;
   result[0][1]  =-(temp3*my_last_camframe[0]*my_last_camframe[1]);
@@ -768,12 +768,13 @@ TooN::Matrix<2,2> Camera::Quintic::get_inv_derivative() const {
 TooN::Matrix<2,2> Camera::Quintic::get_inv_derivative(const TooN::Vector<2>& x) const
 {
 
-  TooN::Matrix<2,2> result;
+  TooN::Matrix<2,2> result = TooN::Identity;
   double temp1=x*x;
   double temp2=my_camera_parameters[5]*temp1;
   double temp3=2.0*(my_camera_parameters[4]+2.0*temp2);
 
-  Identity(result,1+temp1*(my_camera_parameters[4]+temp2));
+    result *= 1+temp1*(my_camera_parameters[4]+temp2);
+  //Identity(result,1+temp1*(my_camera_parameters[4]+temp2));
 
   result[0][0] +=  x[1]*x[1]*temp3;
   result[0][1]  =-(temp3*x[0]*x[1]);
@@ -791,10 +792,11 @@ TooN::Matrix<2,2> Camera::Quintic::get_inv_derivative(const TooN::Vector<2>& x) 
 }
 
 TooN::Matrix<2,2> Camera::Quintic::get_derivative(const TooN::Vector<2>& x) const {
-    TooN::Matrix<2,2> result;
+    TooN::Matrix<2,2> result = TooN::Identity;
     double temp1=x*x;
     double temp2=my_camera_parameters[5]*temp1;
-    Identity(result,1+temp1*(my_camera_parameters[4]+temp2));
+    result *= 1+temp1*(my_camera_parameters[4]+temp2);
+    //Identity(result,1+temp1*(my_camera_parameters[4]+temp2));
     result += (2*(my_camera_parameters[4]+2*temp2)*x.as_col()) * x.as_row();
     result[0] *= my_camera_parameters[0];
     result[1] *= my_camera_parameters[1];

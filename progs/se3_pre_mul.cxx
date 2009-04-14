@@ -45,9 +45,9 @@ int main(int argc, char** argv)
 
 	Vector<6> in;
 
-	SE3 s3, c;
+	SE3<> s3, c;
 
-	c = SE3::exp(camera);
+	c = SE3<>::exp(camera);
 
 	for(;;)
 	{
@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 		if(!cin.good())
 			return 0;
 
-		s3=c * SE3::exp(in);
+		s3=c * SE3<>::exp(in);
 
 		cout << s3.ln() << endl;
 	}
