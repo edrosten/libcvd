@@ -389,7 +389,7 @@ template<class T> class SubImage
 		}
 
 		inline void copy_from( const SubImage<T> & other ){
-			CVD_IMAGE_ASSERT(other.size() == this->size(), ImageError::IncompatibleImageSizes);
+			CVD_IMAGE_ASSERT(other.size() == this->size(), Image::IncompatibleImageSizes);
 			std::copy(other.begin(), other.end(), this->begin());
 		}
 
