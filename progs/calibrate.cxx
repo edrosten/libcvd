@@ -20,8 +20,6 @@
 #include <cvd/colourspaces.h>
 #include <cvd/colourspace_convert.h>
 
-#include <cvd/Linux/dvbuffer3.h>
-
 using namespace std;
 using namespace TooN;
 using namespace CVD;
@@ -29,8 +27,11 @@ using namespace CVD;
 #include <X11/keysym.h>
 #include <X11/Xlib.h>
 
-//typedef byte CAMERA_PIXEL;
-typedef bayer_rggb CAMERA_PIXEL;
+#ifdef CVD_HAVE_QTBUFFER
+typedef vuy422 CAMERA_PIXEL;
+#else
+typedef byte CAMERA_PIXEL;
+#endif
 
 VideoBuffer<CAMERA_PIXEL>* videoBuffer=0;
 
