@@ -310,8 +310,7 @@ void getOptions(int argc, char* argv[])
     }
     try {
         cerr << "opening " << videoDevice << endl;
-        //videoBuffer = open_video_source<CAMERA_PIXEL>(videoDevice);
-    	videoBuffer = new DVBuffer3<bayer_rggb>(0, ImageRef(720,480), 60);
+        videoBuffer = open_video_source<CAMERA_PIXEL>(videoDevice);
     }
     catch (CVD::Exceptions::All& e) {
 	cerr << e.what << endl;
