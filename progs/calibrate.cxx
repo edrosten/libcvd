@@ -181,8 +181,8 @@ SE3<> find_pose(const SE3<>& start, const vector<Vector<3> >& x, const vector<pa
     se3 = start;
 
     for (int iter=0; iter<4; ++iter) {
-	Matrix<6> I = Zero;
-	Vector<6> b = Zero;
+	Matrix<6> I = Zeros;
+	Vector<6> b = Zeros;
 	for (size_t i=0; i<p.size(); ++i) {
 	    Matrix<2,3> J_x;
 	    Matrix<2,6> J_pose;
@@ -232,7 +232,7 @@ SE3<> find_pose_and_params(const SE3<>& start, const vector<Vector<3> >& x, cons
     for (int iter=0; iter<10; ++iter) { 
 	Matrix<NP> I = Identity;
 	I *= lambda;
-	Vector<NP> b = Zero;
+	Vector<NP> b = Zeros;
 	for (size_t i=0; i<p.size(); ++i) {
 	    Matrix<2,3> J_x;
 	    Matrix<2,6> J_pose;
@@ -413,16 +413,16 @@ void improveLM(vector<MeasurementSet>& ms, vector<SE3<> >& pose, CM& cm, double 
     Matrix<> JTJ(CM::num_parameters+ms.size()*6,CM::num_parameters+ms.size()*6);
     Vector<> JTe(JTJ.num_rows());
 
-    JTJ= Zero;
-    Vector<CM::num_parameters> JTep = Zero;
+    JTJ= Zeros;
+    Vector<CM::num_parameters> JTep = Zeros;
 
     for (size_t i=0; i<ms.size(); i++)
     {
-	Matrix<6> poseBlock = Zero;
-	Matrix<CM::num_parameters> paramBlock = Zero;
-	Matrix<CM::num_parameters, 6> offDiag = Zero;
+	Matrix<6> poseBlock = Zeros;
+	Matrix<CM::num_parameters> paramBlock = Zeros;
+	Matrix<CM::num_parameters, 6> offDiag = Zeros;
       
-	Vector<6> JTei = Zero;
+	Vector<6> JTei = Zeros;
       
 	for (size_t j=0; j<ms[i].im.size(); j++)
 	{
@@ -463,12 +463,12 @@ template <class CM>
 void getUncertainty(const vector<MeasurementSet>& ms, const vector<SE3<> >& pose, CM& cm, Matrix<CM::num_parameters>& C)
 {
     Matrix<> JTJ(CM::num_parameters+ms.size()*6,CM::num_parameters+ms.size()*6);
-    JTJ = Zero;
+    JTJ = Zeros;
     for (size_t i=0; i<ms.size(); i++)
     {
-	Matrix<6> poseBlock = Zero;
-	Matrix<CM::num_parameters> paramBlock = Zero;
-	Matrix<CM::num_parameters, 6> offDiag = Zero;
+	Matrix<6> poseBlock = Zeros;
+	Matrix<CM::num_parameters> paramBlock = Zeros;
+	Matrix<CM::num_parameters, 6> offDiag = Zeros;
 	for (size_t j=0; j<ms[i].im.size(); j++)
         {
 	    Matrix<2,3> J_x;
@@ -488,7 +488,7 @@ void getUncertainty(const vector<MeasurementSet>& ms, const vector<SE3<> >& pose
     }
     Cholesky<> chol(JTJ);
     Vector<> v(JTJ.num_cols());
-    v = Zero;
+    v = Zeros;
   
     for (int i=0; i<CM::num_parameters; ++i) {
 	v[i]=1;
@@ -721,7 +721,7 @@ int main(int argc, char* argv[])
 
 	if(cameraParameters[0] == -1)
 	{
-		cameraParameters = Zero;
+		cameraParameters = Zeros;
 		cameraParameters[0] = 500;
 		cameraParameters[1] = 500;
 		cameraParameters[2] = videoBuffer->size().x/2;

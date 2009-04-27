@@ -84,7 +84,7 @@ namespace CVD
 		using std::vector;
 		using TensorVoting::TV_coord;
 
-		Matrix<2> zero = TooN::Zero;
+		Matrix<2> zero(TooN::Zeros);
 		Image<Matrix<2> > field(image.size(), zero);
 
 
@@ -175,8 +175,7 @@ namespace CVD
 		using std::make_pair;
 		using std::vector;
 
-		Matrix<2> zero;
-		TooN::Zero(zero);
+		Matrix<2> zero(TooN::Zeros);
 		Image<Matrix<2> > ffield(image.size(), zero);
 		Image<__m128> field(image.size());
 		field.zero();
