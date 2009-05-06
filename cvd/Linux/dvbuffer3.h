@@ -135,6 +135,7 @@ namespace CVD
       unsigned int get_feature_value(DV3Feature nFeature);
       std::pair<unsigned int, unsigned int> get_feature_min_max(DV3Feature nFeature);
       void auto_on_off(DV3Feature nFeature, bool bValue);
+      void power_on_off(DV3Feature nFeature, bool bValue);
       
     private:
       ImageRef mirSize;

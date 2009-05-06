@@ -426,6 +426,13 @@ namespace CVD
 			      bValue? DC1394_FEATURE_MODE_AUTO : DC1394_FEATURE_MODE_MANUAL);
     }
     
+    void RawDVBuffer3::power_on_off(DV3Feature nFeature, bool bValue)
+    {
+      if(!mpLDCP || !mpLDCP->pCamera)
+        return;
+      dc1394_feature_set_power(mpLDCP->pCamera, DC_from_DV3_Feature(nFeature), 
+                                  bValue? DC1394_ON : DC1394_OFF);
+    }
   }
 
 }

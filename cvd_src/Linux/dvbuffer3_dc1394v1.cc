@@ -148,6 +148,11 @@ namespace CVD
       mpLDCP->pRawDCV->auto_on_off(DC_from_DV3_Feature(nFeature), bValue);
     }
    
+    void RawDVBuffer3::power_on_off(DV3Feature nFeature, bool bValue)
+    {
+        // not implemented
+        std::cout << "! Warning: DVBuffer3/libdc1394v1 power_on_off is only implemented for V2!" << std::endl;
+    }
   }
   
 }
