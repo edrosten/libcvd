@@ -45,7 +45,7 @@ static GLWindow::EventHandler * currentHandler = NULL;
 
 static bool windowClassRegistered = false;
 
-void GLWindow::init(const ImageRef& size, int bpp, const std::string& title)
+void GLWindow::init(const ImageRef& size, int bpp, const std::string& title, const std::string&)
 {
     GLuint		PixelFormat;			// Holds The Results After Searching For A Match
 	WNDCLASS	wc;						// Windows Class Structure

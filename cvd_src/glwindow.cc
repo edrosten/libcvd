@@ -28,9 +28,9 @@ struct GLWindow::State {
     GLXContext context;
 };
 
-void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title)
+void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title, const std::string& disp)
 {
-    Display* display = XOpenDisplay(0);
+    Display* display = XOpenDisplay(disp==""?NULL:const_cast<char*>(disp.c_str()));
     if (display == 0)
 	throw Exceptions::GLWindow::CreationError("Cannot open X display");
 
