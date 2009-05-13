@@ -1,4 +1,4 @@
-AC_INIT(CVD,0.7)
+AC_INIT(CVD,0.8)
 AC_COPYRIGHT(Copyright foo)
 
 AC_CONFIG_HEADERS
@@ -567,6 +567,13 @@ then
 	])
 fi
 
+#Check for POSIX clock_getres
+AC_ARG_WITH(posix_rt,    [  --without-posix_rt          compile without POSIX-RT (better cvd_timer) support])
+
+CHECK_FOR_OPTION(posix_rt, [
+	AC_CHECK_LIB(rt, clock_getres, [], [a=1])
+])
+
 ################################################################################
 #
 #Check for optional libraries
@@ -1007,6 +1014,9 @@ cvd_src/Linux/v4l2buffer	                 	v4l2buffer END
 cvd_src/Linux/v4lcontrol						v4l2buffer linux_2_6 END
 cvd_src/IRIX/O2buffer,cvd_src/IRIX/sgi-video	o2buffer END
 cvd_src/OSX/qtbuffer							qtbuffer END
+
+cvd_src/posix/timer								posix_rt
+cvd_src/cvd_timer								END
 
 #Libraries
 cvd_src/synchronized,cvd_src/eventobject,cvd_src/thread		pthread END

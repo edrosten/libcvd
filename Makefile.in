@@ -82,7 +82,7 @@ GZIP_ENV = --best
 # CVD objects
 #
 
-CVD_OBJS=   cvd_src/cvd_timer.o                             \
+CVD_OBJS=   \
 			cvd_src/diskbuffer2.o                           \
 			cvd_src/deinterlacebuffer.o                     \
 			cvd_src/exceptions.o                            \
@@ -253,7 +253,7 @@ distclean: clean
 
 .deps:
 	rm -f .sourcefiles
-	find . -name "*.cxx" -o -name "*.cc" -o -name "*.cpp" -o -name "*.c" -o -name "*.C" > .sourcefiles
+	find . -name "*.cxx" -o -name "*.cc" -o -name "*.cpp" -o -name "*.c" -o -name "*.C"  | grep -v python > .sourcefiles
 	rm -f .deps
 	bash generate_dependencies.bash "-I. $(CPPFLAGS) $(CXXFLAGS)" > .deps
 
