@@ -19,6 +19,7 @@ mandir = @mandir@
 includedir = @includedir@
 oldincludedir = /usr/include
 arch= @build_cpu@
+datarootdir=@datadir@
 
 
 CC = @CC@
@@ -168,9 +169,17 @@ libcvd_debug.a: $(DEBUG_OBJS)
 	$(AR) crvs libcvd_debug.a $(DEBUG_OBJS)
 	$(RANLIB) libcvd_debug.a
 
-debug:
-	mkdir -p debug/cvd_src debug/cvd_src/IRIX debug/cvd_src/Linux debug/cvd_src/OSX debug/cvd_src/fast debug/cvd_src/i686 debug/cvd_src/noarch debug/pnm_src debug/cvd_src/thread debug/cvd_src/nothread
+#Automatically deduce the debug directories
+DEBUG_DIRS=$(shell find ???_src -type d -not -name 'CVS' -printf 'debug/%p\n')
 
+#This the debug subdir all debug directories, so specifying a dependency on this
+#will ensure that all subdirs get created
+debug:$(DEBUG_DIRS)
+
+#Multiple targets are allowed on the left, so all directories can be created in batch
+#with a single rule
+$(DEBUG_DIRS):
+	mkdir -p $(DEBUG_DIRS)
 
 # Before we compile the test programs we need to augment the
 # search paths with the path to libcvd, and also add libcvd to the
@@ -295,7 +304,7 @@ debug/%.o: %.cxx debug
 debug/%.o: %.C debug
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@
 
-debug/%.o: %.s
+debug/%.o: %.s debug
 	as -g -o $@ $<
 
 %: %.o
