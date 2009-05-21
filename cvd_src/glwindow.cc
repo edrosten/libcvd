@@ -144,6 +144,7 @@ ImageRef CVD::GLWindow::position() const { return state->position; }
 void CVD::GLWindow::set_position(const ImageRef & p_){
     state->position = p_;
     XMoveWindow(state->display, state->window, p_.x, p_.y);
+	XFlush(state->display);
 }
 
 void CVD::GLWindow::set_cursor_position(const ImageRef& where)
