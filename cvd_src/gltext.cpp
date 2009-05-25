@@ -135,6 +135,8 @@ std::pair<double,double> glDrawText(const std::string& text, enum TEXT_STYLE sty
     double max_total = 0;
     double total=0;
     const Internal::Font * font = Internal::data.currentFont();
+    const Internal::Font::Char * space = font->findChar(' ');
+    const double tab_width = 8 * ((space)?(space->advance):1);
     for (size_t i=0; i<text.length(); ++i) {
         char c = text[i];
         if (c == '\n') {
@@ -142,6 +144,12 @@ std::pair<double,double> glDrawText(const std::string& text, enum TEXT_STYLE sty
             max_total = std::max(max_total, total);
             total = 0;
             ++lines;
+            continue;
+        }
+        if(c == '\t'){
+            const float advance = tab_width - fmodf(total, tab_width);
+            total += advance;
+            glTranslated(advance, 0, 0);
             continue;
         }
         const Internal::Font::Char * ch = font->findChar(c);
