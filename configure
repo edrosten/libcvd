@@ -4202,7 +4202,7 @@ minor=$cvd_minor
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthread glob memalign tr1_shared_ptr assembler inline_asm"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthread glob memalign tr1_shared_ptr assembler inline_asm posix_rt"
 dodginess_options=
 options=
 simd_all_options=
