@@ -333,7 +333,7 @@ ReadPimpl::ReadPimpl(istream& is)
 		else if(get_keyword() == "END")
 			break;
 	}
-cerr << add_for_zero << endl;
+
 	if(add_for_zero == 0) //OK
 	{}
 	else if(add_for_zero == 32768. && bpp == 16)
