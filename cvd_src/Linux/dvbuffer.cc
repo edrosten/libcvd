@@ -21,8 +21,8 @@
 /**************************************************************************
 **       Title: grab one gray image using libdc1394
 **    $RCSfile: dvbuffer.cc,v $
-**   $Revision: 1.15 $$Name:  $
-**       $Date: 2008/11/25 12:08:57 $
+**   $Revision: 1.16 $$Name:  $
+**       $Date: 2009/06/04 17:10:20 $
 **   Copyright: LGPL $Author: edrosten $
 ** Description:
 **
@@ -32,6 +32,9 @@
 **-------------------------------------------------------------------------
 **
 **  $Log: dvbuffer.cc,v $
+**  Revision 1.16  2009/06/04 17:10:20  edrosten
+**  Fix some warnings.
+**
 **  Revision 1.15  2008/11/25 12:08:57  edrosten
 **  Fixed mad return.
 **
@@ -444,7 +447,7 @@ static int _dc1394_quadlets_from_format(int format, int mode)
  This releases memory that was mapped by
  dc1394_dma_setup_camera
 *****************************************************/
-void tom_dc1394_dma_release_camera(raw1394handle_t handle, const unsigned char* ring_buffer, int buffer_size, int dma_fd){
+void tom_dc1394_dma_release_camera(raw1394handle_t, const unsigned char* ring_buffer, int buffer_size, int dma_fd){
   if (ring_buffer){
     munmap((void*)ring_buffer,buffer_size);
   }

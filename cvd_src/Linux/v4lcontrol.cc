@@ -299,7 +299,7 @@ void V4LControl::getMenuStruct( unsigned int id, vector<v4l2_querymenu> & menu )
     int last;
     const struct v4l2_queryctrl & data = controlData.find(id)->second;
 
-    for (querymenu.index = data.minimum; querymenu.index <= data.maximum; querymenu.index++) {
+    for (querymenu.index = data.minimum; (int)querymenu.index <= data.maximum; querymenu.index++) {
         if (0 != (last = ioctl (device, VIDIOC_QUERYMENU, &querymenu)))
             throw Exceptions::V4LControl::QueryParameters("reading menu item");
         menu.push_back(querymenu);

@@ -59,14 +59,16 @@ namespace CVD
 	case ZOOM:          return FEATURE_ZOOM;
 	case PAN:           return FEATURE_PAN;
 	case TILT:          return FEATURE_TILT;
+	case FRAME_RATE:		return FEATURE_FRAME_RATE;
 	}
+		return -1;
     }
 
     RawDVBuffer3::RawDVBuffer3(DV3ColourSpace colourspace,
 			       unsigned int nCamNumber,
-			       ImageRef irSize,
+			       ImageRef ,
 			       float fFrameRate,
-			       ImageRef irOffset)
+			       ImageRef )
     {
       
       int mode;
@@ -148,7 +150,7 @@ namespace CVD
       mpLDCP->pRawDCV->auto_on_off(DC_from_DV3_Feature(nFeature), bValue);
     }
    
-    void RawDVBuffer3::power_on_off(DV3Feature nFeature, bool bValue)
+    void RawDVBuffer3::power_on_off(DV3Feature, bool)
     {
         // not implemented
         std::cout << "! Warning: DVBuffer3/libdc1394v1 power_on_off is only implemented for V2!" << std::endl;
