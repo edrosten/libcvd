@@ -133,6 +133,8 @@ ImageType::ImageType string_to_image_type(const std::string& name)
 		return  ImageType::PNM;
 	else if (suffix == "txt")
 		return ImageType::TXT;
+	else if (suffix == "fits" || suffix == "fts")
+		return ImageType::FITS;
 	else
 		return ImageType::Unknown;
 }
