@@ -48,14 +48,14 @@ It is released under the LGPL License.
 			- PNM   
 			- BMP
 			- ASCII text
-			- FITS (reading only)
+			- FITS 
 			- PS   (saving only)
 			- EPS  (saving only)
 		- External libraries required
 			- JPEG
 			- TIFF 
 			- PNG
-		- 1/8/16/32 bit integer and 32/64 bit floating point images in greyscale, RGB and RGBA.
+		- 1/8/16/32 bit signed and unsigned integer and 32/64 bit floating point images in greyscale, RGB and RGBA.
 		- Optimum bit depth and colour depth selected automatically
     - Image grabbing from video sources:
 		  - Linux

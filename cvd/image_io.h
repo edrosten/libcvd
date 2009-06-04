@@ -86,6 +86,7 @@ namespace CVD
 			#endif
 			TXT=7,
 			TEXT=7,
+			FITS=8,
 		};
 	}
 
@@ -161,6 +162,9 @@ namespace CVD
 			/// with the load() function. There is no metadata, so it is not possible to support 
 			/// multiple types. 
 			TXT,
+			/// FITS images. Supports (native) byte, short, unsigned short, int, float and double
+			/// of greyscale, RGB and RGBA. Signed char is supported lossley but inefficiently. 
+			FITS,
 		};
 	}
 	#endif
@@ -293,6 +297,7 @@ namespace CVD
 	  #ifdef CVD_HAVE_TIFF
 		  case ImageType::TIFF: Internal::writeImage<PixelType, TIFF::tiff_writer>(im,o); break;
 	  #endif
+	  case ImageType::FITS: Internal::writeImage<PixelType, FITS::writer>(im,o); break;
 	  case ImageType::BMP: BMP::writeBMP(im, o); break;
 	  case ImageType::TXT: Internal::writeImage<PixelType, TEXT::writer>(im, o); break;
 	  case ImageType::PS:   Internal::writeImage<PixelType, PS::writer>(im, o); break;

@@ -103,20 +103,23 @@ namespace FITS
 	};
 
 	
-#if 0
 	////////////////////////////////////////////////////////////////////////////////
 	//
-	// FITS writing, copied and midified from tiff.h
+	// FITS writing, copied and modified from tiff.h
 	//
 
-	template<int g8> struct IntMapper    { typedef unsigned short type;};
-	template<>       struct IntMapper<1> { typedef unsigned char type; };
-
+	template<typename C>     struct IntMapper                   { typedef int type;};
+	template<>               struct IntMapper<bool>             { typedef unsigned char type; };
+	template<>               struct IntMapper<char>             { typedef short type; };
+	template<>               struct IntMapper<unsigned char>    { typedef unsigned char type; };
+	template<>               struct IntMapper<short>            { typedef short type; };
+	template<>               struct IntMapper<unsigned short>   { typedef unsigned short type; };
+	template<>               struct IntMapper<int>              { typedef int type; };
 
 	//Mapping for integral types
 	template<class ComponentIn, int is_integral> struct ComponentMapper_
 	{
-		typedef typename IntMapper< (Pixel::traits<ComponentIn>::bits_used > 8) >::type type;
+		typedef typename IntMapper<ComponentIn>::type type;
 	};
 
 	//Mapping for non integral types
@@ -145,6 +148,7 @@ namespace FITS
 	};
 
 
+
 	
 	class WritePimpl;
 
@@ -155,17 +159,23 @@ namespace FITS
 			~writer();
 
 			void write_raw_pixel_line(const unsigned char*);
+			void write_raw_pixel_line(const short*);
 			void write_raw_pixel_line(const unsigned short*);
+			void write_raw_pixel_line(const int*);
 			void write_raw_pixel_line(const float*);
 			void write_raw_pixel_line(const double*);
 
 			void write_raw_pixel_line(const Rgb<unsigned char>*);
+			void write_raw_pixel_line(const Rgb<short>*);
 			void write_raw_pixel_line(const Rgb<unsigned short>*);
+			void write_raw_pixel_line(const Rgb<int>*);
 			void write_raw_pixel_line(const Rgb<float>*);
 			void write_raw_pixel_line(const Rgb<double>*);
 
 			void write_raw_pixel_line(const Rgba<unsigned char>*);
+			void write_raw_pixel_line(const Rgba<short>*);
 			void write_raw_pixel_line(const Rgba<unsigned short>*);
+			void write_raw_pixel_line(const Rgba<int>*);
 			void write_raw_pixel_line(const Rgba<float>*);
 			void write_raw_pixel_line(const Rgba<double>*);
 
@@ -178,8 +188,6 @@ namespace FITS
 			WritePimpl* t; 
 	};
 	
-#endif 
-
 }
 }
 #endif

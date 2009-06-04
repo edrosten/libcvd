@@ -39,9 +39,25 @@ template<class C> struct randpix
 {
 	static C r()
 	{
-		return rand() % (1+numeric_limits<C>::max());
+		union
+		{
+			unsigned int  i;
+			C c;
+		} u;
+
+		u.i = rand();
+		return u.c;
 	}
 };
+
+template<> struct randpix<bool>
+{
+	static double r()
+	{
+		return rand() % 2;
+	}
+};
+
 
 template<> struct randpix<double>
 {
@@ -291,6 +307,29 @@ int main(int ac, char** av)
 			  TypeList<Rgb<byte>,
 			  TypeList<Rgb<unsigned short>,
 			  	       Head> > > > >::exec(ImageType::PNM);
+
+	cerr << "Testing FITS (type " << ImageType::FITS << ")\n";
+	randtest<
+			  TypeList<byte,
+			  TypeList<short,
+			  TypeList<unsigned short,
+			  TypeList<int,
+			  TypeList<float,
+			  TypeList<double,
+			  TypeList<Rgb<byte>,
+			  TypeList<Rgb<short>,
+			  TypeList<Rgb<unsigned short>,
+			  TypeList<Rgb<int>,
+			  TypeList<Rgb<float>,
+			  TypeList<Rgb<double>,
+			  TypeList<Rgba<byte>,
+			  TypeList<Rgba<short>,
+			  TypeList<Rgba<unsigned short>,
+			  TypeList<Rgba<int>,
+			  TypeList<Rgba<float>,
+			  TypeList<Rgba<double>,
+			  	       Head> > > > > > > > > > > > > > > > > > >::exec(ImageType::FITS);
+
 
 	#ifdef CVD_HAVE_PNG
 	cerr << "Testing PNG (type " << ImageType::PNG << ")\n";

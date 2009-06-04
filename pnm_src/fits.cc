@@ -71,17 +71,6 @@ static string ltrim(const string& str)
 		return "";
 }
 
-
-static bool get_bool(const string& s)
-{
-	if(s == "T")
-		return 1;
-	else if (s == "F")
-		return 0;
-	else
-		throw(Exceptions::Image_IO::MalformedImage("Invalid boolean: `" + s + "'"));
-}
-
 static int get_int(const string& s)
 {
 	int i;
@@ -384,7 +373,7 @@ ReadPimpl::ReadPimpl(istream& is)
 		for(int r=0; r < a2; r++)
 			for(int p=0; p < a3; p++)
 				for(int b=0; b < bpp; b++)
-						data[((r * a1 + c)*a3 + p)*bpp + b] = raw_data[p*a1*a2*bpp+ (r*a1+c)*bpp+b];
+						data[((r * a1 + c)*a3 + p)*bpp + b] = raw_data[p*a1*a2*bpp+ ((a2-r-1)*a1+c)*bpp+b];
 	
 	bytes_per_pixel = a3 * bpp;
 }
