@@ -627,26 +627,19 @@ CHECK_FOR_OPTION(tr1_shared_ptr, [
 CHECK_FOR_OPTION(toon, [
 	AC_MSG_CHECKING([for TooN])
 	AC_COMPILE_IFELSE([#include <TooN/TooN.h>
-	int main(){TooN::Vector<2> v;return 0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
-
-	AC_MSG_CHECKING([Old TooN])
-
-	AC_COMPILE_IFELSE([#include <TooN/TooN.h>
-	using namespace TooN;
-	int main()
-	{
-		Matrix<> m1(10,10);
-		Matrix<3,3> m2;
-		m1.slice(0,0,3,3) += m2;
-		return 0;
-	}], [AC_MSG_RESULT(no)],[AC_MSG_RESULT(yes); a=1]) 
+	int main(){TooN::Vector<2, double> v=TooN::Zeros;return 0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
 
 	if test x$a = x1 
 	then
-		AC_MSG_WARN([Your version of TooN is too old for this version of GCC.
-You need a recent version (SNAPSHOT_20080725 or later), or GCC version
-less than 4.2.0.
-		])
+		AC_MSG_CHECKING([for old TooN])
+		AC_COMPILE_IFELSE([#include <TooN/TooN.h>
+		int main(){TooN::Vector<2> v;return 0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=2]) 
+
+		if test x$a = x1
+		then
+			AC_MSG_WARN([Your version of TooN is too old. You need version 2.0-beta3 or later.])
+		fi
+		a=1
 	fi
 ])
 
