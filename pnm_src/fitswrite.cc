@@ -223,11 +223,9 @@ WritePimpl::WritePimpl(ostream& os, ImageRef s, const string& t)
 
 WritePimpl::~WritePimpl()
 {	
-
-	size_t nelems = data.size() / bpp;
-
 	//Make the data big endian
 	#ifdef CVD_ARCH_LITTLE_ENDIAN
+		size_t nelems = data.size() / bpp;
 		if(raw)
 			for(size_t i=0; i < nelems; i++)
 				reverse(&data[i*bpp], &data[i*bpp] + bpp);
@@ -242,7 +240,7 @@ WritePimpl::~WritePimpl()
 				for(int b=0; b < bpp; b++)
 						raw_data[p*a1*a2*bpp+ (r*a1+c)*bpp+b] = data[(((a2-r-1) * a1 + c)*a3 + p)*bpp + b];
 	
-	o.write((char*)raw_data.data(), raw_data.size());
+	o.write((char*)&raw_data[0], raw_data.size());
 }
 
 
