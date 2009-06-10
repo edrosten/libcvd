@@ -171,7 +171,7 @@ libcvd_debug.a: $(DEBUG_OBJS)
 	$(RANLIB) libcvd_debug.a
 
 #Automatically deduce the debug directories
-DEBUG_DIRS=$(shell find ???_src -type d -not -name 'CVS' -printf 'debug/%p\n')
+DEBUG_DIRS=$(shell find ???_src -type d -not -name 'CVS' | xargs -n1 -Ix  echo  debug/x )
 
 #This the debug subdir all debug directories, so specifying a dependency on this
 #will ensure that all subdirs get created
