@@ -45,7 +45,7 @@ void yuv411_to_rgb_y(const unsigned char* in, int size, unsigned char* out, unsi
 		//Load out and in
 		"mov		%0, %%rdi		\n\t"
 		"mov		%1, %%rsi		\n\t"
-		"mov		%[luma], %%rbp	\n\t"
+		"mov		%[luma], %%r10	\n\t"
 		"push		%[end]			\n\t"
 		
 ".Lfoo:								\n\t"
@@ -103,9 +103,9 @@ void yuv411_to_rgb_y(const unsigned char* in, int size, unsigned char* out, unsi
 	
 
 		#ifdef CVD_HAVE_SSE2
-			"movnti	%%eax, (%%rbp)		\n\t"
+			"movnti	%%eax, (%%r10)		\n\t"
 		#else 
-			"mov	%%eax, (%%rbp)		\n\t"
+			"mov	%%eax, (%%r10)		\n\t"
 		#endif
 		
 		/////////////////////////////////////////////////////////////
@@ -186,9 +186,9 @@ void yuv411_to_rgb_y(const unsigned char* in, int size, unsigned char* out, unsi
 		
 
 		#ifdef CVD_HAVE_SSE2
-			"movnti %%eax, 4(%%rbp)		\n\t"
+			"movnti %%eax, 4(%%r10)		\n\t"
 		#else 
-			"mov %%eax, 4(%%rbp)		\n\t"
+			"mov %%eax, 4(%%r10)		\n\t"
 		#endif
 
 		"pshufw $0x40, %%mm6, %%mm4	\n\t" //Create y2 y1 y1 y1 register mm1: 0x40 = 01 00 00 00
@@ -234,14 +234,14 @@ void yuv411_to_rgb_y(const unsigned char* in, int size, unsigned char* out, unsi
 		//Increment counters
 		"add		$12, %%rsi		\n\t"
 		"add		$24, %%rdi		\n\t"
-		"add		$8, %%rbp		\n\t"
+		"add		$8, %%r10		\n\t"
 		"cmp		%%rsi, 	(%%rsp)	\n\t"	//in_end is on the top of the stack
 		"jne 		.Lfoo	   		\n\t"
 		"pop		%%rax			\n\t"   //discard the top
 		"emms						\n\t"	//End mmx
 	:
 	: "m" (out), "m" (in), "g" (size), [luma] "m" (lum_out), [end] "m" (in_end)
-		: "eax", "ecx", "edx",  "rdi", "rsi", "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7", "rbp"
+		: "eax", "ecx", "edx",  "rdi", "rsi", "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7", "r10"
 	);
 }
 void yuv411_to_rgb(const unsigned  char* in, int size, unsigned char* out)
@@ -457,7 +457,7 @@ void yuv411_to_rgb(const unsigned  char* in, int size, unsigned char* out)
 	//   0          1        2   	
 	:
 	: "m" (out), "m" (in), "g" (size)
-		: "eax", "ecx", "edx", "rbx", "rdi", "rsi", "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "rbp"
+		: "eax", "ecx", "edx", "rbx", "rdi", "rsi", "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "r10"
 	);
 }
 
@@ -501,7 +501,7 @@ void yuv411_to_y(const unsigned char* in, int size, unsigned char* out)
 		"emms					\n\t"
 	:
 		: "m" (out), "m" (in), "g" (size)
-		: "rax", "rcx", "rdi", "rsi", "mm0", "mm1", "mm2", "rbp", "rbx"   );
+		: "rax", "rcx", "rdi", "rsi", "mm0", "mm1", "mm2", "r10", "rbx"   );
 }
 
 }
