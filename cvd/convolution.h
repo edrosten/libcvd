@@ -128,6 +128,16 @@ namespace Exceptions {
             IncompatibleImageSizes(const std::string & function)
             {
                 what = "Incompatible image sizes in " + function;
+	    }
+	};
+
+				
+        /// Input images have incompatible dimensions
+        /// @ingroup gException
+        struct OddSizedKernelRequired : public All {
+            OddSizedKernelRequired(const std::string & function)
+            {
+                what = "Odd sized kernel required in " + function;
             };
         };
     }

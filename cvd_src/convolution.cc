@@ -12,8 +12,7 @@ void convolveSeparableGray(unsigned char* I, unsigned int width, unsigned int he
     unsigned char* p = I;
     unsigned int i,j,m;
     if (size%2 == 0) {
-        printf("In convolveSeparable, size must be odd.\n");
-        return;
+		throw Exceptions::Convolution::OddSizedKernelRequired("convolveSeparable");
     }
     for (i=height; i>0; i--) {
         for (j=0;j<width-size+1;j++) {
