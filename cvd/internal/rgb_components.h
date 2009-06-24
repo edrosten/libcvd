@@ -24,6 +24,7 @@
 #include <cvd/rgb.h>
 #include <cvd/rgba.h>
 #include <cvd/rgb8.h>
+#include <cvd/qt_argb.h>
 #include <cvd/la.h>
 #include <cvd/internal/builtin_components.h>
 #include <cvd/internal/pixel_traits.h>
@@ -105,10 +106,29 @@ namespace CVD
 			}
 		};
 
+		template<class P> struct Component<Argb<P> >
+		{
+			typedef P type;
+			static const size_t count = 4;
+
+			static const P& get(const Argb<P>& pixel, size_t i)
+			{
+				//return *(reinterpret_cast<const P*>(&pixel)+i);
+				return i == 0 ? pixel.red : (i==1 ? pixel.green : (i==2 ?pixel.blue: pixel.alpha));
+			}
+
+			static P& get(Argb<P>& pixel, size_t i)
+			{
+				//return *(reinterpret_cast<P*>(&pixel)+i);
+				return i == 0 ? pixel.red : (i==1 ? pixel.green : (i==2 ?pixel.blue: pixel.alpha));
+			}
+		};
+
 		template <class T> struct is_Rgb { enum { value = 0 }; };
 		template <class T> struct is_Rgb<Rgb<T> > { enum { value = 1 }; };
 		template <> struct is_Rgb<Rgb8> { enum { value = 1 }; };
 		template <class T> struct is_Rgb<Rgba<T> > { enum { value = 1 }; };
+		template <class T> struct is_Rgb<Argb<T> > { enum { value = 1 }; };
 
 		template<class T, int LIFT> struct traits<Rgb<T>, LIFT> 
 		{ 

@@ -207,6 +207,13 @@ namespace CVD{namespace Pixel
       to.alpha = traits<T>::max_intensity;
     }
   };
+  
+  template <class A,class T> struct RgbishToRgbish<A,Argb<T> > {
+    static inline void convert(const A& from, Argb<T>& to) {
+      RgbToRgb(from,to);
+      to.alpha = traits<T>::max_intensity;
+    }
+  };
 
   template <class S,class T> struct RgbishToRgbish<Rgba<S>,Rgba<T> > {
     static inline void convert(const Rgba<S>& from, Rgba<T>& to) {
@@ -214,6 +221,15 @@ namespace CVD{namespace Pixel
       to.alpha = scalar_convert<T,S>(from.alpha);
     }
   };
+  
+  template <class S,class T> struct RgbishToRgbish<Argb<S>,Argb<T> > {
+    static inline void convert(const Argb<S>& from, Argb<T>& to) {
+      RgbToRgb(from,to);
+      to.alpha = scalar_convert<T,S>(from.alpha);
+    }
+  };
+  
+  
 
   // Default conversions
 
@@ -244,7 +260,16 @@ namespace CVD{namespace Pixel
   template <class T, class S> struct DefaultConversion<Rgba<T>,Rgb<S>,4,3> { typedef RgbishToRgbish<Rgba<T>, Rgb<S> > type; };
   template <class T> struct DefaultConversion<Rgba<T>,Rgb8,4,3> { typedef RgbishToRgbish<Rgba<T>, Rgb8> type; };
   template <class T, class S> struct DefaultConversion<Rgba<T>,Rgba<S>,4,4> { typedef RgbishToRgbish<Rgba<T>, Rgba<S> > type; };
+  template <class T, class S> struct DefaultConversion<Rgba<T>,Argb<S>,4,4> { typedef RgbishToRgbish<Rgba<T>, Argb<S> > type; };
   template <class T> struct DefaultConversion<Rgba<T>,Rgba<T>,4,4> { typedef GenericConversion<Rgba<T>, Rgba<T> > type; };
+  
+
+  // Argb<T> to X
+  template <class T, class S> struct DefaultConversion<Argb<T>,S,4,1> { typedef CIE<Argb<T>,S> type; };
+  template <class T, class S> struct DefaultConversion<Argb<T>,Rgb<S>,4,3> { typedef RgbishToRgbish<Argb<T>, Rgb<S> > type; };
+  template <class T> struct DefaultConversion<Argb<T>,Rgb8,4,3> { typedef RgbishToRgbish<Argb<T>, Rgb8> type; };
+  template <class T, class S> struct DefaultConversion<Argb<T>,Rgba<S>,4,4> { typedef RgbishToRgbish<Argb<T>, Rgba<S> > type; };
+  template <class T> struct DefaultConversion<Argb<T>,Argb<T>,4,4> { typedef GenericConversion<Argb<T>, Argb<T> > type; };
 
   
   template <class From, class To, class Conv=typename DefaultConversion<From,To>::type, 
