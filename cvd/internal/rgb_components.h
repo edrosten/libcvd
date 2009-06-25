@@ -24,7 +24,7 @@
 #include <cvd/rgb.h>
 #include <cvd/rgba.h>
 #include <cvd/rgb8.h>
-#include <cvd/qt_argb.h>
+#include <cvd/argb.h>
 #include <cvd/la.h>
 #include <cvd/internal/builtin_components.h>
 #include <cvd/internal/pixel_traits.h>
