@@ -189,7 +189,7 @@ CPPFLAGS = -I. @CPPFLAGS@
 ifneq (@osx_hacks@,yes)
     LDFLAGS = -Wl,-R. @LDFLAGS@
 endif
-LDFLAGS = -L. @LDFLAGS@
+LDFLAGS = @LDFLAGS@ -L.
 LOADLIBES = @LIBS@
 
 PROGS=@progs@ 
