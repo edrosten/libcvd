@@ -980,6 +980,9 @@ cvd_src/noarch/utility_byte_differences	END
 cvd_src/i686/utility_double_int				sse2
 cvd_src/noarch/utility_double_int			END
 
+cvd_src/SSE2/two_thirds_sample				sse2
+cvd_src/noarch/two_thirds_sample		    END
+
 #FAST corner detection specifics
 cvd_src/fast/fast_7_detect,cvd_src/fast/fast_7_score,cvd_src/slower_corner_7   	fast7  END
 cvd_src/fast/fast_8_detect,cvd_src/fast/fast_8_score,cvd_src/slower_corner_8		fast8  END
