@@ -214,8 +214,8 @@ template<class T> class ConstSubImageIterator
 	protected:
 		T* ptr;
 		const T *row_end, *end;
-		const bool is_end;
-		const int row_increment, total_width;
+		bool is_end;
+		int row_increment, total_width;
 };
 
 template<class T> class SubImageIterator: public ConstSubImageIterator<T>
