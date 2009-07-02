@@ -125,10 +125,7 @@ namespace ImageUtil
 	}
 }
 
-template<class T> class SubImageIteratorEnd;
 template<class T> class SubImage;
-template<class T> class ConstSubImageIteratorEnd;
-template<class T> class ConstSubImage;
 
 
 template<class T> class ConstSubImageIterator
@@ -156,18 +153,38 @@ template<class T> class ConstSubImageIterator
 		const T* operator->() const { return ptr; }
 		const T& operator*() const { return *ptr;}
 
-		bool operator<(const ConstSubImageIterator& s) const { return ptr < s.ptr; }
-		bool operator==(const ConstSubImageIterator& s) const { return ptr == s.ptr; }
-		bool operator!=(const ConstSubImageIterator& s) const { return ptr != s.ptr; }
+		bool operator<(const ConstSubImageIterator& s) const 
+		{ 
+			//It's illegal to iterate _past_ end(), so < is equivalent to !=
+			//for end iterators.
+			if(is_end && s.is_end)
+				return 0;
+			else if(is_end)
+				return s.end != NULL;
+			else if(s.is_end) 
+				return end != NULL; 
+			else 
+				return ptr < s.ptr; 
+		}
+
+		bool operator==(const ConstSubImageIterator& s) const 
+		{ 
+			return !((*this)!=s);
+		}
+
+		bool operator!=(const ConstSubImageIterator& s) const 
+		{ 
+			if(is_end && s.is_end)
+				return 0;
+			else if(is_end)
+				return s.end != NULL;
+			else if(s.is_end) 
+				return end != NULL; 
+			else 
+				return ptr != s.ptr; 
+		}
 
 
-		bool operator!=(const ConstSubImageIteratorEnd<T>&) const { return end != NULL; }
-		bool operator!=(const SubImageIteratorEnd<T>&) const { return end != NULL; }
-		//It's illegal to iterate _past_ end(), so < is equivalent to !=
-		bool operator<(const ConstSubImageIteratorEnd<T>&) const { return end != NULL; }
-		bool operator<(const SubImageIteratorEnd<T>&) const { return end != NULL; }
-
-		
 		//Make it look like a standard iterator
 		typedef std::forward_iterator_tag iterator_category;
 		typedef T value_type;
@@ -184,18 +201,21 @@ template<class T> class ConstSubImageIterator
 		:ptr(const_cast<T*>(start)),
 		 row_end(start + image_width), 
 		 end(off_end), 
+		 is_end(0),
 		 row_increment(row_stride-image_width), 
 		 total_width(row_stride)
 		{ }
 
-		ConstSubImageIterator(const T* end) 
-		:ptr(const_cast<T*>(end))
+		//Prevent automatic conversion from a pointer (ie Image::iterator)
+		explicit ConstSubImageIterator(const T* end) 
+		:ptr(const_cast<T*>(end)),is_end(1),row_increment(0),total_width(0)
 		{ }
 
 	protected:
 		T* ptr;
 		const T *row_end, *end;
-		int row_increment, total_width;
+		const bool is_end;
+		const int row_increment, total_width;
 };
 
 template<class T> class SubImageIterator: public ConstSubImageIterator<T>
@@ -205,7 +225,7 @@ template<class T> class SubImageIterator: public ConstSubImageIterator<T>
 		:ConstSubImageIterator<T>(start, image_width, row_stride, off_end)
 		{}
 		
-		SubImageIterator(T* end) 
+		explicit SubImageIterator(T* end) 
 		:ConstSubImageIterator<T>(end)
 		{ }
 
@@ -218,38 +238,6 @@ template<class T> class SubImageIterator: public ConstSubImageIterator<T>
 		T* operator->() { return ConstSubImageIterator<T>::ptr; }
 		T& operator*() { return *ConstSubImageIterator<T>::ptr;}
 };
-
-template<class T> class SubImageIteratorEnd
-{
-	public:
-		SubImageIteratorEnd(SubImage<T>* p)
-		:i(p){}
-
-		operator SubImageIterator<T>()
-		{
-			return i->end();
-		}
-
-	private:
-		SubImage<T>* i;
-};
-
-
-template<class T> class ConstSubImageIteratorEnd
-{
-	public:
-		ConstSubImageIteratorEnd(const SubImage<T>* p)
-		:i(p){}
-
-		operator ConstSubImageIterator<T>()
-		{
-			return i->end();
-		}
-
-	private:
-		const SubImage<T>* i;
-};
-
 
 /// A generic image class to manage a block of arbitrarily padded data as an image. Provides
 /// basic image access such as accessing a particular pixel co-ordinate. 
@@ -375,17 +363,6 @@ template<class T> class SubImage
 		{
 			//Operator [] would always throw here!
 			return ConstSubImageIterator<T>(end_ptr());
-		}
-
-		/// Returns an object corresponding to end(), which should eliminate a test.
-		inline SubImageIteratorEnd<T> fastend()
-		{
-			return SubImageIteratorEnd<T>(this);
-		}
-		/// Returns an object corresponding to end() const, which should eliminate a test.
-		inline ConstSubImageIteratorEnd<T> fastend() const
-		{
-			return ConstSubImageIteratorEnd<T>(this);
 		}
 
 		inline void copy_from( const SubImage<T> & other ){
@@ -698,7 +675,6 @@ class Image: public BasicImage<T>
 			Image<T> tmp(copy.size());
 			*this = tmp;
 			
-			// FIXME: this is currently slow. Use fastend().
 			std::copy(copy.begin(), copy.end(), this->begin());
 		}
 
