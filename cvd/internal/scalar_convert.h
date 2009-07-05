@@ -114,25 +114,51 @@ namespace Pixel
 		inline float byte_to_float(int b) { return float_for_byte[b+255]; }
 		inline double byte_to_double(int b) { return double_for_byte[b+255]; }
 		
+		//Convert a "D" to "To" scaled as if we are converting "From" type to a "To" type.
+		//Special code is invoked if both D and To are integral.
+		//FIXME: why is the test on "From", not "D"??
 		template <class From, class To, class D=From, bool int1 = traits<To>::integral && traits<From>::integral, bool int2 =traits<D>::integral> struct ScalarConvert {
 		    static inline To from(const D& from) {
 			static const double factor = double(traits<To>::max_intensity)/traits<From>::max_intensity; 
 			return static_cast<To>(from*factor);
 		    }
 		};
-		
+	    
+
+		//If the input and output are integral, then use integer only scaling code.	
 		template <class From, class To, class D> struct ScalarConvert<From,To,D,true, true> {
 		    static inline To from(const D& f) {
 			return shift_convert<To, From, int_info<To,From>::shift_dir>::from(f);
 		    }
 		};
+		
+		//If the destination is bool, then use != 0.
+		//Note two classes are needed here so that they are both more specialized than
+		//the integral conversion code (above) in order to avoid ambiguities.
+		template<class From, class D> struct ScalarConvert<From, bool, D, true, true>
+		{
+			static inline bool from(const D& from)
+			{
+				return from != 0;
+			}
+		};
+		template<class From, class D> struct ScalarConvert<From, bool, D, true, false>
+		{
+			static inline bool from(const D& from)
+			{
+				return from != 0;
+			}
+		};
 
+		//Lookup table conversion from byte to float.
+		//FIXME surely this can only work properly if D is also byte?
 		template <class D> struct ScalarConvert<byte,float,D,false,true> {
 		    static inline float from(const D& from) {
 			return byte_to_float(from);
 		    }
 		};
 		
+		//FIXME this is surely redundant
 		template <class D> struct ScalarConvert<byte,float,D,false,false> {
 		    static inline float from(const D& from) {
 			return static_cast<float>(from * (1.0/255.0));
