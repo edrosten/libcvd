@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <io.h>
 
 #if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
@@ -76,6 +77,7 @@ std::vector<std::string> globlist(const std::string& gl)
 		} while( _findnexti64( hFile, &c_file ) == 0 );
 		_findclose( hFile );
 	}
+	std::sort(ret.begin(), ret.end());
 	return ret;
 }
 
