@@ -7,15 +7,15 @@
     #define CVD_HAVE_CPU_x86_64 1
 #endif
 #endif
-#if 0 // for now would like to find a solution
+
 #ifndef CVD_DISABLE_GLOB
     #define CVD_HAVE_GLOB 1
-#endif
 #endif
 
 #ifndef CVD_DISABLE_JPEG
     #define CVD_HAVE_JPEG 1
 #endif
+
 #ifndef CVD_DISABLE_LAPACK
     #define CVD_HAVE_LAPACK 1
 #endif

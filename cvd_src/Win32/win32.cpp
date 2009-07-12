@@ -1,6 +1,9 @@
 #include "win32.h" 
 
 #include <time.h>
+#include <string>
+#include <vector>
+#include <io.h>
 
 #if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
   #define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
@@ -57,5 +60,23 @@ void aligned_free(void * memory){
 }
 
 } // namespace Internal
+
+// simple implementation of globlist after MSDN example for _findfirst
+std::vector<std::string> globlist(const std::string& gl)
+{
+	std::vector<std::string> ret;
+	
+	struct _finddatai64_t c_file;
+	intptr_t hFile;
+
+	// Find first file in current directory 
+	if( (hFile = _findfirsti64( gl.c_str(), &c_file )) != -1L ){
+		do {
+			ret.push_back(c_file.name);
+		} while( _findnexti64( hFile, &c_file ) == 0 );
+		_findclose( hFile );
+	}
+	return ret;
+}
 
 } // namespace CVD

@@ -206,6 +206,10 @@ void GLWindow::init(const ImageRef& size, int bpp, const std::string& title, con
     state->position_offset.y = WindowRect.top - oldRect.top;
 
     state->position = -state->position_offset;
+
+	// handle events to make window appear
+	EventSummary summary;
+	get_events(summary);
 }
 
 GLWindow::~GLWindow()
