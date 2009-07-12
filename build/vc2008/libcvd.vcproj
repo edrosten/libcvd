@@ -486,6 +486,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\pnm_src\fits.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\pnm_src\fitswrite.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\..\pnm_src\jpeg.cxx"
 					>
 				</File>
@@ -495,6 +503,14 @@
 				</File>
 				<File
 					RelativePath="..\..\pnm_src\save_postscript.cxx"
+					>
+				</File>
+				<File
+					RelativePath="..\..\pnm_src\text.cxx"
+					>
+				</File>
+				<File
+					RelativePath="..\..\pnm_src\text_write.cc"
 					>
 				</File>
 			</Filter>
