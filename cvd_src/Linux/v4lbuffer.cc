@@ -107,26 +107,28 @@ unsigned int fourcc(const fourcc_string& s)
 	return v4l2_fourcc(s[0], s[1], s[2], s[3]);
 }
 
-void print_v4l2_framerates(int fd, unsigned int fmt, unsigned int width, unsigned int height, VPrint & log){
-    struct v4l2_frmivalenum fr;
-    fr.pixel_format = fmt;
-    fr.width = width;
-    fr.height = height;
-    for(fr.index = 0; ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &fr) == 0; ++fr.index){
-        switch(fr.type){
-        case V4L2_FRMIVAL_TYPE_DISCRETE:
-            log << "\t\t      rate discrete\t" << fr.discrete.numerator << "/" << fr.discrete.denominator << "\n";
-            break;
-        case V4L2_FRMIVAL_TYPE_CONTINUOUS:
-            log << "\t\t      rate cont\t" << fr.stepwise.min.numerator << "/" << fr.stepwise.min.denominator << " - " << fr.stepwise.step.numerator << "/" << fr.stepwise.step.denominator << " - " << fr.stepwise.max.numerator << "/" << fr.stepwise.max.denominator << "\n";
-            break;
-        case V4L2_FRMIVAL_TYPE_STEPWISE:
-            log << "\t\t      rate step\t" << fr.stepwise.min.numerator << "/" << fr.stepwise.min.denominator << " - " << fr.stepwise.step.numerator << "/" << fr.stepwise.step.denominator << " - " << fr.stepwise.max.numerator << "/" << fr.stepwise.max.denominator << "\n";
-            break;
-        default: assert(false);
-        }
-    }
-}
+#ifdef VIDIOC_ENUM_FRAMESIZES
+	void print_v4l2_framerates(int fd, unsigned int fmt, unsigned int width, unsigned int height, VPrint & log){
+		struct v4l2_frmivalenum fr;
+		fr.pixel_format = fmt;
+		fr.width = width;
+		fr.height = height;
+		for(fr.index = 0; ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &fr) == 0; ++fr.index){
+			switch(fr.type){
+			case V4L2_FRMIVAL_TYPE_DISCRETE:
+				log << "\t\t      rate discrete\t" << fr.discrete.numerator << "/" << fr.discrete.denominator << "\n";
+				break;
+			case V4L2_FRMIVAL_TYPE_CONTINUOUS:
+				log << "\t\t      rate cont\t" << fr.stepwise.min.numerator << "/" << fr.stepwise.min.denominator << " - " << fr.stepwise.step.numerator << "/" << fr.stepwise.step.denominator << " - " << fr.stepwise.max.numerator << "/" << fr.stepwise.max.denominator << "\n";
+				break;
+			case V4L2_FRMIVAL_TYPE_STEPWISE:
+				log << "\t\t      rate step\t" << fr.stepwise.min.numerator << "/" << fr.stepwise.min.denominator << " - " << fr.stepwise.step.numerator << "/" << fr.stepwise.step.denominator << " - " << fr.stepwise.max.numerator << "/" << fr.stepwise.max.denominator << "\n";
+				break;
+			default: assert(false);
+			}
+		}
+	}
+#endif
 
 namespace V4L { // V4L
 
@@ -209,27 +211,30 @@ namespace V4L { // V4L
 		{
 			actual_fmt = f.pixelformat;
 		}
-        if(verbose){
-            struct v4l2_frmsizeenum fs;
-            fs.pixel_format = f.pixelformat;
-            for(fs.index = 0; ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &fs) == 0; ++fs.index){
-                switch(fs.type){
-                case V4L2_FRMSIZE_TYPE_DISCRETE:
-                    log << "\t\tframe size discrete\t" << fs.discrete.width << "x" << fs.discrete.height << "\n";
-                    print_v4l2_framerates(fd, fs.pixel_format, fs.discrete.width, fs.discrete.height, log);
-                    break;
-                case V4L2_FRMSIZE_TYPE_CONTINUOUS:
-                    log << "\t\tframe size cont\t" << fs.stepwise.min_width << "x" << fs.stepwise.min_height << " - " << fs.stepwise.step_width << "x" << fs.stepwise.step_height << " - " << fs.stepwise.max_width << "x" << fs.stepwise.max_height <<  "\n";
-                    print_v4l2_framerates(fd, fs.pixel_format, fs.stepwise.max_width, fs.stepwise.max_height, log);
-                    break;
-                case V4L2_FRMSIZE_TYPE_STEPWISE: {
-                    log << "\t\tframe size step\t" << fs.stepwise.min_width << "x" << fs.stepwise.min_height << " - " << fs.stepwise.step_width << "x" << fs.stepwise.step_height << " - " << fs.stepwise.max_width << "x" << fs.stepwise.max_height <<  "\n";
-                    print_v4l2_framerates(fd, fs.pixel_format, fs.stepwise.max_width, fs.stepwise.max_height, log);
-                } break;
-                default: assert(false);
-                }
-            }
-        }
+
+		#ifdef VIDIOC_ENUM_FRAMESIZES
+			if(verbose){
+				struct v4l2_frmsizeenum fs;
+				fs.pixel_format = f.pixelformat;
+				for(fs.index = 0; ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &fs) == 0; ++fs.index){
+					switch(fs.type){
+					case V4L2_FRMSIZE_TYPE_DISCRETE:
+						log << "\t\tframe size discrete\t" << fs.discrete.width << "x" << fs.discrete.height << "\n";
+						print_v4l2_framerates(fd, fs.pixel_format, fs.discrete.width, fs.discrete.height, log);
+						break;
+					case V4L2_FRMSIZE_TYPE_CONTINUOUS:
+						log << "\t\tframe size cont\t" << fs.stepwise.min_width << "x" << fs.stepwise.min_height << " - " << fs.stepwise.step_width << "x" << fs.stepwise.step_height << " - " << fs.stepwise.max_width << "x" << fs.stepwise.max_height <<  "\n";
+						print_v4l2_framerates(fd, fs.pixel_format, fs.stepwise.max_width, fs.stepwise.max_height, log);
+						break;
+					case V4L2_FRMSIZE_TYPE_STEPWISE: {
+						log << "\t\tframe size step\t" << fs.stepwise.min_width << "x" << fs.stepwise.min_height << " - " << fs.stepwise.step_width << "x" << fs.stepwise.step_height << " - " << fs.stepwise.max_width << "x" << fs.stepwise.max_height <<  "\n";
+						print_v4l2_framerates(fd, fs.pixel_format, fs.stepwise.max_width, fs.stepwise.max_height, log);
+					} break;
+					default: assert(false);
+					}
+				}
+			}
+		#endif
     }
 
 	if(errno != EINVAL)
