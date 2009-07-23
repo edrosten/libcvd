@@ -1,6 +1,7 @@
 #include <cvd/gl_helpers.h>
 
 #include <cassert>
+#include <cmath> 
 #include <map>
 
 using namespace std;
@@ -147,7 +148,7 @@ std::pair<double,double> glDrawText(const std::string& text, enum TEXT_STYLE sty
             continue;
         }
         if(c == '\t'){
-            const float advance = tab_width - fmodf(total, tab_width);
+            const float advance = tab_width - std::fmod(total, tab_width);
             total += advance;
             glTranslated(advance, 0, 0);
             continue;

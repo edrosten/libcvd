@@ -67,6 +67,78 @@ namespace Exceptions {
     };
 };
 
+
+/** Subsamples an image to 2/3 of its size by averaging 3x3 blocks in to 2x2 blocks.
+@param in input image
+@param out output image (muze be <code>out.size() == in.size()/2*3 </code>)
+@throw IncompatibleImageSizes if out does not have the correct dimensions.
+@ingroup gVision
+*/
+template<class C> void twoThirdsSample(const SubImage<C>& in, SubImage<C>& out)
+{
+    typedef typename Pixel::traits<C>::wider_type sum_type;
+	if( (in.size()/3*2) != out.size())
+        throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
+	
+	for(int yy=0, y=0; y < in.size().y-2; y+=3, yy+=2)
+		for(int xx=0, x=0; x < in.size().x-2; x+=3, xx+=2)
+		{
+			// a b c
+			// d e f
+			// g h i
+
+			sum_type b = in[y][x+1]*2;
+			sum_type d = in[y+1][x]*2;
+			sum_type f = in[y+1][x+2]*2;
+			sum_type h = in[y+2][x+1]*2;
+			sum_type e = in[y+1][x+1];
+
+			out[yy][xx]     = static_cast<C>((in[  y][  x]*4+b+d+e)/9);
+			out[yy][xx+1]   = static_cast<C>((in[  y][x+2]*4+b+f+e)/9);
+			out[yy+1][xx]   = static_cast<C>((in[y+2][  x]*4+h+d+e)/9);
+			out[yy+1][xx+1] = static_cast<C>((in[y+2][x+2]*4+h+f+e)/9);
+		}
+}
+
+/**
+@overload
+*/
+void twoThirdsSample(const SubImage<byte>& in, SubImage<byte>& out);
+
+  #ifndef DOXYGEN_IGNORE_INTERNAL
+  namespace Internal
+  {
+  	template<class C> class twoThirdsSampler{};
+	template<class C>  struct ImagePromise<twoThirdsSampler<C> >
+	{
+		ImagePromise(const SubImage<C>& im)
+		:i(im)
+		{}
+
+		const SubImage<C>& i;
+		template<class D> void execute(Image<D>& j)
+		{
+			j.resize(i.size()/3*2);
+			twoThirdsSample(i, j);
+		}
+	};
+  };
+  template<class C> Internal::ImagePromise<Internal::twoThirdsSampler<C> > twoThirdsSample(const SubImage<C>& c)
+  {
+    return Internal::ImagePromise<Internal::twoThirdsSampler<C> >(c);
+  }
+  #else
+  	///Subsamples an image by averaging 3x3 blocks in to 2x2 ones.
+	/// Note that this is performed using lazy evaluation, so subsampling
+	/// happns on assignment, and memory allocation is not performed if
+	/// unnecessary.
+    /// @param from The image to convert from
+	/// @return The converted image
+    /// @ingroup gVision
+  	template<class C> Image<C> twoThirdsSample(const SubImage<C>& from);
+
+  #endif
+
 /// subsamples an image to half its size by averaging 2x2 pixel blocks
 /// @param in input image
 /// @param out output image, must have the right dimensions versus input image

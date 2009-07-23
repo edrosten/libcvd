@@ -582,24 +582,24 @@ bool sanityCheck(const Vector<2>& inPoint, image_interpolate<Interpolate::Biline
 
     if(blWhite)
     {
-	if(midVal - tlVal < 0.05)
+	if(midVal - tlVal < 0.02)
 	    return false;
-	if(trVal - midVal < 0.05)
+	if(trVal - midVal < 0.02)
 	    return false;
-	if(blVal - midVal < 0.05)
+	if(blVal - midVal < 0.02)
 	    return false;
-	if(midVal - brVal < 0.05)
+	if(midVal - brVal < 0.02)
 	    return false;
     }
     else
     {
-	if(tlVal - midVal < 0.05)
+	if(tlVal - midVal < 0.02)
 	    return false;
-	if(midVal - trVal < 0.05)
+	if(midVal - trVal < 0.02)
 	    return false;
-	if(midVal - blVal < 0.05)
+	if(midVal - blVal < 0.02)
 	    return false;
-	if(brVal - midVal < 0.05)
+	if(brVal - midVal < 0.02)
 	    return false;
     }
 
