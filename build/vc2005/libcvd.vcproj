@@ -474,7 +474,7 @@
 				Name="pnm_src"
 				>
 				<File
-					RelativePath="..\..\pnm_src\text.cc"
+					RelativePath="..\..\pnm_src\text.cxx"
 					>
 				</File>
 				<File
