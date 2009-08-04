@@ -474,6 +474,22 @@
 				Name="pnm_src"
 				>
 				<File
+					RelativePath="..\..\pnm_src\text.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\pnm_src\text_write.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\pnm_src\fits.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\pnm_src\fitswrite.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\..\pnm_src\bmp.cxx"
 					>
 				</File>
