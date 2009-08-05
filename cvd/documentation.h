@@ -112,7 +112,7 @@ It is released under the LGPL License.
 			- .dylib libraries
 	- Cygwin: x86
 	- MinGW: x86 (native and cross compile)
-	- Win32: Visual Studio 2005
+	- Win32: Visual Studio 2008, 2005
 
   -Has worked on (current status unknown):
 	- Linux: PPC
@@ -149,6 +149,31 @@ libCVD fully supports parallel builds (<code>make -j2</code> for instance).
 			- pnm_src/jpeg.cc
 		- Remove <code>cvd_src/videosource.o</code> from <code>Makefile</code> and use <code>--disable-jpeg</code>
 		- Compile files with -O2 instead of -O3
+
+\subsection win32 Windows
+
+For Win32 systems, the @c build directory contains project files for different versions
+of Visual Studio. Currently the vc2008 solutin is supported and should work out of the box. There
+are two projects, one for compiling libcvd and one for installing it into a common directory tree.
+Both projects assume the existence of three environment variables describing the location of header, 
+library and binary files (for DLLs).
+	
+	- @c INCLUDEDIR contains the header files. libcvd headers will be copied into @c \%INCLUDEDIR%\\\libcvd
+	- @c LIBDIR contains library files. libcvd static libraries (debug and release verions) will be copied into @c \%LIBDIR\%
+	- @c BINDIR is not used for libcvd, but would be the default directory for DLLs
+
+libCVD requires at least two libraries to compile:
+	- pthreads-win32 at http://sourceware.org/pthreads-win32/
+	- jpeg-7 at http://www.ijg.org/
+
+Both libraries should be moved into the directory tree described by @c INCLUDEDIR, @c LIBDIR and @c BINDIR where the libCVD 
+project files will expect them.
+
+libCVD compiles to static libraries for simpler linking and to avoid the _dllexport/_dllimport statements throughout the code.
+
+Configuration of features is manual through a default config file in @c build/vc2005/config.h. Edit this file to change your configuration, 
+for example to support other image formats such as PNG.
+
 */
 
 ///////////////////////////////////////////////////////

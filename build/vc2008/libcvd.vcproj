@@ -22,6 +22,7 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="0"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -41,7 +42,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..;..\..\..;&quot;..\..\..\Pre-built.2\include&quot;;&quot;..\..\..\jpeg-7&quot;"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="..\..;&quot;$(INCLUDEDIR)&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,10 +64,9 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				LinkLibraryDependencies="false"
 				AdditionalDependencies="pthreadVCE2.lib jpeg.lib"
 				OutputFile="..\..\lib\$(ProjectName)d.lib"
-				AdditionalLibraryDirectories="../../../Pre-built.2/lib;../../../jpeg-7/Release"
+				AdditionalLibraryDirectories="&quot;$(LIBDIR)&quot;"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -110,9 +111,10 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="2"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..;..\..\..;&quot;..\..\..\Pre-built.2\include&quot;;&quot;..\..\..\jpeg-7&quot;"
+				AdditionalIncludeDirectories="..\..;&quot;$(INCLUDEDIR)&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
+				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -131,7 +133,7 @@
 				Name="VCLibrarianTool"
 				AdditionalDependencies="pthreadVCE2.lib jpeg.lib"
 				OutputFile="..\..\lib\$(ProjectName).lib"
-				AdditionalLibraryDirectories="../../../Pre-built.2/lib;../../../jpeg-7/Release"
+				AdditionalLibraryDirectories="&quot;$(LIBDIR)&quot;"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -886,12 +888,6 @@
 					>
 				</File>
 			</Filter>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
 		</Filter>
 	</Files>
 	<Globals>
