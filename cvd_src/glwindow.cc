@@ -102,7 +102,7 @@ void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title
     glLoadIdentity();
     glColor3f(1.0f,1.0f,1.0f);
     glRasterPos2f(-1, 1);
-    glOrtho(0, size.x, size.y, 0, -1 , 1);
+    glOrtho(-0.375, size.x-0.375, size.y-0.375, -0.375, -1 , 1); //offsets to make (0,0) the top left pixel (rather than off the display)
     glPixelZoom(1,-1);
 
     XColor black = {0, 0, 0, 0, 0, 0};
