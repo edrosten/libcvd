@@ -215,8 +215,9 @@ void GLWindow::init(const ImageRef& size, int bpp, const std::string& title, con
 GLWindow::~GLWindow()
 {
 	if(state->hRC){
-		if (!wglMakeCurrent(NULL,NULL))	
-		    throw Exceptions::GLWindow::RuntimeError("Release of DC and RC failed.");
+		if (wglGetCurrentContext() == state->hRC)
+			if (!wglMakeCurrent(NULL,NULL))	
+				throw Exceptions::GLWindow::RuntimeError("Release of DC and RC failed.");
 		if (!wglDeleteContext(state->hRC))
 		    throw Exceptions::GLWindow::RuntimeError("Release Rendering Context failed.");
 	}
