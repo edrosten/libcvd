@@ -24,6 +24,7 @@
 
 #include <cvd/image.h>
 #include <cvd/vision.h>
+#include <cvd/internal/pixel_operations.h>
 
 namespace CVD
 {
@@ -41,7 +42,7 @@ namespace CVD
 		if( in.size() != out.size())
 			throw Exceptions::Vision::IncompatibleImageSizes("integral_image");
 
-		out[0][0] = in[0][0];
+		Pixel::operations<D>::assign(out[0][0], in[0][0]);
 		//Do the first row. 
 		for(int x=1; x < in.size().x; x++)
 			out[0][x] =out[0][x-1] + in[0][x];
@@ -53,12 +54,13 @@ namespace CVD
 		//Do the remainder of the image
 		for(int y=1; y < in.size().y; y++)
 		{
-			D sum = in[y][0];
+			D sum;
+			Pixel::operations<D>::assign(sum,in[y][0]);
 
 			for(int x=1; x < in.size().x; x++)
 			{
 				sum+= in[y][x];
-				out[y][x] = sum + out[y-1][x];
+				Pixel::operations<D>::assign(out[y][x],sum + out[y-1][x]);
 			}
 		}
 	}
