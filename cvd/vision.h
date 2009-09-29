@@ -25,7 +25,7 @@
 #include <vector>
 #include <memory>
 
-#include <cvd/exceptions.h>
+#include <cvd/vision_exceptions.h>
 #include <cvd/image.h>
 #include <cvd/internal/pixel_operations.h>
 #include <cvd/utility.h>
@@ -36,38 +36,7 @@
 #include <TooN/helpers.h>
 #endif
 
-namespace CVD {
-
-namespace Exceptions {
-
-    /// %Exceptions specific to vision algorithms
-    /// @ingroup gException
-    namespace Vision {
-        /// Base class for all Image_IO exceptions
-        /// @ingroup gException
-        struct All: public CVD::Exceptions::All {};
-
-        /// Input images have incompatible dimensions
-        /// @ingroup gException
-        struct IncompatibleImageSizes : public All {
-            IncompatibleImageSizes(const std::string & function)
-            {
-                what = "Incompatible image sizes in " + function;
-            };
-        };
-
-        /// Input ImageRef not within image dimensions
-        /// @ingroup gException
-        struct ImageRefNotInImage : public All {
-            ImageRefNotInImage(const std::string & function)
-            {
-                what = "Input ImageRefs not in image in " + function;
-            };
-        };
-    };
-};
-
-
+namespace CVD{
 /** Subsamples an image to 2/3 of its size by averaging 3x3 blocks in to 2x2 blocks.
 @param in input image
 @param out output image (muze be <code>out.size() == in.size()/2*3 </code>)
