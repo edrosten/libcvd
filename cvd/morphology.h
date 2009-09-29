@@ -339,8 +339,6 @@ namespace CVD
 
 				T get()
 				{
-					assert(pix.begin()->second);
-
 					typedef typename std::map<T, int, Cmp<T> >::iterator it;
 
 					for(it i=pix.begin(); i != pix.end();)
