@@ -2,6 +2,7 @@
 #define CVD_INCLUDE_MORPHOLOGY_H
 
 #include <cvd/vision_exceptions.h>
+#include <cvd/vision.h>
 #include <cvd/image.h>
 #include <map>
 #include <vector>
@@ -358,17 +359,161 @@ namespace CVD
 		};
 		
 
-		///Class for performing geryscale erosion. See morphology().
+		///Class for performing greyscale erosion. See morphology().
 		///@ingroup gVision
 		template<class T> class Erode: public BasicGray<T, std::less>
 		{
 		};
 
 
-		///Class for performing geryscale dilation. See morphology().
+		///Class for performing greyscale dilation. See morphology().
 		///@ingroup gVision
 		template<class T> class Dilate: public BasicGray<T, std::greater>
 		{
+		};
+
+
+		///Class for performing percentile filtering. See morphology().
+		///@ingroup gVision
+		template<class T> class Percentile;
+
+		///Class for performing median filtering. See morphology().
+		///@ingroup gVision
+		template<class T> class Median;
+
+		///A helper class for performing basic grayscale morphology
+		///on an image of bytes.
+		///See morphology().
+		///@ingroup gVision
+		struct BasicGrayByte
+		{
+			protected:
+				int histogram[256];
+				int total;
+			
+			public:
+				BasicGrayByte()
+				{
+					clear();
+				}
+
+				void clear()
+				{
+					total=0;
+					for(int i=0; i < 256; i++)
+						histogram[i] = 0;
+				}
+
+				void insert(byte t)
+				{
+					total++;
+					histogram[t]++;
+				}
+
+				void remove(byte t)
+				{
+					total--;
+					histogram[t]--;
+				}
+		};
+
+
+		///Class for performing greyscale erosion of bytes. See morphology().
+		///@ingroup gVision
+		template<> class Erode<byte>: public BasicGrayByte
+		{
+			public:
+				byte get()
+				{
+					for(int j=0; j < 256; j++)
+						if(histogram[j])
+							return j;
+					
+					assert(0);
+					return 0;
+				}
+		};
+
+		///Class for performing greyscale dilation of bytes. See morphology().
+		///@ingroup gVision
+		template<> class Dilate<byte>: public BasicGrayByte
+		{
+			public:
+				byte get()
+				{
+					for(int j=255; j >=0 ; j--)
+						if(histogram[j])
+							return j;
+					
+					assert(0);
+					return 0;
+				}
+		};
+
+		///Class for performing percentile filtering of bytes. See morphology().
+		///@ingroup gVision
+		template<> class Percentile<byte>: public BasicGrayByte
+		{
+			private:
+				double ptile;
+
+			public:
+				Percentile(double p)
+				:ptile(p)
+				{
+				}
+
+				byte get()
+				{
+					using std::max;
+
+					if(ptile < 0.5)
+					{
+						int sum=0;
+						//because we use a > test below (to work for the 0th ptile)
+						//we have to use the scaled threshold -1 otherwise it will
+						//not work for the 100th percentile.
+						int threshold = max(0, (int)floor(total * ptile+.5)- 1);
+
+						for(int j=0; j < 255; j++)
+						{
+							sum += histogram[j];
+
+							if(sum > threshold)
+								return j;
+						}
+						
+						return 255;
+					}
+					else
+					{
+						//Approach from the top for high percentiles
+						int sum=0;
+						int threshold = max(0, (int)floor(total * (1-ptile)+.5)- 1);
+
+						for(int j=255; j > 0; j--)
+						{
+							sum += histogram[j];
+
+							if(sum > threshold)
+								return j;
+						}
+						
+						return 0;
+					}
+				}
+		};
+
+
+		///Class for performing percentile filtering of bytes. See morphology().
+		///@ingroup gVision
+		template<> class Median<byte>: public Percentile<byte>
+		{
+			public:
+				Median()
+				:Percentile<byte>(0.5)
+				{
+				}
 		};
 
 		///Class for performing binary morphology. This class is incomplete and
@@ -436,6 +581,93 @@ namespace CVD
 				return (t > f);
 			}
 		};
+	}
+
+	namespace median{
+		//Some helper classes for median
+		template<class T> T median4(T a, T b, T c, T d)
+		{
+			int v[4] = {a, b, c, d};
+			std::nth_element(v, v+2, v+4);
+			return v[2];
+		}
+
+		template<class T> T median4(const SubImage<T>& im, int r, int c)
+		{
+			return median4(im[r][c], im[r][c+1], im[r+1][c], im[r+1][c+1]);
+		}
+
+		template<class T> T median6(T a, T b, T c, T d, T e, T f)
+		{
+			int v[6] = {a, b, c, d, e, f};
+			std::nth_element(v, v+3, v+6);
+			return v[3];
+		}
+
+		template<class T> T median6_row(const SubImage<T>& im, int r, int c)
+		{
+			return median6(im[r][c], im[r][c+1], im[r][c+2], im[r+1][c], im[r+1][c+1], im[r+1][c+2]);
+		}
+		template<class T> T median6_col(const SubImage<T>& im, int r, int c)
+		{
+			return median6(im[r][c], im[r][c+1], im[r+1][c], im[r+1][c+1], im[r+2][c], im[r+2][c+1]);
+		}
+
+	};
+
+	void morphology(const SubImage<byte>& in, const std::vector<ImageRef>& selem, const Morphology::Median<byte>& m, SubImage<byte>& out)
+	{
+		//If we happen to be given a 3x3 square, then perform
+		//median filtering using the hand coded functions.
+		if(selem.size() == 9)
+		{
+			std::vector<ImageRef> s = selem;
+			std::sort(s.begin(), s.end());
+			ImageRef box[9] = {
+				ImageRef(-1, -1),
+				ImageRef( 0, -1),
+				ImageRef( 1, -1),
+				ImageRef(-1,  0),
+				ImageRef( 0,  0),
+				ImageRef( 1,  0),
+				ImageRef(-1,  1),
+				ImageRef( 0,  1),
+				ImageRef( 1,  1)};
+
+			if(std::equal(s.begin(), s.end(), box))
+			{
+				median_filter_3x3(in, out);
+
+				//median_filter_3x3 does not do the edges, so do the 
+				//edges with a cropped kernel.
+
+				using median::median4;
+				using median::median6_row;
+				using median::median6_col;
+				out[0][0]                         = median4(in, 0, 0);
+				out[0][in.size().x-1]             = median4(in, 0, in.size().x-2);
+				out[in.size().y-1][0]             = median4(in, in.size().y-2, 0);
+				out[in.size().y-1][in.size().x-1] = median4(in, in.size().y-2, in.size().x-2);
+
+				int vals[6];
+
+				for(int i=1; i < in.size().x-1; i++)
+					out[0][i] = median6_row(in, 0, i-1);
+
+				for(int i=1; i < in.size().x-1; i++)
+					out[in.size().y-1][i] = median6_row(in, in.size().y-2, i-1);
+
+				for(int i=1; i < in.size().y-1; i++)
+					out[i][0] = median6_col(in, i-1, 0);
+
+				for(int i=1; i < in.size().y-1; i++)
+					out[i][in.size().x-1] = median6_col(in, i-1, in.size().x-2);
+			}
+			else
+				morphology<Morphology::Median<byte>, byte >(in , selem, m, out);
+		}
+		else
+			morphology<Morphology::Median<byte>, byte >(in , selem, m, out);
 	}
 
 }
