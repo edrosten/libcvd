@@ -66,12 +66,12 @@ namespace CVD {
         _mm_empty();
     }
 
-    inline void gradient(const BasicImage<byte>& im, BasicImage<short[2]>& out)
+    void gradient(const BasicImage<byte>& im, BasicImage<short[2]>& out)
     {
 		if( im.size() != out.size())
 			throw Exceptions::Vision::IncompatibleImageSizes("gradient");
 
-		if (is_aligned<16>(im.data()) && is_aligned<16>(out.data()))
+		if (is_aligned<16>(im.data()) && is_aligned<16>(out.data()) && im.size().x % 16 == 0)
 		{
 			zeroBorders(out);
 			gradient(im.data(), out.data(), im.size().x, im.size().y);

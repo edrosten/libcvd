@@ -265,7 +265,7 @@ template <class S, class T> void gradient(const BasicImage<S>& im, BasicImage<T>
 
 
 #ifndef DOXYGEN_IGNORE_INTERNAL
-inline void gradient(const BasicImage<byte>& im, BasicImage<short[2]>& out);
+void gradient(const BasicImage<byte>& im, BasicImage<short[2]>& out);
 #endif
 
 
