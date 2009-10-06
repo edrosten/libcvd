@@ -154,8 +154,8 @@ void GLWindow::init(const ImageRef& size, int bpp, const std::string& title, con
 		0,											// Shift Bit Ignored
 		0,											// No Accumulation Buffer
 		0, 0, 0, 0,									// Accumulation Bits Ignored
-		32,											// 16Bit Z-Buffer (Depth Buffer)  
-		0,											// No Stencil Buffer
+		32,											// 32Bit Z-Buffer (Depth Buffer)  
+		8,											// 8bit Stencil Buffer
 		0,											// No Auxiliary Buffer
 		PFD_MAIN_PLANE,								// Main Drawing Layer
 		0,											// Reserved
