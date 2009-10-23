@@ -27,30 +27,6 @@
 
 namespace CVD {
 
-/// Base class for objects that a video buffer can 
-/// manage the lifetime of.
-class VideoBufferData
-{
-	public:
-		virtual ~VideoBufferData(){}
-};
-
-template<class T> class VideoBufferDataAuto: public VideoBufferData
-{
-	private:
-		T* data;
-
-	public:
-		VideoBufferDataAuto(T* d)
-		:data(d)
-		{}
-
-		virtual ~VideoBufferDataAuto()
-		{
-			delete data;
-		}
-};
-
 ///The semsntics of the videobuffer. See VideoFrame::type()
 struct VideoBufferType
 {
@@ -139,15 +115,11 @@ class VideoBuffer
 		virtual void seek_to(double)
 		{}
 		
-		/// Certain video buffers, especially the decorator classes, and buffers
-		/// such as ServerPushJpegBuffer have additional data 
-		/// with the same lifetime as the buffer. This is a tool to allow management of
-		/// this data.
-		std::auto_ptr<VideoBufferData> extra_data;
 
 	private:
 		VideoBufferType::Type m_type;
 };
+
 
 namespace Exceptions
 {

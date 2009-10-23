@@ -2,6 +2,7 @@
 #define VIDEOSOURCE_H
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -9,6 +10,7 @@
 
 #include <cvd/config.h>
 
+#include <cvd/videobufferwithdata.h>
 #include <cvd/readaheadvideobuffer.h>
 #include <cvd/colourspaces.h>
 
@@ -63,14 +65,10 @@ namespace CVD {
     	using std::auto_ptr;
 	using std::ifstream;
 
-    	auto_ptr<ifstream> stream(new ifstream(filename.c_str()));
+    	auto_ptr<std::ifstream> stream(new ifstream(filename.c_str()));
 	
-	ServerPushJpegBuffer<T>* b = new ServerPushJpegBuffer<T>(*stream.get());
-	
-	auto_ptr<VideoBufferData> h(new VideoBufferDataAuto<ifstream>(stream.release()));
-
-	b->extra_data = h;
-	return b;
+	auto_ptr<VideoBuffer<T> > buf(static_cast<VideoBuffer<T>*>(new ServerPushJpegBuffer<T>(*stream)));
+	return new VideoBufferWithData<T, std::ifstream>(buf, stream);
     }
 
     template <> inline VideoBuffer<vuy422> * makeJPEGStream(const std::string&)
@@ -189,9 +187,7 @@ namespace CVD {
 		else
 		{
 			auto_ptr<VideoBuffer<T> > b(new ReadAheadVideoBuffer<T>(*(jpeg_buffer.get()), ra_frames));
-			auto_ptr<VideoBufferData> h(new VideoBufferDataAuto<VideoBuffer<T> >(jpeg_buffer.release()));
-			b->extra_data = h;
-			return b.release();
+			return new VideoBufferWithData<T, VideoBuffer<T> >(b, jpeg_buffer);
 		}
 	}
 #if CVD_HAVE_GLOB
