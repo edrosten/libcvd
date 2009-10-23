@@ -321,9 +321,9 @@ Open a V4L2 device with fields on input 2:
 v4l2:[input=2,fields]///dev/video0
 @endverbatim
 
-Open firewire camera 1 with 3 dma bufs and default brightness/exposure and fps:
+Open firewire camera 1 with the default fps:
 @verbatim
-dc1394:[dma_bufs=3]//1
+dc1394://1
 @endverbatim
 
 Open an avi file relative to the current directory:
@@ -352,7 +352,10 @@ redirection can be used:
 jpegstream://<(wget http//my.camera/file_representing_video -O - )
 @endverbatim
 
-
+Fields are:
+bool = true | yes | 1 ! false | no | 0
+offset = <width>x<height>
+size = <offset> | qvga | vga | pal | ntsc | xga
 
 Options supported by the various protocols are:
 @verbatim
@@ -366,19 +369,18 @@ Options supported by the various protocols are:
        on_end = repeat_last | unset_pending | loop (default is repeat_last)
 
 'v4l1' protocol (V4L1Buffer): identifier is device name
-       size = vga | qvga | pal | ntsc | <width>x<height>  (default is 0x0)
+       size = <size>  (default is 0x0)
 
 'v4l2' protocol (V4LBuffer): identifier is device name
-       size = vga | qvga | pal | ntsc | <width>x<height>  (default vga)
+       size = <size> (default vga)
        input = <number>
        interlaced | fields [= <bool> ]
 	   verbose [ = <bool> ]
 
 'dc1394' protocol (DVBuffer): identifier is camera number
-       fps = <number> (default 30)
-       dma_bufs | dma_buffers = <number> (default 3)
-       brightness | bright = <number> (default -1)
-       exposure | exp = <number> (default -1)
+       fps = <number> (default is camera default)
+       size = <size>
+       offset = <offset>
 
 'qt' protocol (QTBuffer): identifier is camera number
       size = vga | qvga | <width>x<height>  (default vga)
