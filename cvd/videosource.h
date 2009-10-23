@@ -30,7 +30,7 @@
 #endif
 
 #if CVD_HAVE_DVBUFFER
-#include <cvd/Linux/dvbuffer.h>
+#include <cvd/Linux/dvbuffer3.h>
 #endif
 
 #if CVD_HAVE_QTBUFFER
@@ -149,15 +149,15 @@ namespace CVD {
 #endif
 
 #if CVD_HAVE_DVBUFFER
-    template <class T> VideoBuffer<T>* makeDVBuffer2(int , int , int , int , int )
+    template <class T> VideoBuffer<T>* makeDVBuffer2(int , ImageRef , float , ImageRef)
     {
 	throw VideoSourceException("DVBuffer2 cannot handle types other than byte, Rgb<byte>");
     }
     
-    template <> VideoBuffer<byte>* makeDVBuffer2(int cam, int dmabufs, int bright, int exposure, int fps);
-    template <> VideoBuffer<Rgb<byte> >* makeDVBuffer2(int cam, int dmabufs, int bright, int exposure, int fps);
+    template <> VideoBuffer<byte>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset);
+    template <> VideoBuffer<Rgb<byte> >* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset);
 
-    void get_dc1394_options(const VideoSource& vs, int& dma_bufs, int& bright, int& exposure, int& fps);
+    void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset);
 
 #endif
 
@@ -222,9 +222,10 @@ namespace CVD {
 #if CVD_HAVE_DVBUFFER
 	else if (vs.protocol == "dc1394") {
 	    int cam_no = atoi(vs.identifier.c_str());
-	    int dma_bufs, bright, exposure, fps;
-	    get_dc1394_options(vs, dma_bufs, bright, exposure, fps);
-	    return makeDVBuffer2<T>(cam_no, dma_bufs, bright, exposure, fps);
+	    ImageRef size, offset;
+	    float fps;
+	    get_dc1394_options(vs, size, fps, offset);
+	    return makeDVBuffer2<T>(cam_no, size, fps, offset);
 	} 
 #endif
 #if CVD_HAVE_FFMPEG
