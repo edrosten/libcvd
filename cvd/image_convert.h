@@ -180,6 +180,13 @@ namespace CVD
   	template<class D> Image<D> convert_image(const BasicImage<C>& from);
 
   #endif
+    /// Can teo types be converted with CVD::convert_image?
+    /// @ingroup gImageIO
+	template<class In, class Out> struct IsConvertible
+  	{ 
+		static const bool is=Pixel::DefaultConvertible<In>::is && Pixel::DefaultConvertible<Out>::is;
+	};
+
 }
 
 #endif

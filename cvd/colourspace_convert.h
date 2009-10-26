@@ -18,6 +18,8 @@
 	Foundation, Inc., 
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
+#ifndef CVD_INCLUDE_COLOURSPACE_CONVERT_H
+#define CVD_INCLUDE_COLOURSPACE_CONVERT_H
 #include <cvd/image_convert_fwd.h>
 #include <cvd/colourspaces.h>
 #include <cvd/byte.h>
@@ -93,4 +95,20 @@ namespace CVD
 	/// @param to The output data
 	/// @ingroup gImageIO
 	template<> void convert_image(const BasicImage<vuy422>& from, BasicImage<byte>& to);	
+
+
+	template<> struct IsConvertible<yuv411,      Rgb<byte> > { static const bool is=1; };
+	template<> struct IsConvertible<yuv411,      byte>       { static const bool is=1; };
+	template<> struct IsConvertible<yuv422,      Rgb<byte> > { static const bool is=1; };
+	template<> struct IsConvertible<yuv422,      byte>       { static const bool is=1; };
+	template<> struct IsConvertible<bayer_bggr,  byte>       { static const bool is=1; };
+	template<> struct IsConvertible<bayer_grbg,  byte>       { static const bool is=1; };
+	template<> struct IsConvertible<bayer_gbrg,  byte>       { static const bool is=1; };
+	template<> struct IsConvertible<bayer_rggb,  byte>       { static const bool is=1; };
+	template<> struct IsConvertible<bayer_bggr,  Rgb<byte> > { static const bool is=1; };
+	template<> struct IsConvertible<bayer_grbg,  Rgb<byte> > { static const bool is=1; };
+	template<> struct IsConvertible<bayer_gbrg,  Rgb<byte> > { static const bool is=1; };
+	template<> struct IsConvertible<bayer_rggb,  Rgb<byte> > { static const bool is=1; };
 }
+
+#endif

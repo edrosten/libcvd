@@ -31,7 +31,8 @@ using namespace CVD;
 // GLOBLIST
 // Makes a list of files matching a pattern
 //
-vector<string> CVD::globlist(const string& gl)
+namespace CVD{
+vector<string> globlist(const string& gl)
 {
 	vector<string> ret;
 
@@ -53,4 +54,5 @@ vector<string> CVD::globlist(const string& gl)
 		ret.resize(0);
 
 	return ret;
+}
 }

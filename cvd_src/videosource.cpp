@@ -265,6 +265,20 @@ namespace CVD {
 		}
 	}
 
+	void get_colourspace_options(const VideoSource& vs, string& colourspace)
+	{
+		colourspace = "mono";
+
+		for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it) {		
+			if (it->first == "from") {
+				colourspace = it->second;
+			}
+			else
+				throw VideoSourceException("invalid option for files protocol: "+it->first +
+										   "\n\t valid options: from");
+		}
+	}
+
 	void get_files_options(const VideoSource& vs, int& fps, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob)
 	{
 		fps = 30;
@@ -293,27 +307,6 @@ namespace CVD {
 	}
 
 
-
-#if CVD_HAVE_V4L1BUFFER
-	template <> CVD::VideoBuffer<CVD::byte>* makeV4L1Buffer(const std::string& dev, const CVD::ImageRef& size)
-	{
-		return new CVD::V4L1Buffer<CVD::byte>(dev, size);
-	}
-
-	template <> CVD::VideoBuffer<CVD::yuv422>* makeV4L1Buffer(const std::string& dev, const CVD::ImageRef& size)
-	{
-		return new CVD::V4L1Buffer<CVD::yuv422>(dev, size);
-	}
-	template <> CVD::VideoBuffer<CVD::Rgb<CVD::byte> >* makeV4L1Buffer(const std::string& dev, const CVD::ImageRef& size)
-	{
-		return new CVD::V4L1Buffer<CVD::Rgb<CVD::byte> >(dev, size);
-	}
-
-	template <> CVD::VideoBuffer<CVD::bayer_grbg>* makeV4L1Buffer(const std::string& dev, const CVD::ImageRef& size)
-	{
-		return new CVD::V4LBuffer<CVD::bayer_grbg>(dev, size);
-	}
-
 	void get_v4l1_options(const VideoSource& vs, ImageRef& size)
 	{
 		size = ImageRef(0,0);
@@ -326,38 +319,6 @@ namespace CVD {
 		}
 	}
 
-#endif
-
-
-#if CVD_INTERNAL_HAVE_V4LBUFFER
-	template <> CVD::VideoBuffer<CVD::byte>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
-	{
-		return new CVD::V4LBuffer<CVD::byte>(dev, size, input, interlaced, 0, verbose);
-	}
-
-	#ifdef V4L2_PIX_FMT_SBGGR8
-		template <> CVD::VideoBuffer<CVD::bayer_grbg>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
-		{
-			return new CVD::V4LBuffer<CVD::bayer_grbg>(dev, size, input, interlaced, 0, verbose);
-		}
-	#endif
-	template <> CVD::VideoBuffer<CVD::yuv422>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
-	{
-		return new CVD::V4LBuffer<CVD::yuv422>(dev, size, input, interlaced, 0, verbose);
-	}
-	template <> CVD::VideoBuffer<CVD::vuy422>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
-	{
-		return new CVD::V4LBuffer<CVD::vuy422>(dev, size, input, interlaced, 0, verbose);
-	}
-	template <> CVD::VideoBuffer<CVD::Rgb<CVD::byte> >* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
-	{
-		return new CVD::V4LBuffer<CVD::Rgb<CVD::byte> >(dev, size, input, interlaced, 0, verbose);
-	}
-
-	template <> CVD::VideoBuffer<CVD::Rgb8>* makeV4LBuffer(const std::string& dev, const CVD::ImageRef& size, int input, bool interlaced, bool verbose)
-	{
-		return new CVD::V4LBuffer<CVD::Rgb8>(dev, size, input, interlaced, 0, verbose);
-	}
 
 	void get_v4l2_options(const VideoSource& vs, ImageRef& size, int& input, bool& interlaced, bool& verbose)
 	{
@@ -379,22 +340,7 @@ namespace CVD {
 		}
 	}
 
-#endif
 
-#if CVD_HAVE_FFMPEG
-	template <> CVD::VideoBuffer<CVD::byte>* makeVideoFileBuffer(const std::string& file, CVD::VideoBufferFlags::OnEndOfBuffer eob)
-	{
-		CVD::VideoFileBuffer<CVD::byte>* vb = new CVD::VideoFileBuffer<CVD::byte>(file);
-		vb->on_end_of_buffer(eob);
-		return vb;
-	}
-
-	template <> CVD::VideoBuffer<CVD::Rgb<CVD::byte> >* makeVideoFileBuffer(const std::string& file, CVD::VideoBufferFlags::OnEndOfBuffer eob)
-	{
-		CVD::VideoFileBuffer<CVD::Rgb<CVD::byte> >* vb = new CVD::VideoFileBuffer<CVD::Rgb<CVD::byte> >(file);
-		vb->on_end_of_buffer(eob);
-		return vb;
-	}
 
 	void get_file_options(const VideoSource& vs, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob)
 	{
@@ -418,18 +364,6 @@ namespace CVD {
 		}
 	}
 
-#endif
-
-#if CVD_HAVE_DVBUFFER
-	template <> CVD::VideoBuffer<CVD::byte>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset)
-	{
-		return new CVD::DVBuffer3<CVD::byte>(cam,size, fps, offset);
-	}
-
-	template <> CVD::VideoBuffer<CVD::Rgb<CVD::byte> >* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset)
-	{
-		return new CVD::DVBuffer3<CVD::Rgb<CVD::byte> >(cam, size, fps, offset);
-	}
 
 	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset)
 	{ 
@@ -447,18 +381,6 @@ namespace CVD {
 				throw VideoSourceException("invalid option for dc1394 protocol: "+it->first+"\n\t valid options: fps, size, offset");
 		}
    }
-#endif
-
-#if CVD_HAVE_QTBUFFER
-	template <> VideoBuffer<vuy422> * makeQTBuffer( const ImageRef & size, int input, bool showsettings)
-	{
-		return new CVD::QTBuffer<vuy422>(size, input, showsettings);
-	}
-
-	template <> VideoBuffer<yuv422> * makeQTBuffer( const ImageRef & size, int input, bool showsettings)
-	{
-		return new CVD::QTBuffer<yuv422>(size, input, showsettings);
-	}
 	
 	void get_qt_options(const VideoSource & vs, ImageRef & size, bool & showsettings){
 		size = ImageRef(640, 480);
@@ -472,6 +394,4 @@ namespace CVD {
 				throw VideoSourceException("invalid option for 'qt' protocol: "+it->first+"\n\t valid options: size, showsettings");
 		}
 	}
-#endif
-
 }

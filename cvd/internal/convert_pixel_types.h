@@ -285,6 +285,35 @@ namespace CVD{namespace Pixel
       memcpy(to, from, count*sizeof(T));
     }
   };
+	
+  ///All pixel types which are DefaultConvertible can be converted freely from one
+  ///to another. This struct indicated which types are DefaultConvertible. All 
+  ///bulitin numeric types, Rgb of them, Rgba and Rgb8 etc fall in to this class.
+  /// @ingroup gImageIO
+  template<class C> struct DefaultConvertible
+  {
+  	static const int is = std::numeric_limits<C>::is_specialized;
+  };
+
+  template<class C> struct DefaultConvertible<Rgb<C> >
+  {
+  	static const int is = std::numeric_limits<C>::is_specialized;
+  };
+
+  template<class C> struct DefaultConvertible<Argb<C> >
+  {
+  	static const int is = std::numeric_limits<C>::is_specialized;
+  };
+
+  template<class C> struct DefaultConvertible<Rgba<C> >
+  {
+  	static const int is = std::numeric_limits<C>::is_specialized;
+  };
+
+  template<> struct DefaultConvertible<Rgb8>
+  {
+  	static const int is = 1;
+  };
   
 }}
 #endif

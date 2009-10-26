@@ -24,6 +24,7 @@
 #include <cvd/internal/is_pod.h>
 #include <cvd/internal/builtin_components.h>
 #include <cvd/internal/pixel_traits.h>
+#include <cvd/internal/name_builtin_types.h>
 
 namespace CVD
 {
@@ -37,7 +38,7 @@ namespace CVD
 		bayer_bggr() {}
 		bayer_bggr(unsigned char v) : val(v) {}
 	};
-	
+
 	/// Bayer datatype representing the colour filter pattern GBRG
 	/// @ingroup gVideoBuffer
 	struct bayer_gbrg
@@ -103,6 +104,18 @@ namespace CVD
 	{
 		unsigned short val;
 	};
+
+	namespace PNM{
+		template<> struct type_name<bayer_bggr> { static std::string name(){return "bayer_bggr" ;}};
+		template<> struct type_name<bayer_gbrg> { static std::string name(){return "bayer_gbrg" ;}};
+		template<> struct type_name<bayer_grbg> { static std::string name(){return "bayer_grbg" ;}};
+		template<> struct type_name<bayer_rggb> { static std::string name(){return "bayer_rggb" ;}};
+
+		template<> struct type_name<yuv411> { static std::string name(){return "yuv411" ;}};
+		template<> struct type_name<yuv422> { static std::string name(){return "yuv422" ;}};
+		template<> struct type_name<yuv420p>{ static std::string name(){return "yuv420p";}};
+		template<> struct type_name<vuy422> { static std::string name(){return "vuy422" ;}};
+	}
 
   namespace Pixel {
         template<int LIFT> struct traits<bayer_bggr, LIFT>

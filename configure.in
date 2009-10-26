@@ -1004,12 +1004,23 @@ cvd_src/slower_corner_12						fast12							END
 cvd_src/Linux/dvbuffer							dvbuffer END
 cvd_src/Linux/dvbuffer3_dc1394v2     					dvbuffer3 dc1394v2
 cvd_src/Linux/dvbuffer3_dc1394v1     					dvbuffer3 dvbuffer END
-cvd_src/Linux/v4l1buffer						v4l1buffer END
-cvd_src/Linux/v4lbuffer,V4LBUFFER				v4l2buffer linux_2_6 END
-cvd_src/Linux/v4l2buffer	                 	v4l2buffer END
-cvd_src/Linux/v4lcontrol						v4l2buffer linux_2_6 END
+cvd_src/videosource_dvbuffer                    dvbuffer3
+cvd_src/videosource_nodvbuffer                  END
+
+cvd_src/Linux/v4l1buffer,cvd_src/Linux/videosource_v4l1buffer		 v4l1buffer
+cvd_src/Linux/videosource_nov4l1buffer                               END
+
+
+cvd_src/Linux/v4lbuffer,V4LBUFFER,cvd_src/Linux/videosource_v4lbuffer   v4l2buffer linux_2_6 
+cvd_src/Linux/videosource_nov4lbuffer                                   END
+cvd_src/Linux/v4l2buffer	                 	                         v4l2buffer END
+cvd_src/Linux/v4lcontrol						                         v4l2buffer linux_2_6 END
+
+
 cvd_src/IRIX/O2buffer,cvd_src/IRIX/sgi-video	o2buffer END
-cvd_src/OSX/qtbuffer							qtbuffer END
+
+cvd_src/OSX/qtbuffer,cvd_src/OSX/videosource_qtbuffer	   qtbuffer
+cvd_src/OSX/videosource_noqtbuffer		                   END 
 
 cvd_src/posix/timer								posix_rt
 cvd_src/cvd_timer								END
@@ -1021,11 +1032,12 @@ cvd_src/nothread/runnable_batch                 tr1_shared_ptr END
 cvd_src/noarch/posix_memalign                   memalign
 cvd_src/noarch/default_memalign                 END
 
-cvd_src/videodisplay,cvd_src/glwindow,cvd_src/gltext			videodisplay END
+cvd_src/videodisplay,cvd_src/glwindow,cvd_src/gltext         videodisplay END
 pnm_src/jpeg									jpeg END
 pnm_src/tiff,pnm_src/tiffwrite					tiff END
 pnm_src/png										png END
-cvd_src/videofilebuffer							ffmpeg END
+cvd_src/videofilebuffer,cvd_src/videosource_videofilebuffer	 ffmpeg 
+cvd_src/videosource_novideofilebuffer           END
 cvd_src/globlist    							glob END
 
 #Numerics dependencies
