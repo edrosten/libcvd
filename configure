@@ -665,6 +665,7 @@ have_tr1_shared_ptr
 have_videodisplay
 XMKMF
 have_posix_rt
+have_dvbuffer3
 have_qtbuffer
 osx_hacks
 have_o2buffer
@@ -672,8 +673,7 @@ have_linux_2_6
 have_linux_2_4
 have_v4l1buffer
 have_v4l2buffer
-have_dvbuffer3
-have_dvbuffer
+have_dc1394v1
 have_dc1394v2
 have_assembler
 have_inline_asm
@@ -765,8 +765,8 @@ with_sse2
 with_assembler
 with_inline_asm
 enable_gpl
-with_dvbuffer
-with_dvbuffer3
+with_dc1394v1v2
+with_dc1394v1
 with_dc1394v2
 with_v4l1buffer
 with_v4l2
@@ -1473,9 +1473,9 @@ Optional Packages:
     --with-sse2           force presence or absence of SSE2  (x86 only)
     --with-assembler     force presence or absence of asm
     --with-inline_asm     force presence or absence of inline asm
-  --without-dvbuffer      compile without dvbuffer (libDC1394v1) support (Linux only)
-  --without-dvbuffer3     compile without dvbuffer3 (libDC1394v{1,2}) support (Linux only)
-  --without-dc1394v2      do not use libDC1394v2 (use v1 instead) for dvbuffer3 (Linux only)
+  --with-dc1394v1v2       Force libDC1394 v1 and v2 co-exist. This will break FORMAT_7.
+  --without-dc1394v1      do not use libDC1394v1 (use try v2 instead) for dvbuffer3 (Linux/OSX). Disable dvbuffer (Linux).
+  --without-dc1394v2      do not use libDC1394v2 (use try v1 instead) for dvbuffer3 (Linux/OSX).
   --without-v4l1buffer	  compile without v4l1bffer (Video4Linux) support (Linux only)
   --without-v4l2buffer	  compile without v4l2buffer (Video4Linux2) support (Linux only)
   --without-o2buffer	  compile without sgi video (IRIX only)
@@ -6615,15 +6615,15 @@ fi
 
 
 
-# Check whether --with-dvbuffer was given.
-if test "${with_dvbuffer+set}" = set; then
-  withval=$with_dvbuffer;
+# Check whether --with-dc1394v1v2 was given.
+if test "${with_dc1394v1v2+set}" = set; then
+  withval=$with_dc1394v1v2;
 fi
 
 
-# Check whether --with-dvbuffer3 was given.
-if test "${with_dvbuffer3+set}" = set; then
-  withval=$with_dvbuffer3;
+# Check whether --with-dc1394v1 was given.
+if test "${with_dc1394v1+set}" = set; then
+  withval=$with_dc1394v1;
 fi
 
 
@@ -6915,14 +6915,16 @@ _ACEOF
 
 case "$host" in
 	*linux*)
-		os_all_options="dc1394v2 dvbuffer dvbuffer3 v4l2buffer v4l1buffer v4lbuffer"
+		os_all_options="dc1394v2 dc1394v1 v4l2buffer v4l1buffer v4lbuffer"
 
-
-	if test "$with_dvbuffer" != no && test "$have_dvbuffer" != yes
-	then
-		if test "$with_dvbuffer" == ""
+		if test "$have_dc1394v2" != yes || test "$with_dc1394v1v2" == "yes"
 		then
-			with_dvbuffer=yes
+
+	if test "$with_dc1394v1" != no && test "$have_dc1394v1" != yes
+	then
+		if test "$with_dc1394v1" == ""
+		then
+			with_dc1394v1=yes
 		fi
 
 		save_LIBS="$LIBS"
@@ -7225,12 +7227,12 @@ fi
 		if test x$a == x
 		then
 			cat >>confdefs.h <<\_ACEOF
-#define CVD_HAVE_DVBUFFER 1
+#define CVD_HAVE_DC1394V1 1
 _ACEOF
 
-			have_dvbuffer=yes
+			have_dc1394v1=yes
 
-			options="$options dvbuffer"
+			options="$options dc1394v1"
 
 		else
 			LIBS="$save_LIBS"
@@ -7238,54 +7240,13 @@ _ACEOF
 		fi
 	fi
 
-	if test "$have_dvbuffer" != yes
+	if test "$have_dc1394v1" != yes
 	then
 		:
 
 	fi
 
-
-
-	if test "$with_dvbuffer3" != no && test "$have_dvbuffer3" != yes
-	then
-		if test "$with_dvbuffer3" == ""
-		then
-			with_dvbuffer3=yes
 		fi
-
-		save_LIBS="$LIBS"
-		save_CXXFLAGS="$CXXFLAGS"
-		a=
-
-			if test "$have_dc1394v2" != yes && test "$have_dvbuffer" != yes
-			then
-				a=1
-			fi
-
-
-		if test x$a == x
-		then
-			cat >>confdefs.h <<\_ACEOF
-#define CVD_HAVE_DVBUFFER3 1
-_ACEOF
-
-			have_dvbuffer3=yes
-
-			options="$options dvbuffer3"
-
-		else
-			LIBS="$save_LIBS"
-			CXXFLAGS="$save_CXXFLAGS"
-		fi
-	fi
-
-	if test "$have_dvbuffer3" != yes
-	then
-		:
-
-	fi
-
-
 
 
 	if test "$with_v4l2buffer" != no && test "$have_v4l2buffer" != yes
@@ -7832,7 +7793,7 @@ fi
 $as_echo "$as_me: Adding /usr/X11R6/include to the build path." >&6;}
 	osx_hacks=yes
 
-	os_all_options="qtbuffer dc1394v2 dvbuffer3"
+	os_all_options="qtbuffer dc1394v2"
 
 
 	if test "$with_qtbuffer" != no && test "$have_qtbuffer" != yes
@@ -12757,10 +12718,10 @@ cvd_src/i686/yuv411_to_stuff_MMX			inline_asm mmxext 32bit x86
 cvd_src/i686/yuv411_to_stuff_MMX_64			inline_asm mmxext x86
 cvd_src/yuv411_to_stuff					END
 
-cvd_src/i686/halfsample,HALFSAMPLE_MMX8		mmx 32bit x86 assembler END
-HALFSAMPLE_SSE16							sse2 END
+cvd_src/i686/halfsample,INTERNAL_HALFSAMPLE_MMX8		mmx 32bit x86 assembler END
+INTERNAL_HALFSAMPLE_SSE16							sse2 END
 
-YV402P_MMX									mmx END
+INTERNAL_YV402P_MMX									mmx END
 
 cvd_src/i686/rgb_to_gray,cvd_src/i686/convert_rgb_to_y	32bit mmxext x86 assembler
 cvd_src/noarch/convert_rgb_to_y					END
@@ -12810,11 +12771,12 @@ cvd_src/faster_corner_12						sse2 ssefast12 fast12
 cvd_src/slower_corner_12						fast12							END
 
 #General OS specific bits
-cvd_src/Linux/dvbuffer							dvbuffer END
-cvd_src/Linux/dvbuffer3_dc1394v2     					dvbuffer3 dc1394v2
-cvd_src/Linux/dvbuffer3_dc1394v1     					dvbuffer3 dvbuffer END
-cvd_src/videosource_dvbuffer                    dvbuffer3
-cvd_src/videosource_nodvbuffer                  END
+
+cvd_src/Linux/dvbuffer3_dc1394v2,cvd_src/Linux/dvbuffer,cvd_src/videosource_dvbuffer,DVBUFFER3                          dc1394v2 dc1394v1 dc1394v1v2
+cvd_src/Linux/dvbuffer3_dc1394v2,cvd_src/videosource_dvbuffer,DVBUFFER3                          dc1394v2
+cvd_src/Linux/dvbuffer3_dc1394v1,cvd_src/Linux/dvbuffer,cvd_src/videosource_dvbuffer,DVBUFFER    dc1394v1
+cvd_src/Linux/videosource_nodvbuffer                                                   END
+
 
 cvd_src/Linux/v4l1buffer,cvd_src/Linux/videosource_v4l1buffer		 v4l1buffer
 cvd_src/Linux/videosource_nov4l1buffer                               END
@@ -12860,7 +12822,7 @@ ENDDEPS
 dep_objects="`awk -v ORS=' ' '/[a-z]/{print $0".o"}' config.dep_tmp`"
 
 
-for i in `awk '!/[a-z]/{print "CVD_INTERNAL_HAVE_"$0}' config.dep_tmp`
+for i in `awk '!/[a-z]/{if(/^INTERNAL_/) print "CVD_INTERNAL_HAVE_" substr($0, 10); else print "CVD_HAVE_"$0}' config.dep_tmp`
 do
 	cat >>confdefs.h <<_ACEOF
 #define $i 1
