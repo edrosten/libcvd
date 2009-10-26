@@ -43,6 +43,7 @@ template<class C> void play(string s)
 	VideoBuffer<C> *buffer = open_video_source<C>(s);
 	
 	VideoDisplay display(buffer->size());
+	glDrawBuffer(GL_BACK);
 	
 	//while(buffer->frame_pending())
 	for(;;)
@@ -51,6 +52,8 @@ template<class C> void play(string s)
 		glDrawPixels(*frame);
 		buffer->put_frame(frame);
 				  glFlush();
+
+		display.swap_buffers();
 	}
 }
 
