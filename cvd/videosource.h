@@ -306,7 +306,7 @@ namespace CVD {
 			return makeV4LBuffer<T>(vs.identifier, size, input, interlaced, verbose);	
 		} 
 #endif
-#if CVD_HAVE_DVBUFFER
+#if CVD_HAVE_DVBUFFER3
 		else if (vs.protocol == "dc1394") {
 			int cam_no = atoi(vs.identifier.c_str());
 			ImageRef size, offset;
@@ -347,7 +347,7 @@ namespace CVD {
 #if CVD_HAVE_V4L1BUFFER
 									   "v4l1, "
 #endif
-#if CVD_HAVE_DVBUFFER
+#if CVD_HAVE_DVBUFFER3
 									   "dc1394, "
 #endif
 #if CVD_HAVE_QTBUFFER
@@ -380,7 +380,7 @@ open_video_source<T>(url) to get a VideoBuffer<T>*.
 The url syntax is the following:
 @verbatim
 url		 := protocol ':' [ '[' options ']' ] // identifier
-protocol := "files" | "file" | "v4l2" | "v4l1" | "jpegstream" | "dc1394" | "qt"
+protocol := "files" | "file" | "v4l2" | "v4l1" | "jpegstream" | "dc1394" | "qt" | "colourspace"
 options  := option [ ',' options ]
 option	 := name [ '=' value ]
 @endverbatim
@@ -413,6 +413,11 @@ Open firewire camera 1 with the default fps:
 dc1394://1
 @endverbatim
 
+Open firewire camera 1, capturing in YUV411, at 30fps:
+@verbaitm
+colourspace:[from=yuv411]//dc1394:[fps=30]//1
+@endverbatim
+
 Open an avi file relative to the current directory:
 @verbatim
 file://../../stuff/movie.avi
@@ -433,7 +438,7 @@ then open a source with:
 @verbatim
 jpegstream:///tmp/video
 @endverbatim
-If the argument is provided from a ahell such as BASH, then then
+If the argument is provided from a shell such as BASH, then then
 redirection can be used:
 @verbatim
 jpegstream://<(wget http//my.camera/file_representing_video -O - )
@@ -474,7 +479,11 @@ Options supported by the various protocols are:
 	  showsettings = 0 | 1 (default 0)
 
 'jpegstream' protocol (ServerPushJpegBuffer): identifier is path to file
-	   read_ahead  [= <number>] (default is 50 if specified without value)
+	  read_ahead  [= <number>] (default is 50 if specified without value)
+
+'colourspace' protcol (ColourspaceBuffer): identifier is a video URL
+      from = byte | mono | gray | grey | yuv411 | yuv422 | rgb<byte> 
+	         | rgb | bayer_bggr | bayer_gbrg | bayer_grbg | bayer_rggb  (default mono)
 
 @endverbatim
 
