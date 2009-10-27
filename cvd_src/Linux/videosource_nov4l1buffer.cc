@@ -1,5 +1,4 @@
 #include <cvd/videosource.h>
-#include <cvd/Linux/v4l1buffer.h>
 
 namespace CVD{
 
