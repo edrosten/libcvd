@@ -78,7 +78,7 @@ namespace CVD
 	///@param xy Holds the result of blurred, X times Y gradient.
 	///@param yy Holds the result of blurred, squared Y gradient.
 	///@ingroup gVision
-	template<class Score, class Inserter, class C, class B> void harrislike_corner_detect(const BasicImage<B>& i, C& c, unsigned int N, float blur, float sigmas, BasicImage<float>& xx, BasicImage<float>& xy, BasicImage<float>& yy)
+	template<class Score, class Inserter, class C, class B> void harrislike_corner_detect(const SubImage<B>& i, C& c, unsigned int N, float blur, float sigmas, BasicImage<float>& xx, BasicImage<float>& xy, BasicImage<float>& yy)
 	{
 		using std::pair;
 		using std::greater;
@@ -175,13 +175,13 @@ namespace CVD
 			Inserter::insert(c, corner_heap[i]);
 	}
 
-	template<class C> void harris_corner_detect(const Image<C>& i, std::vector<ImageRef>& c, unsigned int N, float blur=1.0, float sigmas = 3.0)
+	template<class C> void harris_corner_detect(const SubImage<C>& i, std::vector<ImageRef>& c, unsigned int N, float blur=1.0, float sigmas = 3.0)
 	{
 		Image<float> xx(i.size()), xy(i.size()), yy(i.size());
 		harrislike_corner_detect<Harris::HarrisScore, Harris::PosInserter>(i, c, N, blur, sigmas, xx, xy, yy);
 	}
 
-	template<class C> void shitomasi_corner_detect(const Image<C>& i, std::vector<ImageRef>& c, unsigned int N, float blur=1.0, float sigmas = 3.0)
+	template<class C> void shitomasi_corner_detect(const SubImage<C>& i, std::vector<ImageRef>& c, unsigned int N, float blur=1.0, float sigmas = 3.0)
 	{
 		Image<float> xx(i.size()), xy(i.size()), yy(i.size());
 		harrislike_corner_detect<Harris::ShiTomasiScore, Harris::PosInserter>(i, c, N, blur, sigmas, xx, xy, yy);
