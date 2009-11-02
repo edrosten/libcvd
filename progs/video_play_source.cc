@@ -29,11 +29,17 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <cvd/image.h>
+#include <typeinfo>
+#include <cstdlib>
 #include <cvd/rgb.h>
 #include <cvd/byte.h>
-#include <cvd/videodisplay.h>
+#include <cvd/glwindow.h>
 #include <cvd/gl_helpers.h>
 #include <cvd/videosource.h>
+
+#ifdef CVD_HAVE_V4LBUFFER
+	#include <cvd/Linux/v4lbuffer.h>
+#endif
 
 using namespace std;
 using namespace CVD;
@@ -42,16 +48,31 @@ template<class C> void play(string s)
 {
 	VideoBuffer<C> *buffer = open_video_source<C>(s);
 	
-	VideoDisplay display(buffer->size());
+	GLWindow display(buffer->size());
 	glDrawBuffer(GL_BACK);
 	
 	//while(buffer->frame_pending())
+	
+	cout << "FPS: " << buffer->frame_rate();
+	cout << "Size: " << buffer->size();
+
+	RawVideoBuffer* root = buffer->root_buffer();
+
+	cout << typeid(*root).name() << endl;
+
+	#ifdef CVD_HAVE_V4LBUFFER
+		if(dynamic_cast<V4L::RawV4LBuffer*>(root))
+		{
+			cout << "Using V4LBuffer.\n";
+		}
+	#endif
+
 	for(;;)
 	{
 		VideoFrame<C>* frame = buffer->get_frame();
 		glDrawPixels(*frame);
 		buffer->put_frame(frame);
-				  glFlush();
+		glFlush();
 
 		display.swap_buffers();
 	}
@@ -84,11 +105,11 @@ int main(int argc, char* argv[])
 	}
 	try
 	{
-		if(type == 1)
-			play<byte>(argv[arg]);
-		else if(type == 2)
-			play<Rgb8>(argv[arg]);
-		else
+//		if(type == 1)
+//			play<byte>(argv[arg]);
+//		else if(type == 2)
+//			play<Rgb8>(argv[arg]);
+//		else
 			play<Rgb<byte> >(argv[arg]);
 	}
 	catch(CVD::Exceptions::All& e)

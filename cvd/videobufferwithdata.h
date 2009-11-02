@@ -45,6 +45,11 @@ class VideoBufferWithData: public VideoBuffer<T>
 			return buf->size();
 		}
 
+		virtual RawVideoBuffer* source_buffer()
+		{
+			return buf.get();
+		}
+
 		VideoFrame<T>* get_frame()
 		{
 			return buf->get_frame();

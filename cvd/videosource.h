@@ -279,7 +279,6 @@ namespace CVD {
 
 			return makeColourspaceBuffer<T>(from, vs.identifier);
 		}
-#if CVD_HAVE_GLOB
 		else if (vs.protocol == "files") {
 			int fps, ra_frames=0;
 			VideoBufferFlags::OnEndOfBuffer eob;
@@ -289,15 +288,11 @@ namespace CVD {
 				vb = new ReadAheadVideoBuffer<T>(*vb, ra_frames);
 			return vb;
 		}
-#endif
-#if CVD_HAVE_V4L1BUFFER
 		else if (vs.protocol == "v4l1") {
 			ImageRef size;
 			get_v4l1_options(vs, size);
 			return makeV4L1Buffer<T>(vs.identifier, size);
 		} 
-#endif
-#if CVD_INTERNAL_HAVE_V4LBUFFER
 		else if (vs.protocol == "v4l2") {
 			ImageRef size;
 			int input;
@@ -305,8 +300,6 @@ namespace CVD {
 			get_v4l2_options(vs, size, input, interlaced, verbose);
 			return makeV4LBuffer<T>(vs.identifier, size, input, interlaced, verbose);	
 		} 
-#endif
-#if CVD_HAVE_DVBUFFER3
 		else if (vs.protocol == "dc1394") {
 			int cam_no = atoi(vs.identifier.c_str());
 			ImageRef size, offset;
@@ -314,8 +307,6 @@ namespace CVD {
 			get_dc1394_options(vs, size, fps, offset);
 			return makeDVBuffer2<T>(cam_no, size, fps, offset);
 		} 
-#endif
-#if CVD_HAVE_FFMPEG
 		else if (vs.protocol == "file") {
 			int ra_frames = 0;
 			VideoBufferFlags::OnEndOfBuffer eob;
@@ -325,8 +316,6 @@ namespace CVD {
 				vb = new ReadAheadVideoBuffer<T>(*vb, ra_frames);
 			return vb;
 		} 
-#endif
-#if CVD_HAVE_QTBUFFER
 	else if (vs.protocol == "qt") {
 		ImageRef size;
 		bool showsettings;
@@ -334,28 +323,15 @@ namespace CVD {
 		get_qt_options(vs, size, showsettings);
 		return makeQTBuffer<T>(size, input, showsettings);
 	}
-#endif
 		else
 			throw VideoSourceException("undefined video source protocol: '" + vs.protocol + "'\n\t valid protocols: "
 									   "colourspace, jpegstream, "
-#if CVD_HAVE_FFMPEG
 									   "file, "
-#endif
-#if CVD_INTERNAL_HAVE_V4LBUFFER
 									   "v4l2, "
-#endif
-#if CVD_HAVE_V4L1BUFFER
 									   "v4l1, "
-#endif
-#if CVD_HAVE_DVBUFFER3
 									   "dc1394, "
-#endif
-#if CVD_HAVE_QTBUFFER
 									   "qt, "
-#endif
-#ifdef CVD_HAVE_GLOB
 									   "files"
-#endif 
 									   );
 	}
 
@@ -376,6 +352,12 @@ opens a video device described by a video source url given from an input stream.
 opens a video device described by a video source url. This allows to decide at
 runtime what kind of video input your program is using. Basic use is to call
 open_video_source<T>(url) to get a VideoBuffer<T>*.
+
+
+In many cases, the VideoBuffer returned by open_video_source() is a wrapper
+around the video buffer dealing with the hardware and so does not provide 
+access to the controls. The underlying buffer can be accessed with 
+VideoBuffer::root_buffer().
 
 The url syntax is the following:
 @verbatim

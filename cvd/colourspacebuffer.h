@@ -58,6 +58,11 @@ template <class T, class From> class ColourspaceBuffer : public CVD::LocalVideoB
 		:LocalVideoBuffer<T>(buf.type()),m_vidbuf(buf),m_size(buf.size())
 		{
 		}
+		
+		virtual RawVideoBuffer* source_buffer()
+		{
+			return &m_vidbuf;
+		}
  
 		/// The size of the VideoFrames returns by this buffer.
 		ImageRef size()
