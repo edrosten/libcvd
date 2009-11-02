@@ -16,7 +16,7 @@ namespace CVD{
 		throw VideoSourceException("V4L1Buffer is not compiled in to libcvd.");
 	}
 
-	template <> VideoBuffer<bayer_grbg>* makeV4L1Buffer(const std::string& , const ImageRef&)
+	template <> VideoBuffer<bayer>* makeV4L1Buffer(const std::string& , const ImageRef&)
 	{
 		throw VideoSourceException("V4L1Buffer is not compiled in to libcvd.");
 	}
