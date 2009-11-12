@@ -239,14 +239,15 @@ namespace CVD {
 	// QuickTime buffer
 	//
 
-	template <class T> VideoBuffer<T> * makeQTBuffer( const ImageRef & , int , bool )
+	template <class T> VideoBuffer<T> * makeQTBuffer( const ImageRef & , int , bool, bool )
 	{
-		throw VideoSourceException("QTBuffer cannot handle types other than vuy422");
+		throw VideoSourceException("QTBuffer cannot handle " + PNM::type_name<T>::name());
 	}
-	template <> VideoBuffer<vuy422> * makeQTBuffer( const ImageRef & size, int input, bool showsettings);
-	template <> VideoBuffer<yuv422> * makeQTBuffer( const ImageRef & size, int input, bool showsettings);
+	template <> VideoBuffer<vuy422> * makeQTBuffer( const ImageRef & size, int input, bool showsettings, bool verbose);
+	template <> VideoBuffer<yuv422> * makeQTBuffer( const ImageRef & size, int input, bool showsettings, bool verbose);
+	template <> VideoBuffer<Rgb<byte> > * makeQTBuffer( const ImageRef & size, int input, bool showsettings, bool verbose);
 	
-	void get_qt_options(const VideoSource & vs, ImageRef & size, bool & showsettings);
+	void get_qt_options(const VideoSource & vs, ImageRef & size, bool & showsettings, bool & verbose);
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -318,10 +319,10 @@ namespace CVD {
 		} 
 	else if (vs.protocol == "qt") {
 		ImageRef size;
-		bool showsettings;
+		bool showsettings, verbose;
 		int input = atoi(vs.identifier.c_str());
-		get_qt_options(vs, size, showsettings);
-		return makeQTBuffer<T>(size, input, showsettings);
+		get_qt_options(vs, size, showsettings, verbose);
+		return makeQTBuffer<T>(size, input, showsettings, verbose);
 	}
 		else
 			throw VideoSourceException("undefined video source protocol: '" + vs.protocol + "'\n\t valid protocols: "
@@ -458,7 +459,8 @@ Options supported by the various protocols are:
 
 'qt' protocol (QTBuffer): identifier is camera number
 	  size = vga | qvga | <width>x<height>	(default vga)
-	  showsettings = 0 | 1 (default 0)
+	  showsettings [ = <bool> ] (default 0)
+	  verbose [ = <bool> ] (default 0)
 
 'jpegstream' protocol (ServerPushJpegBuffer): identifier is path to file
 	  read_ahead  [= <number>] (default is 50 if specified without value)

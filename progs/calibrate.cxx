@@ -19,6 +19,8 @@
 #include <cvd/timer.h>
 #include <cvd/colourspaces.h>
 #include <cvd/colourspace_convert.h>
+#include <cvd/colourspacebuffer.h>
+#include <cvd/videosource.h>
 
 using namespace std;
 using namespace TooN;
@@ -27,17 +29,12 @@ using namespace CVD;
 #include <X11/keysym.h>
 #include <X11/Xlib.h>
 
-#ifdef CVD_HAVE_QTBUFFER
-typedef vuy422 CAMERA_PIXEL;
-#else
 typedef byte CAMERA_PIXEL;
-#endif
-
 VideoBuffer<CAMERA_PIXEL>* videoBuffer=0;
 
 // global configuration variables, can be set via command line options
 #ifdef CVD_HAVE_QTBUFFER
-string videoDevice = "qt://0";
+string videoDevice = "colourspace:[from=yuv422]//qt://0";
 #else
 string videoDevice = "v4l2:///dev/video0";
 #endif

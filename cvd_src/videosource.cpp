@@ -382,15 +382,18 @@ namespace CVD {
 		}
    }
 	
-	void get_qt_options(const VideoSource & vs, ImageRef & size, bool & showsettings){
+	void get_qt_options(const VideoSource & vs, ImageRef & size, bool & showsettings, bool & verbose){
 		size = ImageRef(640, 480);
 		showsettings = false;
+		verbose = false;
 		for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it) {
-				if (it->first == "size")
-					size = parseImageRef(it->second, true);
-				else if(it->first == "showsettings") {
-					showsettings = atoi(it->second.c_str());
-			} else
+			if (it->first == "size")
+				size = parseImageRef(it->second, true);
+			else if(it->first == "showsettings")
+				showsettings = parseBoolFlag(it->second);
+			else if(it->first == "verbose")
+				verbose = parseBoolFlag(it->second);
+			else
 				throw VideoSourceException("invalid option for 'qt' protocol: "+it->first+"\n\t valid options: size, showsettings");
 		}
 	}

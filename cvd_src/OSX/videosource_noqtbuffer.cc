@@ -11,4 +11,9 @@ namespace CVD{
 	{
 		throw VideoSourceException("QTBuffer is not compiled in to libcvd.");
 	}
+	
+	template <> VideoBuffer<Rgb<byte> > * makeQTBuffer( const ImageRef & size, int input, bool showsettings, bool verbose)
+	{
+		throw VideoSourceException("QTBuffer is not compiled in to libcvd.");
+	}
 }

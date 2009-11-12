@@ -23,7 +23,6 @@ Foundation, Inc.,
  *  libcvd
  *
  *  FIXME:
- *  - check if carbon events and WaitForNextEvent are necessary, or if we can just drive SGIdle directly
  *  - check how to set video input properties such as brightness, saturation, etc
  *  - support other video formats (potentially from other hardware) as well
  */
@@ -86,7 +85,7 @@ pascal OSErr RawQTPimpl::GrabDataProc(SGChannel /* c */, Ptr p, long len, long *
 	return err;
 }
 
-RawQT::RawQT(const ImageRef & size, unsigned int /* mode */, unsigned int /* num */, bool showSettingsDialog) : pimpl(NULL) 
+RawQT::RawQT(const ImageRef & size, unsigned int /* mode */, unsigned int num, bool showSettingsDialog, bool verbose) : pimpl(NULL) 
 {
 	if( !RawQTPimpl::isInitialized ){
 		EnterMovies();
@@ -138,22 +137,43 @@ RawQT::RawQT(const ImageRef & size, unsigned int /* mode */, unsigned int /* num
 	      throw Exceptions::QTBUFFER::DeviceOpen("SGSettingsDialog returned an error");
 	  }
 
-    try {
-	    err = SGSetChannelBounds(pimpl->chanVideo, &pimpl->bounds);
-	    if (err != noErr) {
-			throw Exceptions::QTBUFFER::DeviceOpen("SGSetChannelBounds returned error");
+	try {
+		SGDeviceList devices;
+		err = SGGetChannelDeviceList(pimpl->chanVideo, 0, &devices);
+		if(err != noErr)
+			throw Exceptions::QTBUFFER::DeviceOpen("SGGetChannelDeviceList returned an error");
+        
+		if(verbose)
+			cout << "QTBuffer available devices:\n";
+		vector<int> allowedDevices;
+		for(int i = 0; i < (*devices)->count; ++i){
+			if((*devices)->entry[i].flags == 0){
+				allowedDevices.push_back(i);
+				if(verbose)
+					cout << "\t" << (*devices)->entry[i].name << endl;
+			}
 		}
+		if(num >= allowedDevices.size())
+			throw Exceptions::QTBUFFER::DeviceOpen("Given device number is not available");
+    
+		err = SGSetChannelDevice(pimpl->chanVideo, (*devices)->entry[allowedDevices[num]].name);
+		if(err != noErr)
+			throw Exceptions::QTBUFFER::DeviceOpen("SGSetChannelDevice returned an error");
+		SGDisposeDeviceList(pimpl->chanVideo, devices);
+
+		err = SGSetChannelBounds(pimpl->chanVideo, &pimpl->bounds);
+		if (err != noErr)
+			throw Exceptions::QTBUFFER::DeviceOpen("SGSetChannelBounds returned error");
+
 		// set usage for new video channel to avoid playthrough
 		// note we don't set seqGrabPlayDuringRecord
 		err = SGSetChannelUsage(pimpl->chanVideo, seqGrabRecord);
-		if( err != noErr) {
+		if( err != noErr)
 			throw CVD::Exceptions::QTBUFFER::DeviceOpen("SGSetChannelUsage returned error");
-		}
 
 		err = SGSetDataProc(pimpl->seqGrab, NewSGDataUPP(RawQTPimpl::GrabDataProc), (long)pimpl);
-		if(err != noErr){
+		if(err != noErr)
 			throw Exceptions::QTBUFFER::DeviceOpen("SGSetDataProc returned error");
-		}
 		
 		// lights...camera...
 		err = SGPrepare(pimpl->seqGrab, false, true);	
@@ -163,15 +183,14 @@ RawQT::RawQT(const ImageRef & size, unsigned int /* mode */, unsigned int /* num
 	        // What format are the images?
 		ImageDescriptionHandle imageDesc = (ImageDescriptionHandle)NewHandle(0);
 		err = SGGetChannelSampleDescription(pimpl->chanVideo, (Handle)imageDesc);
-		if(err != noErr){
+		if(err != noErr)
 		  throw Exceptions::QTBUFFER::DeviceOpen("SGGetChannelSampleDescription returned error");
-		}
+
 		// Convert pascal string to stl string..
 		for(char i=1; i<=(**imageDesc).name[0]; i++)
 			frame_format_string = frame_format_string + (char) (**imageDesc).name[i];
-
-
-		
+		if(verbose)
+			cout << "QTBuffer video format is " << frame_format_string << "\t" << (**imageDesc).width << "," << (**imageDesc).height << "," << (**imageDesc).depth << endl;
 	}
 	catch(Exceptions::QTBUFFER::DeviceOpen){
 		// clean up on failure
