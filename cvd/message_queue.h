@@ -52,6 +52,13 @@ template<class C> class MessageQueue
 			return ret;
 		}
 
+		int size()
+		{
+			int s;
+			sem_getvalue(&empty_slots, &s);
+			return s;
+		}
+
 	private:
 		Synchronized queue_mutex;
 		std::deque<C> queue;
