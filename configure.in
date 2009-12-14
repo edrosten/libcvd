@@ -417,6 +417,22 @@ AC_ARG_WITH(v4l2,      [  --without-v4l2buffer	  compile without v4l2buffer (Vid
 AC_ARG_WITH(o2buffer,  [  --without-o2buffer	  compile without sgi video (IRIX only)])
 AC_ARG_WITH(qtbuffer,  [  --without-qtbuffer	  compile without quicktime buffer support (MacOSX only)])
 
+if test "$host_vendor" == apple
+then
+	AC_CHECK_FILE(/opt/local, [
+		APPEND(CPPFLAGS, [-I/opt/local/include])
+		APPEND(LIBS, [-L/opt/local/lib])], 
+		[])
+	AC_CHECK_FILE(/sw, [
+		APPEND(CPPFLAGS, [-I/sw/include])
+		APPEND(LIBS, [-L/sw/lib])], 
+		[])
+	APPEND(CPPFLAGS, [-I/usr/X11R6/include])
+	AC_MSG_NOTICE([Adding /usr/X11R6/include to the build path.])
+	AC_SUBST(osx_hacks,yes)
+	os_all_options="qtbuffer dc1394v2"
+fi
+
 CHECK_FOR_OPTION(dc1394v2, [
 	AC_CHECK_HEADERS(dc1394/dc1394.h, [], [a=1])
 	AC_CHECK_LIB(dc1394, main,[],[a=1])
@@ -528,21 +544,9 @@ case "$host" in
 		;;
 esac
 
+
 if test "$host_vendor" == apple
 then
-	AC_CHECK_FILE(/opt/local, [
-		APPEND(CPPFLAGS, [-I/opt/local/include])
-		APPEND(LIBS, [-L/opt/local/lib])], 
-		[])
-	AC_CHECK_FILE(/sw, [
-		APPEND(CPPFLAGS, [-I/sw/include])
-		APPEND(LIBS, [-L/sw/lib])], 
-		[])
-	APPEND(CPPFLAGS, [-I/usr/X11R6/include])
-	AC_MSG_NOTICE([Adding /usr/X11R6/include to the build path.])
-	AC_SUBST(osx_hacks,yes)
-	os_all_options="qtbuffer dc1394v2"
-
 	CHECK_FOR_OPTION(qtbuffer,[
 		APPEND(LIBS, [-framework Carbon -framework QuickTime])
 		AC_MSG_CHECKING(Carbon and QuickTime framework)
@@ -551,14 +555,6 @@ then
 							int main(){InitCursor();EnterMovies();return 0;}],
 							[AC_MSG_RESULT(yes)], 
 							[AC_MSG_RESULT(no); a=1]) 
-	])
-	
-
-	CHECK_FOR_OPTION(dvbuffer3, [
-		if test "$have_dc1394v2" != yes
-		then
-			a=1
-		fi
 	])
 fi
 
