@@ -96,8 +96,10 @@ void Thread::yield()
   pthread_yield();
 #elif defined(CVD_HAVE_PTHREAD_YIELD_NP)
   pthread_yield_np();
+#elif defined(WIN32)
+	Sleep(0);
 #else
-//#warning "Thread::yield() not implemented"
+#warning "Thread::yield() not implemented"
 #endif
 }
 
