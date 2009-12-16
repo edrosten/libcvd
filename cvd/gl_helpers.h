@@ -94,6 +94,15 @@ namespace CVD
 	glEnd();
     }
 
+	/// Draws a rectangle by specifing two opposing vertices
+	/// @param p the first vertex
+	/// @param q the second vertex
+	/// @ingroup gGL
+	inline void glRect( const ImageRef & p, const ImageRef & q)
+	{
+	    glRecti(p.x, p.y, q.x, q.y);
+	}
+
 	#ifdef CVD_HAVE_TOON
 	/// Specify the (x,y) co-ordinates of a vertex
 	/// @param v The vertex location
@@ -141,6 +150,15 @@ namespace CVD
 	inline void glTexCoord(const TooN::Vector<4>& v)
 	{
 		glTexCoord4d(v[0], v[1], v[2], v[3]);
+	}
+	
+	/// Draws a rectangle by specifing two opposing vertices
+	/// @param p the first vertex
+	/// @param q the second vertex
+	/// @ingroup gGL
+	inline void glRect( const TooN::Vector<2> & p, const TooN::Vector<2> & q)
+	{
+	    glRectd(p[0], p[1], q[0], q[1]);
 	}
 
 #ifdef GL_GLEXT_PROTOTYPES
