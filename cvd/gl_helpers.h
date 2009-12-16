@@ -375,14 +375,14 @@ namespace CVD
 	/// @param far far clipping plane
 	/// @ingroup gGL
 	template <typename P, typename A>
-	inline void glFrustum( const TooN::Vector<4,P,A> & params, double width, double height, double near = 0.1, double far = 100)
+	inline void glFrustum( const TooN::Vector<4,P,A> & params, double width, double height, double nearPlane = 0.1, double farPlane = 100)
 	{
 		GLdouble left, right, bottom, top;
-		left = -near * params[2] / params[0];
-		top = near * params[3] / params[1];
-		right = near * ( width - params[2] ) / params[0];
-		bottom = - near * ( height - params[3] ) / params[1];
-		::glFrustum( left, right, bottom, top, near, far );
+		left = -nearPlane * params[2] / params[0];
+		top = nearPlane * params[3] / params[1];
+		right = nearPlane * ( width - params[2] ) / params[0];
+		bottom = - nearPlane * ( height - params[3] ) / params[1];
+		::glFrustum( left, right, bottom, top, nearPlane, farPlane );
 	}
 
 	/// sets a gl frustum taking the first 4 parameters from the camera model. see @see glFrustum for
@@ -393,9 +393,9 @@ namespace CVD
 	/// @param near near clipping plane
 	/// @param far far clipping plane
 	/// @ingroup gGL
-	template <class CAMERA> inline void glFrustum( const CAMERA & camera, double width, double height, double near = 0.1, double far = 100)
+	template <class CAMERA> inline void glFrustum( const CAMERA & camera, double width, double height, double nearPlane = 0.1, double farPlane = 100)
 	{
-		glFrustum( camera.get_parameters().template slice<0,4>(), width, height, near, far);
+		glFrustum( camera.get_parameters().template slice<0,4>(), width, height, nearPlane, farPlane);
 	}
 
 	/// Sets up an ortho projection from a simple Vector<6>
