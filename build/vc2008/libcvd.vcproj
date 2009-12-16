@@ -293,6 +293,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\cvd_src\videosource_nodvbuffer.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\cvd_src\videosource_novideofilebuffer.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\cvd_src\yuv411_to_stuff.cxx"
 				>
 			</File>
@@ -507,6 +515,26 @@
 				</File>
 				<File
 					RelativePath="..\..\cvd_src\Win32\win32.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Linux"
+				>
+				<File
+					RelativePath="..\..\cvd_src\Linux\videosource_nov4l1buffer.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\cvd_src\Linux\videosource_nov4lbuffer.cc"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="OSX"
+				>
+				<File
+					RelativePath="..\..\cvd_src\OSX\videosource_noqtbuffer.cc"
 					>
 				</File>
 			</Filter>
