@@ -150,7 +150,7 @@ namespace CVD
 
 		Image<T> foo;
 		std::ifstream im;
-		im.open(names[0].c_str());
+		im.open(names[0].c_str(), std::ios::in|std::ios::binary);
 
 		if(!im.good())
 			throw Exceptions::DiskBuffer2::BadFile(names[0], errno);
