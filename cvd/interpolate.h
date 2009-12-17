@@ -180,7 +180,7 @@ namespace CVD
 		v[0] = -Dinv * (gyy * gx - gxy * gy);
 		v[1] = -Dinv * (-gxy * gx + gxx * gy);
 
-        double value = I_0_0 + (gx + gxx * v[0] + 2 * gxy * v[1])* v[0] + (gy + gyy * v[1]) * v[1];
+		double value = I_0_0 + (gx + 0.5 * gxx * v[0] + gxy * v[1])* v[0] + (gy + 0.5 * gyy * v[1]) * v[1];
 
 		return std::make_pair(v, value);
 	}
