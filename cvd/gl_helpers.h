@@ -84,16 +84,6 @@ namespace CVD
 		glRasterPos2i(i.x, i.y);
 	}
 
-    /// draws a line from x1 to x2
-    /// any type that is accepted by glVertex is possible
-    /// @ingroup gGL
-    template <class P1, class P2> inline void glLine(const P1& x1, const P2& x2) {
-	glBegin(GL_LINES);
-	glVertex(x1);
-	glVertex(x2);
-	glEnd();
-    }
-
 	/// Draws a rectangle by specifing two opposing vertices
 	/// @param p the first vertex
 	/// @param q the second vertex
@@ -458,6 +448,16 @@ namespace CVD
 		}
 	}
 	#endif
+
+	/// draws a line from x1 to x2
+	/// any type that is accepted by glVertex is possible
+	/// @ingroup gGL
+	template <class P1, class P2> inline void glLine(const P1& x1, const P2& x2) {
+		glBegin(GL_LINES);
+		glVertex(x1);
+		glVertex(x2);
+		glEnd();
+	}
 
 	/// sets a whole list of vertices stored in a std::vector. It uses the various
 	/// glVertex helpers defined in this header file.
