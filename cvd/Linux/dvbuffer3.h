@@ -25,6 +25,7 @@
 #include <cvd/videobuffer.h>
 #include <cvd/byte.h>
 #include <cvd/rgb.h>
+#include <inttypes.h>
 #include <cvd/colourspaces.h>
 
 namespace CVD
@@ -116,7 +117,10 @@ namespace CVD
       /// @param fFrameRate Requested frame-rate; if negative, use fastest available
       /// @param irOffset offset of video frame in CCD; if left at (-1,-1) use default modes or center window
       RawDVBuffer3(DV3ColourSpace colourspace,
-		   unsigned int nCamNumber=0, 
+		   int nCamNumber=0, 
+		   uint64_t cam_guid=-1,
+		   int cam_unit=-1,
+		   bool verbose=0,
 		   ImageRef irSize = ImageRef(-1,-1),
 		   float fFrameRate=-1.0, 
 		   ImageRef irOffset = ImageRef(-1,-1));
@@ -138,6 +142,7 @@ namespace CVD
       void power_on_off(DV3Feature nFeature, bool bValue);
       
     private:
+	  
       ImageRef mirSize;
       ImageRef mirOffset;
       double mdFramerate;
@@ -159,9 +164,10 @@ namespace CVD
     DVBuffer3(unsigned int nCamNumber=0, 
 	      ImageRef irSize = ImageRef(-1,-1), 
 	      float fFPS = -1.0, 
-	      ImageRef irOffset = ImageRef(-1,-1))
+	      ImageRef irOffset = ImageRef(-1,-1),
+		  bool verbose=0)
       : VideoBuffer<pixel_T>(VideoBufferType::Live),
-	    RawDVBuffer3(DV3::CSConvert<pixel_T>::space, nCamNumber, irSize, fFPS, irOffset)
+	    RawDVBuffer3(DV3::CSConvert<pixel_T>::space, nCamNumber, 0, -1, verbose, irSize, fFPS, irOffset)
 	{
 		if(DV3::CSFilter<pixel_T>::filter != DV3::UNDEFINED && colour_filter() != DV3::CSFilter<pixel_T>::filter )
 			throw(Exceptions::DVBuffer3::All("wrong colour filter expected"));

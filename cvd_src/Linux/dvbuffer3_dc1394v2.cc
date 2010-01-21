@@ -25,8 +25,13 @@
 #include <dc1394/dc1394.h>
 #include <vector>
 #include <algorithm>
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <string>
 
 using namespace CVD;
+using namespace std;
 using namespace DV3;
 using CVD::Exceptions::DVBuffer3::All;
 
@@ -35,6 +40,85 @@ namespace CVD
 
   namespace DV3
   {
+      
+    class VPrint_
+    {
+	public:
+	    VPrint_(bool _p)
+	    :p(_p)
+	    {}
+
+	    template<class C> VPrint_& operator<<(const C& c)
+	    {
+		if(p)
+		    cerr << c;
+		
+		return *this;
+	    }
+
+	    bool p;
+    };
+
+    class VPrint: public VPrint_
+    {
+	public:
+	VPrint(bool _b)
+	:VPrint_(_b){}
+
+	template<class C> VPrint_& operator<<(const C& c)
+	{
+	    if(p)
+		cerr << "RawDVBuffer3: " << c;
+	    
+	    return *this;
+	}
+
+    };
+
+    string coding(dc1394color_coding_t ii)
+    {
+    	int i = (int)ii;
+    	static vector<string> c;
+
+	if(c.empty())
+	{
+	    c.push_back("MONO8");
+	    c.push_back("YUV411");
+	    c.push_back("YUV422");
+	    c.push_back("YUV444");
+	    c.push_back("RGB8");
+	    c.push_back("MONO16");
+	    c.push_back("RGB16");
+	    c.push_back("MONO16S");
+	    c.push_back("RGB16S");
+	    c.push_back("RAW8");
+	    c.push_back("RAW16");
+         }
+
+	 i-=352;
+	 if(i < 0 || i >= (int)c.size())
+	     return "error";
+	 else
+	     return c[i];
+    }
+
+
+    string filter(dc1394color_filter_t f)
+    {
+	switch(f)
+	{
+	    case DC1394_COLOR_FILTER_RGGB:
+	        return "RGGB";
+	    case DC1394_COLOR_FILTER_BGGR:
+	        return "BGGR";
+	    case DC1394_COLOR_FILTER_GRBG:
+	        return "GRBG";
+	    case DC1394_COLOR_FILTER_GBRG:
+	        return "GBRG";
+	}
+
+	return "error";
+    }
 
     struct LibDCParams
     {
@@ -98,11 +182,16 @@ namespace CVD
     }
     
     RawDVBuffer3::RawDVBuffer3(DV3ColourSpace colourspace,
-			       unsigned int nCamNumber,
+			       int nCamNumber,
+			       uint64_t cam_guid,
+			       int cam_unit,
+			       bool verbose,
 			       ImageRef irSize,
 			       float fFrameRate, 
 			       ImageRef irOffset)
     {
+      VPrint log(verbose);
+
       mpLDCP = new LibDCParams;
   
       // Create a libDC1394 context.
@@ -116,14 +205,37 @@ namespace CVD
   
       error = dc1394_camera_enumerate(mpLDCP->pDC1394, &pCameraList);
       if(error) throw(All("Camera enumerate"));
+
+      log << "Requesting: \n";
+      log << "    colourspace:   " <<  colourspace  << "\n";
+      log << "    camera number: " <<  nCamNumber  << "\n";
+      log << "    camera guid:   " <<  cam_guid  << "\n";
+      log << "    camera unit:   " <<  cam_unit  << "\n";
+      log << "    size:          " <<  irSize  << "\n";
+      log << "    framerate:     " <<  fFrameRate  << "\n";
+      log << "    offset:        " <<  irOffset  << "\n";
   
       if(pCameraList->num == 0)
 	{
 	  dc1394_camera_free_list(pCameraList);
 	  throw(All("No cameras found."));
 	}
-  
-      if(nCamNumber + 1 > pCameraList->num)
+      else
+        {
+	    log << "List of cameras:\n";
+	    for(unsigned int i=0; i < pCameraList->num; i++)
+	    {
+	      log << "    Camera: " << i << ": unit=" << pCameraList->ids[i].unit << " guid=" << hex << pCameraList->ids[i].guid << dec << "\n";
+
+	      if(nCamNumber == -1 && cam_guid == pCameraList->ids[i].guid)
+	      {
+	      	if(cam_unit == -1 || cam_unit == pCameraList->ids[i].unit)
+		  nCamNumber = i;
+	      }
+	    }
+	}
+ 	 
+      if(nCamNumber + 1 > (int)pCameraList->num)
 	{
 	  dc1394_camera_free_list(pCameraList);
 	  throw(All("Selected camera out of range"));
@@ -139,6 +251,10 @@ namespace CVD
     
       // What mode to use?
       dc1394color_coding_t nTargetColourCoding = DC_from_DV3_ColourSpace(colourspace);
+
+      dc1394_camera_reset(mpLDCP->pCamera);
+
+      log << "Target colour coding: " << nTargetColourCoding << " (" << coding(nTargetColourCoding) << ")\n";
       bool foundAStandardMode = false;
 	dc1394video_mode_t nMode;
 	mColourfilter = UNDEFINED;
@@ -244,6 +360,8 @@ namespace CVD
 		}
 	}
 	if(!foundAStandardMode){
+	        log << "Failed to find a standard mode. Using FORMAT_7\n";
+
 		dc1394format7modeset_t modeset;
 		error = dc1394_format7_get_modeset(mpLDCP->pCamera, &modeset);
 		if(error) throw(All("Could not get Format 7 modes."));
@@ -252,20 +370,52 @@ namespace CVD
 			mirOffset = ImageRef(0,0);
 		else
 			mirOffset = irOffset;
-		for(; index < DC1394_VIDEO_MODE_FORMAT7_NUM; ++index){
+		for(; index < DC1394_VIDEO_MODE_FORMAT7_NUM ; ++index){
 			const dc1394format7mode_t & mode = modeset.mode[index];
-			// does the mode exist ?
+
+			log << "    FORMAT_7 mode index " << index << "\n";
+			log << "        present:       " << mode.present << "\n";
 			if(!mode.present) continue;
+			log << "        size:          " << mode.size_x << "x" << mode.size_y << "\n";
+			log << "        max size:      " << mode.max_size_x << "x" << mode.max_size_y << "\n";
+			log << "        position?:     " << mode.pos_x << "x" << mode.pos_y << "\n";
+			log << "        unit size:     " << mode.unit_size_x << "x" << mode.unit_size_y << "\n";
+			log << "        unit pos:      " << mode.unit_pos_x << "x" << mode.unit_pos_y << "\n";
+			log << "        color codings: " << mode.color_codings.num << "\n";
+
+			for(unsigned int i=0; i <  mode.color_codings.num; i++)
+			    log << "            color: " << mode.color_codings.codings[i] << "(" << coding(mode.color_codings.codings[i]) << ")\n";
+			log << "        color: " << mode.color_coding <<  "(" << coding(mode.color_coding) << ")\n";
+
+			log << "        pixnum:        " << mode.pixnum << "\n";
+			log << "        packet size:   " << mode.packet_size << "\n";
+			log << "        unit pkt size: " << mode.unit_packet_size << "\n";
+			log << "        max pkt size:  " << mode.max_packet_size << "\n";
+			log << "        total bytes:   " << mode.total_bytes << "\n";
+			log << "        color filter:  " << mode.color_filter << "(" << filter(mode.color_filter) << ")\n";
+
+			// does the mode exist ?
 			// does it support the colour format we need ?
 			unsigned int i;
 			for(i = 0; i < mode.color_codings.num; ++i)
+			{
 				if(mode.color_codings.codings[i] == nTargetColourCoding)
 					break;
-			if(i == mode.color_codings.num) continue;
+			}
+
+			if(i == mode.color_codings.num) 
+			{
+			    log << "      No matching mode\n";
+			    continue;
+			}
 			if(irSize.x != -1){
 				// can it support the size ?
 				if((irSize.x + mirOffset.x) > (int)mode.max_size_x || (irSize.y + mirOffset.y) > (int)mode.max_size_y || irSize.x % mode.unit_size_x != 0 || irSize.y % mode.unit_size_y != 0)
+				{
+					log << "      Cannot support size/offset combination\n";
 					continue;
+				   
+				}
 			} else {
 				irSize.x = mode.max_size_x;
 				irSize.y = mode.max_size_y;
@@ -289,6 +439,7 @@ namespace CVD
 	
 		// frame rate calculations
 		int num_packets = (int)(8000.0/fFrameRate + 0.5);
+		log << "Number of packes: " << num_packets << "\n";
 		int packet_size = (irSize.x * irSize.y * 8 + num_packets * 8 - 1 ) / (num_packets * 8);
 		mdFramerate = fFrameRate;
 		// offset calculations
@@ -299,13 +450,35 @@ namespace CVD
 			mirOffset = irOffset;
 		}
 		mirSize = irSize;
-		dc1394_format7_set_roi( mpLDCP->pCamera, nMode,
+		log << "Requesting:\n";
+		log << "    packet size:    " << packet_size << "\n";
+		log << "    left:           " << mirOffset.x << "\n";
+		log << "    right:          " << mirOffset.y << "\n";
+		log << "    width:          " << mirSize.x << "\n";
+		log << "    height:         " << mirSize.y << "\n";
+		error = dc1394_format7_set_roi( mpLDCP->pCamera, nMode,
 								nTargetColourCoding,
 								packet_size, 
 								mirOffset.x, // left
 								mirOffset.y, // top
 								mirSize.x, // width
 								mirSize.y);	 // height
+		
+		uint32_t pkt_size, offx, offy, posx, posy;
+		error = dc1394_format7_get_roi( mpLDCP->pCamera, nMode,
+								&nTargetColourCoding,
+								&pkt_size, 
+								&offx, // left
+								&offy, // top
+								&posx, // width
+								&posy);	 // height
+		log << "Got:\n";
+		log << "    packet size:    " << pkt_size << "\n";
+		log << "    left:           " << offx << "\n";
+		log << "    right:          " << offy << "\n";
+		log << "    width:          " << posx << "\n";
+		log << "    height:         " << posy << "\n";
+		log << error << "\n";
 		dc1394color_filter_t filterType;
 		error = dc1394_format7_get_color_filter(mpLDCP->pCamera, nMode, &filterType);
 		mColourfilter = static_cast<DV3ColourFilter>(filterType - DC1394_COLOR_FILTER_MIN);

@@ -53,8 +53,8 @@ template<class C> void play(string s)
 	
 	//while(buffer->frame_pending())
 	
-	cout << "FPS: " << buffer->frame_rate();
-	cout << "Size: " << buffer->size();
+	cout << "FPS: " << buffer->frame_rate() << endl;
+	cout << "Size: " << buffer->size() << endl;
 
 	RawVideoBuffer* root = buffer->root_buffer();
 
@@ -67,15 +67,28 @@ template<class C> void play(string s)
 		}
 	#endif
 
+	bool f=1;
+	GLWindow::EventSummary e;
 	for(;;)
 	{
+		display.get_events(e);
+		if(e.should_quit())
+			break;
+
 		VideoFrame<C>* frame = buffer->get_frame();
+		if(f)
+		{
+			cout << "frame size: " << frame->size() << endl;
+			f=0;
+		}
 		glDrawPixels(*frame);
 		buffer->put_frame(frame);
 		glFlush();
 
 		display.swap_buffers();
 	}
+
+	cout << "Exiting\n";
 }
 
 int main(int argc, char* argv[])

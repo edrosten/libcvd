@@ -217,22 +217,22 @@ namespace CVD {
 	//
 	// DC1394 buffer
 	//
-	template <class T> VideoBuffer<T>* makeDVBuffer2(int , ImageRef , float , ImageRef)
+	template <class T> VideoBuffer<T>* makeDVBuffer2(int , ImageRef , float , ImageRef, bool)
 	{
 		throw VideoSourceException("DVBuffer2 cannot handle " + PNM::type_name<T>::name());
 	}
 	
-	template <> VideoBuffer<byte>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset);
-	template <> VideoBuffer<unsigned short>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset);
-	template <> VideoBuffer<yuv411>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset);
-	template <> VideoBuffer<yuv422>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset);
-	template <> VideoBuffer<Rgb<byte> >* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset);
-	template <> VideoBuffer<bayer_bggr>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset);
-	template <> VideoBuffer<bayer_gbrg>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset);
-	template <> VideoBuffer<bayer_grbg>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset);
-	template <> VideoBuffer<bayer_rggb>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset);
+	template <> VideoBuffer<byte>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
+	template <> VideoBuffer<unsigned short>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
+	template <> VideoBuffer<yuv411>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
+	template <> VideoBuffer<yuv422>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
+	template <> VideoBuffer<Rgb<byte> >* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
+	template <> VideoBuffer<bayer_bggr>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
+	template <> VideoBuffer<bayer_gbrg>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
+	template <> VideoBuffer<bayer_grbg>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
+	template <> VideoBuffer<bayer_rggb>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
 
-	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset);
+	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset, bool& verbose);
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
@@ -305,8 +305,9 @@ namespace CVD {
 			int cam_no = atoi(vs.identifier.c_str());
 			ImageRef size, offset;
 			float fps;
-			get_dc1394_options(vs, size, fps, offset);
-			return makeDVBuffer2<T>(cam_no, size, fps, offset);
+			bool verbose;
+			get_dc1394_options(vs, size, fps, offset, verbose);
+			return makeDVBuffer2<T>(cam_no, size, fps, offset, verbose);
 		} 
 		else if (vs.protocol == "file") {
 			int ra_frames = 0;
