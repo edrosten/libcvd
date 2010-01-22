@@ -123,7 +123,8 @@ namespace CVD
 		   bool verbose=0,
 		   ImageRef irSize = ImageRef(-1,-1),
 		   float fFrameRate=-1.0, 
-		   ImageRef irOffset = ImageRef(-1,-1));
+		   ImageRef irOffset = ImageRef(-1,-1),
+		   int format7_mode=-1);
       
       ~RawDVBuffer3();
       inline ImageRef size() {return mirSize;}
@@ -165,9 +166,10 @@ namespace CVD
 	      ImageRef irSize = ImageRef(-1,-1), 
 	      float fFPS = -1.0, 
 	      ImageRef irOffset = ImageRef(-1,-1),
-		  bool verbose=0)
+		  bool verbose=0,
+		  int format7_mode=-1)
       : VideoBuffer<pixel_T>(VideoBufferType::Live),
-	    RawDVBuffer3(DV3::CSConvert<pixel_T>::space, nCamNumber, 0, -1, verbose, irSize, fFPS, irOffset)
+	    RawDVBuffer3(DV3::CSConvert<pixel_T>::space, nCamNumber, 0, -1, verbose, irSize, fFPS, irOffset, format7_mode)
 	{
 		if(DV3::CSFilter<pixel_T>::filter != DV3::UNDEFINED && colour_filter() != DV3::CSFilter<pixel_T>::filter )
 			throw(Exceptions::DVBuffer3::All("wrong colour filter expected"));

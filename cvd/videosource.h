@@ -217,22 +217,22 @@ namespace CVD {
 	//
 	// DC1394 buffer
 	//
-	template <class T> VideoBuffer<T>* makeDVBuffer2(int , ImageRef , float , ImageRef, bool)
+	template <class T> VideoBuffer<T>* makeDVBuffer2(int , ImageRef , float , ImageRef, bool, int)
 	{
 		throw VideoSourceException("DVBuffer2 cannot handle " + PNM::type_name<T>::name());
 	}
 	
-	template <> VideoBuffer<byte>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
-	template <> VideoBuffer<unsigned short>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
-	template <> VideoBuffer<yuv411>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
-	template <> VideoBuffer<yuv422>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
-	template <> VideoBuffer<Rgb<byte> >* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
-	template <> VideoBuffer<bayer_bggr>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
-	template <> VideoBuffer<bayer_gbrg>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
-	template <> VideoBuffer<bayer_grbg>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
-	template <> VideoBuffer<bayer_rggb>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose);
+	template <> VideoBuffer<byte>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
+	template <> VideoBuffer<unsigned short>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
+	template <> VideoBuffer<yuv411>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
+	template <> VideoBuffer<yuv422>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
+	template <> VideoBuffer<Rgb<byte> >* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
+	template <> VideoBuffer<bayer_bggr>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
+	template <> VideoBuffer<bayer_gbrg>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
+	template <> VideoBuffer<bayer_grbg>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
+	template <> VideoBuffer<bayer_rggb>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
 
-	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset, bool& verbose);
+	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset, bool& verbose, int& format7_mode);
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
@@ -306,8 +306,9 @@ namespace CVD {
 			ImageRef size, offset;
 			float fps;
 			bool verbose;
-			get_dc1394_options(vs, size, fps, offset, verbose);
-			return makeDVBuffer2<T>(cam_no, size, fps, offset, verbose);
+			int  format7_mode;
+			get_dc1394_options(vs, size, fps, offset, verbose, format7_mode);
+			return makeDVBuffer2<T>(cam_no, size, fps, offset, verbose, format7_mode);
 		} 
 		else if (vs.protocol == "file") {
 			int ra_frames = 0;
@@ -457,6 +458,8 @@ Options supported by the various protocols are:
 	   fps = <number> (default is camera default)
 	   size = <size>
 	   offset = <offset>
+	   verbose [ = <bool> ]
+	   mode | format7 | format7_mode = <number>
 
 'qt' protocol (QTBuffer): identifier is camera number
 	  size = vga | qvga | <width>x<height>	(default vga)

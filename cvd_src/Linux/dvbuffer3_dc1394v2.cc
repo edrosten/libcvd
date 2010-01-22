@@ -188,7 +188,8 @@ namespace CVD
 			       bool verbose,
 			       ImageRef irSize,
 			       float fFrameRate, 
-			       ImageRef irOffset)
+			       ImageRef irOffset,
+				   int format7_mode)
     {
       VPrint log(verbose);
 
@@ -214,6 +215,7 @@ namespace CVD
       log << "    size:          " <<  irSize  << "\n";
       log << "    framerate:     " <<  fFrameRate  << "\n";
       log << "    offset:        " <<  irOffset  << "\n";
+      log << "    format7 mode:  " <<  format7_mode  << "\n";
   
       if(pCameraList->num == 0)
 	{
@@ -258,7 +260,7 @@ namespace CVD
       bool foundAStandardMode = false;
 	dc1394video_mode_t nMode;
 	mColourfilter = UNDEFINED;
-	if(irOffset.x == -1){
+	if(irOffset.x == -1 && format7_mode == -1){
 		try {
 			// First, get a list of the modes which the camera supports.
 			dc1394video_modes_t modes;
@@ -393,6 +395,9 @@ namespace CVD
 			log << "        max pkt size:  " << mode.max_packet_size << "\n";
 			log << "        total bytes:   " << mode.total_bytes << "\n";
 			log << "        color filter:  " << mode.color_filter << "(" << filter(mode.color_filter) << ")\n";
+
+			if(format7_mode != -1 && format7_mode != index)
+				continue;
 
 			// does the mode exist ?
 			// does it support the colour format we need ?

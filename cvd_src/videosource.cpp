@@ -365,10 +365,12 @@ namespace CVD {
 	}
 
 
-	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset, bool& verbose)
+	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset, bool& verbose, int& format7_mode)
 	{ 
 		size = offset = ImageRef(-1, -1);
 		fps = -1;
+		verbose = 0;
+		format7_mode = -1;
 
 		for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it) {
 			if (it->first == "fps")
@@ -378,7 +380,9 @@ namespace CVD {
 			else if (it->first == "offset")
 				offset = parseImageRef(it->second, false);
 			else if (it->first == "verbose")
-						verbose = parseBoolFlag(it->second);
+				verbose = parseBoolFlag(it->second);
+			else if(it->first == "mode" || it->first == "format7_mode" || it->first == "format7")
+				format7_mode = atoi(it->second.c_str());
 			else
 				throw VideoSourceException("invalid option for dc1394 protocol: "+it->first+"\n\t valid options: fps, size, offset, verbose");
 		}
