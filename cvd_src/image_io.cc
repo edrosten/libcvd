@@ -135,6 +135,8 @@ ImageType::ImageType string_to_image_type(const std::string& name)
 		return ImageType::TXT;
 	else if (suffix == "fits" || suffix == "fts")
 		return ImageType::FITS;
+	else if (suffix == "cvd")
+		return ImageType::CVD;
 	else
 		return ImageType::Unknown;
 }

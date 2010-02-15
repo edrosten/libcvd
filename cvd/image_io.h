@@ -39,6 +39,7 @@
 #include <cvd/internal/io/bmp.h>
 #include <cvd/internal/io/fits.h>
 #include <cvd/internal/io/text.h>
+#include <cvd/internal/io/cvdimage.h>
 
 
 #ifdef CVD_HAVE_JPEG
@@ -87,6 +88,7 @@ namespace CVD
 			TXT=7,
 			TEXT=7,
 			FITS=8,
+			CVD=9,
 		};
 	}
 
@@ -162,6 +164,11 @@ namespace CVD
 			/// with the load() function. There is no metadata, so it is not possible to support 
 			/// multiple types. 
 			TXT,
+			/// CVD image format. 8 bit Grey-scale, RGB and RGBA
+			/// images are currently supported. Files of this type
+			/// have a simple PNM-like header, but use a lossless
+			/// compression scheme (line-wise prediction + Huffman).
+			CVD,
 			/// FITS images. Supports (native) byte, short, unsigned short, int, float and double
 			/// of greyscale, RGB and RGBA. Signed char is supported lossley but inefficiently. 
 			FITS,
@@ -244,12 +251,14 @@ namespace CVD
 	    BMP::readBMP(im, i);
 	  else if(c == 'S')
 	    CVD::Internal::readImage<I, FITS::reader>(im, i);
+	  else if(c == 'C')
+	    CVD::Internal::readImage<I, CVDimage::reader>(im, i);
 	  else if(c == ' ' || c == '\t' || isdigit(c) || c == '-' || c == '+')
 	    CVD::Internal::readImage<I, TEXT::reader>(im, i);
 	  else
 	    throw Exceptions::Image_IO::UnsupportedImageType();
 	}
-	
+		
 	//  syg21
 	template<class I> void img_load(Image<I> &im, const std::string &s)
 	{
@@ -270,7 +279,7 @@ namespace CVD
 	/// Deduce an image type from a filename suffix.
 	///	@param name The name of the image file
 	ImageType::ImageType string_to_image_type(const std::string& name);
-	
+
 
 	/// Save an image to a stream. This function will convert types if necessary.
 	/// @param PixelType The pixel type of the image
@@ -302,6 +311,7 @@ namespace CVD
 	  case ImageType::TXT: Internal::writeImage<PixelType, TEXT::writer>(im, o); break;
 	  case ImageType::PS:   Internal::writeImage<PixelType, PS::writer>(im, o); break;
 	  case ImageType::EPS:   Internal::writeImage<PixelType, PS::eps_writer>(im, o); break;
+	  case ImageType::CVD: Internal::writeImage<PixelType, CVDimage::writer>(im,o); break;
 	  }
 	}
 
