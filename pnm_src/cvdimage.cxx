@@ -20,7 +20,7 @@
 */
 
 #include <stdio.h>
-#include <endian.h> // used for byte reordering
+#include <arpa/inet.h> // used for byte reordering
 #include "cvd/internal/io/cvdimage.h"
 
 #include "cvd/image_io.h"
@@ -541,7 +541,7 @@ void WritePimpl::write_data(std::ostream& os, vector<PackType>& data)
 	}*/
 
 	// this variant should be faster, but relies on PackType to be 16bit
-	for (vector<PackType>::iterator it = data.begin(); it!=data.end(); ++it) *it = htobe16(*it);
+	for (vector<PackType>::iterator it = data.begin(); it!=data.end(); ++it) *it = htons(*it);
 	os.write((const char*)(&(data[0])), data.size()*PackBits/8);
 }
 
