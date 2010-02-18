@@ -180,11 +180,25 @@ namespace CVD
   	template<class D> Image<D> convert_image(const BasicImage<C>& from);
 
   #endif
-    /// Can teo types be converted with CVD::convert_image?
+    /// Can two types be converted with CVD::convert_image?
     /// @ingroup gImageIO
 	template<class In, class Out> struct IsConvertible
   	{ 
 		static const bool is=Pixel::DefaultConvertible<In>::is && Pixel::DefaultConvertible<Out>::is;
+	};
+
+    /// Can individual pixels of two types be converted with ConvertPixels::convert()?
+    /// E.g. Bayer patterns or YUV411 can usually not.
+    /// @ingroup gImageIO
+	template<class In, class Out> struct PixelByPixelConvertible
+  	{ 
+		static const bool is=Pixel::DefaultConvertible<In>::is && Pixel::DefaultConvertible<Out>::is;
+	};
+
+	/// Identity conversion by memcpy is always supported
+	template<class InOut> struct PixelByPixelConvertible<InOut, InOut>
+  	{ 
+		static const bool is=1;
 	};
 
 }

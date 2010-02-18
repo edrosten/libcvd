@@ -21,8 +21,10 @@
 #ifndef CVD_LOAD_AND_SAVE_H
 #define CVD_LOAD_AND_SAVE_H
 
+#include <iostream>
 #include <cvd/exceptions.h>
 #include <cvd/image_convert.h>
+#include <cvd/colourspace_convert.h>
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/internal/name_CVD_rgb_types.h>
 
@@ -197,6 +199,21 @@ namespace CVD {
 			}
 		};
 
+		template<class PixelType, class DiskPixelType, class ImageLoader> struct read_and_then_process
+		{
+			static void exec(BasicImage<PixelType>& im, ImageLoader& r)
+			{
+				Image<DiskPixelType> imgbuf(r.size());
+
+				for(int row = 0; row < r.size().y; row++)
+				{
+					r.get_raw_pixel_line(imgbuf[row]);
+				}
+
+				convert_image(imgbuf, im);
+			}
+		};
+
 
 		////////////////////////////////////////////////////////////////////////////////	
 		//
@@ -204,11 +221,17 @@ namespace CVD {
 		//
 		template<class PixelType, class ImageLoader, class List > struct Reader
 		{	
-			static void read(SubImage<PixelType>& im, ImageLoader& r)
+			static void read(BasicImage<PixelType>& im, ImageLoader& r)
 			{
 				if(r.datatype() == PNM::type_name<typename List::Type>::name())
 				{
-					read_and_maybe_process<PixelType, typename List::Type, ImageLoader>::exec(im, r);
+					//std::cout << "converting " << r.datatype() << " -> " << PNM::type_name<PixelType>::name() << " PixelByPixel: " << PixelByPixelConvertible<typename List::Type, PixelType>::is << " Convertible: " << IsConvertible<typename List::Type, PixelType>::is << std::endl;
+					if (PixelByPixelConvertible<typename List::Type, PixelType>::is)
+						read_and_maybe_process<PixelType, typename List::Type, ImageLoader>::exec(im, r);
+					else if (IsConvertible<typename List::Type, PixelType>::is)
+						read_and_then_process<PixelType, typename List::Type, ImageLoader>::exec(im, r);
+					else
+						throw CVD::Exceptions::Image_IO::ReadTypeMismatch(r.datatype(), PNM::type_name<PixelType>::name());
 				}
 				else
 					Reader<PixelType, ImageLoader, typename List::Next>::read(im, r);
@@ -217,7 +240,7 @@ namespace CVD {
 
 		template<class PixelType, class ImageLoader> struct Reader<PixelType, ImageLoader, Head>
 		{
-			static void read(SubImage<PixelType>&, ImageLoader& r)
+			static void read(BasicImage<PixelType>&, ImageLoader& r)
 			{	
 				throw Exceptions::Image_IO::UnsupportedImageSubType(r.name(), r.datatype() + " not yet supported");
 			}
@@ -229,12 +252,12 @@ namespace CVD {
 		// Driver functions for loading images.
 		//
 
-		template<class T, class ImageLoader> void readImage(SubImage<T>& im, ImageLoader& r)
+		template<class T, class ImageLoader> void readImage(BasicImage<T>& im, ImageLoader& r)
 		{
 			Reader<T, ImageLoader, typename ImageLoader::Types>::read(im, r);
 		}
 
-		template <class T, class ImageLoader> void readImage(SubImage<T>& im, std::istream& in)
+		template <class T, class ImageLoader> void readImage(BasicImage<T>& im, std::istream& in)
 		{
 			ImageLoader loader(in);
 			ImageRef size = loader.size();

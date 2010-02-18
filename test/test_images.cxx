@@ -58,6 +58,40 @@ template<> struct randpix<bool>
 	}
 };
 
+template<> struct randpix<bayer_bggr>
+{
+	static double r()
+	{
+		return rand() % 256;
+	}
+};
+template<> struct randpix<bayer_rggb>
+{
+	static double r()
+	{
+		return rand() % 256;
+	}
+};
+
+template<> struct randpix<bayer_grbg>
+{
+	static double r()
+	{
+		return rand() % 256;
+	}
+};
+
+template<> struct randpix<bayer_gbrg>
+{
+	static double r()
+	{
+		return rand() % 256;
+	}
+};
+
+
+
+
 
 template<> struct randpix<double>
 {
@@ -364,6 +398,17 @@ int main(int ac, char** av)
 
 			  	       Head> > > > > > > > > > > > > >::exec(ImageType::TIFF);
 	#endif
+	cerr << "Testing CVD (type " << ImageType::CVD << ")\n";
+	randtest<
+			TypeList<byte,
+			TypeList<bayer_bggr,
+			TypeList<bayer_rggb,
+			TypeList<bayer_grbg,
+			TypeList<bayer_gbrg,
+			TypeList<Rgb<byte>,
+			TypeList<Rgba<byte>,
+			Head> > > > > > > >::exec(ImageType::CVD);
+
 
 	exit(0);
 }

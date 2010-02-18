@@ -20,6 +20,8 @@
 */
 
 #include <stdio.h>
+#include <stdint.h>
+#include <string.h>
 #include <arpa/inet.h> // used for byte reordering
 #include "cvd/internal/io/cvdimage.h"
 
@@ -44,24 +46,170 @@ namespace CVDimage
 // helper functions for prediction
 
 // Use a simple linewise predictor and compute the residual differences for a
-// single line. The predictor uses the value stored @p predictionlen bytes in
+// single line. The predictor uses the value stored @p pred_len bytes in
 // the past to predict the current value.
-void line_diff(const byte* in, int width, byte* out, int predictionlen = 1)
+void pred_horizontal_diff(const byte* in, int width, byte* out, int pred_len = 1)
 {
-	for (int i = 0; i < predictionlen; i++)
+	for (int i = 0; i < pred_len; i++)
 		out[i] = in[i];
 
-	for (int i = predictionlen; i < width; i++)
-		out[i] = (256 + in[i] - in[i-predictionlen])&255;
+	for (int i = pred_len; i < width; i++)
+		out[i] = (256 + in[i] - in[i-pred_len])&255;
 }
 
-void line_undiff(const byte* in, int width, byte* out, int predictionlen = 1)
+void pred_horizontal_undiff(const byte* in, int width, byte* out, int pred_len = 1)
 {
-	for (int i = 0; i < predictionlen; i++)
+	for (int i = 0; i < pred_len; i++)
 		out[i] = in[i];
 
-	for (int i = predictionlen; i < width; i++)
-		out[i] = (in[i] + out[i-predictionlen])&255;
+	for (int i = pred_len; i < width; i++)
+		out[i] = (in[i] + out[i-pred_len])&255;
+}
+
+// Use a better 2d predictor where Gonzalez & Woods refer to a proof, stating
+// that it is in some sense the best 2d predictor you can get. Again compute
+// the residual differences for a single line of pixels. The predictor uses
+// the three values stored @p pred_len bytes to the left and one line above
+// the current pixel to predict the value. 
+void pred_2doptimal_diff(const byte* in, int width, byte* buffer, byte* out, int pred_len = 1)
+{
+	// simple vertical prediction for first column(s)
+	for (int i = 0; i < pred_len; i++) {
+		out[i] = (256 + in[i] - buffer[i]) & 255;
+	}
+
+	// 0.75 i[x-1][y] + 0.75 i[x][y-1] - 0.5 i[x-1][y-1]
+	// buffer is used to store the previous row
+	for (int i = pred_len; i < width; i++) {
+		int pred = (3*in[i-pred_len] - 2*buffer[i-pred_len] + 3*buffer[i]) / 4;
+		out[i] = (256 + in[i] - pred)&255;
+		buffer[i-pred_len] = in[i-pred_len];
+	}
+
+	// fix remaining values in the buffer
+	for (int i = width-pred_len; i < width; i++) {
+		buffer[i] = in[i];
+	}
+}
+
+void pred_2doptimal_undiff(const byte* in, int width, byte* buffer, byte* out, int pred_len = 1)
+{
+	// vertical prediction for first column(s)
+	for (int i = 0; i < pred_len; i++) {
+		out[i] = (in[i] + buffer[i]) & 255;
+	}
+
+	// see above
+	for (int i = pred_len; i < width; i++) {
+		int pred = (3*out[i-pred_len] - 2*buffer[i-pred_len] + 3*buffer[i]) / 4;
+		out[i] = (in[i] + pred)&255;
+		buffer[i-pred_len] = out[i-pred_len];
+	}
+
+	// fix remaining values in the buffer
+	for (int i = width-pred_len; i < width; i++) {
+		buffer[i] = out[i];
+	}
+}
+
+// Use a 2d predictor for Bayer lines of pixels. In case @p greenfirst is set,
+// the row is assumed to be of the form gxgx, otherwise it is xgxg. The
+// predictor uses two rows above the current pixel and two columns to the
+// left.
+
+// see King-Hong Chung and Yuk-Hee Chan. A Lossless Compression Scheme for
+// Bayer Color Filter Array Images. IEEE Transactions on Image Processing, 2007.
+// (i don't trust that paper!)
+//static const int pred_coeff_green[]={5, 2, 1}; => 24.5549
+
+//static const int pred_coeff_green[]={3, 5, 0}; => 24.4918
+//static const int pred_coeff_green[]={6, -4, 6}; => 24.9409
+//static const int pred_coeff_green[]={1, 6, 1}; //=> 24.4494
+static const int pred_coeff_green[]={2, 4, 2}; //=> 24.3723
+//static const int pred_coeff_bluered[]={8, 0, 0}; //=> 24.6116
+//static const int pred_coeff_bluered[]={6, -4, 6}; //=> 24.3723
+//static const int pred_coeff_bluered[]={3, 2, 3}; //=> 24.3034
+//static const int pred_coeff_bluered[]={5, -2, 5}; //=> 24.2141
+static const int pred_coeff_bluered[]={4, 0, 4}; //=> 24.1666
+
+// Ideally one would learn the best coefficients from the autocorrelation
+// matrix as done in: S Andriani, G Calvagno, D Menon. Lossless Compression of
+// Bayer Mask Images using an Optimal Vector Prediction Technique. EUSIPCO 2006.
+// Unfortunaly they don't give their final coefficients.
+
+void pred_2dbayer_diff(const byte* in, int width, byte* buffer1, byte* buffer2, byte* out, bool greenfirst)
+{
+	// simple vertical prediction for first two columns
+	out[0] = (256 + in[0] - buffer1[0]) & 255;
+	out[1] = (256 + in[1] - buffer1[1]) & 255;
+
+	// for red and blue: 0.75 i[x-2][y] + 0.75 i[x][y-2] - 0.5 i[x-2][y-2]
+	// for green: 0.25 i[x-2][y] + 0.5 i[x-1][y-1] - 0.25 i[x+1][y-1]
+	// buffer1 is used to store the pre-previous row
+	// buffer2 is used to store the previous row
+	int i=2;
+	if (greenfirst) {
+		int pred = (pred_coeff_green[0]*in[i-2] +
+			pred_coeff_green[1]*buffer2[i-1] +
+			pred_coeff_green[2]*buffer1[i]) / 8;
+		out[i] = (256 + in[i] - pred)&255;
+		buffer1[i-2] = in[i-2];
+		i++;
+	}
+
+	for (; i < width; i++) {
+		int pred = (pred_coeff_bluered[0]*in[i-2] +
+			pred_coeff_bluered[1]*buffer1[i-2] +
+			pred_coeff_bluered[2]*buffer1[i]) / 8;
+		out[i] = (256 + in[i] - pred)&255;
+		buffer1[i-2] = in[i-2];
+		i++;
+		if (!(i<width)) break;
+		pred = (pred_coeff_green[0]*in[i-2] +
+			pred_coeff_green[1]*buffer2[i-1] +
+			pred_coeff_green[2]*buffer1[i]) / 8;
+		out[i] = (256 + in[i] - pred)&255;
+		buffer1[i-2] = in[i-2];
+	}
+
+	buffer1[width-2] = in[width-2];
+	buffer1[width-1] = in[width-1];
+}
+
+void pred_2dbayer_undiff(const byte* in, int width, byte* buffer1, byte* buffer2, byte* out, bool greenfirst)
+{
+	// simple vertical prediction for first two columns
+	out[0] = (in[0] + buffer1[0]) & 255;
+	out[1] = (in[1] + buffer1[1]) & 255;
+
+	// see above
+	int i=2;
+	if (greenfirst) {
+		int pred = (pred_coeff_green[0]*out[i-2] +
+			pred_coeff_green[1]*buffer2[i-1] +
+			pred_coeff_green[2]*buffer1[i]) / 8;
+		out[i] = (in[i] + pred)&255;
+		buffer1[i-2] = out[i-2];
+		i++;
+	}
+
+	for (; i < width; i++) {
+		int pred = (pred_coeff_bluered[0]*out[i-2] +
+			pred_coeff_bluered[1]*buffer1[i-2] +
+			pred_coeff_bluered[2]*buffer1[i]) / 8;
+		out[i] = (in[i] + pred)&255;
+		buffer1[i-2] = out[i-2];
+		i++;
+		if (!(i<width)) break;
+		pred = (pred_coeff_green[0]*out[i-2] +
+			pred_coeff_green[1]*buffer2[i-1] +
+			pred_coeff_green[2]*buffer1[i]) / 8;
+		out[i] = (in[i] + pred)&255;
+		buffer1[i-2] = out[i-2];
+	}
+
+	buffer1[width-2] = out[width-2];
+	buffer1[width-1] = out[width-1];
 }
 
 // helper functions for huffman coding
@@ -150,6 +298,13 @@ static const int PackBits = sizeof(PackType) * 8;
 static const int Bits_48 = 48 / PackBits == 0 ? 1 : 48/PackBits;
 static const int Bits_96 = 96 / PackBits == 0 ? 1 : 96/PackBits;
 
+enum cvd_predictors {
+	PRED_HORIZONTAL = 0,
+	PRED_2D_OPTIMAL = 2,
+	PRED_2D_BAYER_1 = 3,
+	PRED_2D_BAYER_2 = 4,
+};
+
 struct SortIndex
 {
 	const array<int, 256>& d;
@@ -165,7 +320,7 @@ struct SortIndex
 	
 };
 
-// given a image (or "some data") and histogram of the contained symbols,
+// given a image (or "some data") and a histogram of the contained symbols,
 // create a Huffman tree, encode the data and return the new code
 vector<PackType> huff_compress(const Image<byte>& im, const array<int,256>& h)
 {
@@ -295,10 +450,8 @@ class ReadPimpl
 {
 	public:
 		ReadPimpl(std::istream&);
-		int channels(){return m_channels;}
 		long  x_size() const {return xs;}
 		long  y_size() const {return ys;}
-		long  elements_per_line() const {return xs * m_channels;}
 		void get_raw_pixel_lines(unsigned char*, unsigned long nlines);
 		~ReadPimpl();
 		string datatype()
@@ -318,12 +471,17 @@ class ReadPimpl
 		void read_header(std::istream& is);
 		array<int, 256> read_hist(std::istream& is);
 		vector<PackType> read_data(std::istream& is);
-		long	xs, ys;
-		int	m_channels;
+		void bayer_swap_rows(void);
+
+		long xs, ys;
+		int bypp; // bytes per pixel
+		int pred_len;
+		enum cvd_predictors pred_mode;
 		std::istream&	i;
 		string type;
 		Image<byte> diff;
 		int row;
+		byte *buffer, *buffer2; //size unknown at compile time
 };
 
 ImageRef reader::size()
@@ -332,6 +490,26 @@ ImageRef reader::size()
 }
 
 void reader::get_raw_pixel_line(unsigned char* d)
+{
+	t->get_raw_pixel_line(d);
+}
+
+void reader::get_raw_pixel_line(bayer_bggr* d)
+{
+	t->get_raw_pixel_line(d);
+}
+
+void reader::get_raw_pixel_line(bayer_rggb* d)
+{
+	t->get_raw_pixel_line(d);
+}
+
+void reader::get_raw_pixel_line(bayer_grbg* d)
+{
+	t->get_raw_pixel_line(d);
+}
+
+void reader::get_raw_pixel_line(bayer_gbrg* d)
 {
 	t->get_raw_pixel_line(d);
 }
@@ -366,13 +544,19 @@ reader::reader(std::istream& i)
 ReadPimpl::ReadPimpl(istream& in)
 :i(in)
 {
+	pred_mode = PRED_HORIZONTAL;
 	row = 0;
 	read_header(in);
 	array<int,256> h = read_hist(in);
 
-	diff.resize(ImageRef(xs*m_channels,ys));
-	vector<PackType> d = read_data(in);
+	diff.resize(ImageRef(xs*bypp,ys));
+	buffer = new byte[xs*bypp];
+	if ((pred_mode==PRED_2D_BAYER_1)||(pred_mode==PRED_2D_BAYER_2))
+		buffer2 = new byte[xs*bypp];
+	else
+		buffer2 = NULL;
 
+	vector<PackType> d = read_data(in);
 	huff_decompress(d, h, diff);
 }
 
@@ -380,21 +564,42 @@ void ReadPimpl::read_header(istream& in)
 {
 	string tmp;
 	getline(in, tmp);
-	//cout << "header-id: '" << tmp << "'" << endl;
+	//cout << "loading: header-id: '" << tmp << "'" << endl;
 	if (tmp != "CVD") throw CVD::Exceptions::Image_IO::MalformedImage(string("Error in CVD image: incorrect header ID"));
 
+	// get data type
 	getline(in, type);
-	//cout << "type: '" << type << "'" << endl;
-	if (type== "unsigned char") m_channels=1;
-	else if (type== "CVD::Rgb<unsigned char>") m_channels=3;
-	else if (type== "CVD::Rgba<unsigned char>") m_channels=4;
-	else throw CVD::Exceptions::Image_IO::MalformedImage(string("Error in CVD image: unknown data type"));
+	//cout << "loading: type: '" << type << "'" << endl;
 
+	// get image dimensions
 	in >> xs >> ys;
-	//cout << "size: " << xs << "x" << ys << endl;
+	//cout << "loading: size: " << xs << "x" << ys << endl;
 
+	// get extra information, comments, compression options
 	getline(in, tmp);
-	//cout << "extras: '" << tmp << "'";
+	//cout << "loading: extras: '" << tmp << "'" << endl;
+	size_t pos = tmp.find("pred=");
+	if (pos!=tmp.npos) {
+		istringstream sstr(tmp.substr(pos+5));
+		sstr >> (int&)pred_mode;
+	}
+
+	//cout << "type: '" << type << "'" << endl;
+	if (type== "unsigned char")
+		bypp = pred_len = 1;
+	else if (type== "CVD::Rgb<unsigned char>")
+		bypp = pred_len = 3;
+	else if (type== "CVD::Rgba<unsigned char>")
+		bypp = pred_len = 4;
+	else if ((type== "bayer_bggr")||(type== "bayer_rggb")) {
+		bypp = 1; pred_len = 2;
+		if ((pred_mode==PRED_2D_OPTIMAL)||(pred_mode==PRED_2D_BAYER_1))
+			pred_mode = PRED_2D_BAYER_2;
+	} else if ((type== "bayer_grbg")||(type== "bayer_gbrg")) {
+		bypp = 1; pred_len = 2;
+		if ((pred_mode==PRED_2D_OPTIMAL)||(pred_mode==PRED_2D_BAYER_2))
+			pred_mode = PRED_2D_BAYER_1;
+	} else throw CVD::Exceptions::Image_IO::MalformedImage(string("Error in CVD image: unknown data type"));
 }
 
 array<int, 256> ReadPimpl::read_hist(std::istream& is)
@@ -424,16 +629,65 @@ vector<PackType> ReadPimpl::read_data(std::istream& is)
 
 void ReadPimpl::get_raw_pixel_lines(unsigned char*data, unsigned long nlines)
 {
-	for(unsigned int i=0; i < nlines; i++)	
-	{
-		line_undiff(diff[row], xs*m_channels, data, m_channels);
-		data += xs;
-		row++;
+	switch (pred_mode) {
+	case PRED_HORIZONTAL:
+		for(unsigned int i=0; i < nlines; i++)	{
+			pred_horizontal_undiff(diff[row], xs*bypp, data, pred_len);
+			data += xs*bypp;
+			row++;
+		}
+		break;
+	case PRED_2D_OPTIMAL:
+		if (row==0) {		
+			pred_horizontal_undiff(diff[row], xs*bypp, data, pred_len);
+			memcpy(buffer, data, xs*bypp);
+			data += xs*bypp;
+			row++;
+			nlines--;
+		}
+		for(unsigned int i=0; i < nlines; i++)	{
+			pred_2doptimal_undiff(diff[row], xs*bypp, buffer, data, pred_len);
+			data += xs*bypp;
+			row++;
+		}
+		break;
+	case PRED_2D_BAYER_1:
+	case PRED_2D_BAYER_2:
+		//first two rows use horizontal prediction
+		while (row<=1) {
+			pred_horizontal_undiff(diff[row], xs*bypp, data, pred_len);
+			memcpy(buffer, data, xs*bypp);
+			bayer_swap_rows();
+                        data += xs*bypp;
+                        row++;
+			nlines--;
+			if (nlines==0) break;
+		}
+
+		// regular lines
+		while (nlines>0) {
+			pred_2dbayer_undiff(diff[row], xs*bypp, buffer, buffer2, data, (pred_mode==PRED_2D_BAYER_1));
+			bayer_swap_rows();
+			data += xs*bypp;
+			row++;
+			nlines--;
+		}
 	}
+}
+
+void ReadPimpl::bayer_swap_rows(void)
+{
+	byte *tmp = buffer;
+	buffer = buffer2;
+	buffer2 = tmp;
+	if (pred_mode==PRED_2D_BAYER_1) pred_mode=PRED_2D_BAYER_2;
+	else if (pred_mode==PRED_2D_BAYER_2) pred_mode=PRED_2D_BAYER_1;
 }
 
 ReadPimpl::~ReadPimpl()
 {
+	delete[] buffer;
+	if (buffer2!=NULL) delete[] buffer2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -449,11 +703,10 @@ ReadPimpl::~ReadPimpl()
 class WritePimpl
 {
 	public:
-		WritePimpl(std::ostream&, int  xsize, int ysize, const string& type, const std::string& comm="");
-		int channels(){return m_channels;}
-		long  x_size() const {return xs;}
-		long  y_size() const {return ys;}
-		void 	write_raw_pixel_lines(const unsigned char*, unsigned long);
+		WritePimpl(std::ostream&, int  xsize, int ysize, const string& type);
+		long x_size() const {return xs;}
+		long y_size() const {return ys;}
+		void write_raw_pixel_lines(const unsigned char*, unsigned long);
 		template<class C> 	void write_raw_pixel_line(const C*);
 		~WritePimpl();
 		
@@ -461,47 +714,104 @@ class WritePimpl
 		void write_header(std::ostream& os);
 		void write_hist(std::ostream& os, const array<int, 256>& h);
 		void write_data(std::ostream& os, vector<PackType>& data);
+		void bayer_swap_rows(void);
 
 		long	xs, ys, row;
-		int	m_channels;
+		int	bypp; // bytes per pixel :)
+		int	pred_len;
+		enum cvd_predictors pred_mode;
 		std::ostream& 	o;
 		string type;
 		Image<byte> diff;
+		byte *buffer, *buffer2; //size unknown at compile time
 };
 
 
 
-WritePimpl::WritePimpl(std::ostream& out, int xsize, int ysize, const string& t, const string& comm)
+WritePimpl::WritePimpl(std::ostream& out, int xsize, int ysize, const string& t)
 :o(out)
 {
 	xs = xsize;
 	ys = ysize;
 	type = t;
 	row=0;
+	pred_mode = PRED_2D_OPTIMAL;
+//	pred_mode = PRED_HORIZONTAL;
 	
 	if(type == "unsigned char")
-		m_channels = 1;
+		bypp = pred_len = 1;
 	else if(type == "CVD::Rgb<unsigned char>")
-		m_channels = 3;
+		bypp = pred_len = 3;
 	else if(type == "CVD::Rgba<unsigned char>")
-		m_channels = 4;
-	else
+		bypp = pred_len = 4;
+	else if((type == "bayer_bggr")||(type == "bayer_rggb"))  {
+		bypp = 1; pred_len = 2;
+		if (pred_mode==PRED_2D_OPTIMAL) pred_mode = PRED_2D_BAYER_2;
+	} else if((type == "bayer_grbg")||(type == "bayer_gbrg"))  {
+		bypp = 1; pred_len = 2;
+		if (pred_mode==PRED_2D_OPTIMAL) pred_mode = PRED_2D_BAYER_1;
+	} else
 		throw Exceptions::Image_IO::UnsupportedImageSubType("CVDimage", type);
 
-	diff.resize(ImageRef(xs*m_channels,ys));
+	diff.resize(ImageRef(xs*bypp,ys));
+	buffer = new byte[xs*bypp];
+	if ((pred_mode==PRED_2D_BAYER_1)||(pred_mode==PRED_2D_BAYER_2))
+		buffer2 = new byte[xs*bypp];
+	else
+		buffer2 = NULL;
 }
 
 void WritePimpl::write_raw_pixel_lines(const unsigned char* data, unsigned long nlines)
 {
 	if(nlines + row > (unsigned long) ys)
 		throw CVD::Exceptions::Image_IO::InternalLibraryError("CVD", "Write past end of image.");
-	
-	for(unsigned int i=0; i < nlines; i++)	
-	{
-		line_diff(data, xs*m_channels, diff[row], m_channels);
-		data += xs;
-		row++;
+	if (nlines==0) return;
+
+	switch (pred_mode) {
+	case PRED_HORIZONTAL:
+		for (unsigned int i=0; i < nlines; i++)	{
+			pred_horizontal_diff(data, xs*bypp, diff[row], pred_len);
+			data += xs*bypp;
+			row++;
+		}
+		break;
+	case PRED_2D_OPTIMAL:
+		if (row==0) {
+			pred_horizontal_diff(data, xs*bypp, diff[row], pred_len);
+			memcpy(buffer, data, xs*bypp);
+                        data += xs*bypp;
+                        row++;
+			nlines--;
+		}
+		for (unsigned int i=0; i < nlines; i++)	{
+			pred_2doptimal_diff(data, xs*bypp, buffer, diff[row], pred_len);
+			data += xs*bypp;
+			row++;
+		}
+		break;
+	case PRED_2D_BAYER_1:
+	case PRED_2D_BAYER_2:
+		//first two rows use horizontal prediction
+		while (row<=1) {
+			pred_horizontal_diff(data, xs*bypp, diff[row], pred_len);
+			memcpy(buffer, data, xs*bypp);
+			bayer_swap_rows();
+                        data += xs*bypp;
+                        row++;
+			nlines--;
+			if (nlines==0) break;
+		}
+
+		// regular lines
+		while (nlines>0) {
+			pred_2dbayer_diff(data, xs*bypp, buffer, buffer2, diff[row], (pred_mode==PRED_2D_BAYER_1));
+			bayer_swap_rows();
+			data += xs*bypp;
+			row++;
+			nlines--;
+		}
 	}
+	
 }
 
 template<class C> 	void WritePimpl::write_raw_pixel_line(const C*d)
@@ -512,9 +822,21 @@ template<class C> 	void WritePimpl::write_raw_pixel_line(const C*d)
 	write_raw_pixel_lines((const unsigned char*)d, 1); 
 }
 
+void WritePimpl::bayer_swap_rows(void)
+{
+	byte *tmp = buffer;
+	buffer = buffer2;
+	buffer2 = tmp;
+	if (pred_mode==PRED_2D_BAYER_1) pred_mode=PRED_2D_BAYER_2;
+	else if (pred_mode==PRED_2D_BAYER_2) pred_mode=PRED_2D_BAYER_1;
+}
+
 void WritePimpl::write_header(std::ostream& os)
 {
-	os << "CVD\n" << type << "\n" << xs << " " << ys << "\n";
+	os << "CVD\n" << type << "\n" << xs << " " << ys;
+	if (pred_mode==PRED_2D_BAYER_2) pred_mode = PRED_2D_BAYER_1;
+	if (pred_mode!=PRED_HORIZONTAL) os << " pred=" << (int)pred_mode;
+	os << "\n";
 }
 
 void WritePimpl::write_hist(std::ostream& os, const array<int, 256>& h)
@@ -547,6 +869,8 @@ void WritePimpl::write_data(std::ostream& os, vector<PackType>& data)
 
 WritePimpl::~WritePimpl()
 {
+	delete[] buffer;
+	if (buffer2!=NULL) delete[] buffer2;
 	write_header(o);
 
 	array<int, 256> h;
@@ -571,6 +895,26 @@ writer::~writer()
 {}
 
 void writer::write_raw_pixel_line(const byte* data)
+{
+	t->write_raw_pixel_line(data);
+}
+
+void writer::write_raw_pixel_line(const bayer_bggr* data)
+{
+	t->write_raw_pixel_line(data);
+}
+
+void writer::write_raw_pixel_line(const bayer_rggb* data)
+{
+	t->write_raw_pixel_line(data);
+}
+
+void writer::write_raw_pixel_line(const bayer_grbg* data)
+{
+	t->write_raw_pixel_line(data);
+}
+
+void writer::write_raw_pixel_line(const bayer_gbrg* data)
 {
 	t->write_raw_pixel_line(data);
 }
