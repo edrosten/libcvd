@@ -28,6 +28,7 @@
 #include "cvd/image_io.h"
 #include "cvd/config.h"
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <setjmp.h>
 #include <algorithm>
@@ -324,16 +325,13 @@ struct SortIndex
 // create a Huffman tree, encode the data and return the new code
 vector<PackType> huff_compress(const Image<byte>& im, const array<int,256>& h)
 {
-//	cvd_timer t;
-
-//	cout << "Hist: " << t.reset() * 1000 << endl;
-
+	//Create a Huffman compression tree
 	vector<Huff*> terminals;
 	Huff* table = create_tree(h, terminals);
 
-//	cout << "Tree : " << t.reset() * 1000 << endl;
+	//Create the symbols for the tree and store them
+	//rather inefficiently in an array, one bit per entry.
 	vector<vector<byte> > symbols(256);
-
 	for(unsigned int i=0; i < terminals.size(); i++)
 	{
 		vector<byte> bits;
@@ -358,9 +356,13 @@ vector<PackType> huff_compress(const Image<byte>& im, const array<int,256>& h)
 		symbols[symbol] = bits;
 
 	}
-//	cout << "Symbols : " << t.reset() * 1000 << endl;
-	//Longest symbol is 48 bits?
-	
+
+	//Convert the symbols in to a bit packed form.
+	//The symbols are packed in to chunks of PackType (uint16_t)
+	//For each of the 256 symbols, store the symbol 16 different times with 
+	//starting offset by 16 different shifts.
+
+	//This allows the symbols to be efficiently stuffed in to the stream later.
 	array<array<array<PackType, 20>, PackBits>, 256> fast_symbols;
 	array<array<int, PackBits>, 256> fast_symbols_num_chunks;
 
@@ -389,7 +391,8 @@ vector<PackType> huff_compress(const Image<byte>& im, const array<int,256>& h)
 			}
 		}
 
-
+	
+	//Now pack the symbols into the array
 	vector<PackType> r2;
 	r2.reserve(im.size().area()/(2*PackBits));
 	int bit=0;
@@ -411,14 +414,13 @@ vector<PackType> huff_compress(const Image<byte>& im, const array<int,256>& h)
 	}
 
 
-//	cout << "Fast Packing : " << t.reset() * 1000 << endl;
-
 	return r2;
 }
 
 
 // given an encoded data stream and a histogram of the encoded symbols, create
 // a Huffman tree, decode the data and store it in the image ret.
+// No particular effort has been paid to efficiency.
 template<class P> void huff_decompress(const vector<P>& b, const array<int,256>& h, Image<byte>& ret)
 {
 	vector<Huff*> terminals;
@@ -581,7 +583,9 @@ void ReadPimpl::read_header(istream& in)
 	size_t pos = tmp.find("pred=");
 	if (pos!=tmp.npos) {
 		istringstream sstr(tmp.substr(pos+5));
-		sstr >> (int&)pred_mode;
+		int pmode=-1;
+		sstr >> pmode;
+		pred_mode = (cvd_predictors) pmode;
 	}
 
 	//cout << "type: '" << type << "'" << endl;
