@@ -91,12 +91,24 @@ namespace CVD
       { static const DV3ColourSpace space = RAW8; }; 
     template<> struct CSConvert<bayer_rggb>
       { static const DV3ColourSpace space = RAW8; }; 
+    template<> struct CSConvert<bayer_bggr16be>
+      { static const DV3ColourSpace space = RAW16; }; 
+    template<> struct CSConvert<bayer_gbrg16be>
+      { static const DV3ColourSpace space = RAW16; }; 
+    template<> struct CSConvert<bayer_grbg16be>
+      { static const DV3ColourSpace space = RAW16; }; 
+    template<> struct CSConvert<bayer_rggb16be>
+      { static const DV3ColourSpace space = RAW16; }; 
 
     template<class C> struct CSFilter { static const DV3ColourFilter filter = UNDEFINED; };
     template<> struct CSFilter<bayer_bggr> { static const DV3ColourFilter filter = BGGR; };
     template<> struct CSFilter<bayer_gbrg> { static const DV3ColourFilter filter = GBRG; };
     template<> struct CSFilter<bayer_grbg> { static const DV3ColourFilter filter = GRBG; };
     template<> struct CSFilter<bayer_rggb> { static const DV3ColourFilter filter = RGGB; };
+    template<> struct CSFilter<bayer_bggr16be> { static const DV3ColourFilter filter = BGGR; };
+    template<> struct CSFilter<bayer_gbrg16be> { static const DV3ColourFilter filter = GBRG; };
+    template<> struct CSFilter<bayer_grbg16be> { static const DV3ColourFilter filter = GRBG; };
+    template<> struct CSFilter<bayer_rggb16be> { static const DV3ColourFilter filter = RGGB; };
 
     struct LibDCParams;
 #endif

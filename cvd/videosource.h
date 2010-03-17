@@ -131,6 +131,14 @@ namespace CVD {
 			return makeConvertBufferBit<T, bayer_grbg>(r);
 		else if(c == "bayer_rggb")
 			return makeConvertBufferBit<T, bayer_rggb>(r);
+		else if(c == "bayer_bggr16be")
+			return makeConvertBufferBit<T, bayer_bggr16be>(r);
+		else if(c == "bayer_gbrg16be")
+			return makeConvertBufferBit<T, bayer_gbrg16be>(r);
+		else if(c == "bayer_grbg16be")
+			return makeConvertBufferBit<T, bayer_grbg16be>(r);
+		else if(c == "bayer_rggb16be")
+			return makeConvertBufferBit<T, bayer_rggb16be>(r);
 		else
 			throw  VideoSourceException("ColorspaceBuffer cannot handle type " + c);
 	}
@@ -231,6 +239,10 @@ namespace CVD {
 	template <> VideoBuffer<bayer_gbrg>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
 	template <> VideoBuffer<bayer_grbg>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
 	template <> VideoBuffer<bayer_rggb>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
+	template <> VideoBuffer<bayer_bggr16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
+	template <> VideoBuffer<bayer_gbrg16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
+	template <> VideoBuffer<bayer_grbg16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
+	template <> VideoBuffer<bayer_rggb16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, int format7_mode);
 
 	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset, bool& verbose, int& format7_mode);
 

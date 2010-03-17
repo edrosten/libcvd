@@ -69,6 +69,86 @@ namespace CVD
 		bayer_rggb(unsigned char v) : val(v) {}
 	};
 	
+	/// 16 bit Bayer datatype representing the colour filter pattern BGGR
+	/// @ingroup gVideoBuffer
+	struct bayer_bggr16
+	{
+		unsigned short  val;
+		operator unsigned short() const { return val; }
+		bayer_bggr16() {}
+		bayer_bggr16(unsigned short v) : val(v) {}
+	};
+
+	/// 16bit Bayer datatype representing the colour filter pattern GBRG
+	/// @ingroup gVideoBuffer
+	struct bayer_gbrg16
+	{
+		unsigned short val;
+		operator unsigned short() const { return val; }
+		bayer_gbrg16() {}
+		bayer_gbrg16(unsigned short v) : val(v) {}
+	};
+	
+	/// 16bit Bayer datatype representing the colour filter pattern GRBG
+	/// @ingroup gVideoBuffer
+	struct bayer_grbg16
+	{
+		unsigned short val;
+		operator unsigned short() const { return val; }
+		bayer_grbg16() {}
+		bayer_grbg16(unsigned short v) : val(v) {}
+	};
+
+	/// 16bit Bayer datatype representing the colour filter pattern RGGB
+	/// @ingroup gVideoBuffer
+	struct bayer_rggb16
+	{
+		unsigned short val;
+		operator unsigned short() const { return val; }
+		bayer_rggb16() {}
+		bayer_rggb16(unsigned char v) : val(v) {}
+	};
+
+	/// 16 bit big endian Bayer datatype representing the colour filter pattern BGGR
+	/// @ingroup gVideoBuffer
+	struct bayer_bggr16be
+	{
+		unsigned short  val;
+		operator unsigned short() const { return val; }
+		bayer_bggr16be() {}
+		bayer_bggr16be(unsigned short v) : val(v) {}
+	};
+
+	/// 16bit big endian Bayer datatype representing the colour filter pattern GBRG
+	/// @ingroup gVideoBuffer
+	struct bayer_gbrg16be
+	{
+		unsigned short val;
+		operator unsigned short() const { return val; }
+		bayer_gbrg16be() {}
+		bayer_gbrg16be(unsigned short v) : val(v) {}
+	};
+	
+	/// 16bit big endian Bayer datatype representing the colour filter pattern GRBG
+	/// @ingroup gVideoBuffer
+	struct bayer_grbg16be
+	{
+		unsigned short val;
+		operator unsigned short() const { return val; }
+		bayer_grbg16be() {}
+		bayer_grbg16be(unsigned short v) : val(v) {}
+	};
+
+	/// 16bit big endian Bayer datatype representing the colour filter pattern RGGB
+	/// @ingroup gVideoBuffer
+	struct bayer_rggb16be
+	{
+		unsigned short val;
+		operator unsigned short() const { return val; }
+		bayer_rggb16be() {}
+		bayer_rggb16be(unsigned char v) : val(v) {}
+	};
+
 	/// typedef to support old bayer datatype
 	/// @ingroup gVideoBuffer
 	/// @deprecated
@@ -110,6 +190,16 @@ namespace CVD
 		template<> struct type_name<bayer_gbrg> { static std::string name(){return "bayer_gbrg" ;}};
 		template<> struct type_name<bayer_grbg> { static std::string name(){return "bayer_grbg" ;}};
 		template<> struct type_name<bayer_rggb> { static std::string name(){return "bayer_rggb" ;}};
+
+		template<> struct type_name<bayer_bggr16> { static std::string name(){return "bayer_bggr16" ;}};
+		template<> struct type_name<bayer_gbrg16> { static std::string name(){return "bayer_gbrg16" ;}};
+		template<> struct type_name<bayer_grbg16> { static std::string name(){return "bayer_grbg16" ;}};
+		template<> struct type_name<bayer_rggb16> { static std::string name(){return "bayer_rggb16" ;}};
+
+		template<> struct type_name<bayer_bggr16be> { static std::string name(){return "bayer_bggr16be" ;}};
+		template<> struct type_name<bayer_gbrg16be> { static std::string name(){return "bayer_gbrg16be" ;}};
+		template<> struct type_name<bayer_grbg16be> { static std::string name(){return "bayer_grbg16be" ;}};
+		template<> struct type_name<bayer_rggb16be> { static std::string name(){return "bayer_rggb16be" ;}};
 
 		template<> struct type_name<yuv411> { static std::string name(){return "yuv411" ;}};
 		template<> struct type_name<yuv422> { static std::string name(){return "yuv422" ;}};
@@ -157,6 +247,86 @@ namespace CVD
             static const int bits_used = 8;
             static const unsigned char max_intensity=(1 << bits_used) - 1;
         };
+
+        template<int LIFT> struct traits<bayer_bggr16, LIFT>
+        {
+            typedef int wider_type;
+            typedef float float_type;
+            static const bool integral = true;
+            static const bool is_signed = false;
+            static const int bits_used = 16;
+            static const unsigned short max_intensity=(1 << bits_used) - 1;
+        };
+
+	template<int LIFT> struct traits<bayer_rggb16, LIFT>
+        {
+            typedef int wider_type;
+            typedef float float_type;
+            static const bool integral = true;
+            static const bool is_signed = false;
+            static const int bits_used = 16;
+            static const unsigned short max_intensity=(1 << bits_used) - 1;
+        };
+
+	template<int LIFT> struct traits<bayer_gbrg16, LIFT>
+        {
+            typedef int wider_type;
+            typedef float float_type;
+            static const bool integral = true;
+            static const bool is_signed = false;
+            static const int bits_used = 16;
+            static const unsigned short max_intensity=(1 << bits_used) - 1;
+        };
+	
+	template<int LIFT> struct traits<bayer_grbg16, LIFT>
+        {
+            typedef int wider_type;
+            typedef float float_type;
+            static const bool integral = true;
+            static const bool is_signed = false;
+            static const int bits_used = 16;
+            static const unsigned short max_intensity=(1 << bits_used) - 1;
+        };
+
+        template<int LIFT> struct traits<bayer_bggr16be, LIFT>
+        {
+            typedef int wider_type;
+            typedef float float_type;
+            static const bool integral = true;
+            static const bool is_signed = false;
+            static const int bits_used = 16;
+            static const unsigned short max_intensity=(1 << bits_used) - 1;
+        };
+
+	template<int LIFT> struct traits<bayer_rggb16be, LIFT>
+        {
+            typedef int wider_type;
+            typedef float float_type;
+            static const bool integral = true;
+            static const bool is_signed = false;
+            static const int bits_used = 16;
+            static const unsigned short max_intensity=(1 << bits_used) - 1;
+        };
+
+	template<int LIFT> struct traits<bayer_gbrg16be, LIFT>
+        {
+            typedef int wider_type;
+            typedef float float_type;
+            static const bool integral = true;
+            static const bool is_signed = false;
+            static const int bits_used = 16;
+            static const unsigned short max_intensity=(1 << bits_used) - 1;
+        };
+	
+	template<int LIFT> struct traits<bayer_grbg16be, LIFT>
+        {
+            typedef int wider_type;
+            typedef float float_type;
+            static const bool integral = true;
+            static const bool is_signed = false;
+            static const int bits_used = 16;
+            static const unsigned short max_intensity=(1 << bits_used) - 1;
+        };
     }
 
    
@@ -176,6 +346,38 @@ namespace CVD
 	enum { is_pod = 1 };
       };
       template<> struct is_POD<bayer_rggb>
+      {
+	enum { is_pod = 1 };
+      };
+      template<> struct is_POD<bayer_bggr16>
+      {
+	enum { is_pod = 1 };
+      };
+      template<> struct is_POD<bayer_gbrg16>
+      {
+	enum { is_pod = 1 };
+      };
+      template<> struct is_POD<bayer_grbg16>
+      {
+	enum { is_pod = 1 };
+      };
+      template<> struct is_POD<bayer_rggb16>
+      {
+	enum { is_pod = 1 };
+      };
+      template<> struct is_POD<bayer_bggr16be>
+      {
+	enum { is_pod = 1 };
+      };
+      template<> struct is_POD<bayer_gbrg16be>
+      {
+	enum { is_pod = 1 };
+      };
+      template<> struct is_POD<bayer_grbg16be>
+      {
+	enum { is_pod = 1 };
+      };
+      template<> struct is_POD<bayer_rggb16be>
       {
 	enum { is_pod = 1 };
       };

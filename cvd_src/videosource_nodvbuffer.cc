@@ -42,6 +42,26 @@ namespace CVD{
 		throw VideoSourceException("DVBuffer3 is not compiled in to libcvd.");
 	}
 
+	template <> VideoBuffer<bayer_grbg16be>* makeDVBuffer2(int, ImageRef, float, ImageRef, bool, int)
+	{
+		throw VideoSourceException("DVBuffer3 is not compiled in to libcvd.");
+	}
+
+	template <> VideoBuffer<bayer_gbrg16be>* makeDVBuffer2(int, ImageRef, float, ImageRef, bool, int)
+	{
+		throw VideoSourceException("DVBuffer3 is not compiled in to libcvd.");
+	}
+
+	template <> VideoBuffer<bayer_rggb16be>* makeDVBuffer2(int, ImageRef, float, ImageRef, bool, int)
+	{
+		throw VideoSourceException("DVBuffer3 is not compiled in to libcvd.");
+	}
+
+	template <> VideoBuffer<bayer_bggr16be>* makeDVBuffer2(int, ImageRef, float, ImageRef, bool, int)
+	{
+		throw VideoSourceException("DVBuffer3 is not compiled in to libcvd.");
+	}
+
 	template <> VideoBuffer<Rgb<byte> >* makeDVBuffer2(int, ImageRef, float, ImageRef, bool, int)
 	{
 		throw VideoSourceException("DVBuffer3 is not compiled in to libcvd.");

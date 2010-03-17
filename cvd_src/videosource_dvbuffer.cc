@@ -43,6 +43,26 @@ namespace CVD{
 		return new DVBuffer3<bayer_bggr>(cam,size, fps, offset, v, m);
 	}
 
+	template <> VideoBuffer<bayer_grbg16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset,  bool v, int m)
+	{
+		return new DVBuffer3<bayer_grbg16be>(cam,size, fps, offset, v, m);
+	}
+
+	template <> VideoBuffer<bayer_gbrg16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset,  bool v, int m)
+	{
+		return new DVBuffer3<bayer_gbrg16be>(cam,size, fps, offset, v, m);
+	}
+
+	template <> VideoBuffer<bayer_rggb16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset,  bool v, int m)
+	{
+		return new DVBuffer3<bayer_rggb16be>(cam,size, fps, offset, v, m);
+	}
+
+	template <> VideoBuffer<bayer_bggr16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset,  bool v, int m)
+	{
+		return new DVBuffer3<bayer_bggr16be>(cam,size, fps, offset, v, m);
+	}
+
 	template <> VideoBuffer<Rgb<byte> >* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset,  bool v, int m)
 	{
 		return new DVBuffer3<Rgb<byte> >(cam, size, fps, offset, v, m);

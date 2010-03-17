@@ -120,6 +120,13 @@ namespace CVD
 	return "error";
     }
 
+    static DV3ColourFilter DV3_from_DC_ColourFilter(dc1394color_filter_t f, uint32_t vendor, uint32_t model, uint64_t guid)
+    {
+      // some cameras report incorrect bayer patterns
+      if (guid==0x814436200006075) { return GBRG; }
+      return static_cast<DV3ColourFilter>(f - DC1394_COLOR_FILTER_MIN);
+    }
+
     struct LibDCParams
     {
       dc1394_t *pDC1394;
@@ -139,8 +146,21 @@ namespace CVD
       friend class RawDVBuffer3;
     };
     
-    static dc1394color_coding_t DC_from_DV3_ColourSpace(DV3ColourSpace s)
+    static dc1394color_coding_t DC_from_DV3_ColourSpace(DV3ColourSpace s, uint32_t vendor, uint32_t model, uint64_t guid)
     {
+      // some cameras report their raw bayer mode as being mono and do not
+      // have a mono mode at all...
+      if (guid==0x814436200006075) {
+        //vendor==0x81443 model==0x0 ?
+        switch(s)
+	  {
+	  case MONO8:  return DC1394_COLOR_CODING_RAW8; 
+	  case MONO16: return DC1394_COLOR_CODING_RAW16; 
+	  case RAW8:   return DC1394_COLOR_CODING_MONO8; 
+	  case RAW16:  return DC1394_COLOR_CODING_MONO16; 
+	  default: break;
+	  }
+      }
       switch(s)
 	{
 	case MONO8:  return DC1394_COLOR_CODING_MONO8; 
@@ -249,10 +269,11 @@ namespace CVD
       dc1394_camera_free_list(pCameraList);
   
       if(!mpLDCP->pCamera) throw(All("Failed on dc1394_camera_new"));
-  
-    
+
+      log << "Selected camera: " << hex << mpLDCP->pCamera->vendor_id << ":" << mpLDCP->pCamera->model_id << "(guid: " << mpLDCP->pCamera->guid << dec << ")\n";
+ 
       // What mode to use?
-      dc1394color_coding_t nTargetColourCoding = DC_from_DV3_ColourSpace(colourspace);
+      dc1394color_coding_t nTargetColourCoding = DC_from_DV3_ColourSpace(colourspace, mpLDCP->pCamera->vendor_id, mpLDCP->pCamera->model_id, mpLDCP->pCamera->guid);
 
       dc1394_camera_reset(mpLDCP->pCamera);
 
@@ -486,9 +507,31 @@ namespace CVD
 		log << error << "\n";
 		dc1394color_filter_t filterType;
 		error = dc1394_format7_get_color_filter(mpLDCP->pCamera, nMode, &filterType);
-		mColourfilter = static_cast<DV3ColourFilter>(filterType - DC1394_COLOR_FILTER_MIN);
+		mColourfilter = DV3_from_DC_ColourFilter(filterType, mpLDCP->pCamera->vendor_id, mpLDCP->pCamera->model_id, mpLDCP->pCamera->guid);
 	}
-	  
+
+	// Hack Alert: If someone requested raw bayer output but we have not
+	// yet determined the bayer filter type, then try harder to find it.
+	// This happens, if a default mode announced as MONO8 is actually a
+	// raw bayer mode instead, which is a common quirk for many cameras.
+	// We will try to query the format 7 bayer patterns, which will
+	// probably be the same as for all other modes...
+	if ((mColourfilter == UNDEFINED) && ((colourspace == RAW8)||(colourspace == RAW16))) {
+		dc1394format7modeset_t modeset;
+		error = dc1394_format7_get_modeset(mpLDCP->pCamera, &modeset);
+		if(error) throw(All("Could not get Format 7 modes."));
+
+		for(int index = 0; index < DC1394_VIDEO_MODE_FORMAT7_NUM ; ++index){
+			dc1394color_filter_t filterType;
+			dc1394video_mode_t nMode2 = static_cast<dc1394video_mode_t>( DC1394_VIDEO_MODE_FORMAT7_0 + index);
+			error = dc1394_format7_get_color_filter(mpLDCP->pCamera, nMode2, &filterType);
+			if (error) continue;
+			mColourfilter = DV3_from_DC_ColourFilter(filterType, mpLDCP->pCamera->vendor_id, mpLDCP->pCamera->model_id, mpLDCP->pCamera->guid);
+
+			if (mColourfilter != UNDEFINED) break;
+		}
+	}
+
 	// Hack Alert: The code below sets the iso channel without this
 	// having been properly allocated!	Likewise we never allocate
 	// bandwidth. Both of these could be allocated if the following

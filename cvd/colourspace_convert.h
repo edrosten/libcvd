@@ -47,8 +47,43 @@ namespace CVD
 	template<> void convert_image(const BasicImage<bayer_grbg>& from, BasicImage<Rgb<byte> >& to);
 	template<> void convert_image(const BasicImage<bayer_gbrg>& from, BasicImage<Rgb<byte> >& to);
 	template<> void convert_image(const BasicImage<bayer_rggb>& from, BasicImage<Rgb<byte> >& to);
-	 
-	
+
+	/// Convert 16bit Bayer pattern of various forms to greyscale data
+	/// @param from The input data
+	/// @param to The output data
+	/// @ingroup gImageIO
+	template<> void convert_image(const BasicImage<bayer_bggr16>& from, BasicImage<unsigned short>& to);
+	template<> void convert_image(const BasicImage<bayer_grbg16>& from, BasicImage<unsigned short>& to);
+	template<> void convert_image(const BasicImage<bayer_gbrg16>& from, BasicImage<unsigned short>& to);
+	template<> void convert_image(const BasicImage<bayer_rggb16>& from, BasicImage<unsigned short>& to);
+
+	/// Convert 16bit Bayer pattern of various forms to rgb data
+	/// @param from The input data
+	/// @param to The output data
+	/// @ingroup gImageIO
+	template<> void convert_image(const BasicImage<bayer_bggr16>& from, BasicImage<Rgb<unsigned short> >& to);
+	template<> void convert_image(const BasicImage<bayer_grbg16>& from, BasicImage<Rgb<unsigned short> >& to);
+	template<> void convert_image(const BasicImage<bayer_gbrg16>& from, BasicImage<Rgb<unsigned short> >& to);
+	template<> void convert_image(const BasicImage<bayer_rggb16>& from, BasicImage<Rgb<unsigned short> >& to);
+
+	/// Convert 16bit big endian Bayer pattern of various forms to greyscale data
+	/// @param from The input data
+	/// @param to The output data
+	/// @ingroup gImageIO
+	template<> void convert_image(const BasicImage<bayer_bggr16be>& from, BasicImage<unsigned short>& to);
+	template<> void convert_image(const BasicImage<bayer_grbg16be>& from, BasicImage<unsigned short>& to);
+	template<> void convert_image(const BasicImage<bayer_gbrg16be>& from, BasicImage<unsigned short>& to);
+	template<> void convert_image(const BasicImage<bayer_rggb16be>& from, BasicImage<unsigned short>& to);
+
+	/// Convert 16bit big endian Bayer pattern of various forms to rgb data
+	/// @param from The input data
+	/// @param to The output data
+	/// @ingroup gImageIO
+	template<> void convert_image(const BasicImage<bayer_bggr16be>& from, BasicImage<Rgb<unsigned short> >& to);
+	template<> void convert_image(const BasicImage<bayer_grbg16be>& from, BasicImage<Rgb<unsigned short> >& to);
+	template<> void convert_image(const BasicImage<bayer_gbrg16be>& from, BasicImage<Rgb<unsigned short> >& to);
+	template<> void convert_image(const BasicImage<bayer_rggb16be>& from, BasicImage<Rgb<unsigned short> >& to);
+
 	/// Convert YUV 411 pixel data to RGB
 	/// @param from The input data
 	/// @param to The output data
@@ -109,6 +144,22 @@ namespace CVD
 	template<> struct IsConvertible<bayer_grbg,  Rgb<byte> > { static const bool is=1; };
 	template<> struct IsConvertible<bayer_gbrg,  Rgb<byte> > { static const bool is=1; };
 	template<> struct IsConvertible<bayer_rggb,  Rgb<byte> > { static const bool is=1; };
+	template<> struct IsConvertible<bayer_bggr16  ,unsigned short>       { static const bool is=1; };
+	template<> struct IsConvertible<bayer_grbg16  ,unsigned short>       { static const bool is=1; };
+	template<> struct IsConvertible<bayer_gbrg16  ,unsigned short>       { static const bool is=1; };
+	template<> struct IsConvertible<bayer_rggb16  ,unsigned short>       { static const bool is=1; };
+	template<> struct IsConvertible<bayer_bggr16  ,Rgb<unsigned short> > { static const bool is=1; };
+	template<> struct IsConvertible<bayer_grbg16  ,Rgb<unsigned short> > { static const bool is=1; };
+	template<> struct IsConvertible<bayer_gbrg16  ,Rgb<unsigned short> > { static const bool is=1; };
+	template<> struct IsConvertible<bayer_rggb16  ,Rgb<unsigned short> > { static const bool is=1; };
+	template<> struct IsConvertible<bayer_bggr16be,unsigned short>       { static const bool is=1; };
+	template<> struct IsConvertible<bayer_grbg16be,unsigned short>       { static const bool is=1; };
+	template<> struct IsConvertible<bayer_gbrg16be,unsigned short>       { static const bool is=1; };
+	template<> struct IsConvertible<bayer_rggb16be,unsigned short>       { static const bool is=1; };
+	template<> struct IsConvertible<bayer_bggr16be,Rgb<unsigned short> > { static const bool is=1; };
+	template<> struct IsConvertible<bayer_grbg16be,Rgb<unsigned short> > { static const bool is=1; };
+	template<> struct IsConvertible<bayer_gbrg16be,Rgb<unsigned short> > { static const bool is=1; };
+	template<> struct IsConvertible<bayer_rggb16be,Rgb<unsigned short> > { static const bool is=1; };
 }
 
 #endif
