@@ -38,6 +38,10 @@ namespace PNM
 	{
 		static const std::string name(){return "CVD::Rgba<" + type_name<O>::name() + ">";}
 	};
+	template<class O> struct type_name<CVD::Bgrx<O> >
+	{
+		static const std::string name(){return "CVD::Bgrx<" + type_name<O>::name() + ">";}
+	};
 }
 }
 

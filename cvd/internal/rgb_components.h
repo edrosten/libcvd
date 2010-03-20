@@ -25,6 +25,7 @@
 #include <cvd/rgba.h>
 #include <cvd/rgb8.h>
 #include <cvd/argb.h>
+#include <cvd/bgrx.h>
 #include <cvd/la.h>
 #include <cvd/internal/builtin_components.h>
 #include <cvd/internal/pixel_traits.h>
@@ -53,6 +54,27 @@ namespace CVD
 				// return i == 0 ? pixel.red : (i==1 ? pixel.green : pixel.blue);
 			}
 		};
+
+		template<class P> struct Component<Bgrx<P> >
+		{
+			typedef P type;
+			static const size_t count = 3;
+
+			
+			//This version is much faster, with -funroll-loops
+			static const P& get(const Bgrx<P>& pixel, size_t i)
+			{
+				return *(reinterpret_cast<const P*>(&pixel)+i);
+				//return i == 0 ? pixel.blue : (i==1 ? pixel.green : pixel.red);
+			}
+
+			static P& get(Bgrx<P>& pixel, size_t i)
+			{
+				return *(reinterpret_cast<P*>(&pixel)+i);
+				// return i == 0 ? pixel.blue : (i==1 ? pixel.green : pixel.red);
+			}
+		};
+
 
 		template<> struct Component<Rgb8>
 		{

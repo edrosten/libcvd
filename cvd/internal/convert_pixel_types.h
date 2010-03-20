@@ -240,6 +240,7 @@ namespace CVD{namespace Pixel
   // Scalar to X
   template <class S, class T> struct DefaultConversion<S,Rgb<T>,1,3> { typedef Replicate<S,Rgb<T> > type; };
   template <class S> struct DefaultConversion<S,Rgb8,1,3> { typedef Replicate<S,Rgb8> type; };
+  template <class S, class T> struct DefaultConversion<S,Bgrx<T>,1,3> { typedef Replicate<S,Bgrx<T> > type; };
   template <class S, class T> struct DefaultConversion<S,Rgba<T>,1,4> { typedef GreyToRgba<S,T> type; };
 
   // Rgb<T> to X
@@ -248,16 +249,27 @@ namespace CVD{namespace Pixel
   template <class T, class S> struct DefaultConversion<Rgb<T>,Rgba<S>,3,4> { typedef RgbishToRgbish<Rgb<T>, Rgba<S> > type; };
   template <class T, class S> struct DefaultConversion<Rgb<T>,Rgb<S>,3,3> { typedef RgbishToRgbish<Rgb<T>, Rgb<S> > type; };
   template <class T> struct DefaultConversion<Rgb<T>,Rgb<T>,3,3> { typedef GenericConversion<Rgb<T>, Rgb<T> > type; };
+  template <class T> struct DefaultConversion<Rgb<T>,Bgrx<T>,3,3> { typedef RgbishToRgbish<Rgb<T>, Bgrx<T> > type; };
+
+  // Bgrx<T> to X
+  template <class T, class S> struct DefaultConversion<Bgrx<T>,S,3,1> { typedef CIE<Bgrx<T>,S> type; };
+  template <class T> struct DefaultConversion<Bgrx<T>,Rgb8, 3,3> { typedef RgbishToRgbish<Bgrx<T>, Rgb8> type; };
+  template <class T, class S> struct DefaultConversion<Bgrx<T>,Rgba<S>,3,4> { typedef RgbishToRgbish<Bgrx<T>, Rgba<S> > type; };
+  template <class T, class S> struct DefaultConversion<Bgrx<T>,Rgb<S>,3,3> { typedef RgbishToRgbish<Bgrx<T>, Rgb<S> > type; };
+  template <class T> struct DefaultConversion<Bgrx<T>,Rgb<T>,3,3> { typedef GenericConversion<Bgrx<T>, Rgb<T> > type; };
+  template <class T> struct DefaultConversion<Bgrx<T>,Bgrx<T>,3,3> { typedef RgbishToRgbish<Bgrx<T>, Bgrx<T> > type; };
 
   // Rgb8 to X
   template <class S> struct DefaultConversion<Rgb8,S,3,1> { typedef CIE<Rgb8,S> type; };
   template <class S> struct DefaultConversion<Rgb8,Rgb<S>,3,3> { typedef RgbishToRgbish<Rgb8, Rgb<S> > type; };
   template <class S> struct DefaultConversion<Rgb8,Rgba<S>,3,4> { typedef RgbishToRgbish<Rgb8, Rgba<S> > type; };
+  template <class S> struct DefaultConversion<Rgb8,Bgrx<S>,3,4> { typedef RgbishToRgbish<Rgb8, Bgrx<S> > type; };
   template <> struct DefaultConversion<Rgb8,Rgb8,3,3> { typedef GenericConversion<Rgb8, Rgb8> type; };
 
   // Rgba<T> to X
   template <class T, class S> struct DefaultConversion<Rgba<T>,S,4,1> { typedef CIE<Rgba<T>,S> type; };
   template <class T, class S> struct DefaultConversion<Rgba<T>,Rgb<S>,4,3> { typedef RgbishToRgbish<Rgba<T>, Rgb<S> > type; };
+  template <class T, class S> struct DefaultConversion<Rgba<T>,Bgrx<S>,4,3> { typedef RgbishToRgbish<Rgba<T>, Bgrx<S> > type; };
   template <class T> struct DefaultConversion<Rgba<T>,Rgb8,4,3> { typedef RgbishToRgbish<Rgba<T>, Rgb8> type; };
   template <class T, class S> struct DefaultConversion<Rgba<T>,Rgba<S>,4,4> { typedef RgbishToRgbish<Rgba<T>, Rgba<S> > type; };
   template <class T, class S> struct DefaultConversion<Rgba<T>,Argb<S>,4,4> { typedef RgbishToRgbish<Rgba<T>, Argb<S> > type; };
@@ -306,6 +318,11 @@ namespace CVD{namespace Pixel
   };
 
   template<class C> struct DefaultConvertible<Rgba<C> >
+  {
+  	static const int is = std::numeric_limits<C>::is_specialized;
+  };
+
+  template<class C> struct DefaultConvertible<Bgrx<C> >
   {
   	static const int is = std::numeric_limits<C>::is_specialized;
   };
