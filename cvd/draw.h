@@ -124,7 +124,7 @@ template <class T> struct color<T,3> {
 /// @param c color of the line
 /// @ingroup gGraphics
 template <class T>
-void drawLine(Image<T>& im, double x1, double y1, double x2, double y2, const T& c)
+void drawLine(SubImage<T>& im, double x1, double y1, double x2, double y2, const T& c)
 {
     double dx = x2-x1;
     double dy = y2-y1;
@@ -146,7 +146,7 @@ void drawLine(Image<T>& im, double x1, double y1, double x2, double y2, const T&
 /// @param c color of the line
 /// @ingroup gGraphics
 template <class T>
-void drawLine(Image<T>& im, const ImageRef& p1, const ImageRef& p2, const T& c)
+void drawLine(SubImage<T>& im, const ImageRef& p1, const ImageRef& p2, const T& c)
 {
     drawLine(im, double(p1.x), double(p1.y), double(p2.x), double(p2.y), c);
 }
@@ -159,7 +159,7 @@ void drawLine(Image<T>& im, const ImageRef& p1, const ImageRef& p2, const T& c)
 /// @param c color of the line
 /// @ingroup gGraphics
 template <class T>
-void drawLine(Image<T>& im, const TooN::Vector<2>& p1, const TooN::Vector<2>& p2, const T& c)
+void drawLine(SubImage<T>& im, const TooN::Vector<2>& p1, const TooN::Vector<2>& p2, const T& c)
 {
     drawLine(im, p1[0], p1[1], p2[0], p2[1], c);
 }
@@ -175,7 +175,7 @@ void drawLine(Image<T>& im, const TooN::Vector<2>& p1, const TooN::Vector<2>& p2
 /// @param c color of the line
 /// @ingroup gGraphics
 template <class T>
-void drawShape(Image<T>& im, const ImageRef& offset, const std::vector<ImageRef>& points, const T& c)
+void drawShape(SubImage<T>& im, const ImageRef& offset, const std::vector<ImageRef>& points, const T& c)
 {
     for (unsigned int i=0; i<points.size()-1; i++)
         drawLine(im, points[i]+offset, points[i+1]+offset, c);
@@ -189,7 +189,7 @@ void drawShape(Image<T>& im, const ImageRef& offset, const std::vector<ImageRef>
 /// @param c color of the box
 /// @ingroup gGraphics
 template <class T>
-void drawBox(Image<T> &im, const ImageRef & upperleft, const ImageRef & lowerright, const T& c)
+void drawBox(SubImage<T> &im, const ImageRef & upperleft, const ImageRef & lowerright, const T& c)
 {
     drawLine(im, upperleft.x, upperleft.y, upperleft.x, lowerright.y, c);
     drawLine(im, upperleft.x, upperleft.y, lowerright.x, upperleft.y, c);
@@ -204,7 +204,7 @@ void drawBox(Image<T> &im, const ImageRef & upperleft, const ImageRef & lowerrig
 /// @param c color of the box
 /// @ingroup gGraphics
 template <class T>
-void drawCross(Image<T>& im, const ImageRef& p, double len, const T& c)
+void drawCross(SubImage<T>& im, const ImageRef& p, double len, const T& c)
 {
     drawLine(im, p.x-len, p.y, p.x+len, p.y, c);
     drawLine(im, p.x, p.y-len, p.x, p.y+len, c);
