@@ -165,7 +165,14 @@ png_reader::png_reader(std::istream& in)
 	{
 		//Expand nonbool colour depths up to 8bpp
 		if(depth < 8)
-			png_set_gray_1_2_4_to_8(png_ptr);
+		{
+			#ifdef CVD_INTERNAL_HAVE_OLD_PNG
+				png_set_gray_1_2_4_to_8(png_ptr);
+			#else
+				png_set_expand_gray_1_2_4_to_8(png_ptr);
+			#endif
+
+		}
 
 		type = PNM::type_name<unsigned char>::name();
 	}

@@ -719,6 +719,13 @@ CHECK_FOR_OPTION(pthread, [
 CHECK_FOR_OPTION(png, [
 	AC_CHECK_HEADERS(png.h, [], [a=1])
 	AC_CHECK_LIB(png, png_init_io, [], [a=1])
+	oldpng=0
+	AC_CHECK_LIB(png, png_set_expand_gray_1_2_4_to_8, [], [oldpng=1])
+	if test $oldpng == 1
+	then
+		APPEND(dodginess_options, oldpng)
+		AC_DEFINE(CVD_INTERNAL_HAVE_OLD_PNG, 1)
+	fi
 ])
 
 CHECK_FOR_OPTION(jpeg, [
