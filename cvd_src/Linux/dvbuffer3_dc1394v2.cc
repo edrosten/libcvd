@@ -23,6 +23,7 @@
 #include <cvd/Linux/dvbuffer3.h>
 #include <cvd/byte.h>
 #include <dc1394/dc1394.h>
+#include <libraw1394/raw1394.h>
 #include <vector>
 #include <algorithm>
 #include <iostream>
@@ -206,6 +207,7 @@ namespace CVD
 			       uint64_t cam_guid,
 			       int cam_unit,
 			       bool verbose,
+			       bool bus_reset,
 			       ImageRef irSize,
 			       float fFrameRate, 
 			       ImageRef irOffset,
@@ -269,6 +271,14 @@ namespace CVD
       dc1394_camera_free_list(pCameraList);
   
       if(!mpLDCP->pCamera) throw(All("Failed on dc1394_camera_new"));
+
+      if (bus_reset) {
+	dc1394switch_t is_iso_on;
+	if (dc1394_video_get_transmission(mpLDCP->pCamera, &is_iso_on)!=DC1394_SUCCESS) is_iso_on = DC1394_OFF;
+	if (is_iso_on==DC1394_ON) {
+	  dc1394_video_set_transmission(mpLDCP->pCamera, DC1394_OFF);
+	}
+      }
 
       log << "Selected camera: " << hex << mpLDCP->pCamera->vendor_id << ":" << mpLDCP->pCamera->model_id << "(guid: " << mpLDCP->pCamera->guid << dec << ")\n";
  
@@ -465,7 +475,7 @@ namespace CVD
 	
 		// frame rate calculations
 		int num_packets = (int)(8000.0/fFrameRate + 0.5);
-		log << "Number of packes: " << num_packets << "\n";
+		log << "Number of packets: " << num_packets << "\n";
 		int packet_size = (irSize.x * irSize.y * 8 + num_packets * 8 - 1 ) / (num_packets * 8);
 		mdFramerate = fFrameRate;
 		// offset calculations
@@ -566,8 +576,22 @@ namespace CVD
   
       delete mpLDCP;
     }
-  
-  
+
+    void RawDVBuffer3::stopAllTransmissions(void)
+    {
+      raw1394handle_t rawhandle = raw1394_new_handle();
+      int numPorts = raw1394_get_port_info(rawhandle, NULL,0);
+      for (int i=0; i<numPorts; i++) {
+	raw1394handle_t port = raw1394_new_handle_on_port(i);
+	if (port==NULL) continue;
+	raw1394_iso_stop(port);
+	raw1394_iso_shutdown(port);
+	raw1394_reset_bus(port);
+	raw1394_destroy_handle(port);
+      }
+      raw1394_destroy_handle(rawhandle);
+    }
+
     bool RawDVBuffer3::frame_pending()
     {
       return true;

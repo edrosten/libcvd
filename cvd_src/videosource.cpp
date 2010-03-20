@@ -365,11 +365,12 @@ namespace CVD {
 	}
 
 
-	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset, bool& verbose, int& format7_mode)
+	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset, bool& verbose, bool& bus_reset, int& format7_mode)
 	{ 
 		size = offset = ImageRef(-1, -1);
 		fps = -1;
 		verbose = 0;
+		bus_reset = 0;
 		format7_mode = -1;
 
 		for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it) {
@@ -381,6 +382,8 @@ namespace CVD {
 				offset = parseImageRef(it->second, false);
 			else if (it->first == "verbose")
 				verbose = parseBoolFlag(it->second);
+			else if (it->first == "reset")
+				bus_reset = parseBoolFlag(it->second);
 			else if(it->first == "mode" || it->first == "format7_mode" || it->first == "format7")
 				format7_mode = atoi(it->second.c_str());
 			else

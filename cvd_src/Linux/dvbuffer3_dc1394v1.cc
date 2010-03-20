@@ -69,6 +69,7 @@ namespace CVD
 				   uint64_t,
 				   int,
 				   bool,
+				   bool,
 			       ImageRef ,
 			       float fFrameRate,
 			       ImageRef )
