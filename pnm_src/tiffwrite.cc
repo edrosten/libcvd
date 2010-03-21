@@ -365,7 +365,7 @@ TIFFWritePimpl::TIFFWritePimpl(ostream& os, ImageRef s, const string& t)
 // Implementation of public parts of TIFF reading
 //
 
-tiff_writer::tiff_writer(ostream& o, ImageRef size, const string& type)
+tiff_writer::tiff_writer(ostream& o, ImageRef size, const string& type, const std::map<std::string, Parameter<> >& p)
 :t(new TIFFWritePimpl(o, size, type))
 {}
 

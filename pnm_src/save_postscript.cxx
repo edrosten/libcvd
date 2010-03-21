@@ -227,7 +227,7 @@ void WritePimpl::write_raw_pixel_lines(const unsigned char* data, unsigned long 
 // Public interfaces to image writing.
 //
 
-writer::writer(ostream& o, ImageRef size, const string& s)
+writer::writer(ostream& o, ImageRef size, const string& s, const map<string, Parameter<> >&)
 :t(new WritePimpl(o, size, s))
 {}
 
@@ -252,7 +252,7 @@ string eps_header(ImageRef s)
 	return os.str();
 }
 
-eps_writer::eps_writer(ostream& o, ImageRef size, const string& s)
+eps_writer::eps_writer(ostream& o, ImageRef size, const string& s, const map<string, Parameter<> >&)
 :t(new WritePimpl(o, size, s, eps_header(size)))
 {}
 

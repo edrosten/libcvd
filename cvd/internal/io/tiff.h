@@ -146,7 +146,7 @@ namespace TIFF
 	class tiff_writer
 	{
 		public:
-			tiff_writer(std::ostream&, ImageRef size, const std::string& type);
+			tiff_writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, Parameter<> >& p);
 			~tiff_writer();
 
 			void write_raw_pixel_line(const bool*);

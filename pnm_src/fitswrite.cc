@@ -250,7 +250,7 @@ WritePimpl::~WritePimpl()
 // Implementation of public parts of FITS reading
 //
 
-CVD::FITS::writer::writer(ostream& o, ImageRef size, const string& type)
+CVD::FITS::writer::writer(ostream& o, ImageRef size, const string& type, const map<string, Parameter<> >&)
 :t(new WritePimpl(o, size, type))
 {}
 

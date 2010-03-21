@@ -155,7 +155,7 @@ namespace FITS
 	class writer
 	{
 		public:
-			writer(std::ostream&, ImageRef size, const std::string& type);
+			writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, Parameter<> >& p);
 			~writer();
 
 			void write_raw_pixel_line(const unsigned char*);

@@ -167,7 +167,7 @@ namespace CVD
 	class pnm_writer
 	{
 		public:
-			pnm_writer(std::ostream&, ImageRef size, const std::string& type);
+			pnm_writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, Parameter<> >& p);
 			~pnm_writer();
 
 			//void write_raw_pixel_line(const bool*);

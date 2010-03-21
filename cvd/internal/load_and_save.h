@@ -22,11 +22,16 @@
 #define CVD_LOAD_AND_SAVE_H
 
 #include <iostream>
+#include <string>
+#include <typeinfo>
+#include <map>
+#include <memory>
 #include <cvd/exceptions.h>
 #include <cvd/image_convert.h>
 #include <cvd/colourspace_convert.h>
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/internal/name_CVD_rgb_types.h>
+#include <cvd/internal/io/parameter.h>
 
 namespace CVD {
 
@@ -129,8 +134,7 @@ namespace CVD {
 
 		}
 	}
-
-
+	
 	namespace Internal
 	{
 		template<class C, int i> struct save_default_
@@ -297,9 +301,9 @@ namespace CVD {
 		//
 		template<class Pixel, class ImageWriter, class OutgoingPixel> struct maybe_process_and_write
 		{	
-			static void write(std::ostream& os, const SubImage<Pixel>& im)
+			static void write(std::ostream& os, const SubImage<Pixel>& im, const std::map<std::string, Parameter<> >& p)
 			{
-				ImageWriter w(os, im.size(), CVD::PNM::type_name<OutgoingPixel>::name());
+				ImageWriter w(os, im.size(), CVD::PNM::type_name<OutgoingPixel>::name(), p);
 				Image<OutgoingPixel> row(ImageRef(im.size().x, 1));
 
 				for(int r=0; r < im.size().y; r++)
@@ -312,17 +316,17 @@ namespace CVD {
 
 		template<class Pixel, class ImageWriter> struct maybe_process_and_write<Pixel, ImageWriter, Pixel>
 		{	
-			static void write(std::ostream& os, const SubImage<Pixel>& im)
+			static void write(std::ostream& os, const SubImage<Pixel>& im, const std::map<std::string, Parameter<> >& p)
 			{
-				ImageWriter w(os, im.size(), CVD::PNM::type_name<Pixel>::name());
+				ImageWriter w(os, im.size(), CVD::PNM::type_name<Pixel>::name(), p);
 				for(int r=0; r < im.size().y; r++)
 					w.write_raw_pixel_line(im[r]);
 			}
 		};
 
-		template<class Pixel, class Writer> void writeImage(const SubImage<Pixel>& im, std::ostream& o)
+		template<class Pixel, class Writer> void writeImage(const SubImage<Pixel>& im, std::ostream& o, const std::map<std::string, Parameter<> >& p)
 		{
-			maybe_process_and_write<Pixel, Writer, typename Writer::template Outgoing<Pixel>::type>::write(o, im);
+			maybe_process_and_write<Pixel, Writer, typename Writer::template Outgoing<Pixel>::type>::write(o, im, p);
 		}
 
 	

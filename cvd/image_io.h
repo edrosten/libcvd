@@ -289,33 +289,33 @@ namespace CVD
 	/// @param t The image file format to use (see ImageType::ImageType for a list of supported formats)
 	/// @ingroup gImageIO
 	template<class PixelType> 
-	void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t)
+	void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t, const std::map<std::string, Parameter<> >& p = std::map<std::string, Parameter<> >())
 	{
 	  switch (t) {
 	  default:
 	  case ImageType::PNM:  
 	  case ImageType::Automatic:
 	  case ImageType::Unknown:
-		Internal::writeImage<PixelType, PNM::pnm_writer>(im, o); break;
+		Internal::writeImage<PixelType, PNM::pnm_writer>(im, o, p); break;
 	  #ifdef CVD_HAVE_JPEG
-		  case ImageType::JPEG: Internal::writeImage<PixelType, JPEG::writer>(im,o); break;
+		  case ImageType::JPEG: Internal::writeImage<PixelType, JPEG::writer>(im,o, p); break;
 	  #endif
 	  #ifdef CVD_HAVE_PNG
-		  case ImageType::PNG: Internal::writeImage<PixelType, PNG::png_writer>(im,o); break;
+		  case ImageType::PNG: Internal::writeImage<PixelType, PNG::png_writer>(im,o, p); break;
 	  #endif
 	  #ifdef CVD_HAVE_TIFF
-		  case ImageType::TIFF: Internal::writeImage<PixelType, TIFF::tiff_writer>(im,o); break;
+		  case ImageType::TIFF: Internal::writeImage<PixelType, TIFF::tiff_writer>(im,o, p); break;
 	  #endif
-	  case ImageType::FITS: Internal::writeImage<PixelType, FITS::writer>(im,o); break;
+	  case ImageType::FITS: Internal::writeImage<PixelType, FITS::writer>(im,o, p); break;
 	  case ImageType::BMP: BMP::writeBMP(im, o); break;
-	  case ImageType::TXT: Internal::writeImage<PixelType, TEXT::writer>(im, o); break;
-	  case ImageType::PS:   Internal::writeImage<PixelType, PS::writer>(im, o); break;
-	  case ImageType::EPS:   Internal::writeImage<PixelType, PS::eps_writer>(im, o); break;
-	  case ImageType::CVD: Internal::writeImage<PixelType, CVDimage::writer>(im,o); break;
+	  case ImageType::TXT: Internal::writeImage<PixelType, TEXT::writer>(im, o, p); break;
+	  case ImageType::PS:   Internal::writeImage<PixelType, PS::writer>(im, o, p); break;
+	  case ImageType::EPS:   Internal::writeImage<PixelType, PS::eps_writer>(im, o, p); break;
+	  case ImageType::CVD: Internal::writeImage<PixelType, CVDimage::writer>(im,o, p); break;
 	  }
 	}
 
-	template<class PixelType> void img_save(const BasicImage<PixelType>& im, const std::string& name, ImageType::ImageType t, ImageType::ImageType d = ImageType::PNM)
+	template<class PixelType> void img_save(const BasicImage<PixelType>& im, const std::string& name, ImageType::ImageType t, ImageType::ImageType d = ImageType::PNM, const std::map<std::string, Parameter<> >& p = std::map<std::string, Parameter<> >())
 	{
 	  std::ofstream out(name.c_str(), std::ios::out|std::ios::binary);
 	  if(!out.good())
@@ -328,12 +328,12 @@ namespace CVD
 			t = d;
 	  }
 
-	  img_save(im, out, t);
+	  img_save(im, out, t, p);
 	}
 
-	template<class PixelType> void img_save(const BasicImage<PixelType>& im, const std::string& name)
+	template<class PixelType> void img_save(const BasicImage<PixelType>& im, const std::string& name, const std::map<std::string, Parameter<> >& p = std::map<std::string, Parameter<> >())
 	{
-	    img_save(im, name, ImageType::Automatic);
+	    img_save(im, name, ImageType::Automatic, ImageType::PNM, p);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////

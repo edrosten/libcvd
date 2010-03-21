@@ -351,7 +351,7 @@ struct jpeg_ostream_dest: public jpeg_destination_mgr
 class WritePimpl
 {
 	public:
-  WritePimpl(std::ostream&, int  xsize, int ysize, const string& type, const std::string& comm="");
+  WritePimpl(std::ostream&, int  xsize, int ysize, const string& type, const std::map<std::string, Parameter<> >& p, const std::string& comm="");
 		int channels(){return m_channels;}
 		long  x_size() const {return xs;}
 		long  y_size() const {return ys;}
@@ -371,7 +371,7 @@ class WritePimpl
 
 
 
-WritePimpl::WritePimpl(std::ostream& out, int xsize, int ysize, const string& t, const string& comm)
+WritePimpl::WritePimpl(std::ostream& out, int xsize, int ysize, const string& t, const std::map<std::string, Parameter<> >& p, const string& comm)
 :o(out)
 {
 	xs = xsize;
@@ -412,8 +412,21 @@ WritePimpl::WritePimpl(std::ostream& out, int xsize, int ysize, const string& t,
 	cinfo.input_components = m_channels;
 	cinfo.in_color_space = (m_channels==3) ? JCS_RGB : JCS_GRAYSCALE;
 
+	int quality = 95;
+	if(p.count("jpeg.quality"))
+	{
+		try{
+			quality = p.find("jpeg.quality")->second.get<int>();
+			quality = max(0,min(100,quality));
+		}
+		catch(std::bad_cast c)
+		{
+			cerr << "Warning jpeg.quality is not an int.\n";
+		}
+	}
+
 	jpeg_set_defaults(&cinfo);
-	jpeg_set_quality(&cinfo, 95, TRUE);
+	jpeg_set_quality(&cinfo, quality, TRUE);
 
 	jpeg_start_compress(&cinfo, TRUE);
 
@@ -476,8 +489,8 @@ WritePimpl::~WritePimpl()
 // Public interfaces to image writing.
 //
 
-writer::writer(ostream& o, ImageRef size, const string& s)
-:t(new WritePimpl(o, size.x, size.y, s))
+writer::writer(ostream& o, ImageRef size, const string& s, const std::map<std::string, Parameter<> >& p)
+:t(new WritePimpl(o, size.x, size.y, s, p))
 {}
 
 writer::~writer()

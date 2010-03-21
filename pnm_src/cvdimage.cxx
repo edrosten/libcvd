@@ -891,7 +891,7 @@ WritePimpl::~WritePimpl()
 // Public interfaces to image writing.
 //
 
-writer::writer(ostream& o, ImageRef size, const string& s)
+writer::writer(ostream& o, ImageRef size, const string& s, const std::map<std::string, Parameter<> >&)
 :t(new WritePimpl(o, size.x, size.y, s))
 {}
 

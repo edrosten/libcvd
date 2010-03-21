@@ -221,7 +221,7 @@ png_reader::~png_reader()
 // PNG writing functions.
 //
 
-png_writer::png_writer(ostream& out, ImageRef sz, const string& type_)
+png_writer::png_writer(ostream& out, ImageRef sz, const string& type_, const std::map<std::string, Parameter<> >& p)
 :row(0),o(out),size(sz),type(type_)
 {
 	//Create required structs

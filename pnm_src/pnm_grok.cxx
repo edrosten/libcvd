@@ -505,7 +505,7 @@ namespace CVD
 	    out << size.x << " " << size.y << endl << maxval << endl;
 	}
 
-	pnm_writer::pnm_writer(std::ostream& out, ImageRef size_, const std::string& type_)
+	pnm_writer::pnm_writer(std::ostream& out, ImageRef size_, const std::string& type_, const std::map<std::string, Parameter<> >&)
 	:row(0),o(out),size(size_),type(type_)
 	{
 		
