@@ -24,6 +24,7 @@
 
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 #include <cvd/vision_exceptions.h>
 #include <cvd/image.h>
@@ -432,6 +433,26 @@ template <class T> void flipVertical( Image<T> & in )
     std::copy(buffer, buffer+w, bottom);
     top += w;
     bottom -= w;
+  }
+}
+
+/// flips an image horizontally in place.
+template <class T> void flipHorizontal( Image<T> & in )
+{
+  int w = in.size().x;
+  int h = in.size().y;
+  std::auto_ptr<T> buffer_auto(new T[w]);
+  T* buffer = buffer_auto.get();
+  T * left = in.data();
+  T * right = left + w;
+  int row = 0;
+  while(row < h)
+  {
+    std::copy(left, right, buffer);
+    std::reverse_copy(buffer, buffer+w-1, left);
+    row++;
+    left += w;
+    right += w;
   }
 }
 
