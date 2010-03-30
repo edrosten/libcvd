@@ -23,7 +23,9 @@
 #include <cvd/Linux/dvbuffer3.h>
 #include <cvd/byte.h>
 #include <dc1394/dc1394.h>
+#ifndef DARWIN
 #include <libraw1394/raw1394.h>
+#endif
 #include <vector>
 #include <algorithm>
 #include <iostream>
@@ -577,6 +579,7 @@ namespace CVD
       delete mpLDCP;
     }
 
+#ifndef DARWIN
     void RawDVBuffer3::stopAllTransmissions(void)
     {
       raw1394handle_t rawhandle = raw1394_new_handle();
@@ -591,6 +594,7 @@ namespace CVD
       }
       raw1394_destroy_handle(rawhandle);
     }
+#endif //DARWIN
 
     bool RawDVBuffer3::frame_pending()
     {

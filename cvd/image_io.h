@@ -252,7 +252,7 @@ namespace CVD
 	  else if(c == 'S')
 	    CVD::Internal::readImage<I, FITS::reader>(im, i);
 	  else if(c == 'C')
-	    CVD::Internal::readImage<I, CVDimage::reader>(im, i);
+		CVD::Internal::readImage<I, CVDimage::reader>(im, i);
 	  else if(c == ' ' || c == '\t' || isdigit(c) || c == '-' || c == '+')
 	    CVD::Internal::readImage<I, TEXT::reader>(im, i);
 	  else
