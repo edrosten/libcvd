@@ -20,7 +20,11 @@
 */
 #include <string.h>
 #include <cvd/colourspace.h>
+#ifdef WIN32
+#include <Winsock2.h>
+#else
 #include <netinet/in.h>
+#endif
 
 //Written by Ethan
 //Modified by Olaf :)
@@ -42,11 +46,20 @@ struct read_net_byteorder<unsigned short>
   static unsigned short get(const unsigned short & from) { return ntohs(from); }
 };
 
+#ifdef WIN32
+template <>
+struct read_net_byteorder<unsigned long>
+{
+  static unsigned short get(const unsigned short & from) { return ntohl(from); }
+};
+#else
 template <>
 struct read_net_byteorder<uint32_t>
 {
   static unsigned short get(const unsigned short & from) { return ntohl(from); }
 };
+
+#endif
 
 
 // RGRGRG

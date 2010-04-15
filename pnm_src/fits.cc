@@ -18,9 +18,9 @@
 	Foundation, Inc., 
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
+#include "cvd/config.h"
 #include "cvd/internal/io/fits.h"
 #include "cvd/image_io.h"
-#include "cvd/config.h"
 #include <algorithm>
 #include <vector>
 #include <deque>
