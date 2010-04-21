@@ -124,6 +124,7 @@ namespace Camera {
 	/// Returns the vector of camera parameters in the format
 	/// \f$ \begin{pmatrix}f_u & f_v & u_0 & v_0 & c\end{pmatrix} \f$
     inline TooN::Vector<num_parameters>& get_parameters() {return my_camera_parameters;}
+    inline const TooN::Vector<num_parameters>& get_parameters() const {return my_camera_parameters;}
 
   private:
     TooN::Vector<num_parameters> my_camera_parameters; // f_u, f_v, u_0, v_0
@@ -283,10 +284,17 @@ namespace Camera {
 			/// in the form \f$ \begin{bmatrix} \frac{\partial \text{im1}}{\partial \text{cam1}} & \frac{\partial \text{im1}}{\partial \text{cam2}} \\ \frac{\partial \text{im2}}{\partial \text{cam1}} & \frac{\partial \text{im2}}{\partial \text{cam2}} \end{bmatrix} \f$
 			inline TooN::Matrix<2,2> get_derivative() const
 			{
+				return get_derivative(my_last_camframe);
+			}
+
+			/// Evaluate the derivative of image frame wrt camera frame at an arbitrary point @p pt.
+			/// @sa get_derivative()
+			inline TooN::Matrix<2,2> get_derivative(const TooN::Vector<2>& pt) const
+			{
 				TooN::Matrix<2,2> J;
 
-				double xc = my_last_camframe[0];
-				double yc = my_last_camframe[1];
+				double xc = pt[0];
+				double yc = pt[1];
 
 				double fu= my_camera_parameters[0];
 				double fv= my_camera_parameters[1];
@@ -295,10 +303,10 @@ namespace Camera {
 				double g = 1/sqrt(1 + a * (xc*xc + yc*yc));
 				double g3= g*g*g;
 				
-				J[0][0] = fu * (g - 2 * a * xc*xc*g3);
-				J[0][1] = -2 * fu * a * xc * yc * g3;
-				J[1][0] = -2 * fv * a * xc * yc * g3;
-				J[1][1] = fv * (g - 2 * a * yc*yc*g3);
+				J[0][0] = fu * (g - a * xc*xc*g3);
+				J[0][1] = - fu * a * xc * yc * g3;
+				J[1][0] = - fv * a * xc * yc * g3;
+				J[1][1] = fv * (g - a * yc*yc*g3);
 
 				return J;
 			}
@@ -306,12 +314,19 @@ namespace Camera {
 			/// Get the motion of a point with respect to each of the internal camera parameters
 			inline TooN::Matrix<num_parameters,2> get_parameter_derivs() const 
 			{
-				TooN::Vector<2> mod_camframe = radial_distort(my_last_camframe);
+				return get_parameter_derivs_at(my_last_camframe);
+			}
+
+			/// Evaluate the derivative of the image coordinates of a given point @p pt in camera
+			/// coordinates with respect to each of the internal camera parameters
+			inline TooN::Matrix<num_parameters,2> get_parameter_derivs_at(const TooN::Vector<2>& pt) const
+			{
+				TooN::Vector<2> mod_camframe = radial_distort(pt);
 
 				TooN::Matrix<5, 2> result;
 
-				double xc = my_last_camframe[0];
-				double yc = my_last_camframe[1];
+				double xc = pt[0];
+				double yc = pt[1];
 				double r2 = xc*xc + yc*yc;
 
 				double fu= my_camera_parameters[0];
@@ -327,8 +342,6 @@ namespace Camera {
 				result[2][0] = 1;
 				result[3][0] = 0;
 				result[4][0] = - fu * xc * r2 / 2 * g3;
-
-
 
 				//Derivatives of y_image:
 				result[0][1] = 0;
@@ -356,6 +369,10 @@ namespace Camera {
 			/// Returns the vector of camera parameters in the format
 			/// \f$ \begin{pmatrix}f_u & f_v & u_0 & v_0 & c\end{pmatrix} \f$
 			inline TooN::Vector<num_parameters>& get_parameters() 
+			{
+				return my_camera_parameters;
+			}
+			inline const TooN::Vector<num_parameters>& get_parameters() const
 			{
 				return my_camera_parameters;
 			}
