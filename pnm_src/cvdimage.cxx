@@ -20,9 +20,7 @@
 */
 
 #include <stdio.h>
-#include <stdint.h>
 #include <string.h>
-#include <arpa/inet.h> // used for byte reordering
 #include "cvd/internal/io/cvdimage.h"
 
 #include "cvd/image_io.h"
@@ -34,7 +32,18 @@
 #include <algorithm>
 #include <set>
 #include <climits>
+
+#ifdef WIN32
+#include <array>
+#include <Winsock2.h>
+typedef unsigned __int16  uint16_t;
+typedef unsigned __int64  uint64_t;
+#else
 #include <tr1/array>
+#include <arpa/inet.h> // used for byte reordering
+#include <stdint.h>
+#endif
+
 using namespace std;
 using namespace std::tr1;
 

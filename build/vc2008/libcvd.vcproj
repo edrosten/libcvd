@@ -22,7 +22,7 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="0"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -48,6 +48,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -64,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="pthreadVCE2.lib jpeg.lib"
+				AdditionalDependencies="pthreadVCE2.lib jpeg.lib Ws2_32.lib"
 				OutputFile="..\..\lib\$(ProjectName)d.lib"
 				AdditionalLibraryDirectories="&quot;$(LIBDIR)&quot;"
 			/>
@@ -90,7 +91,7 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="0"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -111,6 +112,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="2"
 				FavorSizeOrSpeed="1"
+				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\..;&quot;$(INCLUDEDIR)&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
@@ -131,7 +133,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="pthreadVCE2.lib jpeg.lib"
+				AdditionalDependencies="pthreadVCE2.lib jpeg.lib Ws2_32.lib"
 				OutputFile="..\..\lib\$(ProjectName).lib"
 				AdditionalLibraryDirectories="&quot;$(LIBDIR)&quot;"
 			/>
@@ -471,6 +473,10 @@
 				>
 				<File
 					RelativePath="..\..\pnm_src\bmp.cxx"
+					>
+				</File>
+				<File
+					RelativePath="..\..\pnm_src\cvdimage.cxx"
 					>
 				</File>
 				<File
