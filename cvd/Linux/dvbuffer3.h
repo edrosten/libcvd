@@ -117,7 +117,7 @@ namespace CVD
     /// typed video frames, you should use DVBuffer 3 instead..
     /// The implementation of this class depends on which version of libDC1394 is 
     /// installed on the system. Format 7 support is only present for libDC1394 V2.
-    class RawDVBuffer3
+    class RawDVBuffer3: public virtual RawVideoBuffer
     {
     public:
       /// Mode-selecting constructor for all standard modes & Format 7. First it tries
