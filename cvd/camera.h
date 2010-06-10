@@ -46,7 +46,7 @@ namespace Camera {
     inline void load(std::istream& is); 
 	/// Save parameters to a stream 
 	///@param os The stream to use
-    inline void save(std::ostream& os); 
+    inline void save(std::ostream& os) const; 
 
     /// Fast linear projection for working out what's there
     inline TooN::Vector<2> linearproject(const TooN::Vector<2>& camframe, double scale=1) const;
@@ -95,18 +95,18 @@ namespace Camera {
     inline void load(std::istream& is);
 	/// Save parameters to a stream 
 	///@param os The stream to use
-    inline void save(std::ostream& os);
+    inline void save(std::ostream& os) const;
 
     /// Fast linear projection for working out what's there
-    inline TooN::Vector<2> linearproject(const TooN::Vector<2>& camframe, double scale=1); 
+    inline TooN::Vector<2> linearproject(const TooN::Vector<2>& camframe, double scale=1) const; 
 	/// Project from Euclidean camera frame to image plane
     inline TooN::Vector<2> project(const TooN::Vector<2>& camframe) const; 
 	/// Project from image plane to a Euclidean camera
-    inline TooN::Vector<2> unproject(const TooN::Vector<2>& imframe); 
+    inline TooN::Vector<2> unproject(const TooN::Vector<2>& imframe) const; 
     
     /// Get the derivative of image frame wrt camera frame at the last computed projection
     /// in the form \f$ \begin{bmatrix} \frac{\partial \text{im1}}{\partial \text{cam1}} & \frac{\partial \text{im1}}{\partial \text{cam2}} \\ \frac{\partial \text{im2}}{\partial \text{cam1}} & \frac{\partial \text{im2}}{\partial \text{cam2}} \end{bmatrix} \f$
-    inline TooN::Matrix<2,2> get_derivative();
+    inline TooN::Matrix<2,2> get_derivative() const;
 
     /// Get the motion of a point with respect to each of the internal camera parameters
     inline TooN::Matrix<num_parameters,2> get_parameter_derivs() const ;
@@ -144,7 +144,7 @@ namespace Camera {
     inline void load(std::istream& is);
 	/// Save parameters to a stream 
 	///@param os The stream to use
-    inline void save(std::ostream& os);
+    inline void save(std::ostream& os) const;
 
     /// Fast linear projection for working out what's there
     inline TooN::Vector<2> linearproject(const TooN::Vector<2>& camframe, double scale=1) const ;
@@ -249,7 +249,7 @@ namespace Camera {
 
 			/// Save parameters to a stream 
 			///@param os The stream to use
-			inline void save(std::ostream& os)
+			inline void save(std::ostream& os) const
 			{
 				os << my_camera_parameters;
 			}
@@ -269,7 +269,7 @@ namespace Camera {
 			}
 
 			/// Project from image plane to a Euclidean camera
-			inline TooN::Vector<2> unproject(const TooN::Vector<2>& imframe)
+			inline TooN::Vector<2> unproject(const TooN::Vector<2>& imframe) const
 			{
 				//Undo the focal length and optic axis.
 				TooN::Vector<2> mod_camframe;
@@ -404,7 +404,7 @@ namespace Camera {
 
 			/// Save parameters to a stream 
 			///@param os The stream to use
-			inline void save(std::ostream& os)
+			inline void save(std::ostream& os) const
 			{
 				os << my_camera_parameters;
 			}
@@ -424,7 +424,7 @@ namespace Camera {
 			}
 
 			/// Project from image plane to a Euclidean camera
-			inline TooN::Vector<2> unproject(const TooN::Vector<2>& imframe)
+			inline TooN::Vector<2> unproject(const TooN::Vector<2>& imframe) const
 			{
 				//Undo the focal length and optic axis.
 				TooN::Vector<2> mod_camframe;
@@ -535,7 +535,7 @@ void Camera::Linear::load(std::istream& is) {
   is >> my_camera_parameters;
 }
 
-void Camera::Linear::save(std::ostream& os){
+void Camera::Linear::save(std::ostream& os) const {
   os << my_camera_parameters;
 }
 
@@ -598,11 +598,11 @@ void Camera::Cubic::load(std::istream& is) {
   is >> my_camera_parameters;
 }
 
-void Camera::Cubic::save(std::ostream& os){
+void Camera::Cubic::save(std::ostream& os) const {
   os << my_camera_parameters;
 }
 
-inline TooN::Vector<2> Camera::Cubic::linearproject(const TooN::Vector<2>& camframe, double scale){
+inline TooN::Vector<2> Camera::Cubic::linearproject(const TooN::Vector<2>& camframe, double scale) const {
   return TooN::Vector<2>(scale * diagmult(camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
 }
 
@@ -612,7 +612,7 @@ inline TooN::Vector<2> Camera::Cubic::project(const TooN::Vector<2>& camframe) c
   return TooN::Vector<2>(diagmult(mod_camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
 }
 
-inline TooN::Vector<2> Camera::Cubic::unproject(const TooN::Vector<2>& imframe){
+inline TooN::Vector<2> Camera::Cubic::unproject(const TooN::Vector<2>& imframe) const {
   TooN::Vector<2> mod_camframe;
   mod_camframe[0] = (imframe[0]-my_camera_parameters[2])/my_camera_parameters[0];
   mod_camframe[1] = (imframe[1]-my_camera_parameters[3])/my_camera_parameters[1];
@@ -631,7 +631,7 @@ inline TooN::Vector<2> Camera::Cubic::unproject(const TooN::Vector<2>& imframe){
   return my_last_camframe;
 }
 
-TooN::Matrix<2,2> Camera::Cubic::get_derivative(){
+TooN::Matrix<2,2> Camera::Cubic::get_derivative() const {
   TooN::Matrix<2,2> result = TooN::Identity;
   result *= 1+my_camera_parameters[4]*(my_last_camframe*my_last_camframe);
   result += (2*my_camera_parameters[4]*my_last_camframe.as_col()) * my_last_camframe.as_row();
@@ -685,7 +685,7 @@ void Camera::Quintic::load(std::istream& is) {
   is >> my_camera_parameters;
 }
 
-void Camera::Quintic::save(std::ostream& os){
+void Camera::Quintic::save(std::ostream& os) const {
   os << my_camera_parameters;
 }
 
