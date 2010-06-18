@@ -245,7 +245,10 @@ namespace Camera {
     
 			///Load parameters from a stream 
 			///@param is The stream to use
-			inline void load(std::istream& is);
+			inline void load(std::istream& is)
+			{
+				is >> my_camera_parameters;
+			}
 
 			/// Save parameters to a stream 
 			///@param os The stream to use
@@ -400,7 +403,10 @@ namespace Camera {
     
 			///Load parameters from a stream 
 			///@param is The stream to use
-			inline void load(std::istream& is);
+			inline void load(std::istream& is)
+			{
+				is >> my_camera_parameters;
+			}
 
 			/// Save parameters to a stream 
 			///@param os The stream to use
