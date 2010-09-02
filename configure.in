@@ -597,14 +597,17 @@ CHECK_FOR_OPTION(videodisplay,[
 
 	if test "$host_vendor" == apple
 	then
-		APPEND(LIBS, [-L$x_libraries -lX11 -lXext -dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib])
+		APPEND(LIBS, [-lX11 -lXext -framework OpenGL -L/usr/X11R6/lib -lGL])
+		AC_CHECK_LIB(X11,glDrawPixels, [], [a=1])
+		AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
+		AC_CHECK_LIB(X11,gluGetString, [], [a=1])
 	else
 		APPEND(LIBS, [-L$x_libraries -lX11 -lXext])
+		AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
+		AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
+		AC_CHECK_LIB(GLU,gluGetString, [], [a=1])
 	fi
 	
-	AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
-	AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
-	AC_CHECK_LIB(GLU,gluGetString, [], [a=1])
 ])
 
 CHECK_FOR_OPTION(tr1_shared_ptr, [
