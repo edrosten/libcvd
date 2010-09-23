@@ -340,6 +340,9 @@ template<class T> class SubImage
 
 		typedef SubImageIterator<T> iterator;
 		typedef ConstSubImageIterator<T> const_iterator;
+
+		/// The data type of the pixels in the image.
+		typedef T value_type;
 		
 		/// Returns an iterator referencing the first (top-left) pixel in the image
 		inline iterator begin()
@@ -510,6 +513,9 @@ template<class T> class BasicImage: public SubImage<T>
 		iterator steps through pixels in the usual scanline order. */
 		typedef const T* const_iterator;
 
+		/// The data type of the pixels in the image.
+		typedef T value_type;
+
 		/** Returns a const iterator referencing the first (top-left) pixel in the
 		image. */
 		const_iterator begin() const { return SubImage<T>::my_data; }
@@ -627,6 +633,10 @@ class Image: public BasicImage<T>
 		};
 
 	public:
+
+		/// The data type of the pixels in the image.
+		typedef T value_type;
+
 		///Copy constructor. This does not copy the data, it just creates a new
 		///reference to the image data
 		///@param copy The image to copy
