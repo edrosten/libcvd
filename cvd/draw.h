@@ -182,6 +182,30 @@ void drawShape(SubImage<T>& im, const ImageRef& offset, const std::vector<ImageR
     drawLine(im, points.back()+offset, points.front()+offset, c);
 }
 
+/// draws a polyline defined by a set of points into an image. A given offset is added
+/// to all points.
+/// @param im image to draw in
+/// @param offset added to all points
+/// @param begin an iterator pointing to the first point in the shape.
+/// @param end   an iterator pointing to one past the last point in the shape.
+/// @param c color of the line
+/// @ingroup gGraphics
+template <class T, class PointIterator>
+void drawShape(Image<T>& im, const ImageRef& offset,
+               PointIterator begin, PointIterator end, const T& c) {
+    if (begin == end) {
+        return;
+    }
+    PointIterator last(begin);
+    PointIterator it(begin);
+    ++it;
+    for (; it != end; it++) {
+        drawLine(im, *last+offset, *(it)+offset, c);
+        last = it;
+    }
+    drawLine(im, (*last)+offset, (*begin)+offset, c);
+}
+
 /// draws a box defined by the upper left and the lower right corners into an image
 /// @param im image to draw in
 /// @param upperleft ImageRef of upper left corner
