@@ -310,7 +310,7 @@ TIFFPimpl::TIFFPimpl(istream& is)
 
 		use_cooked_rgba_interface=0;
 	}
-		
+
 	keep_cooked:;
 	if(use_cooked_rgba_interface == 1)
 	{	
