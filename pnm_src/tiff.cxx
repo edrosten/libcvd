@@ -315,7 +315,7 @@ TIFFPimpl::TIFFPimpl(istream& is)
 	if(use_cooked_rgba_interface == 1)
 	{	
 		//The format is "complex" and we don't know how to read it.
-		type = "CVD::Rgb<unsigned char>";
+		type = "CVD::Rgba<unsigned char>";
 		inverted_grey=0;
 	}
 
@@ -326,7 +326,7 @@ TIFFPimpl::TIFFPimpl(istream& is)
 
 	if(use_cooked_rgba_interface)
 	{
-		raster_data.resize(my_size.x, my_size.y);
+		raster_data.resize(my_size.x* my_size.y);
 
 		#ifdef CVD_INTERNAL_HAVE_TIFF_ORIENTED
 			//Read the whole image
