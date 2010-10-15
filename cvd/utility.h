@@ -1,6 +1,8 @@
 #ifndef CVD_UTILITY_H
 #define CVD_UTILITY_H
 
+#include <stdint.h>
+
 #include <cvd/image.h>
 #include <cvd/internal/is_pod.h>
 #include <cvd/internal/pixel_traits.h>
