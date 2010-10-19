@@ -589,19 +589,21 @@ AC_ARG_WITH(lapack, [  --without-lapack        Disable BLAS and LAPACK.])
 AC_ARG_WITH(acml, [  --with-acml[[=directory]] Use BLAS and LAPACK routines from the ACML library [[located in the specified directory]] ], [opt_acml_dir=$withval])
 
 CHECK_FOR_OPTION(videodisplay,[
-	AC_PATH_X
-	if test x$x_includes != x
-	then
-		APPEND(CXXFLAGS, -I$x_includes)
-	fi
 
 	if test "$host_vendor" == apple
 	then
-		APPEND(LIBS, [-lX11 -lXext -framework OpenGL -L/usr/X11R6/lib -lGL])
-		AC_CHECK_LIB(X11,glDrawPixels, [], [a=1])
+		APPEND(LIBS, [ -framework OpenGL -L/usr/X11R6/lib /usr/X11R6/lib/libX11.dylib])
+		AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
 		AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
-		AC_CHECK_LIB(X11,gluGetString, [], [a=1])
+		AC_CHECK_LIB(GL,gluGetString, [], [a=1])
 	else
+
+		AC_PATH_X
+		if test x$x_includes != x
+		then
+			APPEND(CXXFLAGS, -I$x_includes)
+		fi
+
 		APPEND(LIBS, [-L$x_libraries -lX11 -lXext])
 		AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
 		AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
