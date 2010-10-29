@@ -649,8 +649,6 @@ namespace CVD
 				out[in.size().y-1][0]             = median4(in, in.size().y-2, 0);
 				out[in.size().y-1][in.size().x-1] = median4(in, in.size().y-2, in.size().x-2);
 
-				int vals[6];
-
 				for(int i=1; i < in.size().x-1; i++)
 					out[0][i] = median6_row(in, 0, i-1);
 
