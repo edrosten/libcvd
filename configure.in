@@ -1099,6 +1099,7 @@ test/v4l1buffer_bayer 			videodisplay v4l1buffer 		END
 test/v4l1buffer_rgb  			videodisplay v4l1buffer			END
 test/qtbuffer_yuvrgb            videodisplay qtbuffer 			END
 test/font                       videodisplay                    END
+test/bayer_test													END
 ENDPROGS
 AC_SUBST(testprogs, ["`cat config.dep_testprogs | tr '\n' ' ' `"])
 

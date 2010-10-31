@@ -113,17 +113,19 @@ struct bayer_sample_rggb {
 
 	static inline void odd_left(T (*out)[3], const T * previous, const T * row, const T * next){
 		T prev0 = R::get(previous[0]);
+		T prev1 = R::get(previous[1]);
 		T prev2 = R::get(previous[2]);
 		T row0 = R::get(row[0]);
 		T row1 = R::get(row[1]);
 		T row2 = R::get(row[2]);
 		T next0 = R::get(next[0]);
+		T next1 = R::get(next[1]);
 		T next2 = R::get(next[2]);
 		out[0][0] = (prev0 + next0)/2;
 		out[0][1] = row0;
 		out[0][2] = row1;
 		out[1][0] = (prev0 + next0 + prev2 + next2)/4;
-		out[1][1] = (row0+row2+prev0+next0)/4;
+		out[1][1] = (row0+row2+prev1+next1)/4;
 		out[1][2] = row1;
 	}
 	static inline void odd_row(T (*out)[3], const T * previous, const T * row, const T * next){
@@ -146,15 +148,17 @@ struct bayer_sample_rggb {
 	}
 	static inline void odd_right(T (*out)[3], const T * previous, const T * row, const T * next){
 		T prev0 = R::get(previous[0]);
+		T prev1 = R::get(previous[1]);
 		T row_1 = R::get(row[-1]);
 		T row0 = R::get(row[0]);
 		T row1 = R::get(row[1]);
 		T next0 = R::get(next[0]);
+		T next1 = R::get(next[1]);
 		out[0][0] = (prev0 + next0)/2;
 		out[0][1] = row0;
 		out[0][2] = (row_1+row1)/2;
 		out[1][0] = (prev0 + next0)/2;
-		out[1][1] = (row0+prev0+next0)/3;
+		out[1][1] = (row0+prev1+next1)/3;
 		out[1][2] = row1;
 	}
 
@@ -189,7 +193,7 @@ struct bayer_sample_rggb {
 		out[0][2] = (prev_1+next_1+prev1+next1)/4;
 		out[1][0] = (row0+row2)/2;
 		out[1][1] = row1;
-		out[1][2] = (prev0 + next0)/2;
+		out[1][2] = (prev1 + next1)/2;
 	}
 	static inline void even_right(T (*out)[3], const T * previous, const T * row, const T * next){
 		T prev_1 = R::get(previous[-1]);
@@ -206,7 +210,7 @@ struct bayer_sample_rggb {
 		out[0][2] = (prev_1+next_1+prev1+next1)/4;
 		out[1][0] = row0;
 		out[1][1] = row1;
-		out[1][2] = (prev0 + next0)/2;
+		out[1][2] = (prev1 + next1)/2;
 	}
 
 	static inline void lower_left(T (*out)[3], const T * previous, const T * row){
@@ -240,6 +244,7 @@ struct bayer_sample_rggb {
 	}
 	static inline void lower_right(T (*out)[3], const T * previous, const T * row){
 		T prev0 = R::get(previous[0]);
+		T prev1 = R::get(previous[1]);
 		T row_1 = R::get(row[-1]);
 		T row0 = R::get(row[0]);
 		T row1 = R::get(row[1]);
@@ -247,7 +252,7 @@ struct bayer_sample_rggb {
 		out[0][1] = row0;
 		out[0][2] = (row_1+row1)/2;
 		out[1][0] = prev0;
-		out[1][1] = (row0+prev0)/2;
+		out[1][1] = (row0+prev1)/2;
 		out[1][2] = row1;
 	}
 };
@@ -305,17 +310,19 @@ struct bayer_sample_bggr {
 
 	static inline void odd_left(T (*out)[3], const T * previous, const T * row, const T * next){
 		T prev0 = R::get(previous[0]);
+		T prev1 = R::get(previous[1]);
 		T prev2 = R::get(previous[2]);
 		T row0 = R::get(row[0]);
 		T row1 = R::get(row[1]);
 		T row2 = R::get(row[2]);
 		T next0 = R::get(next[0]);
+		T next1 = R::get(next[1]);
 		T next2 = R::get(next[2]);
 		out[0][2] = (prev0 + next0)/2;
 		out[0][1] = row0;
 		out[0][0] = row1;
 		out[1][2] = (prev0 + next0 + prev2 + next2)/4;
-		out[1][1] = (row0+row2+prev0+next0)/4;
+		out[1][1] = (row0+row2+prev1+next1)/4;
 		out[1][0] = row1;
 	}
 	static inline void odd_row(T (*out)[3], const T * previous, const T * row, const T * next){
@@ -338,15 +345,17 @@ struct bayer_sample_bggr {
 	}
 	static inline void odd_right(T (*out)[3], const T * previous, const T * row, const T * next){
 		T prev0 = R::get(previous[0]);
+		T prev1 = R::get(previous[1]);
 		T row_1 = R::get(row[-1]);
 		T row0 = R::get(row[0]);
 		T row1 = R::get(row[1]);
 		T next0 = R::get(next[0]);
+		T next1 = R::get(next[1]);
 		out[0][2] = (prev0 + next0)/2;
 		out[0][1] = row0;
 		out[0][0] = (row_1+row1)/2;
 		out[1][2] = (prev0 + next0)/2;
-		out[1][1] = (row0+prev0+next0)/3;
+		out[1][1] = (row0+prev1+next1)/3;
 		out[1][0] = row1;
 	}
 
@@ -432,6 +441,7 @@ struct bayer_sample_bggr {
 	}
 	static inline void lower_right(T (*out)[3], const T * previous, const T * row){
 		T prev0 = R::get(previous[0]);
+		T prev1 = R::get(previous[1]);
 		T row_1 = R::get(row[-1]);
 		T row0 = R::get(row[0]);
 		T row1 = R::get(row[1]);
@@ -439,7 +449,7 @@ struct bayer_sample_bggr {
 		out[0][1] = row0;
 		out[0][0] = (row_1+row1)/2;
 		out[1][2] = prev0;
-		out[1][1] = (row0+prev0)/2;
+		out[1][1] = (row0+prev1)/2;
 		out[1][0] = row1;
 	}
 };
