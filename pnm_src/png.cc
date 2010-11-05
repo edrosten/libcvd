@@ -202,6 +202,8 @@ PNGPimpl::PNGPimpl(std::istream& in)
 	LOG("  alpha   = " << (colour & PNG_COLOR_MASK_ALPHA) << endl);
 	LOG("interlace = " << interlace<< endl);
 	LOG("channels  = " << (int)png_get_channels(png_ptr, info_ptr) << endl);
+
+	LOG("tRNS?     = " << png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) << endl);
 	
 	my_size.x = w;
 	my_size.y = h;
@@ -230,6 +232,21 @@ PNGPimpl::PNGPimpl(std::istream& in)
 	}
 	else
 		type = PNM::type_name<unsigned short>::name();
+	
+	//Get rid of palette, by transforming it to RGB
+	if(colour == PNG_COLOR_TYPE_PALETTE)
+	{
+		png_set_palette_to_rgb(png_ptr);
+
+		//Check to see if there is a tRNS palette chunk. Note that the PNG_COLOR_MASK_ALPHA is
+		//only valid for non indexed images, not paletted ones. So, we need to check here for
+		//transparency data.
+		if(png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
+		{
+			colour |= PNG_COLOR_MASK_ALPHA;
+			png_set_tRNS_to_alpha(png_ptr);
+		}
+	}
 
 	
 	if(colour & PNG_COLOR_MASK_COLOR)
@@ -243,10 +260,6 @@ PNGPimpl::PNGPimpl(std::istream& in)
 		else
 			type = type;
 	
-	//Get rid of palette, by transforming it to RGB
-	if(colour == PNG_COLOR_TYPE_PALETTE)
-		png_set_palette_to_rgb(png_ptr);
-
 	if(interlace != PNG_INTERLACE_NONE)
 		throw Exceptions::Image_IO::UnsupportedImageSubType("PNG", "Interlace not yet supported");
 
