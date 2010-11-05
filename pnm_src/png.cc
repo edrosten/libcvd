@@ -53,10 +53,8 @@ static void flush_fn(png_structp png_ptr)
 // Implementation of PNGPimpl
 //
 
-
 class CVD::PNG::PNGPimpl
 {
-		
 	public:
 		template<class C> void read_pixels(C*);
 		PNGPimpl(std::istream& in);
@@ -96,8 +94,29 @@ ImageRef PNGPimpl::size()
 	return my_size;
 }
 
+#ifdef CVD_INTERNAL_VERBOSE_PNG
+	#include <map>
 
-#define LOG(X) do{ cerr << X; }while(0)
+	#define LOG(X) do{ cerr << X; }while(0)
+
+	static string lookup_color_type(int i)
+	{
+		map<int, string> m;
+		#define ADD(X) m[X] = #X
+		ADD(PNG_COLOR_TYPE_GRAY);
+		ADD(PNG_COLOR_TYPE_GRAY_ALPHA);
+		ADD(PNG_COLOR_TYPE_PALETTE);
+		ADD(PNG_COLOR_TYPE_RGB);
+		ADD(PNG_COLOR_TYPE_RGB_ALPHA);
+		ADD(PNG_COLOR_MASK_PALETTE);
+		ADD(PNG_COLOR_MASK_COLOR);
+		ADD(PNG_COLOR_MASK_ALPHA);
+
+		return m[i];
+	}
+#else
+	#define LOG(X)
+#endif
 
 template<class P> void PNGPimpl::read_pixels(P* data)
 {
@@ -173,6 +192,16 @@ PNGPimpl::PNGPimpl(std::istream& in)
 	int colour, interlace, dummy, depth;
 
 	png_get_IHDR(png_ptr, info_ptr, &w, &h, &depth, &colour, &interlace, &dummy, &dummy);
+
+	LOG("w         = " << w << endl);
+	LOG("h         = " << h << endl);
+	LOG("depth     = " << depth << endl);
+	LOG("colour    = " << colour<< ": " << lookup_color_type(colour) << endl);
+	LOG("  palette = " << (colour & PNG_COLOR_MASK_PALETTE) << endl);
+	LOG("  color   = " << (colour & PNG_COLOR_MASK_COLOR) << endl);
+	LOG("  alpha   = " << (colour & PNG_COLOR_MASK_ALPHA) << endl);
+	LOG("interlace = " << interlace<< endl);
+	LOG("channels  = " << (int)png_get_channels(png_ptr, info_ptr) << endl);
 	
 	my_size.x = w;
 	my_size.y = h;
