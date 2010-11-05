@@ -4,6 +4,7 @@
 
 #include <png.h>
 #include <cstdlib>
+#include <iostream>
 
 using namespace CVD;
 using namespace CVD::Exceptions;
@@ -49,35 +50,56 @@ static void flush_fn(png_structp png_ptr)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// Implementation of PNGPimpl
+//
+
+
+class CVD::PNG::PNGPimpl
+{
+		
+	public:
+		template<class C> void read_pixels(C*);
+		PNGPimpl(std::istream& in);
+		~PNGPimpl();
+		std::string datatype();
+		std::string name();
+		ImageRef size();
+	
+	private:
+		std::istream& i;
+		std::string type;
+		unsigned long row;
+		png_struct_def* png_ptr;
+		png_info_struct* info_ptr, *end_info;
+
+		std::string error_string;
+		ImageRef my_size;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // PNG reading functions
 // 
 
-string png_reader::datatype()
+string PNGPimpl::datatype()
 {
 	return type;
 }
 
-string png_reader::name()
+string PNGPimpl::name()
 {
 	return "PNG";
 }
 
-ImageRef png_reader::size()
+ImageRef PNGPimpl::size()
 {
 	return my_size;
 }
 
 
-//Mechanically generate the pixel reading calls.
-#define GEN1(X) void png_reader::get_raw_pixel_line(X*d){read_pixels(d);}
-#define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
-GEN1(bool)
-GEN3(unsigned char)
-GEN3(unsigned short)
+#define LOG(X) do{ cerr << X; }while(0)
 
-
-
-template<class P> void png_reader::read_pixels(P* data)
+template<class P> void PNGPimpl::read_pixels(P* data)
 {
 	if(datatype() != PNM::type_name<P>::name())
 		throw ReadTypeMismatch(datatype(), PNM::type_name<P>::name());
@@ -97,7 +119,7 @@ template<class P> void png_reader::read_pixels(P* data)
 
 
 
-png_reader::png_reader(std::istream& in)
+PNGPimpl::PNGPimpl(std::istream& in)
 :i(in),type(""),row(0),png_ptr(0),info_ptr(0),end_info(0)
 {
 	//Read the header and make sure it really is a PNG...
@@ -108,7 +130,8 @@ png_reader::png_reader(std::istream& in)
 	if(png_sig_cmp(header, 0, 8))
 		throw Exceptions::Image_IO::MalformedImage("Not a PNG image");
 
-	
+	LOG("PNG header found\n");
+
 	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
 
@@ -204,7 +227,7 @@ png_reader::png_reader(std::istream& in)
 	#endif
 }
 
-png_reader::~png_reader()
+PNGPimpl::~PNGPimpl()
 {
 	//Clear the stream of any remaining PNG bits.
 	//It doesn't matter if there's an error here
@@ -218,10 +241,47 @@ png_reader::~png_reader()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// Implementation of PNG reader class
+//
+
+png_reader::~png_reader()
+{
+}
+
+png_reader::png_reader(istream& i)
+:p(new PNGPimpl(i))
+{
+}
+
+string png_reader::datatype()
+{
+	return p->datatype();
+}
+
+string png_reader::name()
+{
+	return p->name();
+}
+
+ImageRef png_reader::size()
+{
+	return p->size();
+}
+
+
+//Mechanically generate the pixel reading calls.
+#define GEN1(X) void png_reader::get_raw_pixel_line(X*d){p->read_pixels(d);}
+#define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
+GEN1(bool)
+GEN3(unsigned char)
+GEN3(unsigned short)
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // PNG writing functions.
 //
 
-png_writer::png_writer(ostream& out, ImageRef sz, const string& type_, const std::map<std::string, Parameter<> >& p)
+png_writer::png_writer(ostream& out, ImageRef sz, const string& type_, const std::map<std::string, Parameter<> >&)
 :row(0),o(out),size(sz),type(type_)
 {
 	//Create required structs

@@ -23,6 +23,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include <cvd/image.h>
 #include <cvd/internal/load_and_save.h>
@@ -39,6 +40,7 @@ using CVD::Internal::TypeList;
 using CVD::Internal::Head;
 
 
+class PNGPimpl;
 
 class png_reader
 {
@@ -69,18 +71,8 @@ class png_reader
 				                              Head> > > > > > > Types;
 
 	private:
-		
-		std::istream& i;
-		std::string type;
-		unsigned long row;
-		png_struct_def* png_ptr;
-		png_info_struct* info_ptr, *end_info;
-
-		std::string error_string;
-		ImageRef my_size;
-
-		template<class C> void read_pixels(C*);
-
+		std::auto_ptr<PNGPimpl> p;
+	
 };
 
 
