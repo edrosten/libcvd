@@ -37,7 +37,7 @@ namespace CVD
 	/// @param out The source image.
 	/// @ingroup gVision
 		
-	template<class S, class D> void integral_image(const BasicImage<S>& in, BasicImage<D>& out)
+	template<class S, class D> void integral_image(const SubImage<S>& in, SubImage<D>& out)
 	{
 		if( in.size() != out.size())
 			throw Exceptions::Vision::IncompatibleImageSizes("integral_image");
@@ -71,11 +71,11 @@ namespace CVD
 
 			template<class C>  struct ImagePromise<IntegralImage<C> >
 			{
-				ImagePromise(const BasicImage<C>& im)
+				ImagePromise(const SubImage<C>& im)
 				:i(im)
 				{}
 
-				const BasicImage<C>& i;
+				const SubImage<C>& i;
 				template<class D> void execute(Image<D>& j)
 				{
 					j.resize(i.size());
@@ -84,7 +84,7 @@ namespace CVD
 			};
 		};
 
-		template<class C> Internal::ImagePromise<Internal::IntegralImage<C> > integral_image(const BasicImage<C>& c)
+		template<class C> Internal::ImagePromise<Internal::IntegralImage<C> > integral_image(const SubImage<C>& c)
 		{
 			return Internal::ImagePromise<Internal::IntegralImage<C> >(c);
 		}
