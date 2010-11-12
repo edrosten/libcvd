@@ -11,9 +11,9 @@
 using namespace std;
 namespace CVD
 {
-	void fast_corner_detect_plain_9(const SubImage<byte>& i, vector<ImageRef>& corners, int b);
-	void fast_corner_detect_plain_10(const SubImage<byte>& i, vector<ImageRef>& corners, int b);
-	void fast_corner_detect_plain_12(const SubImage<byte>& i, vector<ImageRef>& corners, int b);
+	void fast_corner_detect_plain_9(const BasicImage<byte>& i, vector<ImageRef>& corners, int b);
+	void fast_corner_detect_plain_10(const BasicImage<byte>& i, vector<ImageRef>& corners, int b);
+	void fast_corner_detect_plain_12(const BasicImage<byte>& i, vector<ImageRef>& corners, int b);
 }
 
 using namespace CVD;
@@ -29,7 +29,7 @@ inline bool negative(int val, int centre, int barrier)
 }
 
 template<int num_for_corner, class Test>
-inline int is_corner(const SubImage<byte>& im, const ImageRef off, int barrier, const Test& test)
+inline int is_corner(const BasicImage<byte>& im, const ImageRef off, int barrier, const Test& test)
 {
 	int num_consecutive=0;
 	int first_cons=0;
@@ -57,7 +57,7 @@ inline int is_corner(const SubImage<byte>& im, const ImageRef off, int barrier, 
 	return first_cons+num_consecutive >=num_for_corner;
 }
 
-template<int Num> void segment_test(const SubImage<byte>& im, vector<ImageRef>& v, int threshold)
+template<int Num> void segment_test(const BasicImage<byte>& im, vector<ImageRef>& v, int threshold)
 {
 	for(int y=3; y < im.size().y-3; y++)
 		for(int x=3; x < im.size().x-3; x++)
@@ -151,7 +151,7 @@ template<class A, class B, class C> void test_images(const Image<byte>& im, A fu
 		ImageRef size = im.size() - i * one;
 
 		Image<byte> part(size);
-		SubImage<byte> s = im.sub_image(zero, size);
+		BasicImage<byte> s = im.sub_image(zero, size);
 		copy(s.begin(), s.end(),part.begin());
 
 		test(part, funcf, funcp, funcs, threshold);

@@ -3,7 +3,7 @@
 #include <cvd/utility.h>
 namespace CVD {
 
-	void ConvertImage<Rgb<byte>, byte, Pixel::CIE<Rgb<byte>, byte>, 1>::convert(const SubImage<Rgb<byte> >& from, SubImage<byte>& to) 
+	void ConvertImage<Rgb<byte>, byte, Pixel::CIE<Rgb<byte>, byte>, 1>::convert(const BasicImage<Rgb<byte> >& from, BasicImage<byte>& to)
 	{
 		const Rgb<byte>* rgb = from.data();
 		byte* gray = to.data(), *gend = to.data() + to.totalsize();

@@ -77,7 +77,7 @@ namespace CVD
 	@param num_divs The voting kernels are quantized by angle in to this many dicisions in the half-circle.
 	@ingroup gVision
 	**/
-	template<class C> Image<TooN::Matrix<2> > dense_tensor_vote_gradients(const SubImage<C>& image, double sigma, double ratio, double cutoff=0.001, unsigned int num_divs = 4096)
+	template<class C> Image<TooN::Matrix<2> > dense_tensor_vote_gradients(const BasicImage<C>& image, double sigma, double ratio, double cutoff=0.001, unsigned int num_divs = 4096)
 	{
 		using TooN::Matrix;
 		using std::pair;
@@ -168,7 +168,7 @@ namespace CVD
 
 	#ifdef CVD_EXPERIMENTAL
 
-	template<class C> Image<TooN::Matrix<2> > dense_tensor_vote_gradients_fast(const SubImage<C>& image, double sigma, double ratio, double cutoff=0.001, int num_divs = 4096)
+	template<class C> Image<TooN::Matrix<2> > dense_tensor_vote_gradients_fast(const BasicImage<C>& image, double sigma, double ratio, double cutoff=0.001, int num_divs = 4096)
 	{
 		using TooN::Matrix;
 		using std::pair;

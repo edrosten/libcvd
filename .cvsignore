@@ -1,0 +1,11 @@
+config.dep_progs
+config.dep_testprogs
+config.dep_tmp
+config.have_bits
+config.status
+Makefile
+libcvd_debug.a
+libcvd.a
+.sourcefiles
+.deps
+debug

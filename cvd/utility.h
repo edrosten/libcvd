@@ -102,7 +102,7 @@ in the output image
   /// @param pix Fill value
   /// @param w border width 
   /// @ingroup gUtility
-  template<class T> void fillBorders(SubImage<T>& im, const T pix, int w=1)
+  template<class T> void fillBorders(BasicImage<T>& im, const T pix, int w=1)
   {
 	  //Fill the top and bottom
 	  for(int n=0; n < w; n++)

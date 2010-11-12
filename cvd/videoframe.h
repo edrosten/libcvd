@@ -59,7 +59,7 @@ class VideoFrame : public BasicImage<T>
 		/// @param data The image data for this frame
 		/// @param size The size of this video frame
 		VideoFrame(double t, T* data, const ImageRef& size, VideoFrameFlags::FieldType f=VideoFrameFlags::Unknown) 
-		  :BasicImage<T>(data, size),my_field(f),my_timestamp(t)
+		  :BasicImage<T>(data, size, size.x), my_field(f),my_timestamp(t)
 		{
 		}
 

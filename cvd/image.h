@@ -125,13 +125,13 @@ namespace ImageUtil
 	}
 }
 
-template<class T> class SubImage;
+template<class T> class BasicImage;
 
 
-template<class T> class ConstSubImageIterator
+template<class T> class ConstBasicImageIterator
 {
 	public:
-		const ConstSubImageIterator& operator++()
+		const ConstBasicImageIterator& operator++()
 		{
 			ptr++;
 			if(ptr == row_end)
@@ -149,11 +149,11 @@ template<class T> class ConstSubImageIterator
 		{
 			operator++();
 		}
-	
+
 		const T* operator->() const { return ptr; }
 		const T& operator*() const { return *ptr;}
 
-		bool operator<(const ConstSubImageIterator& s) const 
+		bool operator<(const ConstBasicImageIterator& s) const
 		{ 
 			//It's illegal to iterate _past_ end(), so < is equivalent to !=
 			//for end iterators.
@@ -167,12 +167,12 @@ template<class T> class ConstSubImageIterator
 				return ptr < s.ptr; 
 		}
 
-		bool operator==(const ConstSubImageIterator& s) const 
+		bool operator==(const ConstBasicImageIterator& s) const
 		{ 
 			return !((*this)!=s);
 		}
 
-		bool operator!=(const ConstSubImageIterator& s) const 
+		bool operator!=(const ConstBasicImageIterator& s) const
 		{ 
 			if(is_end && s.is_end)
 				return 0;
@@ -194,10 +194,10 @@ template<class T> class ConstSubImageIterator
 
 
 
-		ConstSubImageIterator()
+		ConstBasicImageIterator()
 		{}
 
-		ConstSubImageIterator(const T* start, int image_width, int row_stride, const T* off_end)
+		ConstBasicImageIterator(const T* start, int image_width, int row_stride, const T* off_end)
 		:ptr(const_cast<T*>(start)),
 		 row_end(start + image_width), 
 		 end(off_end), 
@@ -207,7 +207,7 @@ template<class T> class ConstSubImageIterator
 		{ }
 
 		//Prevent automatic conversion from a pointer (ie Image::iterator)
-		explicit ConstSubImageIterator(const T* end) 
+		explicit ConstBasicImageIterator(const T* end)
 		:ptr(const_cast<T*>(end)),is_end(1),row_increment(0),total_width(0)
 		{ }
 
@@ -218,25 +218,25 @@ template<class T> class ConstSubImageIterator
 		int row_increment, total_width;
 };
 
-template<class T> class SubImageIterator: public ConstSubImageIterator<T>
+template<class T> class BasicImageIterator: public ConstBasicImageIterator<T>
 {
 	public:
-		SubImageIterator(T* start, int image_width, int row_stride, const T* off_end)
-		:ConstSubImageIterator<T>(start, image_width, row_stride, off_end)
+		BasicImageIterator(T* start, int image_width, int row_stride, const T* off_end)
+		:ConstBasicImageIterator<T>(start, image_width, row_stride, off_end)
 		{}
 		
-		explicit SubImageIterator(T* end) 
-		:ConstSubImageIterator<T>(end)
+		explicit BasicImageIterator(T* end)
+		:ConstBasicImageIterator<T>(end)
 		{ }
 
-		SubImageIterator()
+		BasicImageIterator()
 		{}
 
 		typedef T* pointer;
 		typedef T& reference;
 
-		T* operator->() { return ConstSubImageIterator<T>::ptr; }
-		T& operator*() { return *ConstSubImageIterator<T>::ptr;}
+		T* operator->() { return ConstBasicImageIterator<T>::ptr; }
+		T& operator*() { return *ConstBasicImageIterator<T>::ptr;}
 };
 
 /// A generic image class to manage a block of arbitrarily padded data as an image. Provides
@@ -249,14 +249,14 @@ template<class T> class SubImageIterator: public ConstSubImageIterator<T>
 /// arbitrary externally-managed block of data as though it were an image. Use
 /// the derived Image class if you want an image which also has its own data.
 /// @ingroup gImage
-template<class T> class SubImage
+template<class T> class BasicImage
 {
 	public:
 		/// Construct an image from a block of data.
 		/// @param data The image data in horizontal scanline order
 		/// @param size The size of the image
 		/// @param stride The row stride (or width, including the padding)
-		SubImage(T* data, const ImageRef& size, int stride)
+		BasicImage(T* data, const ImageRef& size, int stride = size.x)
 		:my_data(data),my_size(size),my_stride(stride)
 		{
 		}
@@ -278,7 +278,7 @@ template<class T> class SubImage
 		}
 
 		/// The image data is not destroyed when a BasicImage is destroyed.
-		~SubImage()
+		~BasicImage()
 		{}
 
 		/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
@@ -338,8 +338,8 @@ template<class T> class SubImage
 			return my_data;
 		}
 
-		typedef SubImageIterator<T> iterator;
-		typedef ConstSubImageIterator<T> const_iterator;
+		typedef BasicImageIterator<T> iterator;
+		typedef ConstBasicImageIterator<T> const_iterator;
 
 		/// The data type of the pixels in the image.
 		typedef T value_type;
@@ -347,28 +347,28 @@ template<class T> class SubImage
 		/// Returns an iterator referencing the first (top-left) pixel in the image
 		inline iterator begin()
 		{
-			return SubImageIterator<T>(data(), size().x, my_stride, end_ptr());
+			return iterator(data(), size().x, my_stride, end_ptr());
 		}
 		/// Returns a const iterator referencing the first (top-left) pixel in the image
 		inline const_iterator begin() const
 		{
-			return ConstSubImageIterator<T>(data(), size().x, my_stride, end_ptr());
+			return const_iterator(data(), size().x, my_stride, end_ptr());
 		}
 
 		/// Returns an iterator pointing to one past the end of the image
 		inline iterator end()
 		{
 			//Operator [] would always throw here!
-			return SubImageIterator<T>(end_ptr());
+			return iterator(end_ptr());
 		}
 		/// Returns a const iterator pointing to one past the end of the image
 		inline const_iterator end() const
 		{
 			//Operator [] would always throw here!
-			return ConstSubImageIterator<T>(end_ptr());
+			return const_iterator(end_ptr());
 		}
 
-		inline void copy_from( const SubImage<T> & other ){
+		inline void copy_from( const BasicImage<T> & other ){
 			CVD_IMAGE_ASSERT(other.size() == this->size(), Exceptions::Image::IncompatibleImageSizes);
 			std::copy(other.begin(), other.end(), this->begin());
 		}
@@ -407,7 +407,7 @@ template<class T> class SubImage
 
 		/// Copy constructor
 		/// @param copyof The image to copy
-		SubImage(const SubImage& copyof)
+		BasicImage(const BasicImage& copyof)
 		{
 		  my_size = copyof.my_size;
 		  my_data = copyof.my_data;
@@ -418,27 +418,29 @@ template<class T> class SubImage
 		/// Return a sub image
 		/// @param start Top left pixel of the sub image
 		/// @param size width and  height of the sub image
-		SubImage sub_image(const ImageRef& start, const ImageRef& size)
+		BasicImage sub_image(const ImageRef& start, const ImageRef& size)
 		{
 			CVD_IMAGE_ASSERT(in_image(start), ImageError::AccessOutsideImage);
 			CVD_IMAGE_ASSERT(in_image(start + size - ImageRef(1,1)), ImageError::AccessOutsideImage);
-			return SubImage( &operator[](start), size, my_stride);
+
+			T* ptr = my_data + start.y * my_stride + start.x;
+			return BasicImage(ptr, size, my_stride);
 		}
 
 		/// Return const a sub image
 		/// @param start Top left pixel of the sub image
 		/// @param size width and  height of the sub image
-		const SubImage sub_image(const ImageRef& start, const ImageRef& size) const
+		const BasicImage sub_image(const ImageRef& start, const ImageRef& size) const
 		{	
 			CVD_IMAGE_ASSERT(in_image(start), ImageError::AccessOutsideImage);
 			CVD_IMAGE_ASSERT(in_image(start + size - ImageRef(1,1)), ImageError::AccessOutsideImage);
 
-			T*ptr = my_data + start.y * my_stride + start.x;
-			return SubImage(ptr, size, my_stride);
+			T* ptr = my_data + start.y * my_stride + start.x;
+			return BasicImage(ptr, size, my_stride);
 		}
 
 		/// Return a reference to a SubImage. Useful for passing anonymous SubImages to functions.
-		SubImage& ref()
+		BasicImage& ref()
 		{
 			return *this;
 		}
@@ -454,11 +456,13 @@ template<class T> class SubImage
 		///Return an off-the-end pointer without ever throwing AccessOutsideImage
 		const T* end_ptr() const { return my_data+my_size.y*my_stride; }
 
-		SubImage()
+		BasicImage()
 		{}
 
 };
 
+
+#if 0
 
 /// A generic image class to manage a block of data as an image. Provides
 /// basic image access such as accessing a particular pixel co-ordinate. 
@@ -531,7 +535,6 @@ template<class T> class BasicImage: public SubImage<T>
 		iterator end() { return SubImage<T>::my_data+SubImage<T>::totalsize(); }
 
 
-
 	protected:
 		/// The default constructor does nothing
 		BasicImage()
@@ -539,6 +542,7 @@ template<class T> class BasicImage: public SubImage<T>
 	private:
 };
 
+#endif
 
 /** An input iterator which just returns N copies of the same
     value over and over again. This can be used for construction 
@@ -673,19 +677,6 @@ class Image: public BasicImage<T>
 		{
             resize(copy.size());
             std::copy(copy.begin(), copy.end(), this->begin());
-		}
-
-
-
-
-		///Make a (new) copy of the image, also making a copy of the data
-		///@param copy The image to copy
-		void copy_from(const SubImage<T>& copy)
-		{
-			Image<T> tmp(copy.size());
-			*this = tmp;
-			
-			std::copy(copy.begin(), copy.end(), this->begin());
 		}
 
 		///Make this image independent of any copies (i.e. force a copy of the image data).

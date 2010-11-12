@@ -527,7 +527,7 @@ namespace CVD
 	/// Use glRasterPos to set the current raster position
 	/// @param i The image to draw
 	///@ingroup gGL
-	template<class C> inline void glDrawPixels(const SubImage<C>& i)
+	template<class C> inline void glDrawPixels(const BasicImage<C>& i)
 	{
 		::glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		::glPixelStorei(GL_UNPACK_ROW_LENGTH, i.row_stride());
@@ -559,7 +559,7 @@ namespace CVD
 	/// note the reordering of the various parameters to make better use of default parameters
 	/// @param i the image to set as texture
 	/// @ingroup gGL
-	template<class C> inline void glTexSubImage2D( const SubImage<C> &i, GLint xoffset = 0, GLint yoffset = 0, GLenum target = GL_TEXTURE_2D, GLint level = 0)
+	template<class C> inline void glTexBasicImage2D( const BasicImage<C> &i, GLint xoffset = 0, GLint yoffset = 0, GLenum target = GL_TEXTURE_2D, GLint level = 0)
 	{
 		::glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		::glPixelStorei(GL_UNPACK_ROW_LENGTH, i.row_stride());
@@ -571,7 +571,7 @@ namespace CVD
 	/// note the reordering of the various parameters to make better use of default parameters
 	/// @param i the image to set as texture
 	/// @ingroup gGL
-	template<class C> inline void glTexImage2D( const SubImage<C> &i, GLint border = 0, GLenum target = GL_TEXTURE_2D, GLint level = 0)
+	template<class C> inline void glTexImage2D( const BasicImage<C> &i, GLint border = 0, GLenum target = GL_TEXTURE_2D, GLint level = 0)
 	{
 		::glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		::glPixelStorei(GL_UNPACK_ROW_LENGTH, i.row_stride());

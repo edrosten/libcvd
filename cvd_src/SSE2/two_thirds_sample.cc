@@ -289,7 +289,7 @@ namespace CVD{
 
 	}
 
-	void twoThirdsSample(const SubImage<byte>& in, SubImage<byte>& out)
+	void twoThirdsSample(const BasicImage<byte>& in, BasicImage<byte>& out)
 	{
 		if( (in.size()/3*2) != out.size())
 			throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);

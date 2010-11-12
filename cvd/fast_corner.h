@@ -60,7 +60,7 @@ namespace CVD
 	/// @param barrier	Initial corner detection threshold. Using the same threshold as for corner detection will produce the 
 	///                 quickest results, but any lower value (e.g. 0) will produce correct results.
 	/// @ingroup	gVision
-	void fast_corner_score_7(const SubImage<byte>& i, const std::vector<ImageRef>& corners, int b, std::vector<int>& scores);
+	void fast_corner_score_7(const BasicImage<byte>& i, const std::vector<ImageRef>& corners, int b, std::vector<int>& scores);
 
 
 	/// Perform tree based 8 point FAST feature detection. This is more like an edge detector.
@@ -80,7 +80,7 @@ namespace CVD
 	/// @param barrier	Initial corner detection threshold. Using the same threshold as for corner detection will produce the 
 	///                 quickest results, but any lower value (e.g. 0) will produce correct results.
 	/// @ingroup	gVision
-	void fast_corner_score_8(const SubImage<byte>& i, const std::vector<ImageRef>& corners, int b, std::vector<int>& scores);
+	void fast_corner_score_8(const BasicImage<byte>& i, const std::vector<ImageRef>& corners, int b, std::vector<int>& scores);
 
 	
 	/** Perform tree based 9 point FAST feature detection as described in:
@@ -113,7 +113,7 @@ namespace CVD
 	/// @param barrier	Initial corner detection threshold. Using the same threshold as for corner detection will produce the 
 	///                 quickest results, but any lower value (e.g. 0) will produce correct results.
 	/// @ingroup	gVision
-	void fast_corner_score_9(const SubImage<byte>& i, const std::vector<ImageRef>& corners, int b, std::vector<int>& scores);
+	void fast_corner_score_9(const BasicImage<byte>& i, const std::vector<ImageRef>& corners, int b, std::vector<int>& scores);
 	
 
 	///Perform FAST-9 corner detection (see @ref fast_corner_detect_9), with nonmaximal
@@ -142,7 +142,7 @@ namespace CVD
 	/// @param barrier	Initial corner detection threshold. Using the same threshold as for corner detection will produce the 
 	///                 quickest results, but any lower value (e.g. 0) will produce correct results.
 	/// @ingroup	gVision
-	void fast_corner_score_10(const SubImage<byte>& i, const std::vector<ImageRef>& corners, int b, std::vector<int>& scores);
+	void fast_corner_score_10(const BasicImage<byte>& i, const std::vector<ImageRef>& corners, int b, std::vector<int>& scores);
 
 	/// Perform tree based 11 point FAST feature detection
 	/// If you use this, please cite the paper given in @ref fast_corner_detect_9
@@ -161,7 +161,7 @@ namespace CVD
 	/// @param barrier	Initial corner detection threshold. Using the same threshold as for corner detection will produce the 
 	///                 quickest results, but any lower value (e.g. 0) will produce correct results.
 	/// @ingroup	gVision
-	void fast_corner_score_11(const SubImage<byte>& i, const std::vector<ImageRef>& corners, int b, std::vector<int>& scores);
+	void fast_corner_score_11(const BasicImage<byte>& i, const std::vector<ImageRef>& corners, int b, std::vector<int>& scores);
 
 	/// Perform tree based 12 point FAST feature detection
 	/// If you use this, please cite the paper given in @ref fast_corner_detect_9
@@ -180,7 +180,7 @@ namespace CVD
 	/// @param barrier	Initial corner detection threshold. Using the same threshold as for corner detection will produce the 
 	///                 quickest results, but any lower value (e.g. 0) will produce correct results.
 	/// @ingroup	gVision
-	void fast_corner_score_12(const SubImage<byte>& i, const std::vector<ImageRef>& corners, int b, std::vector<int>& scores);
+	void fast_corner_score_12(const BasicImage<byte>& i, const std::vector<ImageRef>& corners, int b, std::vector<int>& scores);
 
 
 

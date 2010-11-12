@@ -44,7 +44,7 @@ namespace CVD{
 @throw IncompatibleImageSizes if out does not have the correct dimensions.
 @ingroup gVision
 */
-template<class C> void twoThirdsSample(const SubImage<C>& in, SubImage<C>& out)
+template<class C> void twoThirdsSample(const BasicImage<C>& in, BasicImage<C>& out)
 {
     typedef typename Pixel::traits<C>::wider_type sum_type;
 	if( (in.size()/3*2) != out.size())
@@ -73,7 +73,7 @@ template<class C> void twoThirdsSample(const SubImage<C>& in, SubImage<C>& out)
 /**
 @overload
 */
-void twoThirdsSample(const SubImage<byte>& in, SubImage<byte>& out);
+void twoThirdsSample(const BasicImage<byte>& in, BasicImage<byte>& out);
 
   #ifndef DOXYGEN_IGNORE_INTERNAL
   namespace Internal
@@ -81,11 +81,11 @@ void twoThirdsSample(const SubImage<byte>& in, SubImage<byte>& out);
   	template<class C> class twoThirdsSampler{};
 	template<class C>  struct ImagePromise<twoThirdsSampler<C> >
 	{
-		ImagePromise(const SubImage<C>& im)
+		ImagePromise(const BasicImage<C>& im)
 		:i(im)
 		{}
 
-		const SubImage<C>& i;
+		const BasicImage<C>& i;
 		template<class D> void execute(Image<D>& j)
 		{
 			j.resize(i.size()/3*2);
@@ -93,7 +93,7 @@ void twoThirdsSample(const SubImage<byte>& in, SubImage<byte>& out);
 		}
 	};
   };
-  template<class C> Internal::ImagePromise<Internal::twoThirdsSampler<C> > twoThirdsSample(const SubImage<C>& c)
+  template<class C> Internal::ImagePromise<Internal::twoThirdsSampler<C> > twoThirdsSample(const BasicImage<C>& c)
   {
     return Internal::ImagePromise<Internal::twoThirdsSampler<C> >(c);
   }
@@ -105,7 +105,7 @@ void twoThirdsSample(const SubImage<byte>& in, SubImage<byte>& out);
     /// @param from The image to convert from
 	/// @return The converted image
     /// @ingroup gVision
-  	template<class C> Image<C> twoThirdsSample(const SubImage<C>& from);
+  	template<class C> Image<C> twoThirdsSample(const BasicImage<C>& from);
 
   #endif
 
@@ -238,6 +238,20 @@ template <class S, class T> struct Gradient<S,T,1,2> {
   typedef typename Pixel::traits<SComp>::wider_type diff_type;
   static void gradient(const BasicImage<S>& I, BasicImage<T>& grad) {
     int w = I.size().x;
+    int h = I.size().y;
+    int s = I.row_stride();
+    for(int y=1; y<h-1; y++) {
+    	const S* sptr = I.data()+y*I.row_stride();
+    	T* tptr = grad.data()+y*grad.row_stride();
+    	for(int x=1; x<w-1; x++) {
+    		Pixel::Component<T>::get(*tptr, 0) = Pixel::scalar_convert<TComp,SComp,diff_type>(diff_type(*(sptr+1)) - *(sptr-1));
+    	    Pixel::Component<T>::get(*tptr, 1) = Pixel::scalar_convert<TComp,SComp,diff_type>(diff_type(*(sptr+s)) - *(sptr-s));
+    	    sptr++;
+    	    tptr++;
+    	}
+    }
+
+#if 0
     typename BasicImage<S>::const_iterator s = I.begin() + w + 1;
     typename BasicImage<S>::const_iterator end = I.end() - w - 1;
     typename BasicImage<T>::iterator t = grad.begin() + w + 1;
@@ -247,6 +261,7 @@ template <class S, class T> struct Gradient<S,T,1,2> {
       s++;
       t++;
     }
+#endif
     zeroBorders(grad);
   }
 };
@@ -499,7 +514,7 @@ namespace median {
     }
 }
 
-    template <class T> void median_filter_3x3(const SubImage<T>& I, SubImage<T> out)
+    template <class T> void median_filter_3x3(const BasicImage<T>& I, BasicImage<T> out)
     {
 	assert(out.size() == I.size());
 	const int s = I.row_stride();
@@ -508,7 +523,7 @@ namespace median {
 	    median::median_filter_3x3(I[i]+1, s, n, out[i]+1);
     }
 
-void median_filter_3x3(const SubImage<byte>& I, SubImage<byte> out);
+void median_filter_3x3(const BasicImage<byte>& I, BasicImage<byte> out);
 
 //template<class T>
 
