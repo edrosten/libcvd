@@ -61,7 +61,7 @@ class cvd_timer
 
 		/// Convert current time given as double by correcting for the start time
 		/// @param time current time as double
-		double conv_ntime(const double time) const {
+		double conv_ntime(const double & time) const {
 			return time - startTime * 1.e-6;
 		}
 

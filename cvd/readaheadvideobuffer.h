@@ -34,7 +34,9 @@
 
 namespace CVD {
     #ifndef CVD_HAVE_PTHREAD
+    #ifndef _WIN32
     #warning ReadAheadVideoBuffer will not do any read-ahead because threads are not supported in this build
+    #endif
     template <class T> 
     class ReadAheadVideoBuffer : public VideoBuffer<T>
     {
