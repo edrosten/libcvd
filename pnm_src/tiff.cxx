@@ -216,6 +216,14 @@ TIFFPimpl::~TIFFPimpl()
 	TIFFClose(tif);
 }
 
+#ifdef CVD_INTERNAL_VERBOSE_TIFF
+	#define LOG(X) do{ cerr << X; }while(0)
+	#define VAR(X) #X << " = " << X
+#else
+	#define LOG(X)
+	#define VAR(X)
+#endif
+
 
 TIFFPimpl::TIFFPimpl(istream& is)
 :i(is),row(0)
@@ -245,15 +253,26 @@ TIFFPimpl::TIFFPimpl(istream& is)
 	TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
 	TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);	
 	TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &bitspersample);
-	TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &spp);
+	
+	TIFFGetFieldDefaulted(tif, TIFFTAG_SAMPLESPERPIXEL, &spp);
+
 	TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photo);	
 	TIFFGetField(tif, TIFFTAG_PLANARCONFIG, &pl_type);
+
+	LOG(VAR(w) << endl);
+	LOG(VAR(h) << endl);
+	LOG(VAR(bitspersample) << endl);
+	LOG(VAR(spp) << endl);
+	LOG(VAR(photo) << endl);
+	LOG(VAR(pl_type) << endl);
+
 
 	//Read the sample format. If it is missing, then it
 	//defaults to unsigned int as per the spec.
 	if(TIFFGetField(tif, TIFFTAG_SAMPLEFORMAT, &sampleformat) == 0)
 		sampleformat = SAMPLEFORMAT_UINT;
 
+	LOG(VAR(sampleformat) << endl);
 
 	my_size.x = w;
 	my_size.y = h;
@@ -321,6 +340,9 @@ TIFFPimpl::TIFFPimpl(istream& is)
 
 	if(type == "bool")
 		bool_rowbuf.resize((size().x + 7)/8);
+
+	LOG(VAR(type) << endl);
+	LOG(VAR(use_cooked_rgba_interface) << endl);
 
 
 
