@@ -732,11 +732,23 @@ class Image: public BasicImage<T>
 		///@param size The size of image to create
 		Image(const ImageRef& size)
 		{
+          //If the size of the image is zero pixels along any dimension,
+          //still keep any of the non-zero dimensions in the size. The
+          //caller should expect the size passed to the constructor
+          //to be the same as the value returned by .size()
+          if (size.x == 0 || size.y == 0) {
+            dup_from(NULL);
+            this->my_size = size;
+            this->my_stride = size.x;
+          }
+          else
+          {
 			num_copies = new int;
 			*num_copies = 1;
  			this->my_size = size;
  			this->my_stride = size.x;
             this->my_data = Internal::aligned_alloc<T>(this->totalsize(), 16);
+          }
 		}
 
 		///Create a filled image of a given size
@@ -766,8 +778,8 @@ class Image: public BasicImage<T>
 		{	
 			if(size != BasicImage<T>::my_size || *num_copies > 1)
 			{
-				Image<T> new_im(size);
-				*this = new_im;
+			   Image<T> new_im(size);
+			   *this = new_im;
 			}
 		}
 
@@ -780,8 +792,8 @@ class Image: public BasicImage<T>
 		{
 			if(*num_copies > 1 || size != BasicImage<T>::my_size)
 			{
-				Image<T> new_im(size, val);
-				*this = new_im;
+              Image<T> new_im(size, val);
+              *this = new_im;
 			}
 				else fill(val);
 		}
@@ -811,20 +823,28 @@ class Image: public BasicImage<T>
 
 		inline void dup_from(const Image* copyof)  //Duplicate from another image
 		{
-			if(copyof != NULL && copyof->my_data != NULL)
+			if(copyof != NULL)
 			{
+              //For images with zero pixels (e.g. 0 by 100 image),
+              //we still want to preserve non-zero dimensions in the size.
 				this->my_size = copyof->my_size;
 				this->my_stride = copyof->my_stride;
-				this->my_data = copyof->my_data;
-				num_copies = copyof->num_copies;
-				(*num_copies)++;
+                if (copyof->my_data != NULL) {
+                  this->my_data = copyof->my_data;
+                  num_copies = copyof->num_copies;
+                  (*num_copies)++;
+                }
+                else {
+                  this->my_data = 0;
+                  num_copies = 0;
+                }
 			}
 			else
 			{
 				this->my_size.home();
-				this->my_stride=0;
-				this->my_data = 0;
-				num_copies = 0;
+                this->my_data = 0;
+                this->my_stride = 0;
+                num_copies = 0;
 			}
 		}
 };

@@ -44,7 +44,15 @@ namespace CVD
 	{
 		return ImageRef((int)v[0], (int)v[1]);
 	}
-	
+
+	/// Rescale an ImageRef by a scaling factor
+	/// @param v The Vector to convert
+	/// @ingroup gImage
+	inline ImageRef ir_rescale_rounded(const ImageRef &v, double rescaling_factor)
+	{
+	  return ir_rounded(vec(v) * rescaling_factor);
+	}
+
 	/// Convert a Vector into an image co-ordinate. Numbers are rounded
 	/// @param v The Vector to convert
 	/// @ingroup gImage
