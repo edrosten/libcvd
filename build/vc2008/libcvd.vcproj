@@ -598,7 +598,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="copy $(InputPath) ..\..\cvd&#x0D;&#x0A;"
+						CommandLine="copy &quot;$(InputPath)&quot; ..\..\cvd&#x0D;&#x0A;"
 						Outputs="..\..\cvd\$(InputFileName)"
 					/>
 				</FileConfiguration>
@@ -607,7 +607,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="copy $(InputPath) ..\..\cvd&#x0D;&#x0A;"
+						CommandLine="copy &quot;$(InputPath)&quot; ..\..\cvd&#x0D;&#x0A;"
 						Outputs="..\..\cvd\$(InputFileName)"
 					/>
 				</FileConfiguration>

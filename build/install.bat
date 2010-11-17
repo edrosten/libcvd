@@ -14,7 +14,7 @@ echo to be able to perform the installation procedure.
 exit
 
 :includedirset
-if exist %INCLUDEDIR%\*.* goto includedirexists
+if exist "%INCLUDEDIR%\*.*" goto includedirexists
 echo The INCLUDEDIR environment variable must point to an existing directory
 echo to be able to perform the installation procedure.
 exit
@@ -27,7 +27,7 @@ echo to be able to perform the installation procedure.
 exit
 
 :libdirset
-if exist %LIBDIR%\*.* goto libdirexists
+if exist "%LIBDIR%\*.*" goto libdirexists
 echo The LIBDIR environment variable must point to an existing directory
 echo to be able to perform the installation procedure.
 exit
@@ -39,7 +39,7 @@ echo to be able to perform the installation procedure.
 exit
 
 :bindirset
-if exist %BINDIR%\*.* goto bindirexists
+if exist "%BINDIR%\*.*" goto bindirexists
 echo The BINDIR environment variable must point to an existing directory
 echo to be able to perform the installation procedure.
 exit
@@ -54,17 +54,17 @@ rem * check input variables and install if necessary
 if "%headersdir%"=="" goto skipheaders
 if "%headersname%"=="" goto skipheaders
 
-xcopy /S /I /Y %headersdir% %INCLUDEDIR%\%headersname%
+xcopy /S /I /Y %headersdir% "%INCLUDEDIR%\%headersname%"
 
 :skipheaders
 
 if "%libs%"=="" goto skiplibs
-xcopy /S /I /Y %libs% %LIBDIR%
+xcopy /S /I /Y %libs% "%LIBDIR%"
 
 :skiplibs
 
 if "%bins%"=="" goto skipbins
-xcopy /S /I /Y %bins% %BINDIR%
+xcopy /S /I /Y %bins% "%BINDIR%"
 
 :skipbins
 
