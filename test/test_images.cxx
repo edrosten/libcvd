@@ -206,17 +206,25 @@ template<class T> void loadsave_safe(const char*n)
 	}
 }
 
+map<string, Parameter<> > empty()
+{
+	map<string, Parameter<> > nothing;
+	return nothing;
+}
+
 template<class T> struct randtest
 {
 	typedef typename T::Type Type;
 
-	static void exec(ImageType::ImageType fmt)
-	{	
-		try{
-			for(int i=0; i < 10; i++)
-			{
+	static void exec(ImageType::ImageType fmt, const map<string, Parameter<> >& p = empty())
+	{
+		for(int i=0; i < 10; i++)
+		{
+				try{
 				//Make a random image
-				Image<Type> in(ImageRef(1000,1000)), out;
+				Image<Type> in(ImageRef(1000+i,1000+i)), out;
+
+				cerr << "Testing " << in.size() << " " << fmt << " " << CVD::PNM::type_name<Type>::name() << " ";
 
 				for(int y=0; y < in.size().y; y++)
 					for(int x=0; x < in.size().x; x++)
@@ -225,7 +233,7 @@ template<class T> struct randtest
 				stringstream s;
 				
 				//Save the image
-				img_save(in, s, fmt);
+				img_save(in, s, fmt, p);
 
 				s.seekg(0, ios_base::beg);
 				s.seekp(0, ios_base::beg);
@@ -235,10 +243,10 @@ template<class T> struct randtest
 
 				//Compare the results
 				if(out.size() != in.size())
-					cerr << "Image R/W test for type " << fmt << " " << CVD::PNM::type_name<Type>::name() << " size mismatch.\n";
+					cerr << " size mismatch.\n";
 				else if(!equal(in.begin(), in.end(), out.begin()))
 				{
-					cerr << "Image R/W test for type " << fmt << " " << CVD::PNM::type_name<Type>::name() << " data mismatch.\n";
+					cerr << " data mismatch.\n";
 
 					typedef typename Pixel::Component<Type>::type  Ct;
 					double t=0, minval = HUGE_VAL, maxval=-HUGE_VAL;
@@ -264,22 +272,23 @@ template<class T> struct randtest
 
 				}
 				else
-					cerr << "Image R/W test for type " << fmt << " " << CVD::PNM::type_name<Type>::name() << " OK.\n";
+					cerr << "OK.\n";
+			}
+			catch(Exceptions::All w)
+			{
+				cerr << w.what << endl;
 			}
 		}
-		catch(Exceptions::All w)
-		{
-			cerr << w.what << endl;
-		}
 
-		randtest<typename T::Next>::exec(fmt);
+		randtest<typename T::Next>::exec(fmt,p);
 	}
 };
 
 
 template<> struct randtest<Head>
 {
-	static void exec(ImageType::ImageType){}
+	static void exec(ImageType::ImageType, const map<string, Parameter<> >& = empty())
+	{}
 };
 
 int main(int ac, char** av)
@@ -322,7 +331,7 @@ int main(int ac, char** av)
 		loadsave_safe<CVD::Rgba<unsigned int> >(av[i]);
 	}
 
-	cerr << "Testing TEXT (type " << ImageType::BMP << ")\n";
+	cerr << "Testing TEXT (type " << ImageType::TEXT << ")\n";
 	randtest<
 			  TypeList<double,
 		      TypeList<float,
@@ -333,7 +342,7 @@ int main(int ac, char** av)
 			  TypeList<byte,
 			  TypeList<Rgb<byte>,
 			  	       Head> > >::exec(ImageType::BMP);
-	
+
 	cerr << "Testing PNM (type " << ImageType::PNM << ")\n";
 	randtest<
 			  TypeList<byte,
@@ -341,6 +350,16 @@ int main(int ac, char** av)
 			  TypeList<Rgb<byte>,
 			  TypeList<Rgb<unsigned short>,
 			  	       Head> > > > >::exec(ImageType::PNM);
+
+	cerr << "Testing PNM (type " << ImageType::PNM << "), text I/O\n";
+	map<string, Parameter<>  > p;
+	p["pnm.raw"] = Parameter<bool>(0);
+	randtest<
+			  TypeList<byte,
+			  TypeList<unsigned short,
+			  TypeList<Rgb<byte>,
+			  TypeList<Rgb<unsigned short>,
+			  	       Head> > > > >::exec(ImageType::PNM, p);
 
 	cerr << "Testing FITS (type " << ImageType::FITS << ")\n";
 	randtest<

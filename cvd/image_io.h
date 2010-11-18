@@ -234,7 +234,7 @@ namespace CVD
 	    throw Exceptions::Image_IO::EofBeforeImage();
 
 	  if(c == 'P')
-	    PNM::readPNM(im, i);
+	    CVD::Internal::readImage<I, PNM::Reader>(im, i);
 #ifdef CVD_HAVE_JPEG
 	  else if(c == 0xff)
 	    CVD::Internal::readImage<I, JPEG::reader>(im, i);
@@ -296,7 +296,7 @@ namespace CVD
 	  case ImageType::PNM:  
 	  case ImageType::Automatic:
 	  case ImageType::Unknown:
-		Internal::writeImage<PixelType, PNM::pnm_writer>(im, o, p); break;
+		Internal::writeImage<PixelType, PNM::Writer>(im, o, p); break;
 	  #ifdef CVD_HAVE_JPEG
 		  case ImageType::JPEG: Internal::writeImage<PixelType, JPEG::writer>(im,o, p); break;
 	  #endif

@@ -32,128 +32,43 @@ namespace CVD
 {
   namespace PNM
   {
-    class pnm_in
-    {
+	class pnm_in;
+
+	using CVD::Internal::TypeList;
+	using CVD::Internal::Head;
+	class Reader
+	{
 		public:
-		  pnm_in(std::istream&);
-		  bool is_2_byte()const {return m_is_2_byte;}
-		  int channels(){return m_channels;}
-		  long  x_size() const {return xs;}
-		  long  y_size() const {return ys;}
-		  long  elements_per_line() const {return xs * m_channels;}
-		  void get_raw_pixel_lines(unsigned char*, unsigned long nlines);
-		  void get_raw_pixel_lines(unsigned short*, unsigned long nlines);
+			Reader(std::istream&);
+			~Reader();
 
-				
+			ImageRef size();
+
+			void get_raw_pixel_line(bool*);
+			void get_raw_pixel_line(unsigned char*);
+			void get_raw_pixel_line(unsigned short*);
+			void get_raw_pixel_line(Rgb<unsigned char>*);
+			void get_raw_pixel_line(Rgb<unsigned short>*);
+
+			std::string datatype();
+			std::string name();
+
+			typedef TypeList<bool,
+					TypeList<byte,
+					TypeList<unsigned short,
+					TypeList<Rgb<byte>,
+					TypeList<Rgb<unsigned short>,
+										    	  Head> > > > > Types;
+
 		private:
-		  std::istream&	i;
-		  bool 	is_text;
-		  int   type, maxval;
-		  int   lines_so_far;
-		  void	read_header();
-		  bool  can_proc_lines(unsigned long);
-		  long	xs, ys;
-		  bool 	m_is_2_byte;
-		  int	m_channels;
-    };
-
-	template <class T, class S, int N> struct PNMReader;
-
-	template <class T, class S> struct PNMReader<T,S,3> 
-	{
-		typedef Rgb<S> array;
-		static void readPixels(BasicImage<T>& im, pnm_in& pnm) 
-		{
- 			std::vector<array> rowbuf(pnm.x_size());
-			for (int r=0; r<pnm.y_size(); r++) 
-			{
-	  			pnm.get_raw_pixel_lines((S*) &(rowbuf[0]), 1);
-	  			Pixel::ConvertPixels<array, T>::convert(&(rowbuf[0]), im[r], pnm.x_size());
-			}
-		}
+			std::auto_ptr<pnm_in> p;
+		
 	};
-  
-    template <class T, class S> struct PNMReader<T,S,1> 
-	{
-      	static void readPixels(BasicImage<T>& im, pnm_in& pnm) 
-		{
-			std::vector<S> rowbuf(pnm.x_size());
-			for (int r=0; r<pnm.y_size(); r++) 
-			{
-	  			pnm.get_raw_pixel_lines(&(rowbuf[0]), 1);
-	  			Pixel::ConvertPixels<S, T>::convert(&(rowbuf[0]), im[r], pnm.x_size());
-			}
-      	}
-    };
 
-    template <> struct PNMReader<Rgb<byte>,byte,3> 
-	{
-      	static void readPixels(BasicImage<Rgb<byte> >& im, pnm_in& pnm) 
-		{
-			pnm.get_raw_pixel_lines((byte*)im.data(), pnm.y_size());
-      	}
-    };
 
-    template <> struct PNMReader<byte,byte,1> 
-	{
-      	static void readPixels(BasicImage<byte>& im, pnm_in& pnm) 
-		{
-			pnm.get_raw_pixel_lines(im.data(), pnm.y_size());
-      	}
-    };
 
-    template <> struct PNMReader<Rgb<unsigned short>,unsigned short,3> 
-	{
-      	static void readPixels(BasicImage<Rgb<unsigned short> >& im, pnm_in& pnm) 
-		{
-			pnm.get_raw_pixel_lines((unsigned short*)im.data(), pnm.y_size());
-      	}
-    };
 
-    template <> struct PNMReader<unsigned short,unsigned short,1> 
-	{
-      	static void readPixels(BasicImage<unsigned short>& im, pnm_in& pnm) 
-		{
-			pnm.get_raw_pixel_lines(im.data(), pnm.y_size());
-      	}
-    };
-  
-    template <class T> void readPNM(BasicImage<T>& im, pnm_in& pnm)
-    {
-      	if (pnm.is_2_byte()) 
-	  	{
-			if (pnm.channels() == 3)
-	  			PNMReader<T,unsigned short,3>::readPixels(im, pnm);
-			else 
-	  			PNMReader<T,unsigned short,1>::readPixels(im, pnm);
-		}
-      	else 
-		{
-			if (pnm.channels() == 3)
-	  			PNMReader<T,unsigned char,3>::readPixels(im, pnm);
-			else
-				PNMReader<T,unsigned char,1>::readPixels(im, pnm);
-      	}
-    }
-	
-	template <class T> void readPNM(BasicImage<T>&im, std::istream& in)
-	{
-      pnm_in pnm(in);
-	  ImageRef size(pnm.x_size(), pnm.y_size());
 
-	  if(size != im.size())
-	    throw Exceptions::Image_IO::ImageSizeMismatch(size, im.size());
-	
-		readPNM(im, pnm);
-
-	}
-
-	template <class T> void readPNM(Image<T>&im, std::istream& in)
-	{
-      	pnm_in pnm(in);
-      	im.resize(ImageRef(pnm.x_size(), pnm.y_size()));
-	  	readPNM(im, pnm);
-	}
 	////////////////////////////////////////////////////////////////////////////////
 	//
 	// PNM writing.
@@ -164,11 +79,12 @@ namespace CVD
 	template<>                      struct ComponentMapper<0,1> { typedef byte type; };
 	template<>                      struct ComponentMapper<0,0> { typedef unsigned short type; };
 
-	class pnm_writer
+	class pnm_writer;
+	class Writer
 	{
 		public:
-			pnm_writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, Parameter<> >& p);
-			~pnm_writer();
+			Writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, Parameter<> >& p);
+			~Writer();
 
 			//void write_raw_pixel_line(const bool*);
 			void write_raw_pixel_line(const unsigned char*);
@@ -184,14 +100,7 @@ namespace CVD
 												 std::numeric_limits<Element>::digits <= 8>::type type;
 			};		
 		private:
-
-			template<class P> void sanity_check(const P*);
-			void write_shorts(const unsigned short*, int n);
-
-		long row;
-		std::ostream& o;
-		ImageRef size;
-		std::string type;
+			std::auto_ptr<pnm_writer> p;
 	};
 
 
