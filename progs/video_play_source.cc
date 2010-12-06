@@ -69,6 +69,8 @@ template<class C> void play(string s)
 
 	bool f=1;
 	GLWindow::EventSummary e;
+	glDisable(GL_BLEND);
+	glEnable(GL_TEXTURE_RECTANGLE_ARB);
 	for(;;)
 	{
 		display.get_events(e);
@@ -76,12 +78,35 @@ template<class C> void play(string s)
 			break;
 
 		VideoFrame<C>* frame = buffer->get_frame();
+
+		glViewport(0, 0, display.size().x, display.size().y);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glRasterPos2f(-1, 1);
+		glOrtho(-0.375, display.size().x-0.375, display.size().y-0.375, -0.375, -1 , 1); //offsets to make (0,0) the top left pixel (rather than off the display)
+
+		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		glTexParameterf( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+		glTexParameterf( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+		glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+		glTexImage2D(*frame, 0, GL_TEXTURE_RECTANGLE_NV);
+		glBegin(GL_QUADS);
+		glTexCoord2i(0, 0);
+		glVertex2i(0,0);
+		glTexCoord2i(frame->size().x, 0);
+		glVertex2i(display.size().x,0);
+		glTexCoord2i(frame->size().x,frame->size().y);
+		glVertex2i(display.size().x,display.size().y);
+		glTexCoord2i(0, frame->size().y);
+		glVertex2i(0, display.size().y);
+		glEnd ();
+
+
 		if(f)
 		{
 			cout << "frame size: " << frame->size() << endl;
 			f=0;
 		}
-		glDrawPixels(*frame);
 		buffer->put_frame(frame);
 		glFlush();
 

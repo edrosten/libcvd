@@ -1069,13 +1069,8 @@ progs/se3_pre_mul          toon          lapack    	END
 progs/se3_post_mul         toon          lapack     END
 progs/se3_inv              toon			 lapack 	END
 progs/calibrate	           toon          videodisplay lapack END
-progs/img_play             videodisplay          	END
 progs/cvd_display_image    videodisplay          	END
-progs/img_play_bw          videodisplay          	END
-progs/img_play_deinterlace videodisplay          	END
 progs/video_play_source    videodisplay  END
-progs/video_play           videodisplay  ffmpeg  	END
-progs/video_play_bw        videodisplay  ffmpeg  	END
 ENDPROGS
 
 AC_SUBST(progs, ["`cat config.dep_progs | tr '\n' ' ' `"])
