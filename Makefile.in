@@ -89,6 +89,7 @@ CVD_OBJS=   \
 			cvd_src/exceptions.o                            \
 			cvd_src/image_io.o                              \
 			cvd_src/bayer.o                                 \
+			cvd_src/morphology.o                            \
 			cvd_src/colourspace_convert.o                   \
 			cvd_src/half_sample.o                           \
 			cvd_src/draw.o                                  \
