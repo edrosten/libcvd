@@ -216,6 +216,7 @@ TIFFPimpl::~TIFFPimpl()
 	TIFFClose(tif);
 }
 
+//#define CVD_INTERNAL_VERBOSE_TIFF
 #ifdef CVD_INTERNAL_VERBOSE_TIFF
 	#define LOG(X) do{ cerr << X; }while(0)
 	#define VAR(X) #X << " = " << X
@@ -244,6 +245,19 @@ TIFFPimpl::TIFFPimpl(istream& is)
 
 	if(tif == NULL)
 		throw MalformedImage(error_msg);
+
+
+	#ifdef CVD_INTERNAL_VERBOSE_TIFF
+	{
+		int dircount=1;
+		for(; TIFFReadDirectory(tif); dircount++)
+		{}
+
+		LOG(VAR(dircount));
+		TIFFSetDirectory(tif, 0);
+
+	}
+	#endif
 
 	//Libtiff types
 	uint32 w=0, h=0;
