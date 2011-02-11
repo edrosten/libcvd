@@ -57,6 +57,12 @@ namespace Exceptions
 		/// @ingroup gException
 		struct DeviceOpen: public All {DeviceOpen(std::string dev); ///< Construct from the device name
 		};
+
+		/// Device was OK, but could not provide the requested colourspace
+		/// @ingroup gException
+		struct NoColourspace: public All{ NoColourspace(std::string dev, std::string space); ///< Construct from the device name and requested colourspace
+		};
+
 		/// Error setting up the device
 		/// @ingroup gException
 		struct DeviceSetup: public All {DeviceSetup(std::string dev, std::string action);  ///< Construct from the device string and an error string

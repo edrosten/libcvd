@@ -53,6 +53,11 @@ Exceptions::V4LBuffer::GetFrame::GetFrame(string device, string msg)
 	what = "V4LBuffer: GetFrame on " + device + " failed: " + msg;
 }
 
+Exceptions::V4LBuffer::NoColourspace::NoColourspace(std::string dev, std::string space)
+{
+	what = "V4LBuffer: No colourspace  on " + dev + " matching " + space;
+}
+
 
 class VPrint_
 {
@@ -246,9 +251,14 @@ namespace V4L { // V4L
 		if(errno != EINVAL)
 			throw Exceptions::V4LBuffer::DeviceSetup(dev, "V4L2: VIDIOC_ENUM_FMT");
 		
-		fmt = actual_fmt;
-		log << "Selected format: " << unfourcc(fmt) << "\n";
+		log << "Selected format: " << unfourcc(actual_fmt) << "\n";
 
+		if(actual_fmt == fourcc("None"))
+			throw Exceptions::V4LBuffer::NoColourspace(dev, unfourcc(actual_fmt));
+
+		fmt = actual_fmt;
+
+		
 
 		if (strcmp((const char*)caps.driver,"bttv") == 0)
 		{
