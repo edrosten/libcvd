@@ -81,8 +81,10 @@ namespace Internal
 
 #ifdef CVD_IMAGE_DEBUG
 	#define CVD_IMAGE_ASSERT(X,Y)  if(!(X)) throw Y()
+	#define CVD_IMAGE_ASSERT2(X,Y,Z)  if(!(X)) throw Y(Z)
 #else
 	#define CVD_IMAGE_ASSERT(X,Y)
+	#define CVD_IMAGE_ASSERT2(X,Y)
 #endif
 
 /// Fatal image errors (used for debugging). These are not included in the
@@ -369,7 +371,7 @@ template<class T> class SubImage
 		}
 
 		inline void copy_from( const SubImage<T> & other ){
-			CVD_IMAGE_ASSERT(other.size() == this->size(), Exceptions::Image::IncompatibleImageSizes);
+			CVD_IMAGE_ASSERT2(other.size() == this->size(), Exceptions::Image::IncompatibleImageSizes, "copy_from");
 			std::copy(other.begin(), other.end(), this->begin());
 		}
 
