@@ -84,7 +84,7 @@ namespace Internal
 	#define CVD_IMAGE_ASSERT2(X,Y,Z)  if(!(X)) throw Y(Z)
 #else
 	#define CVD_IMAGE_ASSERT(X,Y)
-	#define CVD_IMAGE_ASSERT2(X,Y)
+	#define CVD_IMAGE_ASSERT2(X,Y,Z)
 #endif
 
 /// Fatal image errors (used for debugging). These are not included in the

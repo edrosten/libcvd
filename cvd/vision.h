@@ -270,12 +270,12 @@ void gradient(const BasicImage<byte>& im, BasicImage<short[2]>& out);
 #endif
 
 
-template <class T, class S> inline void sample(const BasicImage<S>& im, double x, double y, T& result)
+template <class T, class S> inline void sample(const SubImage<S>& im, double x, double y, T& result)
 {
   typedef typename Pixel::Component<S>::type SComp;
   typedef typename Pixel::Component<T>::type TComp;
-  int lx = (int)x;
-  int ly = (int)y;
+  const int lx = (int)x;
+  const int ly = (int)y;
   x -= lx;
   y -= ly;
   for(unsigned int i = 0; i < Pixel::Component<T>::count; i++){
@@ -285,27 +285,27 @@ template <class T, class S> inline void sample(const BasicImage<S>& im, double x
   }
  }
 
-template <class T, class S> inline T sample(const BasicImage<S>& im, double x, double y){
+template <class T, class S> inline T sample(const SubImage<S>& im, double x, double y){
     T result;
     sample( im, x, y, result);
     return result;
 }
 
-inline void sample(const BasicImage<float>& im, double x, double y, float& result)
-  {
-    int lx = (int)x;
-    int ly = (int)y;
-    int w = im.size().x;
+inline void sample(const SubImage<float>& im, double x, double y, float& result)
+{
+    const int lx = (int)x;
+    const int ly = (int)y;
+    const int w = im.row_stride();
     const float* base = im[ly]+lx;
-    float a = base[0];
-    float b = base[1];
-    float c = base[w];
-    float d = base[w+1];
-    float e = a-b;
+    const float a = base[0];
+    const float b = base[1];
+    const float c = base[w];
+    const float d = base[w+1];
+    const float e = a-b;
     x-=lx;
     y-=ly;
     result = (float)(x*(y*(e-c+d)-e)+y*(c-a)+a);
-  }
+}
 
 #if defined (CVD_HAVE_TOON)
 
