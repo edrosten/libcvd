@@ -526,7 +526,195 @@ namespace Camera {
 			mutable TooN::Vector<2> my_last_camframe;
 	};
 
-
+	///A Camera for lenses which attempt to maintain a constant view angle per pixel. The camera distortion model
+	///is as follows:
+	///\f$
+	/// \hat{\rho} = \frac{1}{\omega}\arctan{\omega \rho}
+	///\f$
+	///
+	///This camera is derived from the FOV version described in Devernay and Faugeras, "Straight
+	///lines have to be straight" for fish-eye lenses.
+	///@ingroup gVision
+	class ArcTan{
+	
+	private:
+	  TooN::Vector<2> radial_distort(const TooN::Vector<2>& camframe) const
+	  {
+		const double r2 = camframe*camframe;
+		const double w2 = my_camera_parameters[4] * my_camera_parameters[4];
+		const double factor = w2*r2;
+		double term = 1.0;
+		double scale = term;
+		term *= factor;
+		scale -= term/3.0;
+		term *= factor;
+		scale += term/5.0;
+		term *= factor;
+		scale -= term/7.0;
+		return (scale * camframe);
+	  }
+	
+	
+	public:
+	  /// The number of parameters in the camera
+	  static const int num_parameters=5;
+	
+	  ///Load parameters from a stream
+	  ///@param is The stream to use
+	  inline void load(std::istream& is)
+	  {
+		is >> my_camera_parameters;
+	  }
+	
+	  /// Save parameters to a stream
+	  ///@param os The stream to use
+	  inline void save(std::ostream& os) const
+	  {
+		os << my_camera_parameters;
+	  }
+	
+	  /// Fast linear projection for working out what's there
+	  inline TooN::Vector<2> linearproject(const TooN::Vector<2>& camframe, double scale=1) const
+	  {
+		return TooN::Vector<2>(scale * diagmult(camframe, my_camera_parameters.slice<0,2>()) + my_camera_parameters.slice<2,2>());
+	  }
+	
+	  /// Project from Euclidean camera frame to image plane
+	  inline TooN::Vector<2> project(const TooN::Vector<2>& camframe) const
+	  {
+		my_last_camframe = camframe;
+		return linearproject(radial_distort(camframe));
+	  }
+	
+	  /// Project from image plane to a Euclidean camera
+	  inline TooN::Vector<2> unproject(const TooN::Vector<2>& imframe) const
+	  {
+		//Undo the focal length and optic axis.
+		TooN::Vector<2> mod_camframe;
+		mod_camframe[0] = (imframe[0]-my_camera_parameters[2])/my_camera_parameters[0];
+		mod_camframe[1] = (imframe[1]-my_camera_parameters[3])/my_camera_parameters[1];
+		const double rprime2 = mod_camframe*mod_camframe;
+	
+		// first guess
+		double scale = mod_camframe*mod_camframe;
+	
+		const double w2 = my_camera_parameters[4]* my_camera_parameters[4];
+		const double k3 = -w2/ 3.0;
+		const double k5 = w2*w2/ 5.0;
+		const double k7 = -w2*w2*w2/ 7.0;
+	
+		// 3 iterations of Newton-Raphson
+		for(int i=0; i<3; i++){
+		  double temp=1+scale*(k3 + scale*(k5 + scale*k7));
+		  double error = rprime2 - scale*temp*temp;
+		  double deriv = temp*(temp+2*scale*(k3 + 2*scale*(k5 + 1.5*scale*k7)));
+		  scale += error/deriv;
+		}
+		my_last_camframe = mod_camframe/(1+scale*(k3+scale*(k5+scale*k7)));
+	
+		return my_last_camframe;
+	  }
+	
+	  /// Get the derivative of image frame wrt camera frame at the last computed projection
+	  /// in the form \f$ \begin{bmatrix} \frac{\partial \text{im1}}{\partial \text{cam1}} & \frac{\partial \text{im1}}{\partial \text{cam2}} \\ \frac{\partial \text{im2}}{\partial \text{cam1}} & \frac{\partial \text{im2}}{\partial \text{cam2}} \end{bmatrix} \f$
+	  inline TooN::Matrix<2,2> get_derivative() const
+	  {
+		return get_derivative(my_last_camframe);
+	  }
+	
+	  /// Evaluate the derivative of image frame wrt camera frame at an arbitrary point @p pt.
+	  /// @sa get_derivative()
+	  inline TooN::Matrix<2,2> get_derivative(const TooN::Vector<2>& pt) const
+	  {
+		TooN::Matrix<2,2> J = TooN::Identity;
+		double r2=pt*pt;
+		const double w2 = my_camera_parameters[4]* my_camera_parameters[4];
+		const double k3 = -w2/ 3.0;
+		const double k5 = w2*w2/ 5.0;
+		const double k7 = -w2*w2*w2/ 7.0;
+		J *= (1 + k3*r2 + k5*r2*r2 + k7*r2*r2*r2);
+		J += ((2*k3 + 4*k5*r2 + 6*k7*r2*r2) * pt.as_col()) * pt.as_row();
+		J[0] *= my_camera_parameters[0];
+		J[1] *= my_camera_parameters[1];
+		return J;
+	  }
+	
+	  /// Get the motion of a point with respect to each of the internal camera parameters
+	  inline TooN::Matrix<num_parameters,2> get_parameter_derivs() const
+	  {
+		return get_parameter_derivs_at(my_last_camframe);
+	  }
+	
+	  /// Evaluate the derivative of the image coordinates of a given point @p pt in camera
+	  /// coordinates with respect to each of the internal camera parameters
+	  inline TooN::Matrix<num_parameters,2> get_parameter_derivs_at(const TooN::Vector<2>& pt) const
+	  {
+		TooN::Vector<2> mod_camframe = radial_distort(pt);
+	
+		TooN::Matrix<5, 2> result;
+	
+		const double xc = pt[0];
+		const double yc = pt[1];
+		const double r2 = xc*xc + yc*yc;
+		const double r4 = r2*r2;
+		const double r6 = r4*r2;
+	
+		const double fu= my_camera_parameters[0];
+		const double fv= my_camera_parameters[1];
+	
+		const double w = my_camera_parameters[4];
+		const double w3 = w*w*w;
+		const double w5 = w3*w*w;
+	
+		const double k1 = -(2.0/3.0)*w*r2;
+		const double k2 = (4.0/5.0)*w3*r4;
+		const double k3 = -(6.0/7.0)*w5*r6;
+	
+		//Derivatives of x_image:
+		result[0][0] = mod_camframe[0];
+		result[1][0] = 0;
+		result[2][0] = 1;
+		result[3][0] = 0;
+		result[4][0] = fu * (k1 + k2 + k3) * xc;
+	
+		//Derivatives of y_image:
+		result[0][1] = 0;
+		result[1][1] = mod_camframe[1];
+		result[2][1] = 0;
+		result[3][1] = 1;
+		result[4][1] = fv * (k1 + k2 + k3) * yc;
+	
+		return result;
+	  }
+	
+	  /// Get the component of the motion of a point in the direction provided
+	  /// with respect to each of the internal camera parameters
+	  /// @param direction The (x,y) direction to use
+	  inline TooN::Vector<num_parameters> get_parameter_derivs(const TooN::Vector<2>& direction) const
+	  {
+		return get_parameter_derivs() * direction;
+	  }
+	
+	  /// Update the internal camera parameters by adding the vector given
+	  /// @param updates Update vector in the format
+	  /// \f$ \begin{pmatrix}\Delta f_u & \Delta f_v & \Delta u_0 & \Delta v_0 & \Delta c\end{pmatrix} \f$
+	  //inline void update(const TooN::Vector<num_parameters>& updates);
+	
+	  /// Returns the vector of camera parameters in the format
+	  /// \f$ \begin{pmatrix}f_u & f_v & u_0 & v_0 & c\end{pmatrix} \f$
+	  inline TooN::Vector<num_parameters>& get_parameters()
+	  {
+		return my_camera_parameters;
+	  }
+	  inline const TooN::Vector<num_parameters>& get_parameters() const
+	  {
+		return my_camera_parameters;
+	  }
+	
+	  private:
+	  TooN::Vector<num_parameters> my_camera_parameters; // f_u, f_v, u_0, v_0, omega
+	  mutable TooN::Vector<2> my_last_camframe;
+	};
 
 }
 
