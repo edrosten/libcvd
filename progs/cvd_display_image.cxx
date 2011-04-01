@@ -42,6 +42,7 @@ int main()
 		for(;;)
 		{
 			glDrawPixels(i);
+			glFlush();
 
 			XEvent e;
 			d.get_event(&e);
