@@ -189,7 +189,14 @@ namespace CVD {
 				for(int row = 0; row < r.size().y; row++)
 				{
 					r.get_raw_pixel_line(rowbuf.data());
-					Pixel::ConvertPixels<DiskPixelType, PixelType>::convert(rowbuf.data(), im[row], r.size().x);
+					PixelType* rowptr;
+
+					if(r.top_row_first())
+						rowptr = im[row];
+					else
+						rowptr = im[im.size().y - row-1];
+
+					Pixel::ConvertPixels<DiskPixelType, PixelType>::convert(rowbuf.data(), rowptr, r.size().x);
 				}
 			}
 		};
@@ -199,7 +206,10 @@ namespace CVD {
 			static void exec(SubImage<PixelType>& im, ImageLoader& r)
 			{
 				for(int row = 0; row < r.size().y; row++)
-					r.get_raw_pixel_line(im[row]);
+					if(r.top_row_first())
+						r.get_raw_pixel_line(im[row]);
+					else
+						r.get_raw_pixel_line(im[im.size().y - row-1]);
 			}
 		};
 
@@ -208,11 +218,7 @@ namespace CVD {
 			static void exec(BasicImage<PixelType>& im, ImageLoader& r)
 			{
 				Image<DiskPixelType> imgbuf(r.size());
-
-				for(int row = 0; row < r.size().y; row++)
-				{
-					r.get_raw_pixel_line(imgbuf[row]);
-				}
+				read_and_maybe_process<DiskPixelType,DiskPixelType, ImageLoader>::exec(imgbuf, r);
 
 				convert_image(imgbuf, im);
 			}

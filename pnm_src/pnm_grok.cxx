@@ -502,6 +502,10 @@ namespace CVD
 			return p->datatype();
 		}
 
+		bool Reader::top_row_first()
+		{
+			return true;
+		}
 		string Reader::name()
 		{
 			return "PNM";

@@ -248,7 +248,7 @@ namespace CVD
 	    CVD::Internal::readImage<I, PNG::png_reader>(im, i);
 #endif
 	  else if(c == 'B')
-	    BMP::readBMP(im, i);
+	    CVD::Internal::readImage<I, BMP::Reader>(im, i);
 	  else if(c == 'S')
 	    CVD::Internal::readImage<I, FITS::reader>(im, i);
 	  else if(c == 'C')

@@ -311,6 +311,10 @@ ImageRef png_reader::size()
 }
 
 
+bool png_reader::top_row_first()
+{
+	return true;
+}
 //Mechanically generate the pixel reading calls.
 #define GEN1(X) void png_reader::get_raw_pixel_line(X*d){p->read_pixels(d);}
 #define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)

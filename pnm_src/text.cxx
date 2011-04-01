@@ -135,6 +135,10 @@ string reader::datatype()
 	return t->datatype();
 }
 
+bool reader::top_row_first()
+{
+	return true;
+}
 string reader::name()
 {
 	return "TEXT";

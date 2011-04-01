@@ -543,6 +543,10 @@ string reader::name()
 {
 	return "CVD";
 }
+bool reader::top_row_first()
+{
+	return true;
+}
 
 reader::~reader()
 {}

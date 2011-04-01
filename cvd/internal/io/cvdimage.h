@@ -49,6 +49,7 @@ namespace CVDimage
 			~reader();
 
 			ImageRef size();
+			bool top_row_first();
 
 			void get_raw_pixel_line(unsigned char*);
 			void get_raw_pixel_line(bayer_bggr*);

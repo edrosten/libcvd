@@ -49,6 +49,7 @@ class png_reader
 		~png_reader();
 
 		ImageRef size();
+		bool top_row_first();
 
 		void get_raw_pixel_line(bool*);
 		void get_raw_pixel_line(unsigned char*);

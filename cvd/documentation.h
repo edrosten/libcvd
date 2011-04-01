@@ -97,7 +97,7 @@ It is released under the LGPL License.
 
 \section Portability
   LibCVD will compile on any reasonable unixy environment, with a reasonable
-  C++ compiler (e.g. gcc version >= 3.1) and GNU Make.  Additionally, libCVD
+  C++ compiler, with TR1 and GNU Make.  Additionally, libCVD
   supports both normal and cross compilers.  It is known to work on:
   
   -Well tested (current):
@@ -161,6 +161,8 @@ library and binary files (for DLLs).
 	- @c INCLUDEDIR contains the header files. libcvd headers will be copied into @c \%INCLUDEDIR%\\\libcvd
 	- @c LIBDIR contains library files. libcvd static libraries (debug and release verions) will be copied into @c \%LIBDIR\%
 	- @c BINDIR is not used for libcvd, but would be the default directory for DLLs
+
+libCVD requires the <a href="http://www.microsoft.com/downloads/en/details.aspx?FamilyId=D466226B-8DAB-445F-A7B4-448B326C48E7&displaylang=en">Visual Studio feature pack for TR1</a> support.
 
 libCVD requires at least two libraries to compile:
 	- pthreads-win32 at http://sourceware.org/pthreads-win32/

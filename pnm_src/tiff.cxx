@@ -418,6 +418,10 @@ string tiff_reader::name()
 	return "TIFF";
 }
 
+bool tiff_reader::top_row_first()
+{
+	return true;
+};
 ImageRef tiff_reader::size()
 {
 	return t->size();
