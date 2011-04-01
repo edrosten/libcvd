@@ -5,7 +5,7 @@ namespace CVD{
 	namespace Internal{
 		namespace MorphologyHelpers{
 			//Split a list of ImageRefs up in to rows.
-			inline vector<vector<ImageRef> > row_split(const vector<ImageRef>& v, int y_lo, int y_hi)
+			vector<vector<ImageRef> > row_split(const vector<ImageRef>& v, int y_lo, int y_hi)
 			{
 				vector<vector<ImageRef> > rows(y_hi - y_lo + 1);
 
