@@ -148,6 +148,8 @@ namespace CVD {
 	// DiskBuffer2 buffer
 	//
 
+	// This has to be done with conditional compilation.
+
 #ifdef CVD_HAVE_GLOB
 	template<class T, bool Implemented = Pixel::DefaultConvertible<T>::is> struct makeDiskBuffer2
 	{
@@ -165,6 +167,14 @@ namespace CVD {
 		}
 	};
 
+#else
+	template<class T, bool Implemented = 0> struct makeDiskBuffer2
+	{
+		static VideoBuffer<T>* make(const std::vector<std::string>& , double , VideoBufferFlags::OnEndOfBuffer)
+		{
+			throw VideoSourceException("DiskBuffer2 (shell glob expansion) is not compiled in to libcvd.");
+		}
+	};
 #endif
 
 	void get_files_options(const VideoSource& vs, int& fps, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob);
