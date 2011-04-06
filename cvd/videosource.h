@@ -150,18 +150,19 @@ namespace CVD {
 
 	// This has to be done with conditional compilation.
 
+
 #ifdef CVD_HAVE_GLOB
 	template<class T, bool Implemented = Pixel::DefaultConvertible<T>::is> struct makeDiskBuffer2
 	{
-		static VideoBuffer<T>* make(const std::vector<std::string>& files, double fps, VideoBufferFlags::OnEndOfBuffer eob)
+		static VideoBuffer<T>* make(const std::string& files, double fps, VideoBufferFlags::OnEndOfBuffer eob)
 		{
-			return new DiskBuffer2<T>(files, fps, eob);    
+			return new DiskBuffer2<T>(globlist(files), fps, eob);    
 		}
 	};
 
 	template<class T> struct makeDiskBuffer2<T, false>
 	{
-		static VideoBuffer<T>* make(const std::vector<std::string>& , double , VideoBufferFlags::OnEndOfBuffer)
+		static VideoBuffer<T>* make(const std::string& , double , VideoBufferFlags::OnEndOfBuffer)
 		{
 			throw VideoSourceException("DiskBuffer2 cannot handle type " + PNM::type_name<T>::name());
 		}
@@ -170,7 +171,7 @@ namespace CVD {
 #else
 	template<class T, bool Implemented = 0> struct makeDiskBuffer2
 	{
-		static VideoBuffer<T>* make(const std::vector<std::string>& , double , VideoBufferFlags::OnEndOfBuffer)
+		static VideoBuffer<T>* make(const std::string& , double , VideoBufferFlags::OnEndOfBuffer)
 		{
 			throw VideoSourceException("DiskBuffer2 (shell glob expansion) is not compiled in to libcvd.");
 		}
@@ -306,7 +307,7 @@ namespace CVD {
 			int fps, ra_frames=0;
 			VideoBufferFlags::OnEndOfBuffer eob;
 			get_files_options(vs, fps, ra_frames, eob);
-			VideoBuffer<T>* vb = makeDiskBuffer2<T>::make(globlist(vs.identifier), fps, eob);
+			VideoBuffer<T>* vb = makeDiskBuffer2<T>::make(vs.identifier, fps, eob);
 			if (ra_frames)
 				vb = new ReadAheadVideoBuffer<T>(*vb, ra_frames);
 			return vb;
