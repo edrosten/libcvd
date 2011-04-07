@@ -526,7 +526,7 @@ namespace CVD
 
 
 		#undef GEN1
-		#undef GEN3
+		#undef GEN2
 		////////////////////////////////////////////////////////////////////////////////
 		//
 		// Output PNM class definitions
@@ -701,7 +701,7 @@ namespace CVD
 		GEN2(unsigned char)
 		GEN2(unsigned short)
 
-
-
+        #undef GEN1
+        #undef GEN2
 	}
 }
