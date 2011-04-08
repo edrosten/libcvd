@@ -87,33 +87,33 @@ namespace CVD
     };
 
 #if defined (CVD_HAVE_TOON)
-    template<int N> struct Component<TooN::Vector<N> >
+    template<int N, typename P> struct Component<TooN::Vector<N, P> >
     {
-      typedef double type;
+      typedef P type;
       static const size_t count=N;
       
-      static const type& get(const TooN::Vector<N>& pixel, size_t i)
+      static inline const P & get(const TooN::Vector<N, P>& pixel, size_t i)
       {
-	return pixel[i];
+          return pixel[i];
       }
 
-      static inline type& get(TooN::Vector<N>& pixel, size_t i)
+      static inline P& get(TooN::Vector<N, P>& pixel, size_t i)
       {
 	return pixel[i];
       }
     };
 
-    template<int N, int M> struct Component<TooN::Matrix<N,M> >
+    template<int N, int M, typename P> struct Component<TooN::Matrix<N,M, P> >
     {
-      typedef double type;
+      typedef P type;
       static const size_t count=N*M;
       
-      static const type& get(const TooN::Matrix<N,M>& pixel, size_t i)
+      static const P& get(const TooN::Matrix<N,M,P>& pixel, size_t i)
       {
 	return pixel[i/M][i%M];
       }
 
-      static inline type& get(TooN::Matrix<N,M>& pixel, size_t i)
+      static inline P& get(TooN::Matrix<N,M,P>& pixel, size_t i)
       {
 	return pixel[i/M][i%M];
       }

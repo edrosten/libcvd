@@ -270,7 +270,7 @@ void gradient(const BasicImage<byte>& im, BasicImage<short[2]>& out);
 #endif
 
 
-template <class T, class S> inline void sample(const SubImage<S>& im, double x, double y, T& result)
+template <class T, class S, typename Precision> inline void sample(const SubImage<S>& im, Precision x, Precision y, T& result)
 {
   typedef typename Pixel::Component<S>::type SComp;
   typedef typename Pixel::Component<T>::type TComp;
@@ -285,7 +285,7 @@ template <class T, class S> inline void sample(const SubImage<S>& im, double x, 
   }
  }
 
-template <class T, class S> inline T sample(const SubImage<S>& im, double x, double y){
+template <class T, class S, typename Precision> inline T sample(const SubImage<S>& im, Precision x, Precision y){
     T result;
     sample( im, x, y, result);
     return result;
@@ -319,24 +319,24 @@ inline void sample(const SubImage<float>& im, double x, double y, float& result)
  * @return the number of pixels not in the in image 
  * @Note: this will collide with transform in the std namespace
  */
-template <class T, class S>
-int transform(const BasicImage<S>& in, BasicImage<T>& out, const TooN::Matrix<2>& M, const TooN::Vector<2>& inOrig, const TooN::Vector<2>& outOrig, const T defaultValue = T())
+template <typename T, typename S, typename P>
+int transform(const BasicImage<S>& in, BasicImage<T>& out, const TooN::Matrix<2, 2, P>& M, const TooN::Vector<2, P>& inOrig, const TooN::Vector<2, P>& outOrig, const T defaultValue = T())
 {
     const int w = out.size().x, h = out.size().y, iw = in.size().x, ih = in.size().y; 
-    const TooN::Vector<2> across = M.T()[0];
-    const TooN::Vector<2> down =   M.T()[1];
+    const TooN::Vector<2, P> across = M.T()[0];
+    const TooN::Vector<2, P> down =   M.T()[1];
    
-    const TooN::Vector<2> p0 = inOrig - M*outOrig;
-    const TooN::Vector<2> p1 = p0 + w*across;
-    const TooN::Vector<2> p2 = p0 + h*down;
-    const TooN::Vector<2> p3 = p0 + w*across + h*down;
+    const TooN::Vector<2, P> p0 = inOrig - M*outOrig;
+    const TooN::Vector<2, P> p1 = p0 + w*across;
+    const TooN::Vector<2, P> p2 = p0 + h*down;
+    const TooN::Vector<2, P> p3 = p0 + w*across + h*down;
         
     // ul --> p0
     // ur --> w*across + p0
     // ll --> h*down + p0
     // lr --> w*across + h*down + p0
-    double min_x = p0[0], min_y = p0[1];
-    double max_x = min_x, max_y = min_y;
+    P min_x = p0[0], min_y = p0[1];
+    P max_x = min_x, max_y = min_y;
    
     // Minimal comparisons needed to determine bounds
     if (across[0] < 0)
@@ -357,13 +357,13 @@ int transform(const BasicImage<S>& in, BasicImage<T>& out, const TooN::Matrix<2>
 	max_y += h*down[1];
    
     // This gets from the end of one row to the beginning of the next
-    const TooN::Vector<2> carriage_return = down - w*across;
+    const TooN::Vector<2, P> carriage_return = down - w*across;
 
     //If the patch being extracted is completely in the image then no 
     //check is needed with each point.
     if (min_x >= 0 && min_y >= 0 && max_x < iw-1 && max_y < ih-1) 
     {
-	TooN::Vector<2> p = p0;
+	TooN::Vector<2, P> p = p0;
 	for (int i=0; i<h; ++i, p+=carriage_return)
 	    for (int j=0; j<w; ++j, p+=across) 
 		sample(in,p[0],p[1],out[i][j]);
@@ -372,10 +372,10 @@ int transform(const BasicImage<S>& in, BasicImage<T>& out, const TooN::Matrix<2>
     else // Check each source location
     {
 	// Store as doubles to avoid conversion cost for comparison
-	const double x_bound = iw-1;
-	const double y_bound = ih-1;
+	const P x_bound = iw-1;
+	const P y_bound = ih-1;
 	int count = 0;
-	TooN::Vector<2> p = p0;
+	TooN::Vector<2, P> p = p0;
 	for (int i=0; i<h; ++i, p+=carriage_return) {
 	    for (int j=0; j<w; ++j, p+=across) {
 		//Make sure that we are extracting pixels in the image
