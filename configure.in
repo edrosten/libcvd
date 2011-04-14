@@ -796,8 +796,23 @@ CHECK_FOR_OPTION(ffmpeg, [
 	then
 
 		AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h ffmpeg/swscale.h, [ffmpeg_old_headers=1], [])
-		AC_CHECK_HEADERS(libavcodec/avcodec.h libavformat/avformat.h libswscale/swscale.h, [ffmpeg_new_headers=1], [])
+		
+		AC_MSG_CHECKING([for ffmpeg headers])
+		AC_COMPILE_IFELSE([
+			#define __STDC_CONSTANT_MACROS
+			#include <libavcodec/avcodec.h>
+			#include <libavformat/avformat.h>
+			#include <libswscale/swscale.h>
+			int main(){}
+		], [ ffmpeg_new_headers=1], [])
 
+		if test "$ffmpeg_new_headers" == 1
+		then
+			AC_MSG_RESULT(yes)
+			TEST_AND_SET_CXXFLAG(-D__STDC_CONSTANT_MACROS)
+		else
+			AC_MSG_RESULT(no)
+		fi
 
 		if test "$ffmpeg_old_headers" == 1 || test "$ffmpeg_new_headers" == 1
 		then

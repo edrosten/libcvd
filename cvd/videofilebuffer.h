@@ -22,6 +22,9 @@
 #ifndef CVD_VIDEOFILEBUFFER_H
 #define CVD_VIDEOFILEBUFFER_H
 
+#ifndef __STDC_CONSTANT_MACROS
+#define __STDC_CONSTANT_MACROS
+#endif
 #include <vector>
 #include <string>
 #include <fstream>
