@@ -134,11 +134,7 @@ namespace VFB
 			/// What is the (expected) frame rate of this video buffer, in frames per second?		
 			double frames_per_second() 
 			{
-                        #if LIBAVCODEC_BUILD >= 4754
-			  return pCodecContext->time_base.den / static_cast<double>(pCodecContext->time_base.num);
-                        #else
-				    return pCodecContext->frame_rate / static_cast<double>(pCodecContext->frame_rate_base);
-			#endif
+				  return pCodecContext->time_base.den / static_cast<double>(pCodecContext->time_base.num);
 			};
 			
 			/// What is the path to the video file?
@@ -212,23 +208,14 @@ RawVideoFileBufferPIMPL::RawVideoFileBufferPIMPL(const std::string& file, bool r
 		video_stream = -1;
 		for(int i=0; i < pFormatContext->nb_streams && video_stream == -1; i++)
 		{
-		    #if LIBAVFORMAT_BUILD >= 4629
 			if(pFormatContext->streams[i]->codec->codec_type == CODEC_TYPE_VIDEO)
 				video_stream = i; // Found one!
-		    #else
-			if(pFormatContext->streams[i]->codec.codec_type == CODEC_TYPE_VIDEO)
-				video_stream = i; // Found one!
-			#endif
 		}
 		if(video_stream == -1)
 			throw FileOpen(file, "No video stream found.");
 		
 		// Get the codec context for this video stream
-		#if LIBAVFORMAT_BUILD >= 4629
 		pCodecContext = pFormatContext->streams[video_stream]->codec;
-		#else
-		pCodecContext = &pFormatContext->streams[video_stream]->codec;
-		#endif
 		
 		// Find the decoder for the video stream
 		AVCodec* pCodec = avcodec_find_decoder(pCodecContext->codec_id);
@@ -244,13 +231,6 @@ RawVideoFileBufferPIMPL::RawVideoFileBufferPIMPL(const std::string& file, bool r
 			pCodecContext = 0; // Since it's not been opened yet
 			throw FileOpen(file, string(pCodec->name) + " codec could not be initialised.");
 		}
-		
-		#if LIBAVCODEC_BUILD < 4754
-		// Hack to fix wrong frame rates
-		if(pCodecContext->frame_rate > 1000 && pCodecContext->frame_rate_base == 1)
-			pCodecContext->frame_rate_base = 1000;
-		#endif
-		
 		
 		// Allocate video frame
 		pFrame = avcodec_alloc_frame();
@@ -505,13 +485,9 @@ void RawVideoFileBufferPIMPL::seek_to(double t)
 	// If t was initially zero, it is now negative. Fix this.
 	int64_t seekToPts = targetPts < 0 ? 0 : targetPts;
 
-	#if LIBAVFORMAT_BUILD >= 4623
 	// The flag AVSEEK_FLAG_ANY will seek to the specified frame, but we cannot decode from there because
 	// we do not have the info from the previous frames and keyframe, hence the BACKWARD flag.
 	if (av_seek_frame(pFormatContext, -1, seekToPts, AVSEEK_FLAG_BACKWARD) < 0)
-	#else
-	if (av_seek_frame(pFormatContext, -1, seekToPts < 0))
-	#endif
 	{
 		cerr << "av_seek_frame not supported by this codec: performing (slow) manual seek" << endl;
 		
@@ -532,11 +508,7 @@ void RawVideoFileBufferPIMPL::seek_to(double t)
 		// No need to find the stream--we know which one it is (in video_stream)
 		
 		// Get the codec context for this video stream
-		#if LIBAVFORMAT_BUILD >= 4629
 		pCodecContext = pFormatContext->streams[video_stream]->codec;
-		#else
-		pCodecContext = &pFormatContext->streams[video_stream]->codec;
-		#endif
 		
 		// Find the decoder for the video stream
 		AVCodec* pCodec = avcodec_find_decoder(pCodecContext->codec_id);

@@ -794,9 +794,6 @@ fi
 CHECK_FOR_OPTION(ffmpeg, [
 	if test "$enable_gpl" != no && test "$enable_gpl" != ""
 	then
-
-		AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h ffmpeg/swscale.h, [ffmpeg_old_headers=1], [])
-		
 		AC_MSG_CHECKING([for ffmpeg headers])
 		AC_COMPILE_IFELSE([
 			#define __STDC_CONSTANT_MACROS
@@ -806,12 +803,8 @@ CHECK_FOR_OPTION(ffmpeg, [
 			int main(){}
 		], [ ffmpeg_new_headers=1], [])
 
-		if test "$ffmpeg_old_headers" == 1 || test "$ffmpeg_new_headers" == 1
+		if test "$ffmpeg_new_headers" == 1
 		then
-			if test "$ffmpeg_old_headers" == 1
-			then
-				AC_DEFINE(CVD_INTERNAL_HAVE_FFMPEG_OLD_HEADERS, 1)
-			fi
 
 			AC_CHECK_LIB(avutil, main, [], [a=1])
 			AC_CHECK_LIB(avformat, av_open_input_file, [], [a=1])
@@ -825,22 +818,6 @@ CHECK_FOR_OPTION(ffmpeg, [
 		a=1
 		AC_MSG_WARN([FFMPEG currently requires the use of --enable-gpl])
 	fi
-	#if test "$with_ffmpeg" != yes
-	#then
-#		APPEND(LIBS, [-L $with_ffmpeg])
-#	fi
-#	if test "`$CXX -dumpversion`" = 4.1.0
-#	then
-#		APPEND(CXXFLAGS, -D__STDC_CONSTANT_MACROS)
-#	fi
-
-	#Old ffmpeg?
-	#AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h, [], [a=1])
-	#AC_CHECK_LIB(avutil, main, [], [a=1])
-	#AC_CHECK_LIB(avformat, av_open_input_file, [], [a=1])
-	#AC_CHECK_LIB(avformat, av_read_frame, [ffmpeg_recent=yes], [a=1]) #only in >= 0.4.9
-	#AC_CHECK_LIB(avcodec, avcodec_open, [], [a=1])
-
 ])
 
 AC_CHECK_PROG(docs, doxygen, docs, no)
