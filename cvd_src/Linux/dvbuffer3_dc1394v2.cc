@@ -125,7 +125,7 @@ namespace CVD
 	return "error";
     }
 
-    static DV3ColourFilter DV3_from_DC_ColourFilter(dc1394color_filter_t f, uint32_t vendor, uint32_t model, uint64_t guid)
+    static DV3ColourFilter DV3_from_DC_ColourFilter(dc1394color_filter_t f, uint32_t /*vendor*/, uint32_t /*model*/, uint64_t guid)
     {
       // some cameras report incorrect bayer patterns
       if (guid==0x814436200006075) { return GBRG; }
@@ -151,7 +151,7 @@ namespace CVD
       friend class RawDVBuffer3;
     };
     
-    static dc1394color_coding_t DC_from_DV3_ColourSpace(DV3ColourSpace s, uint32_t vendor, uint32_t model, uint64_t guid)
+    static dc1394color_coding_t DC_from_DV3_ColourSpace(DV3ColourSpace s, uint32_t /*vendor*/, uint32_t /*model*/, uint64_t guid)
     {
       // some cameras report their raw bayer mode as being mono and do not
       // have a mono mode at all...
