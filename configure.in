@@ -806,14 +806,6 @@ CHECK_FOR_OPTION(ffmpeg, [
 			int main(){}
 		], [ ffmpeg_new_headers=1], [])
 
-		if test "$ffmpeg_new_headers" == 1
-		then
-			AC_MSG_RESULT(yes)
-			TEST_AND_SET_CXXFLAG(-D__STDC_CONSTANT_MACROS)
-		else
-			AC_MSG_RESULT(no)
-		fi
-
 		if test "$ffmpeg_old_headers" == 1 || test "$ffmpeg_new_headers" == 1
 		then
 			if test "$ffmpeg_old_headers" == 1

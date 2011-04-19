@@ -22,13 +22,11 @@
 #ifndef CVD_VIDEOFILEBUFFER_H
 #define CVD_VIDEOFILEBUFFER_H
 
-#ifndef __STDC_CONSTANT_MACROS
-#define __STDC_CONSTANT_MACROS
-#endif
 #include <vector>
 #include <string>
 #include <fstream>
 #include <errno.h>
+#include <memory>
 
 #include <cvd/localvideobuffer.h>
 #include <cvd/videobufferflags.h>
@@ -39,22 +37,6 @@
 #include <cvd/rgb.h>
 
 #include <cvd/config.h>
-
-extern "C" {
-#ifdef CVD_INTERNAL_HAVE_FFMPEG_OLD_HEADERS
-	#include <ffmpeg/avcodec.h>
-	#include <ffmpeg/avformat.h>
-	#include <ffmpeg/swscale.h>
-#else
-	#include <libavcodec/avcodec.h>
-	#include <libavformat/avformat.h>
-	#include <libswscale/swscale.h>
-#endif
-}
-
-struct AVFormatContext;
-struct AVFrame; 
-
 namespace CVD
 {
 	namespace Exceptions
@@ -110,6 +92,7 @@ namespace CVD
 
 
 	class A_Frame;
+	class RawVideoFileBufferPIMPL;
 
 	/// Internal (non type-safe) class used by VideoFileBuffer
 	/// This does the real interfacing with the ffmpeg library
@@ -123,10 +106,7 @@ namespace CVD
 			~RawVideoFileBuffer();
 		
 			/// The size of the VideoFrames returned by this buffer
- 			ImageRef size()
-			{
-				return my_size;
-			}
+ 			ImageRef size();
 
 			/// Returns the next frame from the buffer. This function blocks until a frame is ready.
 			void* get_frame();
@@ -135,10 +115,7 @@ namespace CVD
 			void put_frame(void* f);
 
 			/// Is there a frame waiting in the buffer? This function does not block. 
-			bool frame_pending()
-			{
-				return frame_ready;
-			}
+			bool frame_pending();
 
 			/// Go to a particular point in the video buffer (only implemented in buffers of recorded video)
 			/// \param t The frame time in seconds
@@ -146,54 +123,19 @@ namespace CVD
 			
 			/// What should the buffer do when it reaches the end of the list of files?
 			/// @param behaviour The desired behaviour
-			void on_end_of_buffer(VideoBufferFlags::OnEndOfBuffer behaviour) 
-			{
-				end_of_buffer_behaviour = behaviour;
-			}
+			void on_end_of_buffer(VideoBufferFlags::OnEndOfBuffer behaviour);
 		
 			/// What is the (expected) frame rate of this video buffer, in frames per second?		
-			double frames_per_second() 
-			{
-                        #if LIBAVCODEC_BUILD >= 4754
-			  return pCodecContext->time_base.den / static_cast<double>(pCodecContext->time_base.num);
-                        #else
-				    return pCodecContext->frame_rate / static_cast<double>(pCodecContext->frame_rate_base);
-			#endif
-			};
+			double frames_per_second();
 			
 			/// What is the path to the video file?
-			std::string file_name() 
-			{
-				return pFormatContext->filename;
-			}
+			std::string file_name();
 			
 			/// What codec is being used to decode this video?
-			std::string codec_name() 
-			{
-				return pCodecContext->codec_name;
-			}
+			std::string codec_name();
 		
 		private:
-			bool read_next_frame();
-				
-		private:
-			ImageRef my_size;
-			VideoBufferFlags::OnEndOfBuffer end_of_buffer_behaviour;
-			double start_time;
-			bool frame_ready;
-
-			AVFormatContext* pFormatContext;
-			int video_stream;
-			AVCodecContext* pCodecContext;
-		    AVFrame* pFrame; 
-    		AVFrame* pFrameRGB;
-			SwsContext *img_convert_ctx;
-			
-			CVD::Image<CVD::Rgb<byte> > next_frame_rgb;
-			CVD::Image<CVD::byte> next_frame;
-			
-			double frame_time;
-			bool is_rgb;
+			std::auto_ptr<RawVideoFileBufferPIMPL> p;
 	};
 	}
 

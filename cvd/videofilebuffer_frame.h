@@ -34,7 +34,7 @@ namespace CVD
 {
 	namespace VFB
 	{
-		class RawVideoFileBuffer;
+		class RawVideoFileBufferPIMPL;
 	}
 
 	/// A frame from a VideoFileBuffer.
@@ -44,7 +44,7 @@ namespace CVD
 	template<class T> 
 	class VideoFileFrame: public CVD::LocalVideoFrame<T>
 	{
-		friend class VFB::RawVideoFileBuffer;
+		friend class VFB::RawVideoFileBufferPIMPL;
 
 	        public:
 		        inline void delete_self() {  delete this; }
