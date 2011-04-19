@@ -27,19 +27,11 @@
 #endif
 
 extern "C" {
-#ifdef CVD_INTERNAL_HAVE_FFMPEG_OLD_HEADERS
-	#include <ffmpeg/avcodec.h>
-	#include <ffmpeg/avformat.h>
-	#include <ffmpeg/swscale.h>
-#else
-	#include <libavcodec/avcodec.h>
-	#include <libavformat/avformat.h>
-	#include <libswscale/swscale.h>
-#endif
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 }
 
-//struct AVFormatContext;
-//struct AVFrame; 
 
 #include <string>
 #include <sstream>
@@ -206,7 +198,7 @@ RawVideoFileBufferPIMPL::RawVideoFileBufferPIMPL(const std::string& file, bool r
 		
 		// We shall just use the first video stream
 		video_stream = -1;
-		for(int i=0; i < pFormatContext->nb_streams && video_stream == -1; i++)
+		for(unsigned int i=0; i < pFormatContext->nb_streams && video_stream == -1; i++)
 		{
 			if(pFormatContext->streams[i]->codec->codec_type == CODEC_TYPE_VIDEO)
 				video_stream = i; // Found one!
@@ -320,6 +312,7 @@ bool RawVideoFileBufferPIMPL::read_next_frame()
 
 
     AVPacket packet;
+	av_init_packet(&packet);
 	packet.stream_index = -1;
 	
 	// How many frames do we read looking for our video stream?
@@ -346,8 +339,11 @@ bool RawVideoFileBufferPIMPL::read_next_frame()
 			
 			// Decode video frame
 			int got_picture;
-			if(avcodec_decode_video(pCodecContext, pFrame, &got_picture, 
-				packet.data, packet.size) == -1)
+			#ifdef CVD_INTERNAL_FFMPEG_USE_AVCODEC_DECODE_VIDEO2
+			if(avcodec_decode_video2(pCodecContext, pFrame, &got_picture, & packet) == -1)
+			#else
+			if(avcodec_decode_video(pCodecContext, pFrame, &got_picture, packet.data, packet.size) == -1)
+			#endif
 			{
 				throw BadDecode(frame_time);
 			}
@@ -540,8 +536,9 @@ void RawVideoFileBufferPIMPL::seek_to(double t)
 	// Now read frames until we get to the time we want
 
 	AVPacket packet;
+	av_init_packet(&packet);
 	int gotFrame;
-	int64_t pts;	      
+	int64_t pts=0;	      
 	      
 	// Decode frame by frame until we reach the desired point.
 	do {
@@ -554,8 +551,12 @@ void RawVideoFileBufferPIMPL::seek_to(double t)
 		// Timestamp of the decoded frame.
 		pts = static_cast<int64_t>(packet.pts / packet.duration * AV_TIME_BASE / frame_rate + 0.5);
 
-		avcodec_decode_video(pCodecContext, pFrame, &gotFrame, packet.data, packet.size);
-		av_free_packet(&packet);
+		#ifdef CVD_INTERNAL_FFMPEG_USE_AVCODEC_DECODE_VIDEO2
+			avcodec_decode_video2(pCodecContext, pFrame, &gotFrame, &packet);
+		#else
+			avcodec_decode_video(pCodecContext, pFrame, &gotFrame, packet.data, packet.size);
+		#endif
+		av_free_packet(&packet); 
 	} while (pts < targetPts);
 
 	// This read_frame is necessary to ensure that the first frame read by the calling program

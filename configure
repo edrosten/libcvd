@@ -11680,15 +11680,8 @@ fi
 
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
-		if test "$ffmpeg_old_headers" == 1 || test "$ffmpeg_new_headers" == 1
+		if test "$ffmpeg_new_headers" == 1
 		then
-			if test "$ffmpeg_old_headers" == 1
-			then
-				cat >>confdefs.h <<\_ACEOF
-#define CVD_INTERNAL_HAVE_FFMPEG_OLD_HEADERS 1
-_ACEOF
-
-			fi
 
 
 { $as_echo "$as_me:$LINENO: checking for main in -lavutil" >&5
@@ -12063,6 +12056,85 @@ else
   a=1
 fi
 
+
+			have_avcodec_decode_video2=0
+			{ $as_echo "$as_me:$LINENO: checking for avcodec_decode_video2 in -lavcodec" >&5
+$as_echo_n "checking for avcodec_decode_video2 in -lavcodec... " >&6; }
+if test "${ac_cv_lib_avcodec_avcodec_decode_video2+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lavcodec  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char avcodec_decode_video2 ();
+int
+main ()
+{
+return avcodec_decode_video2 ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_cxx_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext && {
+	 test "$cross_compiling" = yes ||
+	 $as_test_x conftest$ac_exeext
+       }; then
+  ac_cv_lib_avcodec_avcodec_decode_video2=yes
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_avcodec_avcodec_decode_video2=no
+fi
+
+rm -rf conftest.dSYM
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:$LINENO: result: $ac_cv_lib_avcodec_avcodec_decode_video2" >&5
+$as_echo "$ac_cv_lib_avcodec_avcodec_decode_video2" >&6; }
+if test "x$ac_cv_lib_avcodec_avcodec_decode_video2" = x""yes; then
+  have_avcodec_decode_video2=1
+fi
+
+			if test $have_avcodec_decode_video2==1
+			then
+				cat >>confdefs.h <<\_ACEOF
+#define CVD_INTERNAL_FFMPEG_USE_AVCODEC_DECODE_VIDEO2 1
+_ACEOF
+
+			fi
+
 		else
 			a=1
 		fi
@@ -12071,22 +12143,6 @@ fi
 		{ $as_echo "$as_me:$LINENO: WARNING: FFMPEG currently requires the use of --enable-gpl" >&5
 $as_echo "$as_me: WARNING: FFMPEG currently requires the use of --enable-gpl" >&2;}
 	fi
-	#if test "$with_ffmpeg" != yes
-	#then
-#		APPEND(LIBS, [-L $with_ffmpeg])
-#	fi
-#	if test "`$CXX -dumpversion`" = 4.1.0
-#	then
-#		APPEND(CXXFLAGS, -D__STDC_CONSTANT_MACROS)
-#	fi
-
-	#Old ffmpeg?
-	#AC_CHECK_HEADERS(ffmpeg/avcodec.h ffmpeg/avformat.h, [], [a=1])
-	#AC_CHECK_LIB(avutil, main, [], [a=1])
-	#AC_CHECK_LIB(avformat, av_open_input_file, [], [a=1])
-	#AC_CHECK_LIB(avformat, av_read_frame, [ffmpeg_recent=yes], [a=1]) #only in >= 0.4.9
-	#AC_CHECK_LIB(avcodec, avcodec_open, [], [a=1])
-
 
 
 		if test x$a == x
