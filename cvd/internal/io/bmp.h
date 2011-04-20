@@ -60,7 +60,7 @@ namespace CVD {
 			private:
 				std::auto_ptr<ReadPimpl> t;
 		};
-/*
+
 		class WritePimpl;
 		class Writer
 		{
@@ -75,6 +75,8 @@ namespace CVD {
 				{		
 					typedef byte type;
 				};		
+
+				static const int top_row_first=0;
 
 			protected:
 				std::auto_ptr<WritePimpl> t; 
@@ -95,61 +97,7 @@ namespace CVD {
 		{
 			typedef Rgb<byte> type;
 		};
-*/
 
-		void writeBMPHeader(unsigned int width, unsigned int height, unsigned int channels, std::ostream& out);
-
-		template <class T, int Channels> struct BMPWriter;
-		template <class T> struct BMPWriter<T,1> {
-			static void write(const BasicImage<T>& im, std::ostream& out) {
-				writeBMPHeader(im.size().x, im.size().y, 1, out);
-				int rowSize = im.size().x;
-				if (rowSize % 4)
-					rowSize += 4 - (rowSize % 4);
-				Internal::simple_vector<byte> rowbuf(rowSize);
-				for (int r=im.size().y-1; r>=0; r--) {
-					Pixel::ConvertPixels<T,byte>::convert(im[r], &rowbuf[0], im.size().x);
-					out.write((const char*)&rowbuf[0], rowSize);
-				}
-			}
-		};
-		template <> struct BMPWriter<byte,1> {
-			static void write(const BasicImage<byte>& im, std::ostream& out) {
-				writeBMPHeader(im.size().x, im.size().y, 1, out);
-				int pad = (im.size().x % 4) ? (4 - (im.size().x % 4)) : 0;
-				char zeros[4]={0,0,0,0};
-				for (int r=im.size().y-1; r>=0; r--) {
-					out.write((const char*)im[r], im.size().x);
-					if (pad)
-						out.write(zeros,pad);
-				}
-			}
-		};
-
-		template <class T> struct BMPWriter<T,3> {
-			static void write(const BasicImage<T>& im, std::ostream& out) {
-				writeBMPHeader(im.size().x, im.size().y, 3, out);
-				int rowSize = im.size().x*3;
-				if (rowSize % 4)
-					rowSize += 4 - (rowSize % 4);
-				Internal::simple_vector<byte> rowbuf(rowSize);
-				for (int r=im.size().y-1; r>=0; r--) {
-					Pixel::ConvertPixels<T,Rgb<byte> >::convert(im[r], (Rgb<byte>*)&rowbuf[0], im.size().x);
-					for (int c=0; c<im.size().x*3; c+=3) {
-						byte tmp = rowbuf[c];
-						rowbuf[c] = rowbuf[c+2];
-						rowbuf[c+2] = tmp;
-					}
-					out.write((const char*)&rowbuf[0], rowSize);
-				}
-			}
-		};
-		template <class T> struct BMPWriterChooser {  enum { channels = 1}; };
-		template <class T> struct BMPWriterChooser<Rgb<T> > { enum { channels = 3}; };
-
-		template <class T> void writeBMP(const BasicImage<T>& im, std::ostream& out) {
-			BMPWriter<T,BMPWriterChooser<T>::channels>::write(im,out);
-		}
 	}
 }
 

@@ -98,6 +98,7 @@ namespace CVDimage
 				typedef byte type;
 			};		
 
+			static const int top_row_first=1;
 		protected:
 			std::auto_ptr<WritePimpl> t; 
 	};

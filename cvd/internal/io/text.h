@@ -79,6 +79,7 @@ namespace TEXT
 				typedef double type;
 			};		
 
+			static const int top_row_first=1;
 		private:
 			std::auto_ptr<WritePimpl> t; 
 	};

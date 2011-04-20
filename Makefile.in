@@ -98,6 +98,7 @@ CVD_OBJS=   \
 			pnm_src/pnm_grok.o                              \
 			pnm_src/bmp.o                                   \
 			pnm_src/bmp_read.o                              \
+			pnm_src/bmp_write.o                             \
 			pnm_src/cvdimage.o                              \
 			pnm_src/fits.o                                  \
 			pnm_src/fitswrite.o                             \

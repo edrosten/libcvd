@@ -307,11 +307,11 @@ namespace CVD
 		  case ImageType::TIFF: Internal::writeImage<PixelType, TIFF::tiff_writer>(im,o, p); break;
 	  #endif
 	  case ImageType::FITS: Internal::writeImage<PixelType, FITS::writer>(im,o, p); break;
-	  case ImageType::BMP: BMP::writeBMP(im, o); break;
-	  case ImageType::TXT: Internal::writeImage<PixelType, TEXT::writer>(im, o, p); break;
+	  case ImageType::BMP:  Internal::writeImage<PixelType, BMP::Writer>(im, o, p); break;
+	  case ImageType::TXT:  Internal::writeImage<PixelType, TEXT::writer>(im, o, p); break;
 	  case ImageType::PS:   Internal::writeImage<PixelType, PS::writer>(im, o, p); break;
-	  case ImageType::EPS:   Internal::writeImage<PixelType, PS::eps_writer>(im, o, p); break;
-	  case ImageType::CVD: Internal::writeImage<PixelType, CVDimage::writer>(im,o, p); break;
+	  case ImageType::EPS:  Internal::writeImage<PixelType, PS::eps_writer>(im, o, p); break;
+	  case ImageType::CVD:  Internal::writeImage<PixelType, CVDimage::writer>(im,o, p); break;
 	  }
 	}
 

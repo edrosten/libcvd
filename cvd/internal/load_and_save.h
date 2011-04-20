@@ -312,11 +312,18 @@ namespace CVD {
 				ImageWriter w(os, im.size(), CVD::PNM::type_name<OutgoingPixel>::name(), p);
 				Image<OutgoingPixel> row(ImageRef(im.size().x, 1));
 
-				for(int r=0; r < im.size().y; r++)
-				{
-					CVD::Pixel::ConvertPixels<Pixel, OutgoingPixel>::convert(im[r], row.data(), im.size().x);
-					w.write_raw_pixel_line(row.data());
-				}
+				if(w.top_row_first)
+					for(int r=0; r < im.size().y; r++)
+					{
+						CVD::Pixel::ConvertPixels<Pixel, OutgoingPixel>::convert(im[r], row.data(), im.size().x);
+						w.write_raw_pixel_line(row.data());
+					}
+				else
+					for(int r=im.size().y-1; r >= 0; r--)
+					{
+						CVD::Pixel::ConvertPixels<Pixel, OutgoingPixel>::convert(im[r], row.data(), im.size().x);
+						w.write_raw_pixel_line(row.data());
+					}
 			}
 		};
 
@@ -325,8 +332,14 @@ namespace CVD {
 			static void write(std::ostream& os, const SubImage<Pixel>& im, const std::map<std::string, Parameter<> >& p)
 			{
 				ImageWriter w(os, im.size(), CVD::PNM::type_name<Pixel>::name(), p);
-				for(int r=0; r < im.size().y; r++)
-					w.write_raw_pixel_line(im[r]);
+
+				if(w.top_row_first)
+					for(int r=0; r < im.size().y; r++)
+						w.write_raw_pixel_line(im[r]);
+				else
+					for(int r=im.size().y-1; r >= 0; r--)
+						w.write_raw_pixel_line(im[r]);
+
 			}
 		};
 

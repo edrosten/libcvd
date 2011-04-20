@@ -185,6 +185,7 @@ namespace FITS
 				typedef typename ComponentMapper<Incoming>::type type;
 			};		
 
+			static const int top_row_first=1;
 		private:
 			WritePimpl* t; 
 	};

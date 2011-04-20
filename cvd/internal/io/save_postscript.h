@@ -52,6 +52,7 @@ namespace PS
 				typedef byte type;
 			};		
 
+			static const int top_row_first=0;
 		protected:
 			std::auto_ptr<WritePimpl> t; 
 	};
@@ -87,6 +88,7 @@ namespace PS
 				typedef typename writer::Outgoing<Incoming>::type type;
 			};		
 
+			static const int top_row_first=1;
 		protected:
 			std::auto_ptr<WritePimpl> t; 
 	};

@@ -147,6 +147,8 @@ class png_writer
 		{		
 			typedef typename ComponentMapper<Incoming>::type type;
 		};		
+		static const int top_row_first=1;
+
 	private:
 
 		template<class P> void write_line(const P*);

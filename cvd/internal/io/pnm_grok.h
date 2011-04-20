@@ -100,6 +100,8 @@ namespace CVD
 												 std::numeric_limits<Element>::is_integer &&
 												 std::numeric_limits<Element>::digits <= 8>::type type;
 			};		
+			static const int top_row_first=1;
+
 		private:
 			std::auto_ptr<pnm_writer> p;
 	};
