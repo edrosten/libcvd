@@ -320,7 +320,7 @@ inline void sample(const SubImage<float>& im, double x, double y, float& result)
  * @Note: this will collide with transform in the std namespace
  */
 template <typename T, typename S, typename P>
-int transform(const BasicImage<S>& in, BasicImage<T>& out, const TooN::Matrix<2, 2, P>& M, const TooN::Vector<2, P>& inOrig, const TooN::Vector<2, P>& outOrig, const T defaultValue = T())
+int transform(const SubImage<S>& in, SubImage<T>& out, const TooN::Matrix<2, 2, P>& M, const TooN::Vector<2, P>& inOrig, const TooN::Vector<2, P>& outOrig, const T defaultValue = T())
 {
     const int w = out.size().x, h = out.size().y, iw = in.size().x, ih = in.size().y; 
     const TooN::Vector<2, P> across = M.T()[0];
