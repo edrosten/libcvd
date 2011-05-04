@@ -474,6 +474,12 @@
 				<File
 					RelativePath="..\..\pnm_src\bmp.cxx"
 					>
+				<File
+					RelativePath="..\..\pnm_src\bmp_read.cxx"
+					>
+				<File
+					RelativePath="..\..\pnm_src\bmp_write.cxx"
+					>
 				</File>
 				<File
 					RelativePath="..\..\pnm_src\cvdimage.cxx"

@@ -800,6 +800,12 @@
 				<File
 					RelativePath="..\..\cvd\internal\io\bmp.h"
 					>
+				<File
+					RelativePath="..\..\cvd\internal\io\bmp_read.h"
+					>
+				<File
+					RelativePath="..\..\cvd\internal\io\bmp_write.h"
+					>
 				</File>
 				<File
 					RelativePath="..\..\cvd\internal\builtin_components.h"
