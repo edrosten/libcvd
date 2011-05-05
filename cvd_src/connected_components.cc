@@ -1,6 +1,7 @@
 #include "cvd/connected_components.h"
 #include <climits> 
 #include <algorithm> 
+#include <iterator>
 
 using namespace std;
 namespace CVD{
