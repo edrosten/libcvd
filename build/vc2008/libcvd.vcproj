@@ -482,6 +482,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\pnm_src\bmp_read.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\pnm_src\bmp_write.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\..\pnm_src\cvdimage.cxx"
 					>
 				</File>
@@ -604,8 +612,8 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="copy &quot;$(InputPath)&quot; ..\..\cvd&#x0D;&#x0A;"
-						Outputs="..\..\cvd\$(InputFileName)"
+						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(InputDir)..\..\cvd&quot;&#x0D;&#x0A;"
+						Outputs="&quot;$(InputDir)..\..\cvd\$(InputFileName)&quot;"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -613,8 +621,8 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="copy &quot;$(InputPath)&quot; ..\..\cvd&#x0D;&#x0A;"
-						Outputs="..\..\cvd\$(InputFileName)"
+						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(InputDir)..\..\cvd&quot;"
+						Outputs="&quot;$(InputDir)..\..\cvd\$(InputFileName)&quot;"
 					/>
 				</FileConfiguration>
 			</File>
