@@ -247,10 +247,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\cvd_src\half_sample.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\cvd_src\image_io.cc"
 				>
 			</File>
@@ -552,6 +548,14 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="SSE"
+				>
+				<File
+					RelativePath="..\..\cvd_src\SSE2\half_sample.cc"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -615,7 +619,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(InputDir)..\..\cvd&quot;"
+						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(InputDir)..\..\cvd&quot;&#x0D;&#x0A;"
 						Outputs="&quot;$(InputDir)..\..\cvd\$(InputFileName)&quot;"
 					/>
 				</FileConfiguration>
