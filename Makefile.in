@@ -91,7 +91,6 @@ CVD_OBJS=   \
 			cvd_src/bayer.o                                 \
 			cvd_src/morphology.o                            \
 			cvd_src/colourspace_convert.o                   \
-			cvd_src/half_sample.o                           \
 			cvd_src/draw.o                                  \
 			cvd_src/yuv422.o                                \
 			cvd_src/yuv420.o                                \

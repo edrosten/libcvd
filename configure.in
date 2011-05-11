@@ -943,8 +943,9 @@ cvd_src/i686/yuv411_to_stuff_MMX			inline_asm mmxext 32bit x86
 cvd_src/i686/yuv411_to_stuff_MMX_64			inline_asm mmxext x86
 cvd_src/yuv411_to_stuff					END
 
-cvd_src/i686/halfsample,INTERNAL_HALFSAMPLE_MMX8		mmx 32bit x86 assembler END
-INTERNAL_HALFSAMPLE_SSE16							sse2 END
+cvd_src/i686/halfsample,cvd_src/MMX/half_sample		mmx 32bit x86 assembler END
+cvd_src/SSE2/half_sample							sse2
+cvd_src/noarch/half_sample	 						END
 
 INTERNAL_YV402P_MMX									mmx END
 
