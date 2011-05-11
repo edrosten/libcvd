@@ -1,6 +1,4 @@
-#include <cvd/config.h>
 #include <cvd/image_convert.h>
-#include <cvd/utility.h>
 #include <arm_neon.h>
 
 namespace CVD {
