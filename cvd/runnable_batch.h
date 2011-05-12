@@ -2,7 +2,11 @@
 #define  CVD_INCLUDE_RUNNABLE_BATCH_H
 
 #include <cvd/thread.h>
+#ifdef WIN32
+#include <memory>
+#else
 #include <tr1/memory>
+#endif
 #include <vector>
 namespace CVD
 {
