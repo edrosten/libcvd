@@ -6,7 +6,7 @@ namespace CVD{
 
 
 		#define _mm_shuffle_32(X, Y, Z)\
-				(__m128i)_mm_shuffle_ps((__m128)(X), (__m128)(Y), Z)
+				_mm_castps_si128(_mm_shuffle_ps(_mm_castsi128_ps(X), _mm_castsi128_ps(Y), Z))
 
 		void shift_3(__m128i& w_01_08, __m128i& w_09_16, __m128i& w_17_24)
 		{
@@ -17,7 +17,7 @@ namespace CVD{
 			//The shift direction moves upwards in memory, so since the three registers
 			//represent a row of pixels, the shift moves pixels to the right.
 			__m128i w_extra = _mm_shuffle_32(_mm_srli_si128(w_09_16, 2), w_01_08, _MM_SHUFFLE(3, 3, 3, 3));
-			w_17_24 = _mm_or_si128(_mm_slli_si128(w_17_24, 2), _mm_and_si128(w_extra, _mm_set_epi16(0, 0, 0, 0, 0, 0, 0, 0xffff)));
+			w_17_24 = _mm_or_si128(_mm_slli_si128(w_17_24, 2), _mm_and_si128(w_extra, _mm_set_epi16(0, 0, 0, 0, 0, 0, 0, short(0xffff))));
 			w_09_16 = _mm_or_si128(_mm_slli_si128(w_09_16, 2), _mm_srli_si128(w_extra, 14));
 			w_01_08 = _mm_slli_si128(w_01_08, 2);
 		}
@@ -28,8 +28,8 @@ namespace CVD{
 			//[ chunk1 chunk2 ] = [ [ B C E F H I K L ] [ N O Q R T W W X ] ] 
 
 			__m128i w_23tmp = _mm_srli_si128(w_01_08, 2);
-			w_01_08 = _mm_and_si128(w_01_08, _mm_set_epi16(0, 0, 0xffff, 0xffff, 0, 0, 0, 0));
-			w_23tmp = _mm_and_si128(w_23tmp, _mm_set_epi16(0xffff, 0xffff, 0, 0, 0, 0, 0xffff, 0xffff));
+			w_01_08 = _mm_and_si128(w_01_08, _mm_set_epi16(0, 0, short(0xffff), short(0xffff), 0, 0, 0, 0));
+			w_23tmp = _mm_and_si128(w_23tmp, _mm_set_epi16(short(0xffff), short(0xffff), 0, 0, 0, 0, short(0xffff), short(0xffff)));
 			w_chnk1 = _mm_or_si128(w_01_08, w_23tmp);
 
 			//This gives us:
@@ -41,8 +41,8 @@ namespace CVD{
 			//w_chnk1 = [ B C E F H 0 0 0 ]
 
 			//w_09_16 = [ I J K L M N O P]
-			__m128i w_4bitt = _mm_and_si128(_mm_slli_si128(w_09_16, 2),  _mm_set_epi16(0xffff, 0xffff, 0, 0, 0, 0, 0xffff, 0));
-			__m128i w_5_tmp = _mm_and_si128(w_09_16, _mm_set_epi16(0, 0, 0, 0, 0xffff, 0xffff, 0, 0));
+			__m128i w_4bitt = _mm_and_si128(_mm_slli_si128(w_09_16, 2),  _mm_set_epi16(short(0xffff), short(0xffff), 0, 0, 0, 0, short(0xffff), 0));
+			__m128i w_5_tmp = _mm_and_si128(w_09_16, _mm_set_epi16(0, 0, 0, 0, short(0xffff), short(0xffff), 0, 0));
 			//w_4bitt = [0 I 0 0 0 0 N O]
 			//w_5_tmp = [0 0 K L 0 0 0 0]
 
