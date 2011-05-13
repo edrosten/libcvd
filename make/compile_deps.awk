@@ -14,11 +14,14 @@ NF==0{next}
 			next
 
 	selected= ($NF != "END")
-
-	nd = split($1, dependees, ",")
 	
-	for(i=1; i <= nd; i++)
-		print dependees[i]
+	if($1 != "nothing")
+	{
+		nd = split($1, dependees, ",")
+		
+		for(i=1; i <= nd; i++)
+			print dependees[i]
+	}
 }
 
 $NF=="END"{

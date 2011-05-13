@@ -413,7 +413,7 @@ AC_ARG_WITH(dc1394v1v2,[  --with-dc1394v1v2       Force libDC1394 v1 and v2 co-e
 AC_ARG_WITH(dc1394v1,  [  --without-dc1394v1      do not use libDC1394v1 (use try v2 instead) for dvbuffer3 (Linux/OSX). Disable dvbuffer (Linux).])
 AC_ARG_WITH(dc1394v2,  [  --without-dc1394v2      do not use libDC1394v2 (use try v1 instead) for dvbuffer3 (Linux/OSX). ])
 AC_ARG_WITH(v4l1buffer,[  --without-v4l1buffer	  compile without v4l1bffer (Video4Linux) support (Linux only)])
-AC_ARG_WITH(v4l2,      [  --without-v4l2buffer	  compile without v4l2buffer (Video4Linux2) support (Linux only)])
+AC_ARG_WITH(v4l2buffer,[  --without-v4l2buffer	  compile without v4l2buffer (Video4Linux2) support (Linux only)])
 AC_ARG_WITH(o2buffer,  [  --without-o2buffer	  compile without sgi video (IRIX only)])
 AC_ARG_WITH(qtbuffer,  [  --without-qtbuffer	  compile without quicktime buffer support (MacOSX only)])
 
@@ -440,7 +440,7 @@ CHECK_FOR_OPTION(dc1394v2, [
 
 case "$host" in
 	*linux*)
-		os_all_options="dc1394v2 dc1394v1 v4l2buffer v4l1buffer v4lbuffer"
+		os_all_options="dc1394v2 dc1394v1 v4l2buffer v4l1buffer"
 		
 		if test "$have_dc1394v2" != yes || test "$with_dc1394v1v2" == "yes"
 		then
@@ -542,6 +542,10 @@ case "$host" in
 			echo "I hope all SGIs have stuff needed for O2buffer. Disable (--without-o2buffer) if I'm wrong."
 		])
 		;;
+	*windows*)
+		AC_SUBST(have_windows, yes)
+		;;
+		
 esac
 
 
@@ -1019,6 +1023,7 @@ cvd_src/IRIX/O2buffer,cvd_src/IRIX/sgi-video	o2buffer END
 cvd_src/OSX/qtbuffer,cvd_src/OSX/videosource_qtbuffer	   qtbuffer
 cvd_src/OSX/videosource_noqtbuffer		                   END 
 
+cvd_src/cvd_timer			windows
 cvd_src/posix/timer								posix_rt
 cvd_src/cvd_timer								END
 
@@ -1026,16 +1031,23 @@ cvd_src/cvd_timer								END
 cvd_src/synchronized,cvd_src/eventobject,cvd_src/thread		pthread END
 cvd_src/thread/runnable_batch                   tr1_shared_ptr pthread
 cvd_src/nothread/runnable_batch                 tr1_shared_ptr END
+
+nothing											windows
 cvd_src/noarch/posix_memalign                   memalign
 cvd_src/noarch/default_memalign                 END
 
+cvd_src/Win32/glwindow,cvd_src/gltext	windows
 cvd_src/videodisplay,cvd_src/glwindow,cvd_src/gltext         videodisplay END
 pnm_src/jpeg									jpeg END
 pnm_src/tiff,pnm_src/tiffwrite					tiff END
 pnm_src/png										png END
 cvd_src/videofilebuffer,cvd_src/videosource_videofilebuffer	 ffmpeg 
 cvd_src/videosource_novideofilebuffer           END
+
+nothing											windows
 cvd_src/globlist    							glob END
+
+cvd_src/Win32/win32								windows END
 
 #Numerics dependencies
 cvd_src/tensor_voting,cvd_src/brezenham			toon END
@@ -1091,11 +1103,6 @@ test/bayer_test													END
 ENDPROGS
 AC_SUBST(testprogs, ["`cat config.dep_testprogs | tr '\n' ' ' `"])
 
-
-if echo "$dep_objects" | grep -q v4lbuffer
-then
-	APPEND(options, v4lbuffer)	
-fi
 
 echo
 echo

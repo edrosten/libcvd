@@ -252,8 +252,6 @@ install-libs-debug:$(dsoname) libcvd_debug.a
 	cp libcvd_debug.a $(DESTDIR)$(libdir)
 
 
-
-
 clean:
 	/bin/rm -f tmp libcvd.a $(sos) libcvd_debug.a $(dsos)
 	find . -name '*.o' | xargs rm -f
@@ -313,5 +311,9 @@ debug/%.o: %.s debug
 
 %: %.o
 	$(CXX) -o $@ $< $(LDFLAGS) -lcvd  $(LOADLIBES)
+
+printlibs:
+	@echo $(LOADLIBES)
+
 
 include .deps

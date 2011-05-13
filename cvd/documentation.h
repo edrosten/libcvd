@@ -51,6 +51,7 @@ It is released under the LGPL License.
 			- FITS 
 			- PS   (saving only)
 			- EPS  (saving only)
+			- CVD (a custom type which supports fast, lossless compression of greyscale, RGB and Bayer images)
 		- External libraries required
 			- JPEG
 			- TIFF 
@@ -102,22 +103,26 @@ It is released under the LGPL License.
   
   -Well tested (current):
 	- Linux: x86, x86-64
+	- Mac OS X: x86
+		- Supports the OSX build environment including:
+			- Frameworks
+			- .dylib libraries
+	- iOS
+		- XCode project provided
+	- Cygwin: x86
+	- MinGW: x86 (native and cross compile)
+	- Win32: Visual Studio 2008
+
+  -Has worked on (current status unknown):
+	- Linux: PPC
+	- Mac OS X: PPC
+	- Solaris: SPARC
+	- IRIX SGI O2: MIPS
 	- Linux: ARM LPC3180, XScale (cross compile)
 	- uCLinux: Blackfin  (cross compile)
 	- FreeBSD: x86
 	- OpenBSD: XScale
-	- Mac OS X: x86, PPC
-		- Supports the OSX build environment including:
-			- Frameworks
-			- .dylib libraries
-	- Cygwin: x86
-	- MinGW: x86 (native and cross compile)
-	- Win32: Visual Studio 2008, 2005
-
-  -Has worked on (current status unknown):
-	- Linux: PPC
-	- Solaris: SPARC
-	- IRIX SGI O2: MIPS
+	- Win32: Visual Studio 2005 (project file is out of date)
 
 
 \section Compiling
@@ -129,7 +134,7 @@ The normal system works:
 	make install
 @endcode
 
-libCVD fully supports parallel builds (<code>make -j2</code> for instance).
+libCVD fully supports parallel builds (<code>make -j48</code> for instance).
 
 \subsection slBugs Library bugs/issues
 	There are a few known library bugs which prevent the libraries working with libCVD
@@ -150,31 +155,60 @@ libCVD fully supports parallel builds (<code>make -j2</code> for instance).
 		- Remove <code>cvd_src/videosource.o</code> from <code>Makefile</code> and use <code>--disable-jpeg</code>
 		- Compile files with -O2 instead of -O3
 
+\subsection iOS iOS
+
+An xcode project is provided in the \c build directory
+
 \subsection win32 Windows
 
 For Win32 systems, the @c build directory contains project files for different versions
-of Visual Studio. Currently the vc2008 solutin is supported and should work out of the box. There
-are two projects, one for compiling libcvd and one for installing it into a common directory tree.
-Both projects assume the existence of three environment variables describing the location of header, 
+of Visual Studio. Currently the vc2008 solutions are supported and should work out of the box. 
+
+libCVD requires the <a href="http://www.microsoft.com/downloads/en/details.aspx?FamilyId=D466226B-8DAB-445F-A7B4-448B326C48E7&displaylang=en">Visual Studio feature pack for TR1</a> support.
+
+There are several projects which can be compiled:
+
+- libcvd-TooN A very basic configuration which only requires the <a href="http://mi.eng.cam.ac.uk/~er258/cvd/toon.html">TooN</a> headers. You must add the TooN
+  directory to the include path using: 
+    - (Popup Menu) Project Properties -> (Dialog) Configuration -> C/C++ -> Common : Additional Include Directories
+
+- libcvd-TooN-JPEG-pthreads This is a more featureful configuration which has JPEG and threading support. In order to compile
+  CVD, you must first compile these libraries:
+	- pthreads-win32 at http://sourceware.org/pthreads-win32/
+	- jpeg at http://www.ijg.org/
+
+In order to avoid the need to set up a large number of include paths, all libCVD
+projects assume the existence of three environment variables describing the location of header, 
 library and binary files (for DLLs).
 	
 	- @c INCLUDEDIR contains the header files. libcvd headers will be copied into @c \%INCLUDEDIR%\\\libcvd
 	- @c LIBDIR contains library files. libcvd static libraries (debug and release verions) will be copied into @c \%LIBDIR\%
 	- @c BINDIR is not used for libcvd, but would be the default directory for DLLs
 
-libCVD requires the <a href="http://www.microsoft.com/downloads/en/details.aspx?FamilyId=D466226B-8DAB-445F-A7B4-448B326C48E7&displaylang=en">Visual Studio feature pack for TR1</a> support.
+To use this feature, make a directory tree containing (for example):
 
-libCVD requires at least two libraries to compile:
-	- pthreads-win32 at http://sourceware.org/pthreads-win32/
-	- jpeg-7 at http://www.ijg.org/
+- C:\\local\\include
+- C:\\local\\bin
+- C:\\local\\lib
 
-Both libraries should be moved into the directory tree described by @c INCLUDEDIR, @c LIBDIR and @c BINDIR where the libCVD 
-project files will expect them.
+Then set up three environment variables (e.g. using <a href="http://www.rapidee.com/en/about">rapidee</a>) to be the following:
+- INCLUDEDIR=C:\\local\\include
+- BINDIR=C:\\local\\bin
+- LIBDIR=C:\\local\\lib
+
+libCVD will then find all headers and libraries in that directory tree. LibCVD also includes the file:
+- install.vcproj
+
+This will copy the relevant files into that tree.
 
 libCVD compiles to static libraries for simpler linking and to avoid the _dllexport/_dllimport statements throughout the code.
 
-Configuration of features is manual through a default config file in @c build/vc2005/config.h. Edit this file to change your configuration, 
-for example to support other image formats such as PNG.
+Configuration of features is manual through a default config file in @c build/vs2008/config-*.h. Edit this file to change your configuration, 
+for example to support other image formats such as PNG. Alternatively, new configurations can be generated using the file:
+
+- make/make_vcproj_all.sh
+
+from any unix-like environment (including MINGW and Cygwin).
 
 */
 
