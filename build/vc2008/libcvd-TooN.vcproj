@@ -945,6 +945,10 @@
 					RelativePath="..\..\cvd\internal\io\tiff.h"
 					>
 				</File>
+				<File
+					RelativePath="..\..\cvd\internal\win.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 	</Files>

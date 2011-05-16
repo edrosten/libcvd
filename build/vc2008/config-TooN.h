@@ -1,5 +1,8 @@
 #ifndef CVD_CONFIG_H
 #define CVD_CONFIG_H
+#ifdef WIN32
+	#include <cvd/internal/win.h>
+#endif
 #define CVD_ARCH_LITTLE_ENDIAN 1
 #ifndef CVD_DISABLE_CPU_x86_64
     #define CVD_HAVE_CPU_x86_64 1
