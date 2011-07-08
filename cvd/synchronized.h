@@ -38,10 +38,21 @@ class Synchronized : private NoCopy
     A Lock object should be declared on the stack in the same scope as the object to be locked.
     When the Lock object goes out of scope, the mutex is released.  This is especially useful
     in code that throws exceptions. */
-struct Lock {
-  const Synchronized& myObject;
-  Lock(const Synchronized& obj) : myObject(obj) { myObject.lock(); }
-  virtual ~Lock() { myObject.unlock(); }
+class Lock : private NoCopy {
+public:
+
+    explicit Lock(const Synchronized& obj)
+    : myObject(obj) {
+        myObject.lock();
+    }
+
+    ~Lock() {
+        myObject.unlock();
+    }
+
+private:
+
+    const Synchronized& myObject;
 };
 
 }  
