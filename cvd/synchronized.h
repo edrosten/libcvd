@@ -4,6 +4,8 @@
 // POSIX threads
 #include <pthread.h>
 
+#include <cvd/nocopy.h>
+
 namespace CVD {
 
 /** A Synchronized object encapsulates a basic mutex.
@@ -11,7 +13,7 @@ namespace CVD {
     Classes should subclass from Synchronized if they
     want to be able to lock themselves.
 */
-class Synchronized
+class Synchronized : private NoCopy
 {
  public:
   //! Create an initially unlocked mutex
@@ -29,7 +31,7 @@ class Synchronized
    
  protected:
    pthread_mutexattr_t     myAttr;
-   mutable pthread_mutex_t myMutex; 
+   mutable pthread_mutex_t myMutex;
 };
 
 /** A utility class for locking and unlocking Synchronized objects automatically.
