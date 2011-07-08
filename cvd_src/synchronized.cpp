@@ -11,7 +11,6 @@ Synchronized::Synchronized()
 
 Synchronized::~Synchronized()
 {
-   lock();
    pthread_mutex_destroy(&myMutex);
    pthread_mutexattr_destroy(&myAttr);
 }
