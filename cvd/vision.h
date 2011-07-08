@@ -100,7 +100,7 @@ void twoThirdsSample(const SubImage<byte>& in, SubImage<byte>& out);
   #else
   	///Subsamples an image by averaging 3x3 blocks in to 2x2 ones.
 	/// Note that this is performed using lazy evaluation, so subsampling
-	/// happns on assignment, and memory allocation is not performed if
+	/// happens on assignment, and memory allocation is not performed if
 	/// unnecessary.
     /// @param from The image to convert from
 	/// @return The converted image
