@@ -28,8 +28,7 @@ class Synchronized
   void unlock() const;
    
  protected:
-   static pthread_mutexattr_t ourAttr;
-   static bool ourInitFlag;
+   pthread_mutexattr_t     myAttr;
    mutable pthread_mutex_t myMutex; 
 };
 
