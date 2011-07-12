@@ -72,7 +72,12 @@ namespace CVD
 	inline	unsigned long  read_u4(istream& i)
 	{
 		//Data is little endian:
-		unsigned long r =  i.get() | (i.get() << 8) | (i.get() << 16) | (i.get() << 12);
+		//unsigned long r =  i.get() | (i.get() << 8) | (i.get() << 16) | (i.get() << 24 );
+		int a = i.get();
+		int b = i.get();
+		int c = i.get();
+		int d = i.get();
+		unsigned long r = a | (b << 8) | (c<<16) | (d << 24);
 		if(i.eof())
 			throw(Exceptions::Image_IO::MalformedImage("EOF in header."));
 
@@ -82,7 +87,10 @@ namespace CVD
 	inline	unsigned long  read_u2(istream& i)
 	{
 		//Data is little endian:
-		unsigned long r =  i.get() | (i.get() << 8);
+		//unsigned long r =  i.get() | (i.get() << 8);
+		int a = i.get();
+		int b = i.get();
+		unsigned long r = a | (b << 8);
 		if(i.eof())
 			throw(Exceptions::Image_IO::MalformedImage("EOF in header."));
 
