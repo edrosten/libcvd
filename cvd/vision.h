@@ -416,6 +416,42 @@ int transform(const SubImage<S>& in, SubImage<T>& out, const TooN::Matrix<2, 2, 
       }
     }
   }
+  
+/// warp or unwarps an image according to two camera models.
+template <typename T, typename CAM1, typename CAM2>
+void warp( const SubImage<T> & in, const CAM1 & cam_in, SubImage<T> & out, const CAM2 & cam_out){
+	const ImageRef size = out.size();
+	for(int y = 0; y < size.y; ++y){
+		for(int x = 0; x < size.x; ++x){
+			TooN::Vector<2> l = cam_in.project(cam_out.unproject(TooN::makeVector(x,y)));
+			if(l[0] >= 0 && l[0] <= in.size().x - 1 && l[1] >= 0 && l[1] <= in.size().y -1){
+				sample(in, l[0], l[1], out[y][x]);
+			} else 
+				out[y][x] = T();
+		}
+	}
+}
+
+/// warps or unwarps an image according to two camera models and
+/// returns the result image. The size of the output image needs to be
+/// passed in as well.
+template <typename T, typename CAM1, typename CAM2>
+Image<T> warp( const SubImage<T> & in, const CAM1 & cam_in, const ImageRef & size, const CAM2 & cam_out){
+	Image<T> result(size);
+	warp(in, cam_in, result, cam_out);
+	return result;
+}
+
+/// warps or unwarps an image according to two camera models and
+/// returns the result image. The size of the output image is the
+/// same as the input image size.
+template <typename T, typename CAM1, typename CAM2>
+Image<T> warp( const SubImage<T> & in, const CAM1 & cam_in, const CAM2 & cam_out){
+	Image<T> result(in.size());
+	warp(in, cam_in, result, cam_out);
+	return result;
+}
+
 #endif
 
 /// flips an image vertically in place.
