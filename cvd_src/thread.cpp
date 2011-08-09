@@ -2,6 +2,8 @@
 #include <cvd/thread.h>
 #include <time.h>
 
+
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -87,19 +89,6 @@ void Thread::sleep(unsigned int milli)
 #else
    struct timespec ts = { milli/1000, (milli%1000)*1000000 };
    nanosleep(&ts, 0);
-#endif
-}
-
-void Thread::yield()
-{
-#ifdef CVD_HAVE_PTHREAD_YIELD
-  pthread_yield();
-#elif defined(CVD_HAVE_PTHREAD_YIELD_NP)
-  pthread_yield_np();
-#elif defined(WIN32)
-	Sleep(0);
-#else
-#warning "Thread::yield() not implemented"
 #endif
 }
 

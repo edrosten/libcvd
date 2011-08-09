@@ -90,7 +90,7 @@ dnl option corresponds to the first parameter for the corresponding
 dnl AC_ARG_WITH. If the library is present, then have_option and CVD_HAVE_OPTION
 dnl are set. If with_option is "", it will be set to yes.
 dnl
-dnl The test code shall do nothing on success, and set the shell variable a to 1
+dnl The test code shall do nothing on success, and set the shell variable a
 dnl on failure. For convenience, LIBS  and CXXFLAGS are checkpointed 
 dnl automatically. On failure, they are restored automatically.
 dnl
@@ -715,11 +715,26 @@ CHECK_FOR_OPTION(pthread, [
 	# check for existence of pthread_yield
 	# Mac OS X only has pthread_yield_np
 	a=
-	AC_CHECK_FUNC(pthread_yield, AC_DEFINE(CVD_HAVE_PTHREAD_YIELD),a=1$a)
-	AC_CHECK_FUNC(pthread_yield_np, AC_DEFINE(CVD_HAVE_PTHREAD_YIELD_NP),a=1$a)
-	if test x$a = x11
+	AC_CHECK_FUNC(sched_yield, AC_SUBST(have_sched_yield, yes), a=sy)
+
+	if test x$a != x
+	then
+		AC_CHECK_FUNC(pthread_yield, AC_SUBST(have_pthread_yield, yes),a=py)
+	fi
+
+
+	if test x$a != x
+	then
+		AC_CHECK_FUNC(pthread_yield_np, AC_SUBST(have_pthread_yield_np, yes),a=pyn)
+	fi
+
+	if test x$a = xpyn
 	then
 		APPEND(dodginess_options, no_pthread_yield)
+		APPEND(dodginess_options, no_sched_yield)
+	elif test x$a = py
+	then
+		APPEND(dodginess_options, no_sched_yield)
 	fi
 ])
 
@@ -1030,6 +1045,12 @@ cvd_src/cvd_timer								END
 
 #Libraries
 cvd_src/synchronized,cvd_src/eventobject,cvd_src/thread		pthread END
+
+cvd_src/posix/sched_yield                       pthread sched_yield
+cvd_src/posix/pthread_yield                     pthread pthread_yield
+cvd_src/posix/pthread_yield_np                  pthread pthread_yield_np
+nothing                                         END
+
 cvd_src/thread/runnable_batch                   tr1_shared_ptr pthread
 cvd_src/nothread/runnable_batch                 tr1_shared_ptr END
 
