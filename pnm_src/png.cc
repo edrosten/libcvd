@@ -18,7 +18,7 @@ using namespace std;
 // 
 static void error_fn(png_structp png_ptr, png_const_charp error_msg)
 {
-	*(string*)(png_ptr->error_ptr) = error_msg;
+	*(string*)png_get_error_ptr(png_ptr) = error_msg;
 }
 
 static void warn_fn(png_structp, png_const_charp )
@@ -67,8 +67,8 @@ class CVD::PNG::PNGPimpl
 		std::istream& i;
 		std::string type;
 		unsigned long row;
-		png_struct_def* png_ptr;
-		png_info_struct* info_ptr, *end_info;
+		png_structp png_ptr;
+		png_infop info_ptr, end_info;
 
 		std::string error_string;
 		ImageRef my_size;
@@ -342,8 +342,8 @@ class CVD::PNG::WriterPimpl
 	std::string type;
 	std::string error_string;
 
-	png_struct_def* png_ptr;
-	png_info_struct* info_ptr, *end_info;
+	png_structp png_ptr;
+	png_infop info_ptr, end_info;
 
 };
 
