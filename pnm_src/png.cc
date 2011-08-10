@@ -327,7 +327,28 @@ GEN3(unsigned short)
 // PNG writing functions.
 //
 
-png_writer::png_writer(ostream& out, ImageRef sz, const string& type_, const std::map<std::string, Parameter<> >&)
+class CVD::PNG::WriterPimpl
+{
+	public:
+		WriterPimpl(std::ostream&, ImageRef size, const std::string& type);
+		~WriterPimpl();
+		template<class P> void write_line(const P*);
+
+	private:
+
+	long row;
+	std::ostream& o;
+	ImageRef size;
+	std::string type;
+	std::string error_string;
+
+	png_struct_def* png_ptr;
+	png_info_struct* info_ptr, *end_info;
+
+};
+
+
+WriterPimpl::WriterPimpl(ostream& out, ImageRef sz, const string& type_)
 :row(0),o(out),size(sz),type(type_)
 {
 	//Create required structs
@@ -420,18 +441,12 @@ png_writer::png_writer(ostream& out, ImageRef sz, const string& type_, const std
 
 }
 
-//Mechanically generate the pixel writing calls.
-#undef GEN1
-#undef GEN3
-#define GEN1(X) void png_writer::write_raw_pixel_line(const X*d){write_line(d);}
-#define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
-GEN1(bool)
-GEN1(Rgb8)
-GEN3(unsigned char)
-GEN3(unsigned short)
+////////////////////////////////////////////////////////////////////////////////
+//
+// Main interface funtions
+//
 
-
-template<class P> void png_writer::write_line(const P* data)
+template<class P> void WriterPimpl::write_line(const P* data)
 {
 	unsigned char* chardata = const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(data));
 
@@ -455,8 +470,26 @@ template<class P> void png_writer::write_line(const P* data)
 	row++;
 }
 
-png_writer::~png_writer()
+WriterPimpl::~WriterPimpl()
 {
 	png_write_end(png_ptr, info_ptr);
 	png_destroy_write_struct(&png_ptr, &info_ptr);
 }
+
+png_writer::png_writer(std::ostream&o, ImageRef size, const std::string& type, const std::map<std::string, Parameter<> >&)
+:p(new WriterPimpl(o, size, type))
+{
+}
+
+png_writer::~png_writer()
+{
+}
+//Mechanically generate the pixel writing calls.
+#undef GEN1
+#undef GEN3
+#define GEN1(X) void png_writer::write_raw_pixel_line(const X*d){p->write_line(d);}
+#define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
+GEN1(bool)
+GEN1(Rgb8)
+GEN3(unsigned char)
+GEN3(unsigned short)

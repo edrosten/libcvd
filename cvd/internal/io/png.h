@@ -29,10 +29,6 @@
 #include <cvd/internal/load_and_save.h>
 #include <cvd/internal/convert_pixel_types.h>
 
-struct png_struct_def;
-struct png_info_struct;
-
-
 namespace CVD{
 namespace PNG{
 
@@ -41,6 +37,7 @@ using CVD::Internal::Head;
 
 
 class PNGPimpl;
+class WriterPimpl;
 
 class png_reader
 {
@@ -150,18 +147,7 @@ class png_writer
 		static const int top_row_first=1;
 
 	private:
-
-		template<class P> void write_line(const P*);
-
-	long row;
-	std::ostream& o;
-	ImageRef size;
-	std::string type;
-	std::string error_string;
-
-	png_struct_def* png_ptr;
-	png_info_struct* info_ptr, *end_info;
-
+		std::auto_ptr<WriterPimpl> p;
 };
 
 
