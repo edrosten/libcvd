@@ -5,7 +5,7 @@
 
 #include <cvd/config.h>
 #include <windows.h>
-
+namespace CVD{
 struct timezone 
 {
   int  tz_minuteswest; /* minutes W of Greenwich */
@@ -13,5 +13,5 @@ struct timezone
 };
  
 int gettimeofday(struct timeval *tv, struct timezone *tz);
-
+}
 #endif  //CVD_INTERNAL_WIN32_H
