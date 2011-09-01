@@ -46,6 +46,7 @@ public:
 	/// @param b The blue component
 	/// @param a The alpha component
 	Rgba(T r, T g, T b, T a) : red(r), green(g), blue(b), alpha(a) {}
+	template <class S> inline explicit Rgba(const Rgba<S>& rgba) : red(static_cast<T>(rgba.red)), green(static_cast<T>(rgba.green)), blue(static_cast<T>(rgba.blue)), alpha(static_cast<T>(rgba.alpha)) {}
 
    T red; ///< The red component
    T green; ///< The green component
