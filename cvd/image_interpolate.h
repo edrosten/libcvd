@@ -71,17 +71,17 @@ namespace CVD
 
 			///Is this pixel inside the image?
 			///@param pos The coordinate to test.
-			bool in_image(const TooN::Vector<2>& pos);
+			bool in_image(const TooN::Vector<2>& pos) const;
 
 			///Access the pixel at pos, with interpolation.
 			///Bounds checking is the same as for CVD::Image.
 			///@param pos The pixel to access
-			float_type operator[](const TooN::Vector<2>& pos);
+			float_type operator[](const TooN::Vector<2>& pos) const;
 
 			///Return the minimum value for which in_image returns true.
-			TooN::Vector<2> min();
+			TooN::Vector<2> min() const;
 			///Return the first value for which in_image returns false.
-			TooN::Vector<2> max();
+			TooN::Vector<2> max() const;
 		};
 	#endif
 
@@ -98,7 +98,7 @@ namespace CVD
 		private:
 			const BasicImage<C>* im;
 
-			int round(double d)
+			int round(double d) const
 			{
 				if(d < 0)
 					return (int)ceil(d - .5);
@@ -106,7 +106,7 @@ namespace CVD
 					return (int)floor(d + .5);
 			}
 
-			ImageRef to_ir(const TooN::Vector<2>& v)
+			ImageRef to_ir(const TooN::Vector<2>& v) const
 			{
 				return ImageRef(round(v[0]), round(v[1]));
 			}
@@ -118,22 +118,22 @@ namespace CVD
 			:im(&i)
 			{}
 
-			bool in_image(const TooN::Vector<2>& pos)
+			bool in_image(const TooN::Vector<2>& pos) const
 			{
 				return im->in_image(to_ir(pos));
 			}
 
-			FT operator[](const TooN::Vector<2>& pos)
+			FT operator[](const TooN::Vector<2>& pos) const
 			{
 				return (*im)[to_ir(pos)];
 			}
 
-			TooN::Vector<2> min()
+			TooN::Vector<2> min() const
 			{
 				return TooN::makeVector( 0, 0);
 			}
 
-			TooN::Vector<2> max()
+			TooN::Vector<2> max() const
 			{
 				return vec(im->size());
 			}
@@ -146,12 +146,12 @@ namespace CVD
 		private:
 			const BasicImage<T>* im;
 
-			TooN::Vector<2> floor(const TooN::Vector<2>& v)
+			TooN::Vector<2> floor(const TooN::Vector<2>& v) const
 			{
 				return TooN::makeVector( ::floor(v[0]), ::floor(v[1]));
 			}
 
-			TooN::Vector<2> ceil(const TooN::Vector<2>& v)
+			TooN::Vector<2> ceil(const TooN::Vector<2>& v) const
 			{
 				return TooN::makeVector( ::ceil(v[0]), ::ceil(v[1]));
 			}
@@ -163,12 +163,12 @@ namespace CVD
 			:im(&i)
 			{}
 
-			bool in_image(const TooN::Vector<2>& pos)
+			bool in_image(const TooN::Vector<2>& pos) const
 			{
 				return im->in_image(ir(floor(pos))) && im->in_image(ir(ceil(pos)));
 			}
 
-			FT operator[](const TooN::Vector<2>& pos)
+			FT operator[](const TooN::Vector<2>& pos) const
 			{
 				TooN::Vector<2> delta =  pos - floor(pos);
 
@@ -200,12 +200,12 @@ namespace CVD
 				return ret;
 			}
 
-			TooN::Vector<2> min()
+			TooN::Vector<2> min() const
 			{
 				return TooN::makeVector( 0, 0);
 			}
 
-			TooN::Vector<2> max()
+			TooN::Vector<2> max() const
 			{
 				return vec(im->size());
 			}
@@ -218,12 +218,12 @@ namespace CVD
 		private:
 			const BasicImage<T>* im;
 
-			float p(float f)
+			float p(float f) const
 			{
 				return f <0 ? 0 : f;
 			}
 
-			float r(float x)
+			float r(float x) const
 			{
 				return (  pow(p(x+2), 3) - 4 * pow(p(x+1),3) + 6 * pow(p(x), 3) - 4* pow(p(x-1),3))/6;
 			}
@@ -235,12 +235,12 @@ namespace CVD
 			:im(&i)
 			{}
 
-			bool in_image(const TooN::Vector<2>& pos)
+			bool in_image(const TooN::Vector<2>& pos) const
 			{
 				return pos[0] >= 1 && pos[1] >=1 && pos[0] < im->size().x-2 && pos[1] < im->size().y - 2;
 			}
 
-			FT operator[](const TooN::Vector<2>& pos)
+			FT operator[](const TooN::Vector<2>& pos) const
 			{
 				int x = (int)floor(pos[0]);
 				int y = (int)floor(pos[1]);
@@ -263,12 +263,12 @@ namespace CVD
 				return ret;
 			}
 
-			TooN::Vector<2> min()
+			TooN::Vector<2> min() const
 			{
 				return TooN::makeVector( 1, 1);
 			}
 
-			TooN::Vector<2> max()
+			TooN::Vector<2> max() const
 			{
 				return TooN::makeVector( im->size().x - 2, im->size().y - 2);
 			}
