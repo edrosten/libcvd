@@ -20,8 +20,8 @@
 */
 // PAS 17/6/04 (revised 16/2/05)
 
-#ifndef __CVD_DEINTERLACEBUFFER_H
-#define __CVD_DEINTERLACEBUFFER_H
+#ifndef CVD_INCLUDE_COLOURSPACEBUFFER_H
+#define CVD_INCLUDE_COLOURSPACEBUFFER_H
 
 #include <cvd/localvideobuffer.h>
 #include <cvd/image_convert.h>
