@@ -11,6 +11,7 @@
 #include <cvd/config.h>
 
 #include <cvd/colourspacebuffer.h>
+#include <cvd/deinterlacebuffer.h>
 #include <cvd/colourspaces.h>
 #include <cvd/videobufferwithdata.h>
 #include <cvd/readaheadvideobuffer.h>
@@ -70,6 +71,26 @@ namespace CVD {
 	};
 
 	void get_jpegstream_options(const VideoSource& vs, int& fps);
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	//
+	// Deinterlace buffer
+	//
+	void get_deinterlace_options(const VideoSource& vs, DeinterlaceBufferFields::Fields& fields);
+
+	template<class T> struct makeDeinterlaceBuffer
+	{
+		static VideoBuffer<T>* make(DeinterlaceBufferFields::Fields f, const std::string& url)
+		{
+			std::auto_ptr<VideoBuffer<T> > source  = std::auto_ptr<VideoBuffer<T> > (static_cast<VideoBuffer<T>*>(open_video_source<T>(url)));
+			std::auto_ptr<VideoBuffer<T> > de_int  = std::auto_ptr<VideoBuffer<T> > (static_cast<DeinterlaceBuffer<T>*>(new DeinterlaceBuffer<T>(*source, f)));
+
+
+
+			return new VideoBufferWithData<T, VideoBuffer<T> >(de_int, source);
+		}
+	};
 
  
     ////////////////////////////////////////////////////////////////////////////////
@@ -296,6 +317,14 @@ namespace CVD {
 				return new VideoBufferWithData<T, VideoBuffer<T> >(b, jpeg_buffer);
 			}
 		}
+		else if(vs.protocol == "deinterlace")
+		{
+			DeinterlaceBufferFields::Fields f=DeinterlaceBufferFields::OddEven;
+
+			get_deinterlace_options(vs, f);
+
+			return makeDeinterlaceBuffer<T>::make(f, vs.identifier);
+		}
 		else if(vs.protocol == "colourspace")
 		{
 			std::string from = "byte";
@@ -386,10 +415,13 @@ around the video buffer dealing with the hardware and so does not provide
 access to the controls. The underlying buffer can be accessed with 
 VideoBuffer::root_buffer().
 
+Threre are also several pseudo buffers (such as deinterlacing and colorspace
+conversion) which are chained to other buffers by taking a URL as an argument.
+
 The url syntax is the following:
 @verbatim
 url		 := protocol ':' [ '[' options ']' ] // identifier
-protocol := "files" | "file" | "v4l2" | "v4l1" | "jpegstream" | "dc1394" | "qt" | "colourspace"
+protocol := "files" | "file" | "v4l2" | "v4l1" | "jpegstream" | "dc1394" | "qt" | "colourspace" | "deinterlace"
 options  := option [ ',' options ]
 option	 := name [ '=' value ]
 @endverbatim
@@ -493,6 +525,12 @@ Options supported by the various protocols are:
 
 'jpegstream' protocol (ServerPushJpegBuffer): identifier is path to file
 	  read_ahead  [= <number>] (default is 50 if specified without value)
+
+'deinterlace' protcol (DeinterlaceBuffer): identifier is a video URL
+      oddonly  [ = <bool> ]
+      evenonly [ = <bool> ]
+      oddeven  [ = <bool> ]
+      evenodd  [ = <bool> ]
 
 'colourspace' protcol (ColourspaceBuffer): identifier is a video URL
       from = byte | mono | gray | grey | yuv411 | yuv422 | rgb<byte> 

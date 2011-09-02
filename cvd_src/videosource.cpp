@@ -265,6 +265,27 @@ namespace CVD {
 		}
 	}
 
+	void get_deinterlace_options(const VideoSource& vs, DeinterlaceBufferFields::Fields& fields)
+	{
+		for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it)
+		{		
+			if(it != vs.options.begin())
+				throw VideoSourceException("invalid option for files protocol: multiple field specifications");
+
+			if(it->first == "oddonly" && parseBoolFlag(it->second) == true)
+				fields = DeinterlaceBufferFields::OddOnly;
+			else if(it->first == "evenonly" && parseBoolFlag(it->second) == true)
+				fields = DeinterlaceBufferFields::EvenOnly;
+			else if(it->first == "oddeven" && parseBoolFlag(it->second) == true)
+				fields = DeinterlaceBufferFields::OddEven;
+			else if(it->first == "evenodd" && parseBoolFlag(it->second) == true)
+				fields = DeinterlaceBufferFields::EvenOdd;
+			else
+				throw VideoSourceException("invalid option for files protocol: "+it->first +
+										   "\n\t valid options: oddonly, evenonly, oddeven, evenodd");
+		}
+	}
+
 	void get_colourspace_options(const VideoSource& vs, string& colourspace)
 	{
 		colourspace = "mono";
