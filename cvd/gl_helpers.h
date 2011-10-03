@@ -36,8 +36,17 @@
 #ifdef WIN32
 #include <windows.h>
 #endif
+
+#ifdef _OSX
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
+#endif
+
+
+
 #include <cvd/internal/gl_types.h>
 
 #ifdef CVD_HAVE_TOON

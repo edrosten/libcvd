@@ -810,12 +810,19 @@ int main(int argc, char* argv[])
 	videoBuffer->put_frame(vframe);
 
 	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_RECTANGLE_NV);
+	#ifdef GL_TEXTURE_RECTANGLE_ARB
+		texTarget=GL_TEXTURE_RECTANGLE_ARB;
+	#elif defined GL_TEXTURE_RECTANGLE_NV
+		texTarget=GL_TEXTURE_RECTANGLE_NV;
+	#else
+		texTarget=GL_TEXTURE_RECTANGLE_EXT;
+	#endif
+	glEnable(texTarget);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	glTexParameterf( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-	glTexParameterf( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	glTexParameterf( texTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+	glTexParameterf( texTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-	glTexImage2D(temp, 0, GL_TEXTURE_RECTANGLE_NV);
+	glTexImage2D(temp, 0, texTarget);
 	glBegin(GL_QUADS);
 	glTexCoord2i(0, 0);
 	glVertex2i(0,0);
@@ -826,7 +833,8 @@ int main(int argc, char* argv[])
 	glTexCoord2i(0, temp.size().y);
 	glVertex2i(0, disp.size().y);
 	glEnd ();
-	glDisable(GL_TEXTURE_RECTANGLE_NV);
+	glDisable(texTarget);
+
 	glEnable(GL_BLEND);
 
 	//this is the bit that does the calibrating

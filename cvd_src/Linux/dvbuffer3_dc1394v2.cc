@@ -128,7 +128,7 @@ namespace CVD
     static DV3ColourFilter DV3_from_DC_ColourFilter(dc1394color_filter_t f, uint32_t /*vendor*/, uint32_t /*model*/, uint64_t guid)
     {
       // some cameras report incorrect bayer patterns
-      if (guid==0x814436200006075) { return GBRG; }
+      if (guid==0x814436200006075ULL) { return GBRG; }
       return static_cast<DV3ColourFilter>(f - DC1394_COLOR_FILTER_MIN);
     }
 
@@ -155,7 +155,7 @@ namespace CVD
     {
       // some cameras report their raw bayer mode as being mono and do not
       // have a mono mode at all...
-      if (guid==0x814436200006075) {
+      if (guid==0x814436200006075ULL) {
         //vendor==0x81443 model==0x0 ?
         switch(s)
 	  {

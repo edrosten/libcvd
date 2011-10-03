@@ -631,7 +631,7 @@ namespace CVD
 					//for (size_t i=0; i<n_shorts; i++)
 							//o << data[2*i+1] << data[2*i];
 			#else
-					o.write((const char*)data, n*sizeof(unsigned short));
+					o.write((const char*)data, n_shorts*sizeof(unsigned short));
 			#endif
 		}
 
