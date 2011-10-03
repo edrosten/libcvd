@@ -810,6 +810,7 @@ int main(int argc, char* argv[])
 	videoBuffer->put_frame(vframe);
 
 	glDisable(GL_BLEND);
+	GLenum texTarget;
 	#ifdef GL_TEXTURE_RECTANGLE_ARB
 		texTarget=GL_TEXTURE_RECTANGLE_ARB;
 	#elif defined GL_TEXTURE_RECTANGLE_NV
