@@ -155,6 +155,10 @@ libCVD fully supports parallel builds (<code>make -j48</code> for instance).
 		- Remove <code>cvd_src/videosource.o</code> from <code>Makefile</code> and use <code>--disable-jpeg</code>
 		- Compile files with -O2 instead of -O3
 
+\subsection OSX OSX Compilation notes
+
+To build libCVD in 32 bit mode, use the \c configure_osx_32bit script instead of directly calling the configure script.
+
 \subsection iOS iOS
 
 An xcode project is provided in the \c build directory
