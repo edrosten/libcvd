@@ -620,6 +620,10 @@ template<class C> inline ImageCreationIterator<C> CreateImagesEnd(int i)
 /// an increment), so images can be efficiently passed back in functions or
 /// used in containers like std::vector
 ///
+/// Image<> inherits all debugging macros from BasicImage and SubImage.
+/// In addition, the macro CVD_IMAGE_DEBUG_INITIALIZE_RANDOM will cause allocated
+/// memory to be initialized with random numbers before any constructors are called.
+///
 /// Loading and saving, format conversion and some copying functionality is
 /// provided by external functions rather than as part of this class. See
 /// the @ref gImageIO "Image loading and saving, and format conversion" module
