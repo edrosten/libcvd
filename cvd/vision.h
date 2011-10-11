@@ -458,8 +458,8 @@ Image<T> warp( const SubImage<T> & in, const CAM1 & cam_in, const CAM2 & cam_out
 template <class T> void flipVertical( Image<T> & in )
 {
   int w = in.size().x;
-  vector<T> buffer(w);
-  T* buffer = &w[0];
+  std::vector<T> buf(w);
+  T* buffer = &buf[0];
   T * top = in.data();
   T * bottom = top + (in.size().y - 1)*w;
   while( top < bottom )
