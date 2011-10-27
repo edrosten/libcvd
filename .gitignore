@@ -1,0 +1,16 @@
+/.deps
+/.sourcefiles
+/Makefile
+/a.out
+/config.dep_progs
+/config.dep_testprogs
+/config.dep_tmp
+/config.have_bits
+/config.log
+/config.status
+/cvd/config.h
+/debug
+*.o
+libcvd.[as]*
+libcvd_debug.[as]*
+
