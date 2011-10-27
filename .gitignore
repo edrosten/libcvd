@@ -10,6 +10,7 @@
 /config.status
 /cvd/config.h
 /debug
+/autom4te.cache
 *.o
 libcvd.[as]*
 libcvd_debug.[as]*
