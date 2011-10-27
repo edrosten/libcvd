@@ -11,18 +11,18 @@ Synchronized::Synchronized()
 
 Synchronized::~Synchronized()
 {
-   pthread_mutex_destroy(&myMutex);
-   pthread_mutexattr_destroy(&myAttr);
+    pthread_mutex_destroy(&myMutex);
+    pthread_mutexattr_destroy(&myAttr);
 }
 
 void Synchronized::lock() const
 {
-   pthread_mutex_lock(&myMutex);
+    pthread_mutex_lock(&myMutex);
 }
 
 void Synchronized::unlock() const
 {
-   pthread_mutex_unlock(&myMutex);
+    pthread_mutex_unlock(&myMutex);
 }
 
 }
