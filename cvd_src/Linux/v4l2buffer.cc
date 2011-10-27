@@ -68,11 +68,11 @@ void ErrorInfo(int e)
 }
 
 
-#if CVD_KERNEL_MAJOR == 2 && CVD_KERNEL_MINOR == 4
+#if ((CVD_KERNEL_MAJOR == 2) && (CVD_KERNEL_MINOR == 4))
 	#define USE_24
 	#define K24(X) X
 	#define K26(X) 
-#elif CVD_KERNEL_MAJOR == 2 && CVD_KERNEL_MINOR == 6
+#elif ((CVD_KERNEL_MAJOR >= 3) || ((CVD_KERNEL_MAJOR == 2) && (CVD_KERNEL_MINOR == 6)))
 	#define K26(X) X
 	#define K24(X) 
 #else
