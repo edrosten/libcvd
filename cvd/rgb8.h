@@ -38,20 +38,15 @@ struct Rgb8
    unsigned char dummy; ///< The 4th byte, usually either ignored or used to represent the alpha value
 
    /// Default constructor. Sets all elements to zero.
-   Rgb8() 
-   :
-   red(0), green(0), blue(0), dummy(0) 
-   {}
-   
+   explicit Rgb8() : red(0), green(0), blue(0), dummy(0) {}
+
    /// Construct an Rgb8 as specified
    /// @param r The red component
    /// @param g The green component
    /// @param b The blue component
    /// @param a The dummy byte (defaults to zero)
-   Rgb8(unsigned char r, unsigned char g, unsigned char b, unsigned char a=0)
-   :
-   red(r), green(g), blue(b), dummy(a)  
-   {}
+   explicit Rgb8(unsigned char r, unsigned char g, unsigned char b, unsigned char a=0)
+   : red(r), green(g), blue(b), dummy(a) {}
 };
 
 #ifndef DOXYGEN_IGNORE_INTERNAL

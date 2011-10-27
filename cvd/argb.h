@@ -38,24 +38,20 @@ template <typename T>
 class Argb
 {
 public:
-	/// Default constructor. Does nothing.
-	Argb() {}
+	/// Default constructor. Sets everything to 0.
+	explicit Argb() : red(0), green(0), blue(0), alpha(0) {}
+
 	/// Constructs a colour as specified
 	/// @param r The red component
 	/// @param g The green component
 	/// @param b The blue component
 	/// @param a The alpha component
-	Argb(T a, T r, T g, T b) : red(r), green(g), blue(b), alpha(a) {}
+	explicit Argb(T a, T r, T g, T b) : red(r), green(g), blue(b), alpha(a) {}
 
    T blue; ///< The blue component
    T green; ///< The green component
    T red; ///< The red component
    T alpha; ///< The alpha component
-
-   /// Assignment operator
-   /// @param c The colour to copy from
-   Argb<T>& operator=(const Argb<T>& c)
-      {red = c.red; green = c.green; blue = c.blue; alpha = c.alpha; return *this;}
 
 	/// Assignment operator between two different storage types, using the standard casts as necessary
 	/// @param c The colour to copy from
