@@ -15,7 +15,7 @@ namespace CVD
 	{
 		struct TV_coord
 		{
-			ptrdiff_t o;
+			std::ptrdiff_t o;
 			int	x;
 			int y;
 		};

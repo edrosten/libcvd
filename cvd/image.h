@@ -190,7 +190,7 @@ template<class T> class ConstSubImageIterator
 		//Make it look like a standard iterator
 		typedef std::forward_iterator_tag iterator_category;
 		typedef T value_type;
-		typedef ptrdiff_t difference_type;
+		typedef std::ptrdiff_t difference_type;
 		typedef const T* pointer;
 		typedef const T& reference;
 
@@ -565,7 +565,7 @@ template<class T> class BasicImage: public SubImage<T>
 	  - @ref Image<T>::copy_from_me()
 **/
  
-template<class T> class ImageCreationIterator: public std::iterator<std::input_iterator_tag, T, ptrdiff_t>
+template<class T> class ImageCreationIterator: public std::iterator<std::input_iterator_tag, T, std::ptrdiff_t>
 {
 	public:
 		void operator++(int) { num++; }
