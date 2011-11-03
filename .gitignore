@@ -14,4 +14,7 @@
 *.o
 libcvd.[as]*
 libcvd_debug.[as]*
-
+*.swp
+progs/calibrate
+progs/cvd_display_image
+progs/video_play_source
