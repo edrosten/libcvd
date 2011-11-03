@@ -1009,14 +1009,14 @@ cvd_src/fast/fast_10_detect,cvd_src/fast/fast_10_score									fast10  END
 cvd_src/fast/fast_11_detect,cvd_src/fast/fast_11_score,cvd_src/slower_corner_11	fast11  END
 cvd_src/fast/fast_12_detect,cvd_src/fast/fast_12_score									fast12  END
 
-cvd_src/faster_corner_9							sse2 ssefast9 fast9
-cvd_src/slower_corner_9							fast9							END	
+cvd_src/SSE2/faster_corner_9				        sse2 ssefast9 fast9
+cvd_src/noarch/slower_corner_9						fast9							END	
 
-cvd_src/faster_corner_10						sse2 ssefast10 fast10
-cvd_src/slower_corner_10						fast10							END
+cvd_src/SSE2/faster_corner_10						sse2 ssefast10 fast10
+cvd_src/noarch/slower_corner_10						fast10							END
 
-cvd_src/faster_corner_12						sse2 ssefast12 fast12
-cvd_src/slower_corner_12						fast12							END
+cvd_src/SSE2/faster_corner_12						sse2 ssefast12 fast12
+cvd_src/noarch/slower_corner_12						fast12							END
 
 #General OS specific bits
 
