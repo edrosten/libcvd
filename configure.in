@@ -967,8 +967,6 @@ cvd_src/SSE2/half_sample							sse2
 cvd_src/i686/halfsample,cvd_src/MMX/half_sample		mmx 32bit x86 assembler
 cvd_src/noarch/half_sample	 						END
 
-INTERNAL_YV402P_MMX									mmx END
-
 cvd_src/i686/rgb_to_gray,cvd_src/i686/convert_rgb_to_y	32bit mmxext x86 assembler
 cvd_src/noarch/convert_rgb_to_y					END
 
@@ -979,6 +977,10 @@ cvd_src/noarch/convolve_gaussian			END
 
 cvd_src/i686/gradient						sse2
 cvd_src/noarch/gradient						END
+
+
+cvd_src/i686/yuv420p_to_rgb,cvd_src/i686/yuv420p_to_rgb_runner mmx 32bit x86 assembler
+cvd_src/noarch/yuv420p_to_rgb_runner    END
 
 cvd_src/i686/yuv422_to_rgb,cvd_src/i686/yuv422_to_grey,cvd_src/i686/yuv422_wrapper mmxext 32bit x86 assembler
 cvd_src/noarch/yuv422_wrapper						END
