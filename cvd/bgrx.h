@@ -37,13 +37,14 @@ template <typename T>
 class Bgrx
 {
 public:
-	/// Default constructor. Does nothing.
-	Bgrx() {}
+	/// Default constructor. Sets everything to 0.
+	explicit Bgrx() : blue(0), green(0), red(0), dummy(0) {}
+
 	/// Constructs a colour as specified
 	/// @param r The red component
 	/// @param g The green component
 	/// @param b The blue component
-	Bgrx(T b, T g, T r) : blue(b), green(g), red(r) {}
+	explicit Bgrx(T b, T g, T r) : blue(b), green(g), red(r), dummy(0) {}
 
    T blue; ///< The blue component
    T green; ///< The green component

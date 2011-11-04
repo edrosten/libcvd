@@ -1,34 +1,28 @@
 #include <cvd/synchronized.h>
 
 namespace CVD {
-pthread_mutexattr_t Synchronized::ourAttr;
-bool Synchronized::ourInitFlag = false;
 
-Synchronized::Synchronized() 
+Synchronized::Synchronized()
 {
-   if (!ourInitFlag) 
-     {
-	pthread_mutexattr_init(&ourAttr);
-	pthread_mutexattr_settype(&ourAttr, PTHREAD_MUTEX_RECURSIVE);
-	ourInitFlag = true;
-     }
-   pthread_mutex_init(&myMutex, &ourAttr);
+    pthread_mutexattr_init(&myAttr);
+    pthread_mutexattr_settype(&myAttr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&myMutex, &myAttr);
 }
 
-Synchronized::~Synchronized() 
+Synchronized::~Synchronized()
 {
-   lock();
-   pthread_mutex_destroy(&myMutex);
+    pthread_mutex_destroy(&myMutex);
+    pthread_mutexattr_destroy(&myAttr);
 }
 
 void Synchronized::lock() const
 {
-   pthread_mutex_lock(&myMutex);
+    pthread_mutex_lock(&myMutex);
 }
 
 void Synchronized::unlock() const
 {
-   pthread_mutex_unlock(&myMutex);
+    pthread_mutex_unlock(&myMutex);
 }
 
 }

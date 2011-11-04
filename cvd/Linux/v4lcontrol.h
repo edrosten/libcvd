@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 
-#include <linux/videodev.h>
+#include <linux/videodev2.h>
 
 #include <cvd/exceptions.h>
 

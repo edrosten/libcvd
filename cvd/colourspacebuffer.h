@@ -77,7 +77,7 @@ template <class T, class From> class ColourspaceBuffer : public CVD::LocalVideoB
 			
 		virtual void seek_to(double t)
 		{
-			return m_vidbuf.seek_to(t);
+			m_vidbuf.seek_to(t);
 		}
 			
 		virtual double frame_rate()

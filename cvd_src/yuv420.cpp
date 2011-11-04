@@ -5,7 +5,7 @@
 
 namespace CVD {
   namespace ColourSpace {
-    inline void yuv420p_to_rgb_c(const unsigned char* y, const unsigned char* u, const unsigned char* v, unsigned char* rgb, unsigned int width, unsigned int height)
+    void yuv420p_to_rgb_c(const unsigned char* y, const unsigned char* u, const unsigned char* v, unsigned char* rgb, unsigned int width, unsigned int height)
     {
       unsigned int halfwidth = width >> 1;
       int yy, uu, vv, ug_plus_vg, ub, vr;
@@ -42,31 +42,10 @@ namespace CVD {
       }
     }
 
-#if CVD_INTERNAL_HAVE_YUV420P_MMX
-    extern "C"{
-	void cvd_asm_yuv420p_to_rgb(const unsigned char*, unsigned char*, int);
-    }
-
-#endif
-
-    void yuv420p_to_rgb(const unsigned char* y, const unsigned char* u, const unsigned char* v, unsigned char* rgb, unsigned int width, unsigned int height) {
-#if CVD_INTERNAL_HAVE_YUV420P_MMX
-      if (is_aligned<8>(y) && (u == y + width*height) && is_aligned<8>(u) && (v == u + width*height/4) && is_aligned<8>(v) &&
-	  is_aligned<8>(rgb) && ((width&4) == 0) && ((height&1)==0))
-	cvd_asm_yuv420p_to_rgb(y,rgb,width,height);
-      else
-	yuv420p_to_rgb_c(y, u, v, rgb, width, height);
-#else
-      yuv420p_to_rgb_c(y, u, v, rgb, width, height);
-#endif
-    }    
-    
     void yuv420p_to_grey(const unsigned char* y, const unsigned char*, const unsigned char*, 
 			 unsigned char* grey, unsigned int width, unsigned int height)
     {
       memcpy(grey, y, width*height);
     }
-    
-    
   }
 }

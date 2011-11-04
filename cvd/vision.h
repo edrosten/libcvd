@@ -38,9 +38,9 @@
 #endif
 
 namespace CVD{
-/** Subsamples an image to 2/3 of its size by averaging 3x3 blocks in to 2x2 blocks.
+/** Subsamples an image to 2/3 of its size by averaging 3x3 blocks into 2x2 blocks.
 @param in input image
-@param out output image (muze be <code>out.size() == in.size()/2*3 </code>)
+@param out output image (must be <code>out.size() == in.size()/3*2 </code>)
 @throw IncompatibleImageSizes if out does not have the correct dimensions.
 @ingroup gVision
 */
@@ -100,7 +100,7 @@ void twoThirdsSample(const SubImage<byte>& in, SubImage<byte>& out);
   #else
   	///Subsamples an image by averaging 3x3 blocks in to 2x2 ones.
 	/// Note that this is performed using lazy evaluation, so subsampling
-	/// happns on assignment, and memory allocation is not performed if
+	/// happens on assignment, and memory allocation is not performed if
 	/// unnecessary.
     /// @param from The image to convert from
 	/// @return The converted image

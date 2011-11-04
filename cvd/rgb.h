@@ -46,15 +46,17 @@ template <class T>
 class Rgb
 {
 public:
-  /// Default constructor. Does nothing.
-  Rgb() {}
+  /// Default constructor. Sets everything to 0.
+  explicit Rgb() : red(0), green(0), blue(0) {}
+
   /// Constructs a colour as specified
   /// @param r The red component
   /// @param g The green component
   /// @param b The blue component
-  inline Rgb(T r, T g, T b) : red(r),green(g),blue(b) {}
-    template <class S> inline explicit Rgb(const Rgb<S>& rgb) : red(static_cast<T>(rgb.red)), green(static_cast<T>(rgb.green)), blue(static_cast<T>(rgb.blue)) {}
-      
+  explicit inline Rgb(T r, T g, T b) : red(r),green(g),blue(b) {}
+
+  template <class S> inline explicit Rgb(const Rgb<S>& rgb) : red(static_cast<T>(rgb.red)), green(static_cast<T>(rgb.green)), blue(static_cast<T>(rgb.blue)) {}
+
   T red;   ///< The red component
   T green; ///< The green component
   T blue;  ///< The blue component
@@ -73,12 +75,17 @@ public:
   /// @param c Rgb to compare with
   inline bool operator!=(const Rgb<T>& c) const
   {return red != c.red || green != c.green || blue != c.blue;}
-		
+
   /// Assignment operator between two different storage types, using the standard casts as necessary
   /// @param c The colour to copy from
-    template <class T2>
-      inline Rgb<T>& operator=(const Rgb<T2>& c){ red = c.red; green=c.green;  blue=c.blue; return *this;}
-		  
+  template <class T2>
+  inline Rgb<T>& operator=(const Rgb<T2>& c){
+    red = static_cast<T>(c.red);
+    green = static_cast<T>(c.green);
+    blue = static_cast<T>(c.blue);
+    return *this;
+  }
+
   //   T to_grey() {return 0.3*red + 0.6*green + 0.1*blue;}
 };
   

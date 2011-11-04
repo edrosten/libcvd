@@ -4,6 +4,8 @@
 // POSIX threads
 #include <pthread.h>
 
+#include <cvd/nocopy.h>
+
 namespace CVD {
 
 /** A Synchronized object encapsulates a basic mutex.
@@ -11,7 +13,7 @@ namespace CVD {
     Classes should subclass from Synchronized if they
     want to be able to lock themselves.
 */
-class Synchronized
+class Synchronized : private NoCopy
 {
  public:
   //! Create an initially unlocked mutex
@@ -28,19 +30,29 @@ class Synchronized
   void unlock() const;
    
  protected:
-   static pthread_mutexattr_t ourAttr;
-   static bool ourInitFlag;
-   mutable pthread_mutex_t myMutex; 
+   pthread_mutexattr_t     myAttr;
+   mutable pthread_mutex_t myMutex;
 };
 
 /** A utility class for locking and unlocking Synchronized objects automatically.
     A Lock object should be declared on the stack in the same scope as the object to be locked.
     When the Lock object goes out of scope, the mutex is released.  This is especially useful
     in code that throws exceptions. */
-struct Lock {
-  const Synchronized& myObject;
-  Lock(const Synchronized& obj) : myObject(obj) { myObject.lock(); }
-  virtual ~Lock() { myObject.unlock(); }
+class Lock : private NoCopy {
+public:
+
+    explicit Lock(const Synchronized& obj)
+    : myObject(obj) {
+        myObject.lock();
+    }
+
+    ~Lock() {
+        myObject.unlock();
+    }
+
+private:
+
+    const Synchronized& myObject;
 };
 
 }  
