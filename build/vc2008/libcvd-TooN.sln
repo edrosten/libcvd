@@ -1,0 +1,29 @@
+
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{88D0B2FB-16EA-4FEC-B76B-ABB32F50940B}") = "libcvd", "libcvd-TooN.vcproj", "{DD6EA34E-36D5-4C81-BA3A-BB0113B6DF8E}"
+EndProject
+Project("{88D0B2FB-16EA-4FEC-B76B-ABB32F50940B}") = "install", "install.vcproj", "{ED965A34-A858-4644-B1F2-741A77BECE71}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DD6EA34E-36D5-4C81-BA3A-BB0113B6DF8E} = {DD6EA34E-36D5-4C81-BA3A-BB0113B6DF8E}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DD6EA34E-36D5-4C81-BA3A-BB0113B6DF8E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DD6EA34E-36D5-4C81-BA3A-BB0113B6DF8E}.Debug|Win32.Build.0 = Debug|Win32
+		{DD6EA34E-36D5-4C81-BA3A-BB0113B6DF8E}.Release|Win32.ActiveCfg = Release|Win32
+		{DD6EA34E-36D5-4C81-BA3A-BB0113B6DF8E}.Release|Win32.Build.0 = Release|Win32
+		{ED965A34-A858-4644-B1F2-741A77BECE71}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ED965A34-A858-4644-B1F2-741A77BECE71}.Debug|Win32.Build.0 = Debug|Win32
+		{ED965A34-A858-4644-B1F2-741A77BECE71}.Release|Win32.ActiveCfg = Release|Win32
+		{ED965A34-A858-4644-B1F2-741A77BECE71}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

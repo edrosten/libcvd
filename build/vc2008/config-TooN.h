@@ -28,9 +28,6 @@
 #ifndef CVD_DISABLE_PTHREAD
     #define CVD_HAVE_PTHREAD 1
 #endif
-#ifndef CVD_DISABLE_PTHREAD_YIELD
-    #define CVD_HAVE_PTHREAD_YIELD 1
-#endif
 #ifndef CVD_DISABLE_SSE
     #define CVD_HAVE_SSE 1
 #endif
@@ -48,9 +45,6 @@
 #endif
 #ifndef CVD_DISABLE_VIDEODISPLAY
     #define CVD_HAVE_VIDEODISPLAY 1
-#endif
-#ifndef CVD_DISABLE_YV402P_MMX
-    #define CVD_INTERNAL_HAVE_YV402P_MMX 1
 #endif
 #define CVD_MAJOR_VERSION 0
 #define CVD_MINOR_VERSION 8

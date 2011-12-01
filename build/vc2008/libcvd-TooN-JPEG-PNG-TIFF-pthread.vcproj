@@ -65,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies=" Ws2_32.lib"
+				AdditionalDependencies="zlibd.lib libpngd.lib libtiff.lib jpegd.lib pthreadVCE2.lib Ws2_32.lib"
 				OutputFile="..\..\lib\$(ProjectName)d.lib"
 				AdditionalLibraryDirectories="&quot;$(LIBDIR)&quot;"
 			/>
@@ -133,7 +133,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies=" Ws2_32.lib"
+				AdditionalDependencies="zlib.lib libpng.lib libtiff.lib jpeg.lib pthreadVCE2.lib Ws2_32.lib"
 				OutputFile="..\..\lib\$(ProjectName).lib"
 				AdditionalLibraryDirectories="&quot;$(LIBDIR)&quot;"
 			/>
@@ -418,6 +418,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\pnm_src\jpeg.cxx"
+					>
+				</File>
+				<File
+					RelativePath="..\..\pnm_src\png.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\..\pnm_src\pnm_grok.cxx"
 					>
 				</File>
@@ -431,6 +439,14 @@
 				</File>
 				<File
 					RelativePath="..\..\pnm_src\text_write.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\pnm_src\tiff.cxx"
+					>
+				</File>
+				<File
+					RelativePath="..\..\pnm_src\tiffwrite.cc"
 					>
 				</File>
 			</Filter>
@@ -545,7 +561,7 @@
 				>
 			</File>
 			<File
-				RelativePath="config-TooN.h"
+				RelativePath="config-TooN-JPEG-PNG-TIFF-pthread.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"

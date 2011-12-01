@@ -25,6 +25,9 @@
 #ifndef CVD_DISABLE_MMXEXT
     #define CVD_HAVE_MMXEXT 1
 #endif
+#ifndef CVD_DISABLE_PNG
+    #define CVD_HAVE_PNG 1
+#endif
 #ifndef CVD_DISABLE_POSIX_RT
     #define CVD_HAVE_POSIX_RT 1
 #endif
@@ -40,6 +43,9 @@
 #ifndef CVD_DISABLE_SSE3
     #define CVD_HAVE_SSE3 1
 #endif
+#ifndef CVD_DISABLE_TIFF
+    #define CVD_HAVE_TIFF 1
+#endif
 #ifndef CVD_DISABLE_TOON
     #define CVD_HAVE_TOON 1
 #endif
@@ -48,6 +54,9 @@
 #endif
 #ifndef CVD_DISABLE_VIDEODISPLAY
     #define CVD_HAVE_VIDEODISPLAY 1
+#endif
+#ifndef CVD_DISABLE_TIFF_ORIENTED
+    #define CVD_INTERNAL_HAVE_TIFF_ORIENTED 1
 #endif
 #define CVD_INTERNAL_JPEG_BUFFER_SIZE 1
 #define CVD_MAJOR_VERSION 0

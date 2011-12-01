@@ -65,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="jpeg.lib pthreadVCE2.lib Ws2_32.lib"
+				AdditionalDependencies="jpegd.lib pthreadVCE2.lib Ws2_32.lib"
 				OutputFile="..\..\lib\$(ProjectName)d.lib"
 				AdditionalLibraryDirectories="&quot;$(LIBDIR)&quot;"
 			/>
@@ -219,18 +219,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\cvd_src\faster_corner_10.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\..\cvd_src\faster_corner_12.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\..\cvd_src\faster_corner_9.cxx"
-				>
-			</File>
-			<File
 				RelativePath="..\..\cvd_src\gltext.cpp"
 				>
 			</File>
@@ -248,6 +236,10 @@
 			</File>
 			<File
 				RelativePath="..\..\cvd_src\thread\runnable_batch.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\cvd_src\posix\sched_yield.cc"
 				>
 			</File>
 			<File
@@ -390,6 +382,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\cvd_src\noarch\yuv420p_to_rgb_runner.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\..\cvd_src\noarch\yuv422_wrapper.cc"
 					>
 				</File>
@@ -477,6 +473,18 @@
 			<Filter
 				Name="SSE"
 				>
+				<File
+					RelativePath="..\..\cvd_src\SSE2\faster_corner_10.cxx"
+					>
+				</File>
+				<File
+					RelativePath="..\..\cvd_src\SSE2\faster_corner_12.cxx"
+					>
+				</File>
+				<File
+					RelativePath="..\..\cvd_src\SSE2\faster_corner_9.cxx"
+					>
+				</File>
 				<File
 					RelativePath="..\..\cvd_src\SSE2\half_sample.cc"
 					>
@@ -607,6 +615,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\cvd\esm.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\cvd\eventobject.h"
 				>
 			</File>
@@ -696,6 +708,10 @@
 			</File>
 			<File
 				RelativePath="..\..\cvd\morphology.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\cvd\nocopy.h"
 				>
 			</File>
 			<File
@@ -867,10 +883,6 @@
 				</File>
 				<File
 					RelativePath="..\..\cvd\internal\io\cvdimage.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\cvd\internal\disk_image.h"
 					>
 				</File>
 				<File

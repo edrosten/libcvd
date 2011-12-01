@@ -200,7 +200,8 @@ RawVideoFileBufferPIMPL::RawVideoFileBufferPIMPL(const std::string& file, bool r
 		video_stream = -1;
 		for(unsigned int i=0; i < pFormatContext->nb_streams && video_stream == -1; i++)
 		{
-			if(pFormatContext->streams[i]->codec->codec_type == CODEC_TYPE_VIDEO)
+			
+			if(pFormatContext->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO)
 				video_stream = i; // Found one!
 		}
 		if(video_stream == -1)
