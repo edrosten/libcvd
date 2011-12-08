@@ -21,7 +21,7 @@
 #ifndef __DEINTERLACE_FRAME_H__
 #define __DEINTERLACE_FRAME_H__
 
-#include <cvd/videoframe.h>
+#include <cvd/localvideoframe.h>
 
 namespace CVD
 {
@@ -36,7 +36,7 @@ namespace CVD
 	/// @param T The pixel type of the original video buffer
 	/// @ingroup gVideoFrame
 	template<typename T> 
-	class DeinterlaceFrame: public VideoFrame<T>
+	class DeinterlaceFrame: public LocalVideoFrame<T>
 	{
 		friend class DeinterlaceBuffer<T>;
 		
@@ -49,8 +49,8 @@ namespace CVD
 			{
 			}
 
-			DeinterlaceFrame(double time, T* data, const ImageRef& size) :
-			   VideoFrame<T>(time, data, size)
+			DeinterlaceFrame(double time, Image<T>& im)
+			   :LocalVideoFrame<T>(time, im)
 			{
 			}	
 			

@@ -265,13 +265,11 @@ namespace CVD {
 		}
 	}
 
-	void get_deinterlace_options(const VideoSource& vs, DeinterlaceBufferFields::Fields& fields)
+	void get_deinterlace_options(const VideoSource& vs, DeinterlaceBufferFields::Fields& fields, bool& line_double)
 	{
+		
 		for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it)
 		{		
-			if(it != vs.options.begin())
-				throw VideoSourceException("invalid option for files protocol: multiple field specifications");
-
 			if(it->first == "oddonly" && parseBoolFlag(it->second) == true)
 				fields = DeinterlaceBufferFields::OddOnly;
 			else if(it->first == "evenonly" && parseBoolFlag(it->second) == true)
@@ -280,9 +278,11 @@ namespace CVD {
 				fields = DeinterlaceBufferFields::OddEven;
 			else if(it->first == "evenodd" && parseBoolFlag(it->second) == true)
 				fields = DeinterlaceBufferFields::EvenOdd;
+			else if(it->first == "double" && parseBoolFlag(it->second) == true)
+				line_double = true;
 			else
 				throw VideoSourceException("invalid option for files protocol: "+it->first +
-										   "\n\t valid options: oddonly, evenonly, oddeven, evenodd");
+										   "\n\t valid options: oddonly, evenonly, oddeven, evenodd, double");
 		}
 	}
 

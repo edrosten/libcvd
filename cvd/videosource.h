@@ -77,22 +77,38 @@ namespace CVD {
 	//
 	// Deinterlace buffer
 	//
-	void get_deinterlace_options(const VideoSource& vs, DeinterlaceBufferFields::Fields& fields);
+	void get_deinterlace_options(const VideoSource& vs, DeinterlaceBufferFields::Fields& fields, bool&);
 
-	template<class T> struct makeDeinterlaceBuffer
+	
+	namespace Internal{
+		template<class T> struct CanDeinterlace
+		{
+			static const bool can = std::numeric_limits<T>::is_specialized;
+		};
+
+		template<class T> struct CanDeinterlace<Rgb<T> >
+		{
+			static const bool can = CanDeinterlace<T>::can;
+		};
+	};
+
+	template<class T,  bool B = Internal::CanDeinterlace<T>::can> struct makeDeinterlaceBuffer
 	{
-		static VideoBuffer<T>* make(DeinterlaceBufferFields::Fields f, const std::string& url)
+		static VideoBuffer<T>* make(DeinterlaceBufferFields::Fields f, bool& linedouble, const std::string& url)
 		{
 			std::auto_ptr<VideoBuffer<T> > source  = std::auto_ptr<VideoBuffer<T> > (static_cast<VideoBuffer<T>*>(open_video_source<T>(url)));
-			std::auto_ptr<VideoBuffer<T> > de_int  = std::auto_ptr<VideoBuffer<T> > (static_cast<DeinterlaceBuffer<T>*>(new DeinterlaceBuffer<T>(*source, f)));
-
-
-
+			std::auto_ptr<VideoBuffer<T> > de_int  = std::auto_ptr<VideoBuffer<T> > (static_cast<DeinterlaceBuffer<T>*>(new DeinterlaceBuffer<T>(*source, f, linedouble)));
 			return new VideoBufferWithData<T, VideoBuffer<T> >(de_int, source);
 		}
 	};
 
- 
+	template<class T> struct makeDeinterlaceBuffer<T, 0>
+	{
+		static VideoBuffer<T>* make(DeinterlaceBufferFields::Fields, bool&, const std::string&)
+		{
+			throw  VideoSourceException("DeinterlaceBuffer cannot handle input type");
+ 		}
+ 	};
     ////////////////////////////////////////////////////////////////////////////////
 	//
 	// Colourspace conversion buffer
@@ -320,10 +336,11 @@ namespace CVD {
 		else if(vs.protocol == "deinterlace")
 		{
 			DeinterlaceBufferFields::Fields f=DeinterlaceBufferFields::OddEven;
+			bool linedouble=false;
 
-			get_deinterlace_options(vs, f);
+			get_deinterlace_options(vs, f, linedouble);
 
-			return makeDeinterlaceBuffer<T>::make(f, vs.identifier);
+			return makeDeinterlaceBuffer<T>::make(f, linedouble, vs.identifier);
 		}
 		else if(vs.protocol == "colourspace")
 		{
@@ -529,8 +546,9 @@ Options supported by the various protocols are:
 'deinterlace' protcol (DeinterlaceBuffer): identifier is a video URL
       oddonly  [ = <bool> ]
       evenonly [ = <bool> ]
-      oddeven  [ = <bool> ]
+      oddeven  [ = <bool> ]   (default)
       evenodd  [ = <bool> ]
+	  double   [ = <bool> ]  (perform line doubling by averaging)
 
 'colourspace' protcol (ColourspaceBuffer): identifier is a video URL
       from = byte | mono | gray | grey | yuv411 | yuv422 | rgb<byte> 
