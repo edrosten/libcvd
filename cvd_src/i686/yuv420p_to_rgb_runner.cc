@@ -1,4 +1,5 @@
 #include "cvd/colourspace.h"
+#include "cvd/utility.h"
 
 namespace CVD {
 	namespace ColourSpace {
@@ -6,7 +7,7 @@ namespace CVD {
 		inline void yuv420p_to_rgb_c(const unsigned char* y, const unsigned char* u, const unsigned char* v, unsigned char* rgb, unsigned int width, unsigned int height);
 
 		extern "C"{
-			void cvd_asm_yuv420p_to_rgb(const unsigned char*, unsigned char*, int);
+			void cvd_asm_yuv420p_to_rgb(const unsigned char*, unsigned char*, int, int);
 		}
 
 
