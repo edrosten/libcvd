@@ -184,7 +184,7 @@ namespace CVD
     /// @ingroup gImageIO
 	template<class In, class Out> struct IsConvertible
   	{ 
-		static const bool is=Pixel::DefaultConvertible<In>::is && Pixel::DefaultConvertible<Out>::is;
+		static const bool is=Pixel::DefaultConvertible<In>::is & Pixel::DefaultConvertible<Out>::is;
 	};
 
     /// Can individual pixels of two types be converted with ConvertPixels::convert()?
@@ -192,7 +192,7 @@ namespace CVD
     /// @ingroup gImageIO
 	template<class In, class Out> struct PixelByPixelConvertible
   	{ 
-		static const bool is=Pixel::DefaultConvertible<In>::is && Pixel::DefaultConvertible<Out>::is;
+		static const bool is=Pixel::DefaultConvertible<In>::is & Pixel::DefaultConvertible<Out>::is;
 	};
 
 	/// Identity conversion by memcpy is always supported

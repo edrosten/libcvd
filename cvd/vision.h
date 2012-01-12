@@ -228,7 +228,7 @@ struct multiplyBy
   multiplyBy(const T& f) : factor(f) {};
   template <class S> inline S operator()(const S& s) const {
     return s * factor;
-  };
+  }
 };
 
 template <class S, class T, int Sn=Pixel::Component<S>::count, int Tn=Pixel::Component<T>::count> struct Gradient;

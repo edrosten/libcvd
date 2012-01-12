@@ -75,9 +75,9 @@ class VideoBufferWithData: public VideoBuffer<T>
 			return buf->frame_rate();
 		}
 
-		double seek_to()
+		void seek_to(double time)
 		{
-			return buf->seek_to();
+			return buf->seek_to(time);
 		}
 
 
