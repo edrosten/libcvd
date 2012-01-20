@@ -36,8 +36,10 @@
 #if defined WIN32 && !defined __MINGW32__
 #include <array>
 namespace std{namespace tr1{}}
+typedef __int64 int64_t;
 #else
 #include <tr1/array>
+#include <stdint.h>
 #endif
 
 using namespace std;

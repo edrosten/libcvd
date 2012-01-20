@@ -440,7 +440,7 @@ V4L2FrameT<unsigned char>* V4L2Buffer_Base::get_frame(){
 	break;
     }
   )
-
+  cvd_timer timer;
   frame=new V4L2FrameT<unsigned char>(timer.conv_ntime(buffer.timestamp),my_image_size,buffer.index,(unsigned char *)m_pvVideoBuffer[buffer.index], field);
 
   frame->m_buf = new struct v4l2_buffer;

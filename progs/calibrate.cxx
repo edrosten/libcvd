@@ -705,6 +705,7 @@ bool optimiseIntersection(image_interpolate<Interpolate::Bilinear, float> &imgIn
 int main(int argc, char* argv[])
 {
     getOptions(argc, argv);
+	cvd_timer timer;
 
     string titlePrefix = "Calibrate: Align grid ([ and ] to resize)";
     GLWindow disp(videoBuffer->size(), titlePrefix);

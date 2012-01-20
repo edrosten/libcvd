@@ -143,7 +143,7 @@ public:
     }
     virtual VideoFrame<T> * get_frame()
     {
-        return new QTFrame<T>(timer.get_time(), (T *)RawQT::get_frame(), RawQT::get_size());
+        return new QTFrame<T>(get_time_of_day(), (T *)RawQT::get_frame(), RawQT::get_size());
     }
     virtual void put_frame(VideoFrame<T>* f)
     {
