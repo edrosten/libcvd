@@ -77,7 +77,4 @@ double get_time_of_day()
   return get_time_of_day_ns()/1e9;
 }
 
-
-cvd_timer timer;
-
 }
