@@ -73,10 +73,6 @@ class cvd_timer
 		unsigned long long startTime;
 };
 
-/// A instance of a cvd_timer for general use
-/// @ingroup gCPP
-extern cvd_timer timer;
-
 /// Same as the system call gettimeofday, but returns time since
 /// the epoch as a double.
 double get_time_of_day();

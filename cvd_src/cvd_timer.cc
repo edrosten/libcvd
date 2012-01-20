@@ -84,6 +84,4 @@ double get_time_of_day()
 }
 
 
-cvd_timer timer;
-
 }
