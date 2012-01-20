@@ -5,8 +5,13 @@
 	#define _WIN32_WINNT 0x0500
 
 	// missing C99 define (C99 not supported in VC++)
+#ifdef __MINGW32__
+	#include <stdint.h>
+
+#else
 	typedef __int32 int32_t;
 
+#endif
 	// avoid warnings about using old unsave versions of libc functions
 	#ifndef _CRT_SECURE_NO_WARNINGS
 	#define _CRT_SECURE_NO_WARNINGS
@@ -24,5 +29,7 @@
 	#define WINDOWS_LEAN_AND_MEAN
 
 	// don't define macros for min, max
-	#define NOMINMAX
+	#ifndef NOMINMAX
+		#define NOMINMAX
+	#endif
 #endif 

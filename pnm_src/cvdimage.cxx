@@ -33,15 +33,11 @@
 #include <set>
 #include <climits>
 
-#ifdef WIN32
+#if defined WIN32 && !defined __MINGW32__
 #include <array>
-#include <Winsock2.h>
-typedef unsigned __int16  uint16_t;
-typedef unsigned __int64  uint64_t;
+namespace std{namespace tr1{}}
 #else
 #include <tr1/array>
-#include <arpa/inet.h> // used for byte reordering
-#include <stdint.h>
 #endif
 
 using namespace std;
@@ -871,17 +867,17 @@ void WritePimpl::write_data(std::ostream& os, vector<PackType>& data)
 {
 	// this variant should be safe, but requires one separate call to
 	// ostream::put() for each byte
-	/*for (vector<PackType>::const_iterator it = data.begin(); it!=data.end(); ++it) {
+	for (vector<PackType>::const_iterator it = data.begin(); it!=data.end(); ++it) {
 		int bits = PackBits;
 		while (bits>0) {
 			os.put(((*it)>>(bits-8))&255);
 			bits-=8;
 		}
-	}*/
+	}
 
 	// this variant should be faster, but relies on PackType to be 16bit
-	for (vector<PackType>::iterator it = data.begin(); it!=data.end(); ++it) *it = htons(*it);
-	os.write((const char*)(&(data[0])), data.size()*PackBits/8);
+	//for (vector<PackType>::iterator it = data.begin(); it!=data.end(); ++it) *it = htons(*it);
+	//os.write((const char*)(&(data[0])), data.size()*PackBits/8);
 }
 
 WritePimpl::~WritePimpl()

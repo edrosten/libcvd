@@ -19,15 +19,16 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <string.h>
+#include <cvd/config.h>
 #include <cvd/colourspace.h>
-#ifdef WIN32
-#include <Winsock2.h>
-#else
-#include <netinet/in.h>
-#endif
 
 //Written by Ethan
 //Modified by Olaf :)
+
+//It seems that the assumption is that cameras are big endian (network byte order).
+//This is correct for firewire. (ER)
+
+
 
 namespace CVD{namespace ColourSpace{
 
@@ -43,9 +44,18 @@ struct read_net_byteorder;
 template <>
 struct read_net_byteorder<unsigned short>
 {
-  static unsigned short get(const unsigned short & from) { return ntohs(from); }
+  static unsigned short get(const unsigned short & from) 
+  {
+    #ifdef CVD_ARCH_LITTLE_ENDIAN
+		return ((from&0xff)<<8) | ((from&0xff00) >> 8);
+	#else
+		return from; 
+	#endif
+
+  }
 };
 
+#if 0
 #ifdef WIN32
 template <>
 struct read_net_byteorder<unsigned long>
@@ -60,7 +70,7 @@ struct read_net_byteorder<uint32_t>
 };
 
 #endif
-
+#endif
 
 // RGRGRG
 // GBGBGB

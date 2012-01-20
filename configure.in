@@ -154,6 +154,9 @@ define(SIMD_TEST, [
 		fi
 	fi])
 
+#Host detection
+AC_CANONICAL_HOST
+
 ################################################################################
 #
 # Compiler flags and optimization
@@ -184,20 +187,21 @@ then
 	APPEND(CXXFLAGS, $debug)
 fi
 
+
 ########################################
 #
 # Position independent code
 #
-
-TEST_AND_SET_CXXFLAG(-fPIC)
-if test $ts_success == no
+# MinGW is always PIC
+if ! echo $host | grep mingw
 then
-	AC_MSG_WARN([I don't know how to compile position independent code.])
+	TEST_AND_SET_CXXFLAG(-fPIC)
+	if test $ts_success == no
+	then
+		AC_MSG_WARN(["I don't know how to compile position independent code."])
+	fi
 fi
 
-
-#Host detection
-AC_CANONICAL_HOST
 
 ########################################
 #
