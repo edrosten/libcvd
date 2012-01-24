@@ -1,7 +1,7 @@
 #ifndef CVD_INCLUDE_RUNNABLE_BATCH_H
 #define  CVD_INCLUDE_RUNNABLE_BATCH_H
 
-#include <cvd/thread.h>
+#include <cvd/runnable.h>
 #if defined WIN32 && !defined __MINGW32__
 #include <memory>
 #else
@@ -16,6 +16,8 @@ namespace CVD
 		using namespace std;
 		using namespace std::tr1;
 	}
+	
+	class Thread;
 
 //Forward declaration
 template<class C> class MessageQueue;
@@ -30,16 +32,8 @@ class RunnableBatch
 		bool joined;
 		unsigned int  parallelism;
 
-		class RunMessageInThread: public Thread
-		{
-			public:
-				RunMessageInThread(MessageQueue<CVD::tr1::shared_ptr<Runnable> >* queue);
-				virtual void run();
+		class RunMessageInThread;
 
-			private:
-				MessageQueue<CVD::tr1::shared_ptr<Runnable> >* q;
-		};
-	
 		std::vector<CVD::tr1::shared_ptr<RunMessageInThread> > threads;
 		CVD::tr1::shared_ptr<MessageQueue<CVD::tr1::shared_ptr<Runnable> > > queue;
 	

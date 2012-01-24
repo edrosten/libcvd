@@ -1,8 +1,20 @@
 #include "cvd/runnable_batch.h"
+#include "cvd/thread.h"
 #include "cvd/message_queue.h"
 
 namespace CVD
 {
+
+class RunnableBatch::RunMessageInThread: public Thread
+{
+	public:
+		RunMessageInThread(MessageQueue<CVD::tr1::shared_ptr<Runnable> >* queue);
+		virtual void run();
+
+	private:
+		MessageQueue<CVD::tr1::shared_ptr<Runnable> >* q;
+};
+
 
 RunnableBatch::RunMessageInThread::RunMessageInThread(MessageQueue<std::tr1::shared_ptr<Runnable> >* queue)
 :q(queue)
