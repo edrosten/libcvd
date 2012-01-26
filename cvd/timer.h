@@ -46,6 +46,10 @@ class cvd_timer
 	public:
 		/// Create a timer, and set the start time to be now
 		cvd_timer();
+
+		/// Create a timer, and set the start time to be the specified time
+		cvd_timer(double start);
+
 		/// How many seconds have elapsed since the start time?
 		double get_time();
 
@@ -62,20 +66,34 @@ class cvd_timer
 		/// Convert current time given as double by correcting for the start time
 		/// @param time current time as double
 		double conv_ntime(const double & time) const {
-			return time - startTime * 1.e-6;
+			return time - startTimeInNanoSeconds * 1.e-9;
 		}
 
 		/// Sets the start time to the current time
 		double reset();
-
+		
+		/// Sets the start time to a specified time
+		///@param t zero relative to the Epoch.
+		void reset(const double t);
+		
+		/// Sets the start time to a specified time
+		///@param t zero relative to the Epoch.
+		void reset_ns(long long t);
 
 	private:
-		unsigned long long startTime;
+		long long startTimeInNanoSeconds;
 };
 
-/// Same as the system call gettimeofday, but returns time since
+extern cvd_timer timer;
+
+/// Same as the system call gettimeofday, but returns seconds since
 /// the epoch as a double.
 double get_time_of_day();
+
+
+/// Same as the system call gettimeofday, but returns nanoseconds seconds since
+/// the epoch
+long long get_time_of_day_ns();
 
 
 /// Provides a simple timer class which uses cvd_timer internally.

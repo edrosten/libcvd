@@ -1045,9 +1045,9 @@ cvd_src/IRIX/O2buffer,cvd_src/IRIX/sgi-video	o2buffer END
 cvd_src/OSX/qtbuffer,cvd_src/OSX/videosource_qtbuffer	   qtbuffer
 cvd_src/OSX/videosource_noqtbuffer		                   END 
 
-cvd_src/cvd_timer			windows
-cvd_src/posix/timer								posix_rt
-cvd_src/cvd_timer								END
+nothing			                                        windows
+cvd_src/posix/get_time_of_day_ns						posix_rt
+cvd_src/get_time_of_day_ns								END
 
 #Libraries
 cvd_src/synchronized,cvd_src/eventobject,cvd_src/thread		pthread END

@@ -16,41 +16,29 @@
 
 // implementation from http://www.openasthra.com/c-tidbits/gettimeofday-function-for-windows/
 namespace CVD {
-int gettimeofday(struct timeval *tv, struct timezone *tz)
+
+long long get_time_of_day_ns()
 {
     FILETIME ft;
-    unsigned __int64 tmpres = 0;
+    long long tmpres = 0;
     static int tzflag;
 
-    if (NULL != tv)
-    {
-        GetSystemTimeAsFileTime(&ft);
+	//Contains a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC).
+	GetSystemTimeAsFileTime(&ft);
 
-        tmpres |= ft.dwHighDateTime;
-        tmpres <<= 32;
-        tmpres |= ft.dwLowDateTime;
+	tmpres |= ft.dwHighDateTime;
+	tmpres <<= 32;
+	tmpres |= ft.dwLowDateTime;
 
-        /*converting file time to unix epoch*/
-        tmpres /= 10;  /*convert into microseconds*/
-        tmpres -= DELTA_EPOCH_IN_MICROSECS; 
-        tv->tv_sec = (long)(tmpres / 1000000UL);
-        tv->tv_usec = (long)(tmpres % 1000000UL);
-    }
+	//tempres is in 100ns increments
+	//Convert it to ns
+	tempres *= 100
 
-    if (NULL != tz)
-    {
-        if (!tzflag)
-        {
-            _tzset();
-            tzflag++;
-        }
-        tz->tz_minuteswest = _timezone / 60;
-        tz->tz_dsttime = _daylight;
-    }
+	/*converting file time to unix epoch*/
+	tmpres -= DELTA_EPOCH_IN_MICROSECS * (long long)1000; 
 
-    return 0;
+    return tempres;
 }
-
 
 namespace Internal {
 

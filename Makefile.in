@@ -110,6 +110,7 @@ CVD_OBJS=   \
 			cvd_src/timeddiskbuffer.o                       \
 			cvd_src/videosource.o                           \
 			cvd_src/connected_components.o                  \
+			cvd_src/cvd_timer.o                             \
 			@dep_objects@
 
 ################################################################################

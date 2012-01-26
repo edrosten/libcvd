@@ -27,7 +27,6 @@
 
 #include "cvd/timer.h"
 #include <iostream>
-
 #if defined(WIN32) && !defined(__MINGW32__)
 #include "Win32/win32.h"
 #else
@@ -36,37 +35,33 @@
 
 namespace CVD {
 
-unsigned long long get_time_of_day_us()
-{
-	struct timeval tv;
-	gettimeofday(&tv,NULL);
-	return (unsigned long long)tv.tv_sec*1000000+tv.tv_usec;
-}
-
 cvd_timer::cvd_timer()
 {
-	startTime = get_time_of_day_us();
+	startTimeInNanoSeconds = get_time_of_day_ns();
+}
+
+cvd_timer::cvd_timer(double t)
+{
+	reset(t);
 }
 
 double cvd_timer::reset() 
 {
-  unsigned long long temp  = get_time_of_day_us();
-  double elapsed =  (temp - startTime) / 1000000.0;
-  startTime = temp;
+  long long temp  = get_time_of_day_ns();
+  double elapsed =  (temp - startTimeInNanoSeconds) / 1e9;
+  startTimeInNanoSeconds = temp;
   return elapsed;
 }
 
 double cvd_timer::get_time() 
 {
-  return (get_time_of_day_us()-startTime)/1000000.0;
+  return (get_time_of_day_ns()-startTimeInNanoSeconds)/1e9;
 }
 
 // Conv from units of nanosecs (specifically for v4l2 : kernel 2.4
 double cvd_timer::conv_ntime(signed long long time)
 {
-  time=time/1000;  // now in us
-
-  return (time-startTime)/1000000.0;
+  return (time-startTimeInNanoSeconds)/1e9;
 }
 
 // Conv from units of nanosecs (specifically for v4l2 : kernel 2.6
@@ -75,13 +70,25 @@ double cvd_timer::conv_ntime(signed long long time)
 double cvd_timer::conv_ntime(const struct timeval& tv)
 {
 	double time = tv.tv_sec + tv.tv_usec*1e-6;
-	return time-startTime / 1e6;
+	return time-startTimeInNanoSeconds / 1e9;
 }
 
 double get_time_of_day() 
 {
-  return get_time_of_day_us()/1000000.0;
+  return get_time_of_day_ns()/1e9;
 }
 
+
+void cvd_timer::reset(const double t)
+{
+	startTimeInNanoSeconds = (long long)(t * 1e9);
+}
+
+void cvd_timer::reset_ns(long long t)
+{
+	startTimeInNanoSeconds = t;
+}
+
+cvd_timer timer;
 
 }
