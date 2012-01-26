@@ -427,7 +427,7 @@ namespace V4L { // V4L
 		Buffer ret;
 		ret.id = buffer.index;
 		ret.data = static_cast<unsigned char*>(state->frames[buffer.index].data);
-		ret.when = timer.conv_ntime(buffer.timestamp);
+		ret.when = buffer.timestamp.tv_usec * 1e-6 + buffer.timestamp.tv_sec;
 		return ret;
 	}
 	
