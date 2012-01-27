@@ -211,7 +211,7 @@ public:
     }
     virtual VideoFrame<T> * get_frame()
     {
-        return new V4L1Frame<T>(get_time_of_day(), (T *)RawV4L1::get_frame(), RawV4L1::get_size());
+        return new V4L1Frame<T>(timer.get_time(), (T *)RawV4L1::get_frame(), RawV4L1::get_size());
     }
     virtual void put_frame(VideoFrame<T>* f)
     {
