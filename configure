@@ -9181,6 +9181,8 @@ cvd_src/Win32/win32								windows END
 cvd_src/tensor_voting,cvd_src/brezenham			toon END
 cvd_src/draw_toon                       		toon END
 
+cvd_src/dummy_lapack                            lapack END
+
 ENDDEPS
 
 #Split in to object files and defines
