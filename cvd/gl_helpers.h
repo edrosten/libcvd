@@ -534,7 +534,7 @@ namespace CVD
 	}
 
 	namespace Internal{
-			static inline int alignof(const void* ptr)
+			static inline int cvdalignof(const void* ptr)
 			{
 				size_t p = (size_t)ptr;
 
@@ -557,7 +557,7 @@ namespace CVD
 	///@ingroup gGL
 	template<class C> inline void glDrawPixels(const SubImage<C>& i)
 	{
-		::glPixelStorei(GL_UNPACK_ALIGNMENT, std::min(Internal::alignof(i[0]), Internal::alignof(i[1])));
+		::glPixelStorei(GL_UNPACK_ALIGNMENT, std::min(Internal::cvdalignof(i[0]), Internal::cvdalignof(i[1])));
 		::glPixelStorei(GL_UNPACK_ROW_LENGTH, i.row_stride());
 		::glDrawPixels(i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
 		::glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
