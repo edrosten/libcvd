@@ -2,6 +2,7 @@
 #define CVD_IMAGE_INTERPOLATE_H
 
 #include <TooN/TooN.h>
+#include <cvd/image.h>
 #include <cvd/internal/pixel_operations.h>
 #include <cvd/internal/rgb_components.h>
 #include <cvd/vector_image_ref.h>
