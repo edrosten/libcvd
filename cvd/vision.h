@@ -458,8 +458,7 @@ Image<T> warp( const SubImage<T> & in, const CAM1 & cam_in, const CAM2 & cam_out
 template <class T> void flipVertical( Image<T> & in )
 {
   int w = in.size().x;
-  std::vector<T> buf(w);
-  T* buffer = &buf[0];
+  T * buffer = new T[w];
   T * top = in.data();
   T * bottom = top + (in.size().y - 1)*w;
   while( top < bottom )
@@ -470,6 +469,7 @@ template <class T> void flipVertical( Image<T> & in )
     top += w;
     bottom -= w;
   }
+  delete[] buffer;
 }
 
 /// flips an image horizontally in place.
@@ -477,8 +477,7 @@ template <class T> void flipHorizontal( Image<T> & in )
 {
   int w = in.size().x;
   int h = in.size().y;
-  std::auto_ptr<T> buffer_auto(new T[w]);
-  T* buffer = buffer_auto.get();
+  T * buffer = new T[w];
   T * left = in.data();
   T * right = left + w;
   int row = 0;
@@ -490,6 +489,7 @@ template <class T> void flipHorizontal( Image<T> & in )
     left += w;
     right += w;
   }
+  delete[] buffer;
 }
 
 
