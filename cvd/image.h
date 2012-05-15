@@ -280,7 +280,7 @@ template<class T> class SubImage
 		}
 
 		/// The image data is not destroyed when a BasicImage is destroyed.
-		~SubImage()
+		virtual ~SubImage()
 		{}
 
 		/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
