@@ -28,6 +28,7 @@
 //                                                                         //
 /////////////////////////////////////////////////////////////////////////////
 
+#include <unistd.h>
 #include <cvd/image.h>
 #include <typeinfo>
 #include <cstdlib>
