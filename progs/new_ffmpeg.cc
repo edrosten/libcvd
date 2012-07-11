@@ -42,6 +42,11 @@ using namespace CVD;
 #define DV(X,Y) do{if(debug) cerr << "VideoFileBuffer2: " << X << " = " << Y << endl;} while(0)
 #define Dv(X) do{if(debug) cerr << "VideoFileBuffer2: " << #X << " = " << (X) << endl;} while(0)
 #define DR(X) do{if(debug) cerr << "VideoFileBuffer2: " << #X << " returned " << r << endl;} while(0)
+
+#define VS(X) do{if(verbose) cerr << "VideoFileBuffer2: " << X << endl;} while(0)
+#define VV(X,Y) do{if(verbose) cerr << "VideoFileBuffer2: " << X << " = " << Y << endl;} while(0)
+#define Vv(X) do{if(verbose) cerr << "VideoFileBuffer2: " << #X << " = " << (X) << endl;} while(0)
+#define VR(X) do{if(verbose) cerr << "VideoFileBuffer2: " << #X << " returned " << r << endl;} while(0)
 namespace CVD{
 
 namespace Exceptions
@@ -100,15 +105,17 @@ class VideoFileBuffer2
 	unsigned int            frame_number;
 	bool                    eof;
 	double                  frame_rate;
+	double                  stream_time_base;
 	
 	AVCodec*                video_codec;
 	SwsContext*             img_convert_context;
 
-	bool                    debug;
+	bool                    verbose;
 
 	Image<Rgb<byte> >       rgb_frame;
 	Image<byte>             mono_frame;
-
+	
+	static const int debug=1;
 	void die(int e)
 	{
 		if(e < 0)
@@ -121,9 +128,14 @@ class VideoFileBuffer2
 		}
 	}
 
+	static double to_double(const AVRational& r)
+	{
+		return 1.0 * r.num / r.den;
+	}
+
 	public:
 
-	VideoFileBuffer2(const string& fname, bool rgb_, bool debug_)
+	VideoFileBuffer2(const string& fname, bool rgb_, bool verbose_)
 	:rgb(rgb_),
 	 output_fmt(rgb?PixFmt<Rgb<byte> >::get():PixFmt<byte>::get()),
 	 input_format_context(0),
@@ -138,7 +150,7 @@ class VideoFileBuffer2
 	 eof(false),
 	 video_codec(0),
 	 img_convert_context(0),
-	 debug(debug_)
+	 verbose(verbose_)
 	{
 
 		try
@@ -156,16 +168,16 @@ class VideoFileBuffer2
 			//avformat_open_input semes to be the latest non-depracated method for this task.
 			//It requires a pre-allocated context.
 			r = avformat_open_input(&input_format_context, fname.c_str(), NULL, NULL);
-			DR(av_open_input_file);
+			VR(av_open_input_file);
 			die(r);
 
 
 			r = avformat_find_stream_info(input_format_context, NULL);
-			DR(av_find_stream_info);
+			VR(av_find_stream_info);
 			die(r);
 			
-			DV("number of streams", input_format_context->nb_streams);
-			DS("Enumerating streams:");
+			VV("number of streams", input_format_context->nb_streams);
+			VS("Enumerating streams:");
 			video_stream_index = -1;
 			//Trawl through the various streams to get some nice
 			//verbosity and to find the first video stream.
@@ -175,18 +187,18 @@ class VideoFileBuffer2
 				AVCodecContext* vc = input_format_context->streams[i]->codec;
 
 				if(t == AVMEDIA_TYPE_UNKNOWN)
-					DS("    " << i << ": " << "unknown");
+					VS("    " << i << ": " << "unknown");
 				else if(t == AVMEDIA_TYPE_VIDEO)
 				{
-					DS("    " << i << ": " << "video");
+					VS("    " << i << ": " << "video");
 
 					if(video_stream_index != -1)
 					{
-						DS("        warning, multiple video streams.");
+						VS("        warning, multiple video streams.");
 					}
 					else
 					{
-						DS("        selecting this stream.");
+						VS("        selecting this stream.");
 						video_stream_index=i;
 
 						video_codec_context = input_format_context->streams[i]->codec;
@@ -194,15 +206,21 @@ class VideoFileBuffer2
 						size.y = video_codec_context->height;
 					}
 
+					AVStream& s = *(input_format_context->streams[i]);
+					
+					VS("        stream");
+					VV("            frame rate (num)", s.r_frame_rate.num);
+					VV("            frame rate (num)", s.r_frame_rate.den);
+					VV("            time base (num) ", s.time_base.num);
+					VV("            time base (den) ", s.time_base.den);
 
-
-					// Add video stream (see next section)
-					DV("        width             ", vc->width);
-					DV("        height            ", vc->height);
-					DV("        bit rate          ", vc->bit_rate);
-					DV("        timebase (num)    ", vc->time_base.num);
-					DV("        timebase (denom)  ", vc->time_base.den);
-					DV("        ticks per frame   ", vc->ticks_per_frame);
+					VS("        codec");
+					VV("            width             ", vc->width);
+					VV("            height            ", vc->height);
+					VV("            bit rate          ", vc->bit_rate);
+					VV("            timebase (num)    ", vc->time_base.num);
+					VV("            timebase (denom)  ", vc->time_base.den);
+					VV("            ticks per frame   ", vc->ticks_per_frame);
 
 					//Frame timestamps are represented as integer multiples of
 					//rationals with the obvious definition.  The number of
@@ -210,30 +228,38 @@ class VideoFileBuffer2
 					//number cannot be used to compute the frame rate.
 
 					//The number of ticks per frame gives the frame rate.
-					frame_rate = 1. / ( 1.0 * vc->ticks_per_frame*  vc->time_base.num / vc->time_base.den);
-					DV("        frame rate (?)    ", frame_rate);
+					//frame_rate = 1. / ( 1.0 * vc->ticks_per_frame*  vc->time_base.num / vc->time_base.den);
+
+					//The frame rate is also recorded in the stream...
+					frame_rate = to_double(s.r_frame_rate);
+					VV("        frame rate (?)    ", frame_rate);
 
 					//The ticks is usually 2 for interlaced video and 1 otherwise.
 					//However, some progressive video converted from interlaced also has
 					//ticks=2
 
+					//But the frame rate is also recorded in the 
+					
+					//Get the stream time base, since this is required to 
+					//turn the packet timestamps into seconds.
+					stream_time_base  = to_double(s.time_base);
 
 				}
 				else if(t == AVMEDIA_TYPE_AUDIO)
-					DS("    " << i << ": " << "audio");
+					VS("    " << i << ": " << "audio");
 				else if(t == AVMEDIA_TYPE_DATA)
-					DS("    " << i << ": " << "data");
+					VS("    " << i << ": " << "data");
 				else if(t == AVMEDIA_TYPE_SUBTITLE)
-					DS("    " << i << ": " << "subtitle");
+					VS("    " << i << ": " << "subtitle");
 				else if(t == AVMEDIA_TYPE_ATTACHMENT)
-					DS("    " << i << ": " << "attachment");
+					VS("    " << i << ": " << "attachment");
 
 				//For some reason vc->codec_name is empty.
 				//This seems to work.
 				char buf[1024];
 				avcodec_string(buf, sizeof(buf)-1, vc, false);
 				buf[sizeof(buf)-1]=0;
-				DV("        codec name        ", buf << "*"); 
+				VV("        codec name        ", buf << "*"); 
 
 			}
 
@@ -246,7 +272,7 @@ class VideoFileBuffer2
 				throw Exceptions::VideoFileBuffer2("VideoFileBuffer2: no decoder found");
 
 			r = avcodec_open2(video_codec_context, video_codec, 0);
-			DR(avcodec_open2);
+			VR(avcodec_open2);
 			die(r);
 
 			raw_image = avcodec_alloc_frame();
@@ -275,6 +301,24 @@ class VideoFileBuffer2
 		}
 	}
 
+	void seek_to(double t)
+	{
+		t = max(0., t);
+
+		uint64_t stamp = floor(t / stream_time_base + 0.5);
+		
+		if(debug)
+			cerr << endl;
+		DS("seeking");
+		Dv(stamp);
+
+		int r = av_seek_frame(input_format_context, video_stream_index, stamp, AVSEEK_FLAG_ANY);
+
+		if(debug)
+			cerr << endl;
+		die(r);
+	}
+
 	template<typename T>
 	Image<T> get_next_frame()
 	{
@@ -299,11 +343,25 @@ class VideoFileBuffer2
 
 			Dv(packet.stream_index);
 
+			Dv(packet.pts); //Presentation time stamp (pts) is sometimes junk in keyframes.
+			Dv(packet.dts); //decode time stamp
+			double timestamp = packet.dts * stream_time_base;
+			Dv(timestamp);
+
+			//The duration can lie and be set to 0
+			Dv(packet.duration);
+			DV("duration", packet.duration * stream_time_base);
+	
+
 			if(packet.stream_index == video_stream_index)
 			{
 				int got_picture;
 				avcodec_decode_video2(video_codec_context, raw_image, &got_picture, &packet);
 				Dv(got_picture);
+				Dv(raw_image->key_frame);
+				Dv(raw_image->pts); //presentation timestamp. Time to present frame. Seems to contain junk. Do not use.
+				Dv(raw_image->interlaced_frame);
+				Dv(raw_image->top_field_first);
 
 				if(!got_picture)
 					goto cont;
@@ -320,6 +378,8 @@ class VideoFileBuffer2
 
 			//Free the data owned by packet, not the struct tiself
 			av_free_packet(&packet);
+			if(debug)
+				cerr << endl;
 		}
 		
 	
@@ -353,11 +413,13 @@ int main(int, char** argv)
 {
 	try{
 		VideoFileBuffer2 foo(argv[1], true, true);
+		foo.seek_to(2.5);
 
 		for(;;)
 		{
 			Image<Rgb<byte> > pic = foo.get_next_frame<Rgb<byte> >();
 			img_save(pic, "foo.jpg");
+			cin.get();
 		}
 	}
 
