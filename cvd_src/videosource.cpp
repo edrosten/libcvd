@@ -363,7 +363,7 @@ namespace CVD {
 
 
 
-	void get_file_options(const VideoSource& vs, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob)
+	void get_file_options(const VideoSource& vs, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob, bool& verbose)
 	{
 		eob = VideoBufferFlags::RepeatLastFrame;
 		for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it) {
@@ -380,7 +380,10 @@ namespace CVD {
 					eob = VideoBufferFlags::RepeatLastFrame;
 				else
 					throw VideoSourceException("invalid end-of-buffer behaviour: "+it->second+"\n\t valid options are repeat_last, unset_pending, loop");
-			} else
+			} 
+			else if(it->first == "verbose")
+				verbose = true;
+			else
 				throw VideoSourceException("invalid option for 'file' protocol: "+it->first+"\n\t valid options: read_ahead, on_end, fps");
 		}
 	}

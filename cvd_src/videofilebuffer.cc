@@ -534,7 +534,7 @@ void RawVideoFileBufferPIMPL::seek_to(double t)
 }
 
 ///Public implementation of RawVideoFileBuffer
-RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, bool is_rgb)
+RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, bool is_rgb, bool)
 :p(new RawVideoFileBufferPIMPL(file, is_rgb))
 {}
 
