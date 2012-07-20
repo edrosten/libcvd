@@ -42,7 +42,7 @@ extern "C" {
 using namespace std;
 using namespace CVD;
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 	#define DS(X)   do{cerr << "VideoFileBuffer2: " << X << endl;} while(0)
@@ -56,6 +56,7 @@ using namespace CVD;
 	#define Dv(X)   do{}while(0)
 	#define DR(X)   do{}while(0)
 	#define DR(X)   do{}while(0)
+	#define DE(X)   do{}while(0)
 #endif
 
 #define VS(X) do{if(verbose) cerr << "VideoFileBuffer2: " << X << endl;} while(0)
@@ -112,13 +113,14 @@ class VFHolderBase
 	virtual void remove()=0;
 
 	public:
-	virtual ~VFHolderBase()=0;
+	virtual ~VFHolderBase()
+	{}
 
 	void* release()
 	{
 		void* f=frame;	
 		frame=0;
-		return frame;
+		return f;
 	};
 
 	virtual auto_ptr<VFHolderBase> duplicate()=0;
@@ -509,7 +511,6 @@ class RawVideoFileBufferPIMPL
 	
 	void* get_frame()
 	{
-	
 		if(!frame_pending()) 
 			throw Exceptions::VideoFileBuffer::EndOfFile();
 
@@ -531,13 +532,17 @@ class RawVideoFileBufferPIMPL
 				
 				case VideoBufferFlags::Loop:
 					seek_to(0.0);
+					load_next_frame();
 					break;
 			}
 
 
 		}
+		
+		void* f = fr->release();
+		fr.release();
 
-		return fr->release();
+		return f;
 	}
 
 	bool frame_pending()

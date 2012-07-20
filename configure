@@ -619,6 +619,7 @@ have_memalign
 have_glob
 docs
 have_ffmpeg
+have_oldffmpeg
 have_tiff
 have_jpeg
 have_png
@@ -749,6 +750,7 @@ with_jpegbuffer
 with_tiff
 with_png
 with_ffmpeg
+with_oldffmpeg
 with_toon
 with_tr1_shared_ptr
 with_lapack
@@ -1447,7 +1449,8 @@ Optional Packages:
   --without-tiff          compile without TIFF support
   --with-tiff=forceold    Debug/wierd build environment only. Force use of older library facilities.
   --without-png           compile without PNG support
-  --without-ffmpeg	  compile without FFMPEG support
+  --without-ffmpeg	  compile without FFMPEG support.
+  --with-oldffmpeg	  compile with old FFMPEG support.
   --without-toon          Compile without TooN support
   --without-tr1_shared_ptr          Compile without tr1::shared_ptr support
   --without-lapack        Disable BLAS and LAPACK.
@@ -6658,6 +6661,12 @@ if test "${with_ffmpeg+set}" = set; then :
 fi
 
 
+# Check whether --with-oldffmpeg was given.
+if test "${with_oldffmpeg+set}" = set; then :
+  withval=$with_oldffmpeg;
+fi
+
+
 # Check whether --with-toon was given.
 if test "${with_toon+set}" = set; then :
   withval=$with_toon;
@@ -8674,6 +8683,13 @@ else
 fi
 
 
+
+			if test "$with_oldffmpeg" == yes
+			then
+				have_oldffmpeg=yes
+
+			fi
+
 			have_avcodec_decode_video2=0
 			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for avcodec_decode_video2 in -lavcodec" >&5
 $as_echo_n "checking for avcodec_decode_video2 in -lavcodec... " >&6; }
@@ -9169,7 +9185,8 @@ cvd_src/videodisplay,cvd_src/glwindow,cvd_src/gltext         videodisplay END
 pnm_src/jpeg									jpeg END
 pnm_src/tiff,pnm_src/tiffwrite					tiff END
 pnm_src/png										png END
-cvd_src/videofilebuffer,cvd_src/videosource_videofilebuffer	 ffmpeg
+cvd_src/videofilebuffer,cvd_src/videosource_videofilebuffer,cvd_src/videofilebuffer_exceptions	 oldffmpeg ffmpeg
+cvd_src/videofilebuffer2,cvd_src/videosource_videofilebuffer,cvd_src/videofilebuffer_exceptions	 ffmpeg
 cvd_src/videosource_novideofilebuffer           END
 
 nothing											windows

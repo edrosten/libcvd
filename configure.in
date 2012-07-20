@@ -590,7 +590,8 @@ AC_ARG_WITH(jpegbuffer, [  --with-jpegbuffer=N     Set JPEG read buffer size. N>
 AC_ARG_WITH(tiff, [  --without-tiff          compile without TIFF support])
 AC_ARG_WITH(tiff, [  --with-tiff=forceold    Debug/wierd build environment only. Force use of older library facilities.])
 AC_ARG_WITH(png, [  --without-png           compile without PNG support])
-AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support])
+AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support.])
+AC_ARG_WITH(oldffmpeg, [  --with-oldffmpeg	  compile with old FFMPEG support.])
 AC_ARG_WITH(toon, [  --without-toon          Compile without TooN support])
 AC_ARG_WITH(tr1_shared_ptr, [  --without-tr1_shared_ptr          Compile without tr1::shared_ptr support])
 AC_ARG_WITH(lapack, [  --without-lapack        Disable BLAS and LAPACK.])
@@ -836,6 +837,12 @@ CHECK_FOR_OPTION(ffmpeg, [
 			AC_CHECK_LIB(avcodec, avcodec_open, [], [a=1])
 			AC_CHECK_LIB(swscale, sws_getContext, [], [a=1])
 
+
+			if test "$with_oldffmpeg" == yes
+			then
+				AC_SUBST(have_oldffmpeg, yes)
+			fi
+
 			have_avcodec_decode_video2=0
 			AC_CHECK_LIB(avcodec, avcodec_decode_video2, [have_avcodec_decode_video2=1])
 			if test $have_avcodec_decode_video2==1
@@ -1069,7 +1076,8 @@ cvd_src/videodisplay,cvd_src/glwindow,cvd_src/gltext         videodisplay END
 pnm_src/jpeg									jpeg END
 pnm_src/tiff,pnm_src/tiffwrite					tiff END
 pnm_src/png										png END
-cvd_src/videofilebuffer,cvd_src/videosource_videofilebuffer	 ffmpeg 
+cvd_src/videofilebuffer,cvd_src/videosource_videofilebuffer,cvd_src/videofilebuffer_exceptions	 oldffmpeg ffmpeg 
+cvd_src/videofilebuffer2,cvd_src/videosource_videofilebuffer,cvd_src/videofilebuffer_exceptions	 ffmpeg 
 cvd_src/videosource_novideofilebuffer           END
 
 nothing											windows
