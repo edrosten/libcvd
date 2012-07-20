@@ -45,39 +45,6 @@ namespace CVD
 {
 
 using namespace Exceptions::VideoFileBuffer;
-	
-//
-// EXCEPTIONS
-//
-
-Exceptions::VideoFileBuffer::FileOpen::FileOpen(const std::string& name, const string& error)
-{
-	what = "RawVideoFileBufferPIMPL: Error opening file \"" + name + "\": " + error;
-}
-
-Exceptions::VideoFileBuffer::BadFrameAlloc::BadFrameAlloc()
-{
-	what = "RawVideoFileBufferPIMPL: Unable to allocate video frame.";
-}
-
-Exceptions::VideoFileBuffer::BadDecode::BadDecode(double t)
-{
-	ostringstream os;
-	os << "RawVideoFileBufferPIMPL: Error decoding video frame at time " << t << ".";
-	what = os.str();
-}
-
-Exceptions::VideoFileBuffer::EndOfFile::EndOfFile()
-{
-	what =  "RawVideoFileBufferPIMPL: Tried to read off the end of the file.";
-}
-
-Exceptions::VideoFileBuffer::BadSeek::BadSeek(double t)
-{
-	ostringstream ss;
-	ss << "RawVideoFileBufferPIMPL: Seek to time " << t << "s failed.";
-	what = ss.str();
-}
 
 namespace VFB
 {
@@ -184,6 +151,7 @@ RawVideoFileBufferPIMPL::RawVideoFileBufferPIMPL(const std::string& file, bool r
 	{
 		// Register the formats and codecs
 		av_register_all();
+		avcodec_register_all();
 	
 		// Now open the video file (and read the header, if present)
 		if(av_open_input_file(&pFormatContext, file.c_str(), NULL, 0, NULL) != 0)

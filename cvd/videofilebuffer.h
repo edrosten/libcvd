@@ -57,14 +57,14 @@ namespace CVD
 			struct BadFrameAlloc: public All { BadFrameAlloc(); };
 			/// Unable to decode the video frame
 			/// @ingroup gException
-			struct BadDecode: public All { BadDecode(double t); ///< Construt from frame timestamp
+			struct BadDecode: public All { BadDecode(double t, const std::string& =""); ///< Construt from frame timestamp
 			};
 			/// get_frame() was called when at the end of the buffer
 			/// @ingroup gException
 			struct EndOfFile: public All { EndOfFile(); };
 			/// seek_to() was called for an invalid timestamp
 			/// @ingroup gException
-			struct BadSeek: public All { BadSeek(double t); ///< Construt from timestamp
+			struct BadSeek: public All { BadSeek(double t, const std::string& =""); ///< Construt from timestamp
 			};
 		}
 	}
@@ -102,7 +102,7 @@ namespace CVD
 			/// Construct a video buffer to play this file
 			/// @param file The path to the video file
 			/// @param is_rgb Is RGB data wanted?
-			RawVideoFileBuffer(const std::string& file, bool is_rgb);
+			RawVideoFileBuffer(const std::string& file, bool is_rgb, bool verbose);
 			~RawVideoFileBuffer();
 		
 			/// The size of the VideoFrames returned by this buffer
@@ -158,8 +158,8 @@ namespace CVD
 		public:
 			/// Construct a VideoFileBuffer to play this file
 			/// @param file The path to the video file
-			VideoFileBuffer(const std::string& file)
-			:LocalVideoBuffer<T>(VideoBufferType::NotLive),vf(file, VFB::rgb<T>::p)
+			VideoFileBuffer(const std::string& file, bool verbose=false)
+			:LocalVideoBuffer<T>(VideoBufferType::NotLive),vf(file, VFB::rgb<T>::p, verbose)
 			{
 			}
 
