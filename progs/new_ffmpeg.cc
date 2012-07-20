@@ -32,16 +32,31 @@ extern "C" {
 }
 
 #include <string>
+#include <cvd/exceptions.h>
+#include <cvd/videofilebuffer.h>
+
+
 #include <iostream>
 #include <cvd/image_io.h>
 
 using namespace std;
 using namespace CVD;
 
-#define DS(X) do{if(debug) cerr << "VideoFileBuffer2: " << X << endl;} while(0)
-#define DV(X,Y) do{if(debug) cerr << "VideoFileBuffer2: " << X << " = " << Y << endl;} while(0)
-#define Dv(X) do{if(debug) cerr << "VideoFileBuffer2: " << #X << " = " << (X) << endl;} while(0)
-#define DR(X) do{if(debug) cerr << "VideoFileBuffer2: " << #X << " returned " << r << endl;} while(0)
+#define DEBUG
+
+#ifdef DEBUG
+	#define DS(X)   do{cerr << "VideoFileBuffer2: " << X << endl;} while(0)
+	#define DV(X,Y) do{cerr << "VideoFileBuffer2: " << X << " = " << Y << endl;} while(0)
+	#define Dv(X)   do{cerr << "VideoFileBuffer2: " << #X << " = " << (X) << endl;} while(0)
+	#define DR(X)   do{cerr << "VideoFileBuffer2: " << #X << " returned " << r << endl;} while(0)
+	#define DE(X)   do{cerr << X;}while(0)
+#else
+	#define DS(X)   do{}while(0)
+	#define DV(X,Y) do{}while(0)
+	#define Dv(X)   do{}while(0)
+	#define DR(X)   do{}while(0)
+	#define DR(X)   do{}while(0)
+#endif
 
 #define VS(X) do{if(verbose) cerr << "VideoFileBuffer2: " << X << endl;} while(0)
 #define VV(X,Y) do{if(verbose) cerr << "VideoFileBuffer2: " << X << " = " << Y << endl;} while(0)
@@ -83,7 +98,64 @@ struct PixFmt<Rgb<byte> >
 	}
 };
 
-class VideoFileBuffer2
+
+namespace VFB{
+
+
+
+
+class VFHolderBase
+{
+	protected:
+	void* frame;
+
+	virtual void remove()=0;
+
+	public:
+	virtual ~VFHolderBase()=0;
+
+	void* release()
+	{
+		void* f=frame;	
+		frame=0;
+		return frame;
+	};
+
+	virtual auto_ptr<VFHolderBase> duplicate()=0;
+};
+
+template<class C>
+class VFHolder: public VFHolderBase
+{
+	using VFHolderBase::frame;
+
+	void remove()
+	{
+		if(frame)
+			static_cast<VideoFileFrame<C>*>(frame)->delete_self();
+	};
+
+	VFHolder(const VFHolder&);
+	void operator=(const VFHolder&);
+
+	public:
+	~VFHolder()
+	{
+		remove();
+	}
+
+	VFHolder(VideoFileFrame<C>* f)
+	{
+		frame=f;
+	}
+
+	auto_ptr<VFHolderBase> duplicate();
+
+
+};
+
+
+class RawVideoFileBufferPIMPL
 {
 	bool rgb;
 	PixelFormat             output_fmt;
@@ -106,26 +178,34 @@ class VideoFileBuffer2
 	bool                    eof;
 	double                  frame_rate;
 	double                  stream_time_base;
+	double                  approx_next_timestamp;
 	
 	AVCodec*                video_codec;
 	SwsContext*             img_convert_context;
 
 	bool                    verbose;
-
-	Image<Rgb<byte> >       rgb_frame;
-	Image<byte>             mono_frame;
-	
-	static const int debug=1;
-	void die(int e)
-	{
-		if(e < 0)
-		{
-			char buf[1024];
-			av_strerror(e, buf, sizeof(buf)-1);
-			buf[sizeof(buf)-1] = 0;
+	bool                    ready;
 			
-			throw Exceptions::VideoFileBuffer2(buf);
-		}
+	VideoBufferFlags::OnEndOfBuffer end_of_buffer_behaviour;
+			
+	public:	
+	template<class T> static VideoFileFrame<T>* generate_frame(double t, Image<T> im)
+	{
+		return new VideoFileFrame<T>(t, im);
+	}
+	private:
+
+	auto_ptr<VFHolderBase> next_frame;
+
+	string codec;
+		
+	string err(int e)
+	{
+		char buf[1024];
+		av_strerror(e, buf, sizeof(buf)-1);
+		buf[sizeof(buf)-1] = 0;
+		return err(e);
+
 	}
 
 	static double to_double(const AVRational& r)
@@ -135,7 +215,7 @@ class VideoFileBuffer2
 
 	public:
 
-	VideoFileBuffer2(const string& fname, bool rgb_, bool verbose_)
+	RawVideoFileBufferPIMPL(const string& fname, bool rgb_, bool verbose_)
 	:rgb(rgb_),
 	 output_fmt(rgb?PixFmt<Rgb<byte> >::get():PixFmt<byte>::get()),
 	 input_format_context(0),
@@ -150,7 +230,9 @@ class VideoFileBuffer2
 	 eof(false),
 	 video_codec(0),
 	 img_convert_context(0),
-	 verbose(verbose_)
+	 verbose(verbose_),
+	 ready(false),
+	 end_of_buffer_behaviour(VideoBufferFlags::RepeatLastFrame)
 	{
 
 		try
@@ -159,7 +241,6 @@ class VideoFileBuffer2
 			DS("starting");
 
 			int r;
-			string err;
 
 			input_format_context = avformat_alloc_context();
 			if(input_format_context == NULL)
@@ -169,12 +250,15 @@ class VideoFileBuffer2
 			//It requires a pre-allocated context.
 			r = avformat_open_input(&input_format_context, fname.c_str(), NULL, NULL);
 			VR(av_open_input_file);
-			die(r);
+
+			if(r < 0)
+				throw Exceptions::VideoFileBuffer::FileOpen(fname, err(r));
 
 
 			r = avformat_find_stream_info(input_format_context, NULL);
 			VR(av_find_stream_info);
-			die(r);
+			if(r < 0)
+				throw Exceptions::VideoFileBuffer::FileOpen(fname, err(r));
 			
 			VV("number of streams", input_format_context->nb_streams);
 			VS("Enumerating streams:");
@@ -260,6 +344,7 @@ class VideoFileBuffer2
 				avcodec_string(buf, sizeof(buf)-1, vc, false);
 				buf[sizeof(buf)-1]=0;
 				VV("        codec name        ", buf << "*"); 
+				codec = buf;
 
 			}
 
@@ -273,7 +358,9 @@ class VideoFileBuffer2
 
 			r = avcodec_open2(video_codec_context, video_codec, 0);
 			VR(avcodec_open2);
-			die(r);
+			if(r < 0)
+				throw Exceptions::VideoFileBuffer::FileOpen(fname, err(r));
+			
 
 			raw_image = avcodec_alloc_frame();
 
@@ -291,14 +378,25 @@ class VideoFileBuffer2
 			if(img_convert_context == 0)
 				throw Exceptions::VideoFileBuffer2("Software scaler not found! This is very strange.");
 
+			
+			//FIXME: streams do not always start at 0
+			approx_next_timestamp = 0;
+			
+			//Load the first frame...
+			load_next_frame();
 
 			return;
 		}
-		catch(Exceptions::VideoFileBuffer2)
+		catch(...)
 		{
 			free_all();
 			throw;
 		}
+	}
+
+	void on_end_of_buffer(VideoBufferFlags::OnEndOfBuffer f)
+	{
+		end_of_buffer_behaviour = f;
 	}
 
 	void seek_to(double t)
@@ -307,29 +405,29 @@ class VideoFileBuffer2
 
 		uint64_t stamp = floor(t / stream_time_base + 0.5);
 		
-		if(debug)
-			cerr << endl;
+		DE(endl);
 		DS("seeking");
 		Dv(stamp);
 
 		int r = av_seek_frame(input_format_context, video_stream_index, stamp, AVSEEK_FLAG_ANY);
+		approx_next_timestamp = t;
 
-		if(debug)
-			cerr << endl;
-		die(r);
+		DE(endl);
+		
+		if(r < 0)
+			throw Exceptions::VideoFileBuffer::BadSeek(t, err(r));
 	}
 
 	template<typename T>
-	Image<T> get_next_frame()
+	auto_ptr<VFHolderBase> read_frame_from_video()
 	{
 
 		if(PixFmt<T>::get() != output_fmt)
 			throw Exceptions::VideoFileBuffer2("Mismatched format: probably an internal library error.");
 
-		Image<T> ret;
 
 
-		while(ret.size().area()== 0)
+		while(true)
 		{
 			av_init_packet(&packet);
 			int r = av_read_frame(input_format_context, &packet);	
@@ -338,14 +436,19 @@ class VideoFileBuffer2
 			if(r == AVERROR_EOF)
 			{
 				DS("EOF");
+				return auto_ptr<VFHolderBase>();
 			}
-			die(r);
+			else if(r < 0)
+			{
+				throw Exceptions::VideoFileBuffer::BadDecode(approx_next_timestamp, err(r));
+			}
 
 			Dv(packet.stream_index);
 
 			Dv(packet.pts); //Presentation time stamp (pts) is sometimes junk in keyframes.
 			Dv(packet.dts); //decode time stamp
 			double timestamp = packet.dts * stream_time_base;
+			approx_next_timestamp = timestamp + 1./ frame_rate;
 			Dv(timestamp);
 
 			//The duration can lie and be set to 0
@@ -367,26 +470,82 @@ class VideoFileBuffer2
 					goto cont;
 			
 				//Allocate memory for the converted image
-				ret.resize(size);
+				Image<T> ret(size);
 
 				//Set up converted_image so it uses the data in ret as its data buffer.
 				avpicture_fill((AVPicture*)converted_image, reinterpret_cast<uint8_t*>(ret.data()), output_fmt, size.x, size.y);
 				sws_scale(img_convert_context, raw_image->data, raw_image->linesize, 0, size.y, converted_image->data, converted_image->linesize);
+				
+
+				ready=true;
+				return auto_ptr<VFHolderBase>(new VFHolder<T>(new VideoFileFrame<T>(timestamp, ret)));
 			}
 			
 			cont:
 
 			//Free the data owned by packet, not the struct tiself
 			av_free_packet(&packet);
-			if(debug)
-				cerr << endl;
+			DE(endl);
 		}
-		
-	
-		return ret;
 	}
 
-	~VideoFileBuffer2()
+	void load_next_frame()
+	{
+		if(output_fmt == PIX_FMT_GRAY8)
+			next_frame= read_frame_from_video<byte>();
+		else// if(output_fmt == PIX_FMT_RGB24)
+			next_frame= read_frame_from_video<Rgb<byte> >();
+	}
+	
+	void put_frame(void* f)
+	{
+		if(output_fmt == PIX_FMT_GRAY8)
+			delete static_cast<VideoFileFrame<byte>*>(f);
+		else
+			delete static_cast<VideoFileFrame<Rgb<byte> >*>(f);
+
+	};
+
+	
+	void* get_frame()
+	{
+	
+		if(!frame_pending()) 
+			throw Exceptions::VideoFileBuffer::EndOfFile();
+
+		//Safely grab the frame
+		auto_ptr<VFHolderBase> fr = next_frame;
+		load_next_frame();
+
+		if(next_frame.get() == NULL)
+		{
+			switch(end_of_buffer_behaviour)
+			{
+				case VideoBufferFlags::RepeatLastFrame:
+					next_frame = (*fr).duplicate();
+					break;
+				
+				case VideoBufferFlags::UnsetPending:
+					ready=false;
+				   break;
+				
+				case VideoBufferFlags::Loop:
+					seek_to(0.0);
+					break;
+			}
+
+
+		}
+
+		return fr->release();
+	}
+
+	bool frame_pending()
+	{
+		return ready;
+	}
+
+	~RawVideoFileBufferPIMPL()
 	{
 		free_all();
 	}		
@@ -404,29 +563,84 @@ class VideoFileBuffer2
 
 		if(img_convert_context != NULL)
 			sws_freeContext(img_convert_context);
+
 	}
 
+	double frames_per_second() const
+	{
+		return frame_rate;
+	}
+
+	string codec_name() const
+	{
+		return codec;
+	}
+
+	ImageRef get_size() const
+	{
+		return size;
+	}
 };
+
+template<class C>
+auto_ptr<VFHolderBase> VFHolder<C>::duplicate()
+{
+	VideoFileFrame<C> *fr = static_cast<VideoFileFrame<C>*>(frame);
+
+	Image<C> copy;
+	copy.copy_from(*fr);
+
+	return auto_ptr<VFHolderBase>(new VFHolder(RawVideoFileBufferPIMPL::generate_frame<C>(fr->timestamp(), copy)));
 }
 
-int main(int, char** argv)
+///Public implementation of RawVideoFileBuffer
+RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, bool is_rgb, bool verbose)
+:p(new RawVideoFileBufferPIMPL(file, is_rgb, verbose))
+{}
+
+RawVideoFileBuffer::~RawVideoFileBuffer()
+{}
+
+ImageRef RawVideoFileBuffer::size()
 {
-	try{
-		VideoFileBuffer2 foo(argv[1], true, true);
-		foo.seek_to(2.5);
+	return p->get_size();
+}
 
-		for(;;)
-		{
-			Image<Rgb<byte> > pic = foo.get_next_frame<Rgb<byte> >();
-			img_save(pic, "foo.jpg");
-			cin.get();
-		}
-	}
+bool RawVideoFileBuffer::frame_pending()
+{
+	return p->frame_pending();
+}
 
-	catch(Exceptions::VideoFileBuffer2 e)
-	{
-		cerr << "Error: " << e.what << endl;
+void* RawVideoFileBuffer::get_frame()
+{
+	return p->get_frame();
+}
 
-	}
+void RawVideoFileBuffer::put_frame(void* f)
+{
+	p->put_frame(f);
+}
 
+void RawVideoFileBuffer::seek_to(double t)
+{
+	p->seek_to(t);
+}
+
+void RawVideoFileBuffer::on_end_of_buffer(VideoBufferFlags::OnEndOfBuffer b)
+{
+	p->on_end_of_buffer(b);
+}
+
+double RawVideoFileBuffer::frames_per_second()
+{
+	return p->frames_per_second();
+}
+
+string RawVideoFileBuffer::codec_name()
+{
+	return p->codec_name();
+}
+
+
+}
 }
