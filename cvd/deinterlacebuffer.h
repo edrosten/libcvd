@@ -24,6 +24,9 @@
 
 #include <cvd/videobuffer.h>
 #include <cvd/deinterlaceframe.h>
+#include <cvd/internal/pixel_operations.h>
+#include <cvd/internal/rgb_components.h>
+
 
 namespace CVD
 {
@@ -184,6 +187,19 @@ VideoFrame<T>* DeinterlaceBuffer<T>::get_frame()
 		// We want the odd field
 		if(line_double)
 		{
+			frame->zero();
+			for(int y=1; y < m_size.y; y+=2)
+				for(int x=0; x < m_size.x; x++)
+					(*frame)[y][x] = (*my_realframe)[y][x];	
+
+			
+			for(int y=2; y < m_size.y-1; y+=2)
+				for(int x=0; x < m_size.x; x++)
+					for(unsigned int i=0; i < Pixel::Component<T>::count; i++)
+						Pixel::Component<T>::get((*frame)[y][x],i) = (Pixel::Component<T>::get((*my_realframe)[y-1][x],i) + 
+						                                              Pixel::Component<T>::get((*my_realframe)[y+1][x],i))/2;
+
+/*
 			//Copy line 0 from line 1, and copy over line 1 to line 1
 			for(int y=0; y < 2; y++)
 				for(int x=0; x < m_size.x; x++)
@@ -197,6 +213,7 @@ VideoFrame<T>* DeinterlaceBuffer<T>::get_frame()
 					(*frame)[y][x] = (*my_realframe)[y][x];
 					(*frame)[y-1][x] = ((*my_realframe)[y][x] + (*my_realframe)[y-2][x])/2;
 				}
+*/
 		}
 		else
 		{
@@ -212,6 +229,17 @@ VideoFrame<T>* DeinterlaceBuffer<T>::get_frame()
 		// We want the odd field
 		if(line_double)
 		{
+			frame->zero();
+			for(int y=0; y < m_size.y; y+=2)
+				for(int x=0; x < m_size.x; x++)
+					(*frame)[y][x] = (*my_realframe)[y][x];	
+
+			for(int y=1; y < m_size.y-1; y+=2)
+				for(int x=0; x < m_size.x; x++)
+					for(unsigned int i=0; i < Pixel::Component<T>::count; i++)
+						Pixel::Component<T>::get((*frame)[y][x],i) = (Pixel::Component<T>::get((*my_realframe)[y-1][x],i) + 
+						                                              Pixel::Component<T>::get((*my_realframe)[y+1][x],i))/2;
+/*
 			//Copy over and double the first set of lines
 			for(int y=0; y < m_size.y-2; y+=2)
 				for(int x=0; x < m_size.x; x++)
@@ -224,6 +252,7 @@ VideoFrame<T>* DeinterlaceBuffer<T>::get_frame()
 			for(int y=m_size.y-2; y < m_size.y; y++)
 				for(int x=0; x < m_size.x; x++)
 					(*frame)[y][x] = (*my_realframe)[m_size.y-2][x];
+*/
 		}
 		else
 		{
