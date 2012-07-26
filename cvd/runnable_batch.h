@@ -2,21 +2,10 @@
 #define  CVD_INCLUDE_RUNNABLE_BATCH_H
 
 #include <cvd/runnable.h>
-#if defined WIN32 && !defined __MINGW32__
-#include <memory>
-#else
-#include <tr1/memory>
-#endif
+#include <cvd/internal/shared_ptr.h>
 #include <vector>
 namespace CVD
 {
-	//Why couldn't VS put TR1in the correct namespace?
-	namespace tr1
-	{
-		using namespace std;
-		using namespace std::tr1;
-	}
-	
 	class Thread;
 
 //Forward declaration
@@ -34,8 +23,8 @@ class RunnableBatch
 
 		class RunMessageInThread;
 
-		std::vector<CVD::tr1::shared_ptr<RunMessageInThread> > threads;
-		CVD::tr1::shared_ptr<MessageQueue<CVD::tr1::shared_ptr<Runnable> > > queue;
+		std::vector<CVD::STD::shared_ptr<RunMessageInThread> > threads;
+		CVD::STD::shared_ptr<MessageQueue<CVD::STD::shared_ptr<Runnable> > > queue;
 	
 
 	public:
@@ -55,7 +44,7 @@ class RunnableBatch
 		///Put a task on the queue. This will be run at some point
 		///in the future. Job lifetime is managed by shared_ptr, so they
 		///may be managed wither by RunnableBatch or by the caller.
-		void schedule(CVD::tr1::shared_ptr<Runnable> r);
+		void schedule(CVD::STD::shared_ptr<Runnable> r);
 	
 		///Destruct the job manager. This will wait for all threads
 		///to finish and terminate.
