@@ -234,7 +234,7 @@ install-headers:
 install-libs-so:$(soname)
 	mkdir -p $(DESTDIR)$(libdir)
 	cp $(soname2) $(DESTDIR)$(libdir)
-	rm -f  $(DESTDIR)$(libdir)/$(soname1) $(DESTDIR)$(libdir)/$(soname)
+	rm -f  $(DESTDIR)$(libdir)/$(soname2) $(DESTDIR)$(libdir)/$(soname1) $(DESTDIR)$(libdir)/$(soname)
 	ln -s  $(libdir)/$(soname2) $(DESTDIR)$(libdir)/$(soname1)
 	ln -s  $(libdir)/$(soname1) $(DESTDIR)$(libdir)/$(soname)
 
@@ -247,7 +247,7 @@ install-libs:install-libs-so install-libs-a
 install-libs-debug:$(dsoname) libcvd_debug.a
 	mkdir -p $(DESTDIR)$(libdir)
 	cp $(dsoname2) $(DESTDIR)$(libdir)
-	rm -f  $(DESTDIR)$(libdir)/$(soname1) $(DESTDIR)$(libdir)/$(dsoname)
+	rm -f  $(DESTDIR)$(libdir)/$(dsoname2) $(DESTDIR)$(libdir)/$(dsoname1) $(DESTDIR)$(libdir)/$(dsoname)
 	ln -s  $(libdir)/$(dsoname2) $(DESTDIR)$(libdir)/$(dsoname1)
 	ln -s  $(libdir)/$(dsoname1) $(DESTDIR)$(libdir)/$(dsoname)
 	cp libcvd_debug.a $(DESTDIR)$(libdir)
