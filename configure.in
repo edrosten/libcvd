@@ -29,7 +29,7 @@ AC_SUBST(minor, $cvd_minor)
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthread glob memalign tr1_shared_ptr assembler inline_asm posix_rt"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthread glob memalign shared_ptr assembler inline_asm posix_rt"
 dodginess_options=
 options=
 simd_all_options=
@@ -593,7 +593,7 @@ AC_ARG_WITH(png, [  --without-png           compile without PNG support])
 AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support.])
 AC_ARG_WITH(oldffmpeg, [  --with-oldffmpeg	  compile with old FFMPEG support.])
 AC_ARG_WITH(toon, [  --without-toon          Compile without TooN support])
-AC_ARG_WITH(tr1_shared_ptr, [  --without-tr1_shared_ptr          Compile without tr1::shared_ptr support])
+AC_ARG_WITH(shared_ptr, [  --without-shared_ptr          Compile without shared_ptr support])
 AC_ARG_WITH(lapack, [  --without-lapack        Disable BLAS and LAPACK.])
 AC_ARG_WITH(acml, [  --with-acml[[=directory]] Use BLAS and LAPACK routines from the ACML library [[located in the specified directory]] ], [opt_acml_dir=$withval])
 
@@ -622,11 +622,20 @@ CHECK_FOR_OPTION(videodisplay,[
 	
 ])
 
-CHECK_FOR_OPTION(tr1_shared_ptr, [
-	AC_MSG_CHECKING([for tr1::shared_ptr])
-	AC_COMPILE_IFELSE([#include <tr1/memory>
-	int main(){std::tr1::shared_ptr<int> i; return  0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
-
+CHECK_FOR_OPTION(shared_ptr, [
+	AC_MSG_CHECKING([for shared_ptr])
+	AC_COMPILE_IFELSE([#include <memory>
+	int main(){std::shared_ptr<int> i; return  0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
+	
+	if test x$a == x1
+	then
+		a=0
+		AC_MSG_CHECKING([for tr1::shared_ptr])
+		AC_COMPILE_IFELSE([#include <tr1/memory>
+		int main(){std::tr1::shared_ptr<int> i; return  0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
+		AC_DEFINE(CVD_INTERNAL_NEED_TR1)
+		APPEND(dodginess_options, tr1_shared_ptr)
+	fi
 ])
 
 
