@@ -497,12 +497,6 @@ case "$host" in
 		fi
 		
 		;;
-	*sgi*)
-		os_all_options="o2buffer"
-		CHECK_FOR_OPTION(o2buffer, [
-			echo "I hope all SGIs have stuff needed for O2buffer. Disable (--without-o2buffer) if I'm wrong."
-		])
-		;;
 	*windows*)
 		AC_SUBST(have_windows, yes)
 		;;
