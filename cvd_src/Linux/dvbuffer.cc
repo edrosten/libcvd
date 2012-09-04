@@ -112,11 +112,6 @@
 
 #include "cvd_src/Linux/kernel-video1394.h"
 
-
-#ifdef UNKNOWN_KERNEL
-	#error I dont know how to compile DC stuff for this kernel version!
-#endif
-
 #include <sys/ioctl.h>
 #include <iostream>
 #include <sstream>
