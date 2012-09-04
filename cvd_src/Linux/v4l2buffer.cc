@@ -67,158 +67,6 @@ void ErrorInfo(int e)
 	cerr << "Error: " << strerror(e) << endl;
 }
 
-
-#if ((CVD_KERNEL_MAJOR == 2) && (CVD_KERNEL_MINOR == 4))
-	#define USE_24
-	#define K24(X) X
-	#define K26(X) 
-#elif ((CVD_KERNEL_MAJOR >= 3) || ((CVD_KERNEL_MAJOR == 2) && (CVD_KERNEL_MINOR == 6)))
-	#define K26(X) X
-	#define K24(X) 
-#else
-	#error "Can't do v4l2 for this kernel version"
-#endif
-
-
-
-
-
-
-
-#ifdef USE_24
-V4L2Buffer_Base::V4L2Buffer_Base(const char *devname, bool fields, V4L2BufferBlockMethod block, int input, int bufs, unsigned long int pixtype)
-{
-	device = devname;
-	my_frame_rate=0;
-	my_block_method=block;
-	i_am_using_fields=fields;
-	num_buffers = bufs;
-
-
-	// Open the device.
-	m_nVideoFileDesc=open(devname,O_RDONLY|O_NONBLOCK);
-
-	if(m_nVideoFileDesc == -1)
-		throw Exceptions::V4L2Buffer::DeviceOpen(devname);
-	 
-	// Get device capabilites::
-	struct v4l2_capability sv4l2Capability;
-	ioctl(m_nVideoFileDesc, VIDIOC_QUERYCAP, &sv4l2Capability);
-
-	if(0!=ioctl(m_nVideoFileDesc, VIDIOC_QUERYCAP, &sv4l2Capability))
-		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Query capabilities");
-
-	cerr << "  V4L2Buffer_Base: Device name:"<< sv4l2Capability.name <<endl;
-	cerr << "  V4L2Buffer_Base: (If that was garbled then you've not got the right modules loaded.) "<<endl;
-	cerr << "  V4L2Buffer_Base: Streaming flags: "<< (sv4l2Capability.flags&V4L2_FLAG_STREAMING)<<endl;
-
-	// Change a few of the card's settings to our liking:
-	struct v4l2_control sv4l2Control;
-
-	// Enable "Low Colour Removal"
-	sv4l2Control.id=V4L2_CID_PRIVATE_BASE + 8;   sv4l2Control.value=1;
-	if(ioctl(m_nVideoFileDesc, VIDIOC_S_CTRL, &sv4l2Control))
-		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Enable Low Colour Removal");
-
-	// Disable "Chroma AGC"
-	sv4l2Control.id=V4L2_CID_PRIVATE_BASE + 7;   sv4l2Control.value=0;
-	if(ioctl(m_nVideoFileDesc, VIDIOC_S_CTRL, &sv4l2Control))
-		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Disable Chroma AGC");
-		
-
-	// Disable "Luma Notch Filter";
-	sv4l2Control.id=V4L2_CID_PRIVATE_BASE + 4;   sv4l2Control.value=0;
-	if(ioctl(m_nVideoFileDesc, VIDIOC_S_CTRL, &sv4l2Control))
-		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Disable Luma Notch Filter");
-
-
-	// Enable "Raw TS";
-	//sv4l2Control.id=V4L2_CID_PRIVATE_BASE + 17;   sv4l2Control.value=1;
-	//ssert(!ioctl(m_nVideoFileDesc, VIDIOC_S_CTRL, &sv4l2Control));
-
-	// Get / Set capture format.
-	struct v4l2_format sv4l2Format;
-	sv4l2Format.type=V4L2_BUF_TYPE_CAPTURE;
-
-	if(ioctl(m_nVideoFileDesc, VIDIOC_G_FMT, &sv4l2Format))
-		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Get capture format");
-
-	cerr	<<"  V4L2Buffer_Base: Current capture format: "<<sv4l2Format.fmt.pix.width<<
-			"x"<<sv4l2Format.fmt.pix.height<<
-			"x"<<sv4l2Format.fmt.pix.depth<<
-			"bpp, image size:"<<sv4l2Format.fmt.pix.sizeimage<<endl;
-
-	// ******************************************* CAPTURE FORMAT******
-	sv4l2Format.fmt.pix.width=768;                                
-	sv4l2Format.fmt.pix.depth=8;                                 
-	sv4l2Format.fmt.pix.pixelformat=pixtype;          
-	if(i_am_using_fields)                                      
-	{
-		sv4l2Format.fmt.pix.flags|=V4L2_FMT_FLAG_TOPFIELD;    
-		sv4l2Format.fmt.pix.flags|=V4L2_FMT_FLAG_BOTFIELD;   
-		sv4l2Format.fmt.pix.flags^=(sv4l2Format.fmt.pix.flags&V4L2_FMT_FLAG_INTERLACED);
-		sv4l2Format.fmt.pix.height=576/2;                   
-	};                                                     
-	if(!i_am_using_fields)
-	{
-	  sv4l2Format.fmt.pix.height=576;                     
-	};
-
-
-	 m_sv4l2Buffer = new(struct v4l2_buffer)[num_buffers];
-	 m_pvVideoBuffer = new void*[num_buffers];
-	// ****************************************************************
-
-	if(ioctl(m_nVideoFileDesc, VIDIOC_S_FMT, &sv4l2Format))
-		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Set capture format");
-
-	cerr<<"  V4L2Buffer_Base: New capture format: "<<sv4l2Format.fmt.pix.width<<
-	"x"<<sv4l2Format.fmt.pix.height<<
-	"x"<<sv4l2Format.fmt.pix.depth<<
-	"bpp, image size:"<<sv4l2Format.fmt.pix.sizeimage<<endl;
-	my_image_size.x=sv4l2Format.fmt.pix.width;
-	my_image_size.y=sv4l2Format.fmt.pix.height;
-
-	// Select video input
-	struct v4l2_input sv4l2Input;
-	sv4l2Input.index=input; 
-	if(ioctl(m_nVideoFileDesc, VIDIOC_S_INPUT, &sv4l2Input))
-		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Select composite input");
-
-	// Set up the streaming buffer request
-	struct v4l2_requestbuffers sv4l2RequestBuffers;
-	sv4l2RequestBuffers.count=num_buffers;
-	sv4l2RequestBuffers.type=V4L2_BUF_TYPE_CAPTURE; //|V4L2_BUF_ATTR_DEVICEMEM;
-	cerr<<"  V4L2Buffer_Base: Request buffer of count "<<sv4l2RequestBuffers.count<<" and type "<<sv4l2RequestBuffers.type<<".."<<endl;
-	if(ioctl(m_nVideoFileDesc,VIDIOC_REQBUFS,&sv4l2RequestBuffers))
-		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Request capture buffers");
-	cerr<<"  V4L2Buffer_Base: Granted buffer of count "<<sv4l2RequestBuffers.count<<" and type "<<sv4l2RequestBuffers.type<<".."<<endl;
-
-	// Set up the streaming buffers, and mmap them
-	for(int ii=0;ii<num_buffers;ii++) 
-	{
-		m_sv4l2Buffer[ii].index=ii;
-		m_sv4l2Buffer[ii].type=sv4l2RequestBuffers.type;  
-
-		if(ioctl(m_nVideoFileDesc,VIDIOC_QUERYBUF,&m_sv4l2Buffer[ii]))
-			throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Query streaming buffer");
-			
-		m_pvVideoBuffer[ii]=mmap(0,m_sv4l2Buffer[ii].length,PROT_READ,MAP_SHARED,m_nVideoFileDesc, m_sv4l2Buffer[ii].offset);
-
-		if(ioctl(m_nVideoFileDesc,VIDIOC_QBUF,&m_sv4l2Buffer[ii]))
-			throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Queue streaming buffer");
-			
-	}
-
-	// Begin the data transfer
-	if(ioctl(m_nVideoFileDesc,VIDIOC_STREAMON, &m_sv4l2Buffer[0].type))
-		throw Exceptions::V4L2Buffer::DeviceSetup(devname, "Begin streaming (is device already in use?)");
-		
-}
-
-#else
-
-
 V4L2Buffer_Base::V4L2Buffer_Base(const char *devname, bool fields, V4L2BufferBlockMethod block, int input, int bufs, unsigned long int pixtype)
 {
 	device = devname;
@@ -325,7 +173,6 @@ V4L2Buffer_Base::V4L2Buffer_Base(const char *devname, bool fields, V4L2BufferBlo
 
 }
 
-#endif
 
 V4L2Buffer_Base::~V4L2Buffer_Base()
 {
@@ -348,8 +195,7 @@ void V4L2Buffer_Base::put_frame(V4L2FrameT<unsigned char> *f)
   buffer.type=m_sv4l2Buffer[0].type;
   buffer.index=f->my_index;
 
-  K24(if(ioctl(m_nVideoFileDesc,VIDIOC_QBUF,&buffer)))
-  K26(if(ioctl(m_nVideoFileDesc,VIDIOC_QBUF,f->m_buf)))
+  if(ioctl(m_nVideoFileDesc,VIDIOC_QBUF,f->m_buf))
 		throw Exceptions::V4L2Buffer::PutFrame(device);
 
   delete f->m_buf;
@@ -419,10 +265,7 @@ V4L2FrameT<unsigned char>* V4L2Buffer_Base::get_frame(){
   // Create a new frame with the data
   VideoFrameFlags::FieldType field;
 
-  K24(if(buffer.flags&V4L2_BUF_FLAG_BOTFIELD!=0) field=VideoFrameFlags::Bottom;
-      else if(buffer.flags&V4L2_BUF_FLAG_TOPFIELD!=0) field=VideoFrameFlags::Top; 
-      else field=VideoFrameFlags::Both;)
-  K26(switch(buffer.flags) {
+  switch(buffer.flags) {
       case V4L2_FIELD_NONE:
         field=VideoFrameFlags::Progressive;
         break;
@@ -439,7 +282,7 @@ V4L2FrameT<unsigned char>* V4L2Buffer_Base::get_frame(){
         field=VideoFrameFlags::Unknown;
 	break;
     }
-  )
+  
   frame=new V4L2FrameT<unsigned char>(timer.conv_ntime(buffer.timestamp),my_image_size,buffer.index,(unsigned char *)m_pvVideoBuffer[buffer.index], field);
 
   frame->m_buf = new struct v4l2_buffer;
