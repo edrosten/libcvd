@@ -215,72 +215,10 @@ AC_ARG_WITH(optimize,   [  --with-optimize=flags   compile with optimization fla
 
 if test "$optimize" != no
 then
-	AC_MSG_CHECKING([for best optimize flags])
-	AC_MSG_RESULT([])
-	
 	TEST_AND_SET_CXXFLAG(-O3)
 	if test $ts_success == no
 	then
 		AC_MSG_WARN([I do not know how to switch on optimizing for this compiler])
-	fi
-
-	AC_MSG_CHECKING([CPU type])
-	AC_ARG_WITH(cpu, [  --with-cpu=[type]         Specify pocessor type for optimization selection:
-				X86:
-					  p3 p4 p4_64 xeon pM core2 core2_64 opteron
-					  opteron_64 athlon athlon64 athlon64_64
-				SPARC:
-					  sparc
-				Autodetection works on Linux only.])
-
-	if test "$with_cpu" == ""
-	then 
-		case "$host" in
-			*86*linux*)
-				cpu="`awk '
-		/Pentium III/						{print "p3";exit}
-		/Intel\(R\) Pentium\(R\) 4/			{print "p4";exit}
-		/Intel\(R\) Pentium\(R\) D/			{print "p4";exit}
-		/Intel\(R\) Pentium\(R\) M/			{print "pM";exit}
-		/Intel\(R\) Core\(TM\)2/			{print "core2";exit}
-		/Intel\(R\) Xeon\(TM\)/				{print "xeon";exit}
-		/Intel\(R\) XEON\(TM\)/				{print "xeon";exit}
-		/AMD Athlon\(tm\) 64 Processor/		{print "athlon64";exit}
-		/AMD Athlon\(tm\)/					{print "athlon";exit}
-		/AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
-			;;
-			sparc*)
-				cpu=sparc
-				;;
-		esac
-
-		cpu="${cpu:-unknown}"
-	else
-		cpu="$with_cpu"
-	fi
-
-	AC_MSG_RESULT($cpu)
-
-
-	#Find possible lest of compiler flags
-	#FIXME, only GCC is currently supported
-	cpuoptlist="`$AWK '/^'$cpu'/{$1=""; print}' make/march_flags`"
-
-	for mwhat in -march= -mcpu=
-	do
-		for i in $cpuoptlist
-		do
-			TEST_AND_SET_CXXFLAG($mwhat$i)
-			if test $ts_success == yes
-			then
-				break 2
-			fi
-		done
-	done
-
-	if test $ts_success == no
-	then
-		AC_MSG_WARN([I do not know what the best flags are for this processor ($cpu).])
 	fi
 fi
 OFLAGS="$CXXFLAGS"

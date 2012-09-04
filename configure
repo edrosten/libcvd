@@ -635,7 +635,6 @@ XMKMF
 have_posix_rt
 have_qtbuffer
 have_windows
-have_o2buffer
 have_v4l1buffer
 have_v4l2buffer
 have_dc1394v1
@@ -723,7 +722,6 @@ ac_user_opts='
 enable_option_checking
 with_debug
 with_optimize
-with_cpu
 with_simd
 with_mmx
 with_mmxext
@@ -1415,13 +1413,6 @@ Optional Packages:
   --with-debug=flags      compile with debug support
   --without-optimize      compile without optimizations
   --with-optimize=flags   compile with optimization flags
-  --with-cpu=type         Specify pocessor type for optimization selection:
-				X86:
-					  p3 p4 p4_64 xeon pM core2 core2_64 opteron
-					  opteron_64 athlon athlon64 athlon64_64
-				SPARC:
-					  sparc
-				Autodetection works on Linux only.
   --without-simd          disable SIMD code. Use --without- or --with-
                              to force presence/absence and disable autodetection.
     --with-mmx            force presence or absence of MMX  (x86 only)
@@ -4834,11 +4825,6 @@ fi
 
 if test "$optimize" != no
 then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for best optimize flags" >&5
-$as_echo_n "checking for best optimize flags... " >&6; }
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: " >&5
-$as_echo "" >&6; }
-
 
 	if test "" == ""
 	then
@@ -4884,107 +4870,6 @@ $as_echo "no" >&6; }
 	then
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: I do not know how to switch on optimizing for this compiler" >&5
 $as_echo "$as_me: WARNING: I do not know how to switch on optimizing for this compiler" >&2;}
-	fi
-
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking CPU type" >&5
-$as_echo_n "checking CPU type... " >&6; }
-
-# Check whether --with-cpu was given.
-if test "${with_cpu+set}" = set; then :
-  withval=$with_cpu;
-fi
-
-
-	if test "$with_cpu" == ""
-	then
-		case "$host" in
-			*86*linux*)
-				cpu="`awk '
-		/Pentium III/						{print "p3";exit}
-		/Intel\(R\) Pentium\(R\) 4/			{print "p4";exit}
-		/Intel\(R\) Pentium\(R\) D/			{print "p4";exit}
-		/Intel\(R\) Pentium\(R\) M/			{print "pM";exit}
-		/Intel\(R\) Core\(TM\)2/			{print "core2";exit}
-		/Intel\(R\) Xeon\(TM\)/				{print "xeon";exit}
-		/Intel\(R\) XEON\(TM\)/				{print "xeon";exit}
-		/AMD Athlon\(tm\) 64 Processor/		{print "athlon64";exit}
-		/AMD Athlon\(tm\)/					{print "athlon";exit}
-		/AMD Opteron\(tm\)/					{print "opteron";exit}' /proc/cpuinfo`"
-			;;
-			sparc*)
-				cpu=sparc
-				;;
-		esac
-
-		cpu="${cpu:-unknown}"
-	else
-		cpu="$with_cpu"
-	fi
-
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cpu" >&5
-$as_echo "$cpu" >&6; }
-
-
-	#Find possible lest of compiler flags
-	#FIXME, only GCC is currently supported
-	cpuoptlist="`$AWK '/^'$cpu'/{$1=""; print}' make/march_flags`"
-
-	for mwhat in -march= -mcpu=
-	do
-		for i in $cpuoptlist
-		do
-
-	if test "" == ""
-	then
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if compiler flag $mwhat$i works" >&5
-$as_echo_n "checking if compiler flag $mwhat$i works... " >&6; }
-	else
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking " >&5
-$as_echo_n "checking ... " >&6; }
-	fi
-	save_CXXFLAGS="$CXXFLAGS"
-	CXXFLAGS="$CXXFLAGS $mwhat$i"
-
-
-
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-int main(){}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  cvd_conf_test=1
-else
-  cvd_conf_test=0
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-
-
-
-
-	if test $cvd_conf_test = 1
-	then
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-		ts_success=yes
-	else
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-		CXXFLAGS="$save_CXXFLAGS"
-		ts_success=no
-	fi
-
-			if test $ts_success == yes
-			then
-				break 2
-			fi
-		done
-	done
-
-	if test $ts_success == no
-	then
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: I do not know what the best flags are for this processor ($cpu)." >&5
-$as_echo "$as_me: WARNING: I do not know what the best flags are for this processor ($cpu)." >&2;}
 	fi
 fi
 OFLAGS="$CXXFLAGS"
@@ -6339,44 +6224,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 	fi
 
 		fi
-
-		;;
-	*sgi*)
-		os_all_options="o2buffer"
-
-	if test "$with_o2buffer" != no && test "$have_o2buffer" != yes
-	then
-		if test "$with_o2buffer" == ""
-		then
-			with_o2buffer=yes
-		fi
-
-		save_LIBS="$LIBS"
-		save_CXXFLAGS="$CXXFLAGS"
-		a=
-
-			echo "I hope all SGIs have stuff needed for O2buffer. Disable (--without-o2buffer) if I'm wrong."
-
-
-		if test x$a == x
-		then
-			$as_echo "#define CVD_HAVE_O2BUFFER 1" >>confdefs.h
-
-			have_o2buffer=yes
-
-			options="$options o2buffer"
-
-		else
-			LIBS="$save_LIBS"
-			CXXFLAGS="$save_CXXFLAGS"
-		fi
-	fi
-
-	if test "$have_o2buffer" != yes
-	then
-		:
-
-	fi
 
 		;;
 	*windows*)
