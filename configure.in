@@ -496,49 +496,6 @@ case "$host" in
 									[AC_MSG_RESULT(no); a=1])])
 		fi
 		
-		if test "$cross_compiling" = yes
-		then
-			uname_r= 
-		else
-			uname_r="`uname -r`"
-		fi
-
-		
-		AC_ARG_WITH(linux, [  --with-linux=UNAME      specify the output of uname -r ],[uname_r="$withval"])
-
-		if test "$uname_r" = ""
-		then
-			AC_MSG_WARN([No kernel type specified. Assming 2.6.20])
-			uname_r=2.6.20
-		fi
-		
-
-		AC_MSG_CHECKING([kernel major number])
-		kernel_major=[`echo $uname_r | $AWK -F'[.-]' '{print $1}'`]
-		AC_MSG_RESULT($kernel_major)
-		AC_DEFINE_UNQUOTED(CVD_KERNEL_MAJOR,$kernel_major)
-		
-		AC_MSG_CHECKING([kernel minor number])
-		kernel_minor=[`echo $uname_r | $AWK -F'[.-]' '{print $2}'`]
-		AC_MSG_RESULT($kernel_minor)
-		AC_DEFINE_UNQUOTED(CVD_KERNEL_MINOR,$kernel_minor)
-
-		
-		AC_MSG_CHECKING([kernel release number])
-		kernel_release=[`echo $uname_r | $AWK -F'[.-]' '{print $3}'`]
-		AC_MSG_RESULT($kernel_release)
-		AC_DEFINE_UNQUOTED(CVD_KERNEL_RELEASE,$kernel_release)
-
-
-		if test $kernel_major.$kernel_minor == 2.4
-		then
-			
-			AC_SUBST(have_linux_2_4, yes)
-		elif test $kernel_major.$kernel_minor == 2.6
-		then
-			AC_SUBST(have_linux_2_6, yes)
-		fi
-
 		;;
 	*sgi*)
 		os_all_options="o2buffer"

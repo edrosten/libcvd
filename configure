@@ -636,8 +636,6 @@ have_posix_rt
 have_qtbuffer
 have_windows
 have_o2buffer
-have_linux_2_6
-have_linux_2_4
 have_v4l1buffer
 have_v4l2buffer
 have_dc1394v1
@@ -741,7 +739,6 @@ with_v4l1buffer
 with_v4l2buffer
 with_o2buffer
 with_qtbuffer
-with_linux
 with_posix_rt
 with_videodisplay
 with_pthread
@@ -1440,7 +1437,6 @@ Optional Packages:
   --without-v4l2buffer	  compile without v4l2buffer (Video4Linux2) support (Linux only)
   --without-o2buffer	  compile without sgi video (IRIX only)
   --without-qtbuffer	  compile without quicktime buffer support (MacOSX only)
-  --with-linux=UNAME      specify the output of uname -r
   --without-posix_rt          compile without POSIX-RT (better cvd_timer) support
   --without-videodisplay  compile without videodisplay support
   --without-pthread       compile without PThread support
@@ -6341,72 +6337,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 		:
 
 	fi
-
-		fi
-
-		if test "$cross_compiling" = yes
-		then
-			uname_r=
-		else
-			uname_r="`uname -r`"
-		fi
-
-
-
-# Check whether --with-linux was given.
-if test "${with_linux+set}" = set; then :
-  withval=$with_linux; uname_r="$withval"
-fi
-
-
-		if test "$uname_r" = ""
-		then
-			{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: No kernel type specified. Assming 2.6.20" >&5
-$as_echo "$as_me: WARNING: No kernel type specified. Assming 2.6.20" >&2;}
-			uname_r=2.6.20
-		fi
-
-
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking kernel major number" >&5
-$as_echo_n "checking kernel major number... " >&6; }
-		kernel_major=`echo $uname_r | $AWK -F'[.-]' '{print $1}'`
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $kernel_major" >&5
-$as_echo "$kernel_major" >&6; }
-		cat >>confdefs.h <<_ACEOF
-#define CVD_KERNEL_MAJOR $kernel_major
-_ACEOF
-
-
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking kernel minor number" >&5
-$as_echo_n "checking kernel minor number... " >&6; }
-		kernel_minor=`echo $uname_r | $AWK -F'[.-]' '{print $2}'`
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $kernel_minor" >&5
-$as_echo "$kernel_minor" >&6; }
-		cat >>confdefs.h <<_ACEOF
-#define CVD_KERNEL_MINOR $kernel_minor
-_ACEOF
-
-
-
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking kernel release number" >&5
-$as_echo_n "checking kernel release number... " >&6; }
-		kernel_release=`echo $uname_r | $AWK -F'[.-]' '{print $3}'`
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $kernel_release" >&5
-$as_echo "$kernel_release" >&6; }
-		cat >>confdefs.h <<_ACEOF
-#define CVD_KERNEL_RELEASE $kernel_release
-_ACEOF
-
-
-
-		if test $kernel_major.$kernel_minor == 2.4
-		then
-
-			have_linux_2_4=yes
-
-		elif test $kernel_major.$kernel_minor == 2.6
-		then
-			have_linux_2_6=yes
 
 		fi
 
