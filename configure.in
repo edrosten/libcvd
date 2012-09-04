@@ -1050,10 +1050,10 @@ cvd_src/Linux/v4l1buffer,cvd_src/Linux/videosource_v4l1buffer		 v4l1buffer
 cvd_src/Linux/videosource_nov4l1buffer                               END
 
 
-cvd_src/Linux/v4lbuffer,V4LBUFFER,cvd_src/Linux/videosource_v4lbuffer   v4l2buffer linux_2_6 
+cvd_src/Linux/v4lbuffer,V4LBUFFER,cvd_src/Linux/videosource_v4lbuffer   v4l2buffer 
 cvd_src/Linux/videosource_nov4lbuffer                                   END
 cvd_src/Linux/v4l2buffer	                 	                         v4l2buffer END
-cvd_src/Linux/v4lcontrol						                         v4l2buffer linux_2_6 END
+cvd_src/Linux/v4lcontrol						                         v4l2buffer END
 
 
 cvd_src/IRIX/O2buffer,cvd_src/IRIX/sgi-video	o2buffer END
