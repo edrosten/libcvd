@@ -30,7 +30,6 @@
 #include <cvd/byte.h>
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/internal/load_and_save.h>
-#include <cvd/internal/simple_vector.h>
 
 namespace CVD {
 	namespace BMP {
