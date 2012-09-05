@@ -66,8 +66,8 @@ define([TEST_AND_SET_CXXFLAG],[
 	m4_if([$2],[],[pushdef(prog, [int main(){}])], [pushdef(prog, [$2])])
 
 	m4_if([$4],[run],
-		[AC_RUN_IFELSE([prog], [cvd_conf_test=1],[cvd_conf_test=0], [cvd_conf_test=0])],
-		[AC_COMPILE_IFELSE([prog], [cvd_conf_test=1],[cvd_conf_test=0])]
+		[AC_RUN_IFELSE([AC_LANG_SOURCE([prog])], [cvd_conf_test=1],[cvd_conf_test=0], [cvd_conf_test=0])],
+		[AC_COMPILE_IFELSE([AC_LANG_SOURCE([prog])], [cvd_conf_test=1],[cvd_conf_test=0])]
 	)
 	
 	
@@ -321,7 +321,7 @@ fi
 
 CHECK_FOR_OPTION(inline_asm, [
 	AC_MSG_CHECKING([for inline asm statement])
-	AC_COMPILE_IFELSE([int main() { asm(""); }],
+	AC_COMPILE_IFELSE([AC_LANG_SOURCE([int main() { asm(""); }])],
 		[AC_MSG_RESULT(yes)],
 		[AC_MSG_RESULT(no);a=1])
 ])
@@ -395,10 +395,10 @@ case "$host" in
 
 		CHECK_FOR_OPTION(v4l2buffer,[
 			AC_MSG_CHECKING(for v4l2)
-			AC_COMPILE_IFELSE([	#include <sys/types.h>
+			AC_COMPILE_IFELSE([AC_LANG_SOURCE([	#include <sys/types.h>
 								#include <linux/types.h>
 								#include <linux/videodev2.h>
-								int main(){V4L2_PIX_FMT_GREY;return 0;}], 
+								int main(){V4L2_PIX_FMT_GREY;return 0;}])], 
 								[AC_MSG_RESULT(yes)],
 								[AC_MSG_RESULT(no); a=1])
 			if test x$a = x1
@@ -406,10 +406,10 @@ case "$host" in
 				a=
 
 				AC_MSG_CHECKING(for strange v4l2)
-				AC_COMPILE_IFELSE([	#include <sys/types.h>
+				AC_COMPILE_IFELSE([AC_LANG_SOURCE([	#include <sys/types.h>
 									#include <linux/types.h>
 									#include <videodevx/videodev.h>
-									int main(){V4L2_PIX_FMT_GREY;return 0;}], 
+									int main(){V4L2_PIX_FMT_GREY;return 0;}])], 
 									[AC_MSG_RESULT(yes)],
 									[AC_MSG_RESULT(no); a=1])
 
@@ -428,8 +428,8 @@ case "$host" in
 		else
 			CHECK_FOR_OPTION(v4l1buffer, [
 				AC_MSG_CHECKING(for strange v4l)
-				AC_COMPILE_IFELSE([	#include <videodevx/videodev.h>
-									int main(){VIDEO_PALETTE_GREY;return 0;}], 
+				AC_COMPILE_IFELSE([AC_LANG_SOURCE([	#include <videodevx/videodev.h>
+									int main(){VIDEO_PALETTE_GREY;return 0;}])], 
 									[AC_MSG_RESULT(yes)],
 									[AC_MSG_RESULT(no); a=1])])
 		fi
@@ -447,9 +447,9 @@ then
 	CHECK_FOR_OPTION(qtbuffer,[
 		APPEND(LIBS, [-framework Carbon -framework QuickTime])
 		AC_MSG_CHECKING(Carbon and QuickTime framework)
-		AC_COMPILE_IFELSE([ #include <Carbon/Carbon.h>
+		AC_COMPILE_IFELSE([AC_LANG_SOURCE([ #include <Carbon/Carbon.h>
 							#include <QuickTime/QuickTime.h>
-							int main(){InitCursor();EnterMovies();return 0;}],
+							int main(){InitCursor();EnterMovies();return 0;}])],
 							[AC_MSG_RESULT(yes)], 
 							[AC_MSG_RESULT(no); a=1]) 
 	])
@@ -513,15 +513,15 @@ CHECK_FOR_OPTION(videodisplay,[
 
 CHECK_FOR_OPTION(shared_ptr, [
 	AC_MSG_CHECKING([for shared_ptr])
-	AC_COMPILE_IFELSE([#include <memory>
-	int main(){std::shared_ptr<int> i; return  0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
+	AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <memory>
+	int main(){std::shared_ptr<int> i; return  0;}])], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
 	
 	if test x$a == x1
 	then
 		a=0
 		AC_MSG_CHECKING([for tr1::shared_ptr])
-		AC_COMPILE_IFELSE([#include <tr1/memory>
-		int main(){std::tr1::shared_ptr<int> i; return  0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
+		AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <tr1/memory>
+		int main(){std::tr1::shared_ptr<int> i; return  0;}])], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
 		AC_DEFINE(CVD_INTERNAL_NEED_TR1)
 		APPEND(dodginess_options, tr1_shared_ptr)
 	fi
@@ -530,14 +530,14 @@ CHECK_FOR_OPTION(shared_ptr, [
 
 CHECK_FOR_OPTION(toon, [
 	AC_MSG_CHECKING([for TooN])
-	AC_COMPILE_IFELSE([#include <TooN/TooN.h>
-	int main(){TooN::Vector<2, double> v=TooN::Zeros;return 0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
+	AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <TooN/TooN.h>
+	int main(){TooN::Vector<2, double> v=TooN::Zeros;return 0;}])], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
 
 	if test x$a = x1 
 	then
 		AC_MSG_CHECKING([for old TooN])
-		AC_COMPILE_IFELSE([#include <TooN/TooN.h>
-		int main(){TooN::Vector<2> v;return 0;}], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=2]) 
+		AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <TooN/TooN.h>
+		int main(){TooN::Vector<2> v;return 0;}])], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=2]) 
 
 		if test x$a = x1
 		then
@@ -609,9 +609,9 @@ CHECK_FOR_OPTION(pthread, [
 	APPEND(CXXFLAGS, -pthread)
 	APPEND(LIBS, -pthread)
 	AC_MSG_CHECKING(for working pthreads)
-	AC_COMPILE_IFELSE([#include <pthread.h>
+	AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <pthread.h>
 						void*foo(void*){}
-						int main(){pthread_create(0,0,foo,0);return 0;}],
+						int main(){pthread_create(0,0,foo,0);return 0;}])],
 						[AC_MSG_RESULT(yes)],
 						[AC_MSG_RESULT(no); a=1])
 ], [
@@ -718,13 +718,13 @@ CHECK_FOR_OPTION(ffmpeg, [
 	if test "$enable_gpl" != no && test "$enable_gpl" != ""
 	then
 		AC_MSG_CHECKING([for ffmpeg headers])
-		AC_COMPILE_IFELSE([
+		AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 			#define __STDC_CONSTANT_MACROS
 			#include <libavcodec/avcodec.h>
 			#include <libavformat/avformat.h>
 			#include <libswscale/swscale.h>
 			int main(){}
-		], [ ffmpeg_new_headers=1], [])
+		])], [ ffmpeg_new_headers=1], [])
 
 		if test "$ffmpeg_new_headers" == 1
 		then
@@ -777,8 +777,8 @@ CHECK_FOR_OPTION(glob, [
 	AC_CHECK_FUNC(glob,[], [a=1])
 ],[
 	AC_MSG_CHECKING([for GLOB_BRACE and GLOB_TILDE in glob.h])
-	AC_COMPILE_IFELSE([#include <glob.h>
-	int main(){glob(0, GLOB_BRACE|GLOB_TILDE,0,0);}], 
+	AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <glob.h>
+	int main(){glob(0, GLOB_BRACE|GLOB_TILDE,0,0);}])], 
 						[AC_MSG_RESULT(yes)],
 						[
 						  AC_MSG_RESULT(no)
