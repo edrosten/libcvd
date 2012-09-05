@@ -94,16 +94,16 @@ CVD_OBJS=   \
 			cvd_src/draw.o                                  \
 			cvd_src/yuv422.o                                \
 			cvd_src/yuv420.o                                \
-			pnm_src/pnm_grok.o                              \
-			pnm_src/bmp.o                                   \
-			pnm_src/bmp_read.o                              \
-			pnm_src/bmp_write.o                             \
-			pnm_src/cvdimage.o                              \
-			pnm_src/fits.o                                  \
-			pnm_src/fitswrite.o                             \
-			pnm_src/save_postscript.o                       \
-			pnm_src/text_write.o                            \
-			pnm_src/text.o                                  \
+			cvd_src/image_io/pnm_grok.o                     \
+			cvd_src/image_io/bmp.o                          \
+			cvd_src/image_io/bmp_read.o                     \
+			cvd_src/image_io/bmp_write.o                    \
+			cvd_src/image_io/cvdimage.o                     \
+			cvd_src/image_io/fits.o                         \
+			cvd_src/image_io/fitswrite.o                    \
+			cvd_src/image_io/save_postscript.o              \
+			cvd_src/image_io/text_write.o                   \
+			cvd_src/image_io/text.o                         \
 			cvd_src/fast_corner.o                           \
 			cvd_src/convolution.o                           \
 			cvd_src/nonmax_suppression.o                    \
@@ -145,8 +145,7 @@ endif
 
 OBJS=$(CVD_OBJS)
 
-DEBUG_OBJSA=$(OBJS:cvd_src%=debug/cvd_src%)
-DEBUG_OBJS=$(DEBUG_OBJSA:pnm_src%=debug/pnm_src%)
+DEBUG_OBJS=$(OBJS:cvd_src%=debug/cvd_src%)
 
 sos= $(soname) $(soname1) $(soname2) 
 dsos= $(dsoname) $(dsoname1) $(dsoname2) 
@@ -175,7 +174,7 @@ libcvd_debug.a: $(DEBUG_OBJS)
 	$(RANLIB) libcvd_debug.a
 
 #Automatically deduce the debug directories
-DEBUG_DIRS=$(shell find ???_src -type d -not -name 'CVS' | xargs -n1 -Ix  echo  debug/x )
+DEBUG_DIRS=$(shell find cvd_src -type d | xargs -n1 -Ix echo debug/x)
 
 #This the debug subdir all debug directories, so specifying a dependency on this
 #will ensure that all subdirs get created

@@ -868,130 +868,130 @@ done > config.have_bits
 cat config.have_bits - <<ENDDEPS  | awk -f make/compile_deps.awk > config.dep_tmp
 
 #SIMD dependencies
-cvd_src/i686/yuv411_to_stuff_MMX			inline_asm mmxext 32bit x86
-cvd_src/i686/yuv411_to_stuff_MMX_64			inline_asm mmxext x86
-cvd_src/yuv411_to_stuff					END
+i686/yuv411_to_stuff_MMX                             inline_asm mmxext 32bit x86
+i686/yuv411_to_stuff_MMX_64                          inline_asm mmxext x86
+yuv411_to_stuff                                      END
 
-cvd_src/SSE2/half_sample							sse2
-cvd_src/i686/halfsample,cvd_src/MMX/half_sample		mmx 32bit x86 assembler
-cvd_src/noarch/half_sample	 						END
+SSE2/half_sample                                     sse2
+i686/halfsample,MMX/half_sample                      mmx 32bit x86 assembler
+noarch/half_sample                                   END
 
-cvd_src/i686/rgb_to_gray,cvd_src/i686/convert_rgb_to_y	32bit mmxext x86 assembler
-cvd_src/noarch/convert_rgb_to_y					END
-
-
-cvd_src/i686/convolve_gaussian				sse2
-cvd_src/noarch/convolve_gaussian			END
+i686/rgb_to_gray,i686/convert_rgb_to_y               32bit mmxext x86 assembler
+noarch/convert_rgb_to_y                              END
 
 
-cvd_src/i686/gradient						sse2
-cvd_src/noarch/gradient						END
+i686/convolve_gaussian                               sse2
+noarch/convolve_gaussian                             END
 
 
-cvd_src/i686/yuv420p_to_rgb,cvd_src/i686/yuv420p_to_rgb_runner mmx 32bit x86 assembler
-cvd_src/noarch/yuv420p_to_rgb_runner    END
-
-cvd_src/i686/yuv422_to_rgb,cvd_src/i686/yuv422_to_grey,cvd_src/i686/yuv422_wrapper mmxext 32bit x86 assembler
-cvd_src/noarch/yuv422_wrapper						END
-
-cvd_src/i686/median_3x3						sse2
-cvd_src/noarch/median_3x3					END
+i686/gradient                                        sse2
+noarch/gradient                                      END
 
 
-cvd_src/i686/utility_float					sse
-cvd_src/noarch/utility_float				END
+i686/yuv420p_to_rgb,i686/yuv420p_to_rgb_runner       mmx 32bit x86 assembler
+noarch/yuv420p_to_rgb_runner                         END
 
-cvd_src/i686/utility_byte_differences		mmx
-cvd_src/noarch/utility_byte_differences	END
+i686/yuv422_to_rgb,i686/yuv422_to_grey,i686/yuv422_wrapper     mmxext 32bit x86 assembler
+noarch/yuv422_wrapper                                          END
 
-cvd_src/i686/utility_double_int				sse2
-cvd_src/noarch/utility_double_int			END
+i686/median_3x3                                      sse2
+noarch/median_3x3                                    END
 
-cvd_src/SSE2/two_thirds_sample				sse2
-cvd_src/noarch/two_thirds_sample		    END
+
+i686/utility_float                                   sse
+noarch/utility_float                                 END
+
+i686/utility_byte_differences                        mmx
+noarch/utility_byte_differences                      END
+
+i686/utility_double_int                              sse2
+noarch/utility_double_int                            END
+
+SSE2/two_thirds_sample                               sse2
+noarch/two_thirds_sample                             END
 
 #FAST corner detection specifics
-cvd_src/fast/fast_7_detect,cvd_src/fast/fast_7_score,cvd_src/slower_corner_7   	fast7  END
-cvd_src/fast/fast_8_detect,cvd_src/fast/fast_8_score,cvd_src/slower_corner_8		fast8  END
-cvd_src/fast/fast_9_detect,cvd_src/fast/fast_9_score,cvd_src/fast_corner_9_nonmax		fast9  END
-cvd_src/fast/fast_10_detect,cvd_src/fast/fast_10_score									fast10  END
-cvd_src/fast/fast_11_detect,cvd_src/fast/fast_11_score,cvd_src/slower_corner_11	fast11  END
-cvd_src/fast/fast_12_detect,cvd_src/fast/fast_12_score									fast12  END
+fast/fast_7_detect,fast/fast_7_score,slower_corner_7           fast7  END
+fast/fast_8_detect,fast/fast_8_score,slower_corner_8           fast8  END
+fast/fast_9_detect,fast/fast_9_score,fast_corner_9_nonmax      fast9  END
+fast/fast_10_detect,fast/fast_10_score                         fast10  END
+fast/fast_11_detect,fast/fast_11_score,slower_corner_11        fast11  END
+fast/fast_12_detect,fast/fast_12_score                         fast12  END
 
-cvd_src/SSE2/faster_corner_9				        sse2 ssefast9 fast9
-cvd_src/noarch/slower_corner_9						fast9							END	
+SSE2/faster_corner_9                                 sse2 ssefast9 fast9
+noarch/slower_corner_9                               fast9 END    
 
-cvd_src/SSE2/faster_corner_10						sse2 ssefast10 fast10
-cvd_src/noarch/slower_corner_10						fast10							END
+SSE2/faster_corner_10                                sse2 ssefast10 fast10
+noarch/slower_corner_10                              fast10 END
 
-cvd_src/SSE2/faster_corner_12						sse2 ssefast12 fast12
-cvd_src/noarch/slower_corner_12						fast12							END
+SSE2/faster_corner_12                                sse2 ssefast12 fast12
+noarch/slower_corner_12                              fast12 END
 
 #General OS specific bits
 
-cvd_src/Linux/dvbuffer3_dc1394v2,cvd_src/Linux/dvbuffer,cvd_src/videosource_dvbuffer,DVBUFFER3                          dc1394v2 dc1394v1 dc1394v1v2
-cvd_src/Linux/dvbuffer3_dc1394v2,cvd_src/videosource_dvbuffer,DVBUFFER3                          dc1394v2
-cvd_src/Linux/dvbuffer3_dc1394v1,cvd_src/Linux/dvbuffer,cvd_src/videosource_dvbuffer,DVBUFFER    dc1394v1
-cvd_src/videosource_nodvbuffer                                                   END
+Linux/dvbuffer3_dc1394v2,Linux/dvbuffer,videosource_dvbuffer,DVBUFFER3   dc1394v2 dc1394v1 dc1394v1v2
+Linux/dvbuffer3_dc1394v2,videosource_dvbuffer,DVBUFFER3                  dc1394v2
+Linux/dvbuffer3_dc1394v1,Linux/dvbuffer,videosource_dvbuffer,DVBUFFER    dc1394v1
+videosource_nodvbuffer                                                   END
 
 
-cvd_src/Linux/v4l1buffer,cvd_src/Linux/videosource_v4l1buffer		 v4l1buffer
-cvd_src/Linux/videosource_nov4l1buffer                               END
+Linux/v4l1buffer,Linux/videosource_v4l1buffer        v4l1buffer
+Linux/videosource_nov4l1buffer                       END
 
 
-cvd_src/Linux/v4lbuffer,V4LBUFFER,cvd_src/Linux/videosource_v4lbuffer   v4l2buffer 
-cvd_src/Linux/videosource_nov4lbuffer                                   END
-cvd_src/Linux/v4l2buffer	                 	                         v4l2buffer END
-cvd_src/Linux/v4lcontrol						                         v4l2buffer END
+Linux/v4lbuffer,V4LBUFFER,Linux/videosource_v4lbuffer                    v4l2buffer 
+Linux/videosource_nov4lbuffer                                            END
+Linux/v4l2buffer                                     v4l2buffer END
+Linux/v4lcontrol                                     v4l2buffer END
 
 
-cvd_src/IRIX/O2buffer,cvd_src/IRIX/sgi-video	o2buffer END
+IRIX/O2buffer,IRIX/sgi-video    o2buffer END
 
-cvd_src/OSX/qtbuffer,cvd_src/OSX/videosource_qtbuffer	   qtbuffer
-cvd_src/OSX/videosource_noqtbuffer		                   END 
+OSX/qtbuffer,OSX/videosource_qtbuffer                qtbuffer
+OSX/videosource_noqtbuffer                           END 
 
-nothing			                                        windows
-cvd_src/posix/get_time_of_day_ns						posix_rt
-cvd_src/get_time_of_day_ns								END
+nothing                                              windows
+posix/get_time_of_day_ns                             posix_rt
+get_time_of_day_ns                                   END
 
 #Libraries
-cvd_src/synchronized,cvd_src/eventobject,cvd_src/thread		pthread END
+synchronized,eventobject,thread                      pthread END
 
-cvd_src/posix/sched_yield                       pthread sched_yield
-cvd_src/posix/pthread_yield                     pthread pthread_yield
-cvd_src/posix/pthread_yield_np                  pthread pthread_yield_np
-nothing                                         END
+posix/sched_yield                                    pthread sched_yield
+posix/pthread_yield                                  pthread pthread_yield
+posix/pthread_yield_np                               pthread pthread_yield_np
+nothing                                              END
 
-cvd_src/thread/runnable_batch                   tr1_shared_ptr pthread
-cvd_src/nothread/runnable_batch                 tr1_shared_ptr END
+thread/runnable_batch                                tr1_shared_ptr pthread
+nothread/runnable_batch                              tr1_shared_ptr END
 
-nothing											windows
-cvd_src/noarch/posix_memalign                   memalign
-cvd_src/noarch/default_memalign                 END
+nothing                                              windows
+noarch/posix_memalign                                memalign
+noarch/default_memalign                              END
 
-cvd_src/Win32/glwindow,cvd_src/gltext	windows
-cvd_src/videodisplay,cvd_src/glwindow,cvd_src/gltext         videodisplay END
-pnm_src/jpeg									jpeg END
-pnm_src/tiff,pnm_src/tiffwrite					tiff END
-pnm_src/png										png END
-cvd_src/videofilebuffer,cvd_src/videosource_videofilebuffer,cvd_src/videofilebuffer_exceptions	 oldffmpeg ffmpeg 
-cvd_src/videofilebuffer2,cvd_src/videosource_videofilebuffer,cvd_src/videofilebuffer_exceptions	 ffmpeg 
-cvd_src/videosource_novideofilebuffer           END
+Win32/glwindow,gltext                                windows
+videodisplay,glwindow,gltext                         videodisplay END
+image_io/jpeg                                        jpeg END
+image_io/tiff,image_io/tiffwrite                     tiff END
+image_io/png                                         png END
+videofilebuffer,videosource_videofilebuffer,videofilebuffer_exceptions      oldffmpeg ffmpeg 
+videofilebuffer2,videosource_videofilebuffer,videofilebuffer_exceptions     ffmpeg 
+videosource_novideofilebuffer           END
 
-nothing											windows
-cvd_src/globlist    							glob END
+nothing                                              windows
+globlist                                             glob END
 
-cvd_src/Win32/win32								windows END
+Win32/win32                                          windows END
 
 #Numerics dependencies
-cvd_src/tensor_voting,cvd_src/brezenham			toon END
-cvd_src/draw_toon                       		toon END
+tensor_voting,brezenham                              toon END
+draw_toon                                            toon END
 
 ENDDEPS
 
 #Split in to object files and defines
 #@<:@ is a quadrigraph for [
-AC_SUBST(dep_objects, ["`awk -v ORS=' ' '/@<:@a-z@:>@/{print $0".o"}' config.dep_tmp`"])
+AC_SUBST(dep_objects, ["`awk -v ORS=' ' '/@<:@a-z@:>@/{print "cvd_src/"$0".o"}' config.dep_tmp`"])
 
 for i in `awk '!/@<:@a-z@:>@/{if(/^INTERNAL_/) print "CVD_INTERNAL_HAVE_" substr($0, 10); else print "CVD_HAVE_"$0}' config.dep_tmp`
 do
