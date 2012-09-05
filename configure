@@ -8955,8 +8955,6 @@ Linux/v4l2buffer                                     v4l2buffer END
 Linux/v4lcontrol                                     v4l2buffer END
 
 
-IRIX/O2buffer,IRIX/sgi-video    o2buffer END
-
 OSX/qtbuffer,OSX/videosource_qtbuffer                qtbuffer
 OSX/videosource_noqtbuffer                           END
 
