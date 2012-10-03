@@ -206,7 +206,7 @@ class RawVideoFileBufferPIMPL
 		char buf[1024];
 		av_strerror(e, buf, sizeof(buf)-1);
 		buf[sizeof(buf)-1] = 0;
-		return err(e);
+		return buf;
 
 	}
 
