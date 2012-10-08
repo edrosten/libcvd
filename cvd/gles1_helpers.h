@@ -38,10 +38,10 @@
 
 #ifdef CVD_HAVE_TOON
 #include <TooN/TooN.h>
-#include <cvd/se3.h>
-#include <cvd/so3.h>
-#include <cvd/se2.h>
-#include <cvd/so2.h>
+#include <TooN/se3.h>
+#include <TooN/so3.h>
+#include <TooN/se2.h>
+#include <TooN/so2.h>
 #endif
 
 namespace CVD
