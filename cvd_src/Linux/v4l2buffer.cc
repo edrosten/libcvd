@@ -191,10 +191,6 @@ V4L2Buffer_Base::~V4L2Buffer_Base()
 void V4L2Buffer_Base::put_frame(V4L2FrameT<unsigned char> *f)
 {
   // Requeue
-  struct v4l2_buffer buffer;
-  buffer.type=m_sv4l2Buffer[0].type;
-  buffer.index=f->my_index;
-
   if(ioctl(m_nVideoFileDesc,VIDIOC_QBUF,f->m_buf))
 		throw Exceptions::V4L2Buffer::PutFrame(device);
 

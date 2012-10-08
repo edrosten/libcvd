@@ -209,9 +209,8 @@ template<class C> void play(string s)
 
 int main(int argc, char* argv[])
 {
-	int type =0;
-	
 	int arg=1;
+	int type=1;
 	
 	if(argc-1 >=1)
 	{
@@ -219,11 +218,6 @@ int main(int argc, char* argv[])
 		{
 			arg++;
 			type=1;
-		}
-	    else if(argv[arg] == string("-rgb8"))
-		{
-			arg++;
-			type=2;
 		}
 	}
 
@@ -234,11 +228,9 @@ int main(int argc, char* argv[])
 	}
 	try
 	{
-//		if(type == 1)
-//			play<byte>(argv[arg]);
-//		else if(type == 2)
-//			play<Rgb8>(argv[arg]);
-//		else
+		if(type == 1)
+			play<byte>(argv[arg]);
+		else
 			play<Rgb<byte> >(argv[arg]);
 	}
 	catch(CVD::Exceptions::All& e)
