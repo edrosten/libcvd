@@ -1,7 +1,6 @@
 #include "cvd/config.h"
 #include "cvd/colourspace.h"
 #include "cvd/utility.h"
-#include "cvd/internal/assembly.h"
 
 namespace CVD {
   namespace ColourSpace {
