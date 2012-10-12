@@ -32,12 +32,12 @@ long long get_time_of_day_ns()
 
 	//tempres is in 100ns increments
 	//Convert it to ns
-	tempres *= 100
+	tmpres *= 100
 
 	/*converting file time to unix epoch*/
 	tmpres -= DELTA_EPOCH_IN_MICROSECS * (long long)1000; 
 
-    return tempres;
+    return tmpres;
 }
 
 namespace Internal {
