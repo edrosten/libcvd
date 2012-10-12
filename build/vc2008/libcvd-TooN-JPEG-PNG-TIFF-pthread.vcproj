@@ -167,6 +167,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\cvd_src\image_io\bmp.cxx"
+				>
+			</File>
+			<File
+				RelativePath="..\..\cvd_src\image_io\bmp_read.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\cvd_src\image_io\bmp_write.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\cvd_src\brezenham.cc"
 				>
 			</File>
@@ -184,6 +196,10 @@
 			</File>
 			<File
 				RelativePath="..\..\cvd_src\cvd_timer.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\cvd_src\image_io\cvdimage.cxx"
 				>
 			</File>
 			<File
@@ -219,11 +235,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\cvd_src\image_io\fits.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\cvd_src\image_io\fitswrite.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\cvd_src\gltext.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\cvd_src\image_io.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\cvd_src\image_io\jpeg.cxx"
 				>
 			</File>
 			<File
@@ -235,7 +263,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\cvd_src\thread\runnable_batch.cc"
+				RelativePath="..\..\cvd_src\image_io\png.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\cvd_src\image_io\pnm_grok.cxx"
+				>
+			</File>
+			<File
+				RelativePath="..\..\cvd_src\image_io\save_postscript.cxx"
 				>
 			</File>
 			<File
@@ -263,7 +299,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\cvd_src\image_io\text.cxx"
+				>
+			</File>
+			<File
+				RelativePath="..\..\cvd_src\image_io\text_write.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\cvd_src\thread.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\cvd_src\image_io\tiff.cxx"
+				>
+			</File>
+			<File
+				RelativePath="..\..\cvd_src\image_io\tiffwrite.cc"
 				>
 			</File>
 			<File
@@ -393,62 +445,6 @@
 			<Filter
 				Name="pnm_src"
 				>
-				<File
-					RelativePath="..\..\pnm_src\bmp.cxx"
-					>
-				</File>
-				<File
-					RelativePath="..\..\pnm_src\bmp_read.cc"
-					>
-				</File>
-				<File
-					RelativePath="..\..\pnm_src\bmp_write.cc"
-					>
-				</File>
-				<File
-					RelativePath="..\..\pnm_src\cvdimage.cxx"
-					>
-				</File>
-				<File
-					RelativePath="..\..\pnm_src\fits.cc"
-					>
-				</File>
-				<File
-					RelativePath="..\..\pnm_src\fitswrite.cc"
-					>
-				</File>
-				<File
-					RelativePath="..\..\pnm_src\jpeg.cxx"
-					>
-				</File>
-				<File
-					RelativePath="..\..\pnm_src\png.cc"
-					>
-				</File>
-				<File
-					RelativePath="..\..\pnm_src\pnm_grok.cxx"
-					>
-				</File>
-				<File
-					RelativePath="..\..\pnm_src\save_postscript.cxx"
-					>
-				</File>
-				<File
-					RelativePath="..\..\pnm_src\text.cxx"
-					>
-				</File>
-				<File
-					RelativePath="..\..\pnm_src\text_write.cc"
-					>
-				</File>
-				<File
-					RelativePath="..\..\pnm_src\tiff.cxx"
-					>
-				</File>
-				<File
-					RelativePath="..\..\pnm_src\tiffwrite.cc"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="Win32"
@@ -763,27 +759,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\cvd\se2.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\cvd\se3.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\cvd\serverpushjpegbuffer.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\cvd\serverpushjpegframe.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\cvd\so2.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\cvd\so3.h"
 				>
 			</File>
 			<File
@@ -855,18 +835,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\cvd\wls.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\cvd\wls_c.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\cvd\wls_cholesky.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\cvd\yc.h"
 				>
 			</File>
@@ -875,10 +843,6 @@
 				>
 				<File
 					RelativePath="..\..\cvd\internal\aligned_mem.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\cvd\internal\assembly.h"
 					>
 				</File>
 				<File
@@ -962,7 +926,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\cvd\internal\simple_vector.h"
+					RelativePath="..\..\cvd\internal\shared_ptr.h"
 					>
 				</File>
 				<File
