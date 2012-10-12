@@ -122,7 +122,7 @@ It is released under the LGPL License.
 	- uCLinux: Blackfin  (cross compile)
 	- FreeBSD: x86
 	- OpenBSD: XScale
-	- Win32: Visual Studio 2005 (project file is out of date)
+	- Win32: Visual Studio 2005 (broken project file now removed)
 
 
 \section Compiling
