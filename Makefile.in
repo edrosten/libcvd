@@ -62,7 +62,7 @@ MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
-DEBUGEXTRA=-D_GLIBCXX_DEBUG -DCVD_IMAGE_DEBUG
+DEBUGEXTRA=@STLDEBUG@ -DCVD_IMAGE_DEBUG -DTOON_CHECK_BOUNDS -DTOON_INITIALIZE_NAN
 
 SUBDIRS =
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -151,7 +151,11 @@ sos= $(soname) $(soname1) $(soname2)
 dsos= $(dsoname) $(dsoname1) $(dsoname2) 
 
 
-all: libcvd.a $(soname) progs $(DTARGETS) libcvd_debug.a $(dsoname)
+ifeq (@debug_build@,yes)
+	DTARGETS=libcvd_debug.a $(dsoname)
+endif
+
+all: libcvd.a $(soname) progs $(DTARGETS)
 
 $(soname): $(OBJS)
 	rm -f $(sos)
