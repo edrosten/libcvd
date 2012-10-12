@@ -253,8 +253,8 @@ template <class T> class V4LBuffer : public VideoBuffer<T>, public V4L::RawV4LBu
 			friend class V4LBuffer<T>;
 		};
 
-		V4LBuffer( V4LBuffer& copyof ) {}
-		void operator=( V4LBuffer& copyof ) {}
+		V4LBuffer( V4LBuffer&);
+		void operator=( V4LBuffer&);
 
 };
 
