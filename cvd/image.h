@@ -74,7 +74,7 @@ namespace Exceptions {
 #ifndef DOXYGEN_IGNORE_INTERNAL
 namespace Internal
 {
-	template<class C> class ImagePromise
+	template<class C> struct ImagePromise
 	{};
 };
 #endif
