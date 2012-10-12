@@ -97,9 +97,9 @@ It is released under the LGPL License.
 	- Random numbers
 
 \section Portability
-  LibCVD will compile on any reasonable unixy environment, with a reasonable
-  C++ compiler, with TR1 and GNU Make.  Additionally, libCVD
-  supports both normal and cross compilers.  It is known to work on:
+  LibCVD will compile on Visual Studio and any reasonable unixy environment,
+  with a reasonable C++ compiler, with TR1 and GNU Make.  Additionally, libCVD
+  supports both normal and cross compilers.  Status:
   
   -Well tested (current):
 	- Linux: x86, x86-64
@@ -111,19 +111,22 @@ It is released under the LGPL License.
 		- XCode project provided
 	- Cygwin: x86
 	- MinGW: x86 (native and cross compile)
+	- MinGW: x86_64 (cross compile)
 	- Win32: Visual Studio 2008
+	- Win32: Visual Studio 2010 (via import of the VS 2008 project file)
 
   -Has worked on (current status unknown):
 	- Linux: PPC
 	- Mac OS X: PPC
 	- Solaris: SPARC
-	- IRIX SGI O2: MIPS
 	- Linux: ARM LPC3180, XScale (cross compile)
 	- uCLinux: Blackfin  (cross compile)
 	- FreeBSD: x86
 	- OpenBSD: XScale
+  
+  -No longer supported
+	- IRIX SGI O2: MIPS (configuration hacks removed)
 	- Win32: Visual Studio 2005 (broken project file now removed)
-
 
 \section Compiling
 
