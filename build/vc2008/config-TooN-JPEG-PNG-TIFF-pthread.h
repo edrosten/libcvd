@@ -49,9 +49,6 @@
 #ifndef CVD_DISABLE_TOON
     #define CVD_HAVE_TOON 1
 #endif
-#ifndef CVD_DISABLE_TR1_SHARED_PTR
-    #define CVD_HAVE_TR1_SHARED_PTR 1
-#endif
 #ifndef CVD_DISABLE_VIDEODISPLAY
     #define CVD_HAVE_VIDEODISPLAY 1
 #endif
@@ -59,6 +56,7 @@
     #define CVD_INTERNAL_HAVE_TIFF_ORIENTED 1
 #endif
 #define CVD_INTERNAL_JPEG_BUFFER_SIZE 1
+#define CVD_INTERNAL_NEED_TR1 1
 #define CVD_MAJOR_VERSION 0
 #define CVD_MINOR_VERSION 8
 #endif
