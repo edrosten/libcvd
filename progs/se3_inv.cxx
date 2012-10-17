@@ -19,9 +19,8 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <iostream>
-#include <cvd/se3.h>
+#include <TooN/se3.h>
 
-using namespace CVD;
 using namespace std;
 using namespace TooN;
 

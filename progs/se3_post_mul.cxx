@@ -20,10 +20,9 @@
 */
 #include <iostream>
 #include <cstdlib>
-#include <cvd/se3.h>
+#include <TooN/se3.h>
 
 using namespace std;
-using namespace CVD;
 using namespace TooN;
 
 
