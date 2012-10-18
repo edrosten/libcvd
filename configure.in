@@ -29,7 +29,7 @@ AC_SUBST(minor, $cvd_minor)
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack pthread glob memalign shared_ptr assembler inline_asm posix_rt"
+all_options="pthread videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm posix_rt"
 dodginess_options=
 options=
 simd_all_options=
@@ -216,7 +216,7 @@ fi
 # Position independent code
 #
 # MinGW is always PIC
-if ! echo $host | grep mingw
+if ! echo $host | grep mingw && test "$host_os" != "cygwin"
 then
 	TEST_AND_SET_CXXFLAG(-fPIC)
 	if test $ts_success == no
@@ -485,6 +485,52 @@ CHECK_FOR_OPTION(posix_rt, [
 	AC_CHECK_LIB(rt, clock_getres, [], [a=1])
 ])
 
+
+	
+CHECK_FOR_OPTION(pthread, [
+	
+	if test "$host_os" != cygwin
+	then
+		APPEND(CXXFLAGS, -pthread)
+		APPEND(LIBS, -pthread)
+	else
+		APPEND(LIBS, -lpthread)
+	fi
+	AC_MSG_CHECKING(for working pthreads)
+	AC_RUN_IFELSE([AC_LANG_SOURCE([#include <pthread.h>
+						void*foo(void*){}
+						pthread_t th;
+
+						int main(){pthread_create(&th,NULL,foo,NULL);return 0;}])],
+						[AC_MSG_RESULT(yes)],
+						[AC_MSG_RESULT(no); a=1])
+], [
+	# check for existence of pthread_yield
+	# Mac OS X only has pthread_yield_np
+	a=
+	AC_CHECK_FUNC(sched_yield, AC_SUBST(have_sched_yield, yes), a=sy)
+
+	if test x$a != x
+	then
+		AC_CHECK_FUNC(pthread_yield, AC_SUBST(have_pthread_yield, yes),a=py)
+	fi
+
+
+	if test x$a != x
+	then
+		AC_CHECK_FUNC(pthread_yield_np, AC_SUBST(have_pthread_yield_np, yes),a=pyn)
+	fi
+
+	if test x$a = xpyn
+	then
+		APPEND(dodginess_options, no_pthread_yield)
+		APPEND(dodginess_options, no_sched_yield)
+	elif test x$a = py
+	then
+		APPEND(dodginess_options, no_sched_yield)
+	fi
+])
+
 ################################################################################
 #
 #Check for optional libraries
@@ -626,42 +672,6 @@ CHECK_FOR_OPTION(lapack, [
 	AC_MSG_RESULT()
 	APPEND(LIBS, -lgfortran)
 	AC_CHECK_LIB(lapack, dpotri_, [], [a=1])
-])
-
-CHECK_FOR_OPTION(pthread, [
-	APPEND(CXXFLAGS, -pthread)
-	APPEND(LIBS, -pthread)
-	AC_MSG_CHECKING(for working pthreads)
-	AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <pthread.h>
-						void*foo(void*){}
-						int main(){pthread_create(0,0,foo,0);return 0;}])],
-						[AC_MSG_RESULT(yes)],
-						[AC_MSG_RESULT(no); a=1])
-], [
-	# check for existence of pthread_yield
-	# Mac OS X only has pthread_yield_np
-	a=
-	AC_CHECK_FUNC(sched_yield, AC_SUBST(have_sched_yield, yes), a=sy)
-
-	if test x$a != x
-	then
-		AC_CHECK_FUNC(pthread_yield, AC_SUBST(have_pthread_yield, yes),a=py)
-	fi
-
-
-	if test x$a != x
-	then
-		AC_CHECK_FUNC(pthread_yield_np, AC_SUBST(have_pthread_yield_np, yes),a=pyn)
-	fi
-
-	if test x$a = xpyn
-	then
-		APPEND(dodginess_options, no_pthread_yield)
-		APPEND(dodginess_options, no_sched_yield)
-	elif test x$a = py
-	then
-		APPEND(dodginess_options, no_sched_yield)
-	fi
 ])
 
 
