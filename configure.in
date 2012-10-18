@@ -461,6 +461,10 @@ case "$host" in
 	*windows*)
 		AC_SUBST(have_windows, yes)
 		;;
+	*cygwin*)
+		AC_SUBST(cygwin_hacks,yes)
+		;;
+
 		
 esac
 

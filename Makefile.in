@@ -128,6 +128,18 @@ ifeq (@osx_hacks@,yes)
 	dsoname2=libcvd_debug-@major@.@minor@.dylib
 
 	shared=-dynamiclib
+	install_so=install-libs-so
+	install_so_debug=install-libs-debug-so
+else 
+ifeq (@cygwin_hacks@,yes)
+	dllname=cygcvd.dll
+	dllimportname=libcvd.dll.a
+
+	ddllname=cygcvd_debug.dll
+	ddllimportname=libcvd_debug.dll.a
+
+	install_so=install-libs-dll
+	install_so_debug=install-libs-debug-dll
 else
 	soname=libcvd.so
 	soname1=libcvd.so.@major@
@@ -141,6 +153,9 @@ else
 	set_dsoname=-Wl,-soname,libcvd_debug.so.@major@
 
 	shared=-shared
+	install_so=install-libs-so
+	install_so_debug=install-libs-debug-so
+endif
 endif
 
 OBJS=$(CVD_OBJS)
@@ -152,14 +167,18 @@ dsos= $(dsoname) $(dsoname1) $(dsoname2)
 
 
 ifeq (@debug_build@,yes)
-	DTARGETS=libcvd_debug.a $(dsoname)
+	DTARGETS=libcvd_debug.a $(dsoname) $(ddllname)
 endif
 
-all: libcvd.a $(soname) progs $(DTARGETS)
+all: libcvd.a $(soname) $(dllname) progs $(DTARGETS)
+
+
+cyg%.dll lib%.dll.a: lib%.a
+	$(LD) -shared -o cyg$*.dll -Wl,--out-implib=lib$*.dll.a -Wl,--export-all-symbols  -Wl,--enable-auto-import -Wl,--whole-archive lib$*.a -Wl,--no-whole-archive $(LDFLAGS) $(LOADLIBES)
 
 $(soname): $(OBJS)
 	rm -f $(sos)
-	$(LD) $(shared) -o $(soname2) $(OBJS) $(LDFLAGS) $(LOADLIBES) $(sed_soname)
+	$(LD) $(shared) -o $(soname2) $(OBJS) $(LDFLAGS) $(LOADLIBES) $(set_soname)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
@@ -234,6 +253,29 @@ install-headers:
 	mkdir -p $(DESTDIR)$(includedir)
 	cp -r cvd $(DESTDIR)$(includedir)
 
+
+
+
+
+
+install-libs-dll:$(dllname) $(dllimportname)
+	mkdir -p $(DESTDIR)$(bindir)
+	cp $(dllname) $(DESTDIR)$(bindir)
+	mkdir -p $(DESTDIR)$(libdir)
+	cp $(dllimportname) $(DESTDIR)$(libdir)
+
+install-libs-debug-dll:$(ddllname) $(ddllimportname)
+	mkdir -p $(DESTDIR)$(bindir)
+	cp $(ddllname) $(DESTDIR)$(bindir)
+	mkdir -p $(DESTDIR)$(libdir)
+	cp $(ddllimportname) $(DESTDIR)$(libdir)
+
+
+
+
+
+
+
 install-libs-so:$(soname)
 	mkdir -p $(DESTDIR)$(libdir)
 	rm -f  $(DESTDIR)$(libdir)/$(soname2) $(DESTDIR)$(libdir)/$(soname1) $(DESTDIR)$(libdir)/$(soname)
@@ -241,23 +283,34 @@ install-libs-so:$(soname)
 	ln -s  $(libdir)/$(soname2) $(DESTDIR)$(libdir)/$(soname1)
 	ln -s  $(libdir)/$(soname1) $(DESTDIR)$(libdir)/$(soname)
 
-install-libs-a:libcvd.a
-	mkdir -p $(DESTDIR)$(libdir)
-	cp libcvd.a $(DESTDIR)$(libdir)
-
-install-libs:install-libs-so install-libs-a
-
-install-libs-debug:$(dsoname) libcvd_debug.a
-	mkdir -p $(DESTDIR)$(libdir)
+install-libs-so-debug:$(dsoname) 
 	rm -f  $(DESTDIR)$(libdir)/$(dsoname2) $(DESTDIR)$(libdir)/$(dsoname1) $(DESTDIR)$(libdir)/$(dsoname)
 	cp $(dsoname2) $(DESTDIR)$(libdir)
 	ln -s  $(libdir)/$(dsoname2) $(DESTDIR)$(libdir)/$(dsoname1)
 	ln -s  $(libdir)/$(dsoname1) $(DESTDIR)$(libdir)/$(dsoname)
+
+
+
+
+
+
+install-libs-a:libcvd.a
+	mkdir -p $(DESTDIR)$(libdir)
+	cp libcvd.a $(DESTDIR)$(libdir)
+
+install-libs-debug-a:libcvd_debug.a
+	mkdir -p $(DESTDIR)$(libdir)
 	cp libcvd_debug.a $(DESTDIR)$(libdir)
 
 
+
+
+
+install-libs:$(install_so) install-libs-a
+install-libs-debug:$(install_so_debug) install-libs-debug-a
+
 clean:
-	/bin/rm -f tmp libcvd.a $(sos) libcvd_debug.a $(dsos)
+	/bin/rm -f tmp libcvd.a $(sos) libcvd_debug.a $(dsos) $(dllname) $(ddllname) $(dllimportname) $(ddllimportname)
 	find . -name '*.o' | xargs rm -f
 	find progs/ -perm +0100 -type f | xargs rm -f
 	rm -rf html man

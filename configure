@@ -634,6 +634,7 @@ have_sched_yield
 have_pthread
 have_posix_rt
 have_qtbuffer
+cygwin_hacks
 have_windows
 have_v4l1buffer
 have_v4l2buffer
@@ -6266,6 +6267,11 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 		have_windows=yes
 
 		;;
+	*cygwin*)
+		cygwin_hacks=yes
+
+		;;
+
 
 esac
 
