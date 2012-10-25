@@ -283,7 +283,7 @@ install-libs-so:$(soname)
 	ln -s  $(libdir)/$(soname2) $(DESTDIR)$(libdir)/$(soname1)
 	ln -s  $(libdir)/$(soname1) $(DESTDIR)$(libdir)/$(soname)
 
-install-libs-so-debug:$(dsoname) 
+install-libs-debug-so:$(dsoname) 
 	rm -f  $(DESTDIR)$(libdir)/$(dsoname2) $(DESTDIR)$(libdir)/$(dsoname1) $(DESTDIR)$(libdir)/$(dsoname)
 	cp $(dsoname2) $(DESTDIR)$(libdir)
 	ln -s  $(libdir)/$(dsoname2) $(DESTDIR)$(libdir)/$(dsoname1)
