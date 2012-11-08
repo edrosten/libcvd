@@ -210,7 +210,7 @@ template<class C> void play(string s)
 int main(int argc, char* argv[])
 {
 	int arg=1;
-	int type=1;
+	int type=0;
 	
 	if(argc-1 >=1)
 	{
