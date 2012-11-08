@@ -48,7 +48,7 @@ namespace CVD
 				double scale = exp(-(arclen * arclen + ratio * k*k));
 				Vector<2> d = rot(2*theta) * g;
 
-				return  make_pair(g.as_col() * g.as_row(), scale);
+				return  make_pair(d.as_col() * d.as_row(), scale);
 			}
 		}
 		
