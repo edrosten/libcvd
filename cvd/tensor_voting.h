@@ -103,7 +103,6 @@ namespace CVD
 			kernels.push_back(TensorVoting::compute_a_tensor_kernel(kernel_radius, cutoff, angle, sigma, ratio, field.row_stride()));
 		}
 		
-		
 		for(int y= kernel_radius; y < field.size().y - kernel_radius; y++)
 			for(int x= kernel_radius; x < field.size().x - kernel_radius; x++)
 			{
@@ -174,6 +173,7 @@ namespace CVD
 		using std::pair;
 		using std::make_pair;
 		using std::vector;
+		using TensorVoting::TV_coord;
 
 		Matrix<2> zero(TooN::Zeros);
 		Image<Matrix<2> > ffield(image.size(), zero);
@@ -183,8 +183,8 @@ namespace CVD
 		
 		//In much the same way as dense_tensor_vote_gradients, build up the kernel.
 		int kernel_radius =  (int)ceil(sigma * sqrt(-log(cutoff)));
-		vector<vector<pair<int, Matrix<2> > > > matrix_kernels;
-		for(unsigned int i=0; i < num_divs; i++)
+		vector<vector<pair<TV_coord, Matrix<2> > > > matrix_kernels;
+		for(int i=0; i < num_divs; i++)
 		{
 			double angle =  M_PI * i / num_divs;
 			matrix_kernels.push_back(TensorVoting::compute_a_tensor_kernel(kernel_radius, cutoff, angle, sigma, ratio, field.row_stride()));
@@ -202,7 +202,7 @@ namespace CVD
 
 			for(unsigned int j=0; j < matrix_kernels[i].size(); j++)
 			{
-				off[j] = matrix_kernels[i][j].first;
+				off[j] = matrix_kernels[i][j].first.o;
 				Matrix<2>& m = matrix_kernels[i][j].second;
 				val.data()[j] = _mm_setr_ps(m[0][0], m[0][1], m[1][0], m[1][1]);
 			}
@@ -211,6 +211,7 @@ namespace CVD
 			kernel_values.push_back(val);
 		}
 
+		#pragma omp parallel for
 		for(int y= kernel_radius; y < field.size().y - kernel_radius; y++)
 			for(int x= kernel_radius; x < field.size().x - kernel_radius; x++)
 			{
