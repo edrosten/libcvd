@@ -173,7 +173,7 @@ VideoFrame<T>* DeinterlaceBuffer<T>::get_frame()
 	
 	// If we're giving the second frame of a pair, make its time half-way to the next frame
 	if(!m_loadnewframe)
-		time += frame_rate(); 
+		time += 0.5/frame_rate(); 
 	
 	Image<T> im(size());
 	DeinterlaceFrame<T>* frame = new DeinterlaceFrame<T>(time, im);
