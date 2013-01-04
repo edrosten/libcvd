@@ -8,34 +8,34 @@ namespace CVD
 class RunnableBatch::RunMessageInThread: public Thread
 {
 	public:
-		RunMessageInThread(MessageQueue<CVD::tr1::shared_ptr<Runnable> >* queue);
+		RunMessageInThread(MessageQueue<CVD::STD::shared_ptr<Runnable> >* queue);
 		virtual void run();
 
 	private:
-		MessageQueue<CVD::tr1::shared_ptr<Runnable> >* q;
+		MessageQueue<CVD::STD::shared_ptr<Runnable> >* q;
 };
 
 
-RunnableBatch::RunMessageInThread::RunMessageInThread(MessageQueue<std::tr1::shared_ptr<Runnable> >* queue)
+RunnableBatch::RunMessageInThread::RunMessageInThread(MessageQueue<CVD::STD::shared_ptr<Runnable> >* queue)
 :q(queue)
 {}
 
 
 void RunnableBatch::RunMessageInThread::run()
 {
-	std::tr1::shared_ptr<Runnable> r;
+	CVD::STD::shared_ptr<Runnable> r;
 
 	while( (r = q->read()).get() != NULL )
 		r->run();
 }
 
 RunnableBatch::RunnableBatch(unsigned int p)
-:joined(0),parallelism(p),queue(new MessageQueue<std::tr1::shared_ptr<Runnable> >())
+    :joined(0),parallelism(p),queue(new MessageQueue<CVD::STD::shared_ptr<Runnable> >())
 {
 	//Create and start threads
 	for(unsigned int i=0; i < parallelism; i++)
 	{
-		threads.push_back(std::tr1::shared_ptr<RunMessageInThread>(new RunMessageInThread(queue.get())));
+		threads.push_back(CVD::STD::shared_ptr<RunMessageInThread>(new RunMessageInThread(queue.get())));
 		threads.back()->start();
 	}
 }
@@ -46,7 +46,7 @@ void RunnableBatch::join()
 	{
 		//Send just enough termination messages
 		for(unsigned int i=0; i < threads.size(); i++)
-			queue->write(std::tr1::shared_ptr<Runnable>() );
+			queue->write(CVD::STD::shared_ptr<Runnable>() );
 		
 
 		//Wait for all threads to complete. This will occur when
@@ -58,7 +58,7 @@ void RunnableBatch::join()
 	}
 }
 
-void RunnableBatch::schedule(std::tr1::shared_ptr<Runnable> r)
+void RunnableBatch::schedule(CVD::STD::shared_ptr<Runnable> r)
 {
 	if(parallelism > 0)	
 		queue->write(r);

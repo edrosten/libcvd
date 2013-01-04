@@ -3,7 +3,7 @@
 
 #include "cvd/config.h"
 
-#ifdef CVD_INTERNAL_NEED_TR1 && !(defined WIN32 && !defined __MINGW32__)
+#if (defined CVD_INTERNAL_NEED_TR1) && !(defined WIN32 && !defined __MINGW32__)
 	#include <tr1/memory>
 	namespace CVD{
 		namespace STD{
