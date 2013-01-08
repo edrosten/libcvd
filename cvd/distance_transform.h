@@ -10,22 +10,29 @@
 #include <algorithm>
 #include <cmath>
 
-namespace Granta {
-
-	using namespace CVD;
-	using namespace std;
+namespace CVD {
 
 
 	template <class Precision = double>
 		class DistanceTransformEuclidean {
+			
+			// Implements
+			// Distance Transforms of Sampled Functions
+			//   Pedro F. Felzenszwalb Daniel P. Huttenlocher
+
+
+
 			public:
-				DistanceTransformEuclidean() : sz(ImageRef(-1,-1)) {}
+				DistanceTransformEuclidean() 
+				:sz(ImageRef(-1,-1)),
+				 big_number(1e20) //Hmm, why doesn't HUGE_VAL work?
+				 {}
 
 			private:
 				inline void transform_row(const int n) {
 					v[0] = 0; //std::numeric_limits<Precision>::infinity();
-					z[0] = -HUGE_VAL; //std::numeric_limits<Precision>::infinity();
-					z[1] = +HUGE_VAL; // std::numeric_limits<Precision>::infinity();
+					z[0] = -big_number; //std::numeric_limits<Precision>::infinity();
+					z[1] = +big_number; // std::numeric_limits<Precision>::infinity();
 					int k = 0;
 					for (int q = 1; q < n; q++) {
 						Precision s = ((f[q]+(q*q))-(f[v[k]]+(v[k]*v[k])))/(2*q-2*v[k]);
@@ -36,7 +43,7 @@ namespace Granta {
 						k++;
 						v[k] = q;
 						z[k] = s;
-						z[k+1] = +HUGE_VAL; //std::numeric_limits<Precision>::infinity();
+						z[k+1] = +big_number; //std::numeric_limits<Precision>::infinity();
 					}
 					k = 0;
 					for (int q = 0; q < n; q++) {
@@ -49,7 +56,7 @@ namespace Granta {
 					}
 				}
 
-				void transform_image(Image <Precision> &DT) {
+				void transform_image(SubImage<Precision> &DT) {
 					const ImageRef img_sz(DT.size());
 					for (int x = 0; x < img_sz.x; x++) {
 						for (int y = 0; y < img_sz.y; y++) {
@@ -148,51 +155,75 @@ namespace Granta {
 									out[y][x] = 0;
 								}
 								else {
-									out[y][x] = HUGE_VAL;
+									out[y][x] = big_number;
 								}
 							}
 						}
 					}
 
+
+				
+
 			public:
 				template <class T, class Q>
-					void transform_ADT(const Image <T> &feature, Image <Precision> &DT, Image <ImageRef> &ADT, const Q onval) {
-						if(feature.size() != DT.size())
-							throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
-							
-						if(feature.size() != ADT.size())
-							throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
+				void transform_ADT(const Image <T> &feature, Image <Precision> &DT, Image <ImageRef> &ADT, const Q onval) {
+					if(feature.size() != DT.size())
+						throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
+						
+					if(feature.size() != ADT.size())
+						throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
 
-						resize(feature.size());
-						find_onvals(feature, onval, DT);
-						transform_image_with_ADT(feature, DT, ADT, onval);
-						for (int y = 0; y < DT.size().y; y++) {
-							for (int x = 0; x < DT.size().x; x++) {
-								DT[y][x] = sqrt(DT[y][x]);
-							}
+					resize(feature.size());
+					find_onvals(feature, onval, DT);
+					transform_image_with_ADT(feature, DT, ADT, onval);
+					for (int y = 0; y < DT.size().y; y++) {
+						for (int x = 0; x < DT.size().x; x++) {
+							DT[y][x] = sqrt(DT[y][x]);
 						}
 					}
+				}
 
-				template <class T, class Q>
-					void transform(const Image<T> &feature, const Q onval, Image <Precision> &out) {
-
-						if(feature.size() == out.size())
-							throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
-							
-						resize(feature.size());
-						//DistanceTransformPreProcess<T, Precision> preprocess;
-						//preprocess(feature, onval, out);
-						find_onvals(feature, onval, out);
-						transform_image(out);
-						for (int y = 0; y < out.size().y; y++) {
-							for (int x = 0; x < out.size().x; x++) {
-								out[y][x] = sqrt(out[y][x]);
-								//cout << out[y][x] << ",";
-							}
+				void transform(SubImage<Precision> &out) {
+					resize(out.size());
+					//DistanceTransformPreProcess<T, Precision> preprocess;
+					//preprocess(feature, onval, out);
+					transform_image(out);
+					for (int y = 0; y < out.size().y; y++) {
+						for (int x = 0; x < out.size().x; x++) {
+							out[y][x] = sqrt(out[y][x]);
+							//cout << out[y][x] << ",";
 						}
 					}
+				}
+
+
+				template<class C>
+				struct NotZero
+				{
+					NotZero(const SubImage<C>& im_)
+					:im(im_)
+					{}
+
+					const SubImage<C>& im;
+					bool operator()(const ImageRef& i) const
+					{
+						return im[i] != 0;
+					}
+				};
+				
+				template<class Out, class Functor>
+				void apply_functor(SubImage<Out>& out, const Functor& f)
+				{
+					for (int y = 0; y < out.size().y; y++)
+						for (int x = 0; x < out.size().x; x++)
+							if (f(ImageRef(x, y)))
+								out[y][x] = 0;
+							else 
+								out[y][x] = big_number;
+				}
 
 			private:
+				double big_number;
 				ImageRef sz;
 				std::vector <Precision> d;
 				std::vector <int> v;
@@ -201,10 +232,15 @@ namespace Granta {
 				std::vector <Precision> pos;
 		};
 
+		
+	
 	template <class T, class Q>
-		void euclidean_distance_transform(const Image<T> &in, const Image<Q> &out) {
+		void euclidean_distance_transform(const Image<T> &in, SubImage<Q> &out) {
+			if(in.size() != out.size())
+				throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
 			DistanceTransformEuclidean<Q> dt;
-			dt.transform(in, out);
+			dt.apply_functor(out,  typename DistanceTransformEuclidean<Q>::template NotZero<T>(in));
+			dt.transform(out);
 		}
 };
 
