@@ -223,8 +223,8 @@ namespace CVD {
 				}
 
 			private:
-				double big_number;
 				ImageRef sz;
+				double big_number;
 				std::vector <Precision> d;
 				std::vector <int> v;
 				std::vector <Precision> z;
@@ -235,13 +235,53 @@ namespace CVD {
 		
 	
 	template <class T, class Q>
-		void euclidean_distance_transform(const Image<T> &in, SubImage<Q> &out) {
-			if(in.size() != out.size())
-				throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
-			DistanceTransformEuclidean<Q> dt;
-			dt.apply_functor(out,  typename DistanceTransformEuclidean<Q>::template NotZero<T>(in));
-			dt.transform(out);
-		}
-};
+	///Compute Euclidean distance transform using the Felzenszwalb & Huttenlocher algorithm.
+	///@ingroup gVision
+	///@param in input image: thresholded so anything &gt; 0 is on the object
+	///@param out output image is euclidean distance of input image.
+	void euclidean_distance_transform(const SubImage<T> &in, SubImage<Q> &out) {
+		if(in.size() != out.size())
+			throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
+		DistanceTransformEuclidean<Q> dt;
+		dt.apply_functor(out,  typename DistanceTransformEuclidean<Q>::template NotZero<T>(in));
+		dt.transform(out);
+	}
 
+	#ifndef DOXYGEN_IGNORE_INTERNAL
+		namespace Internal
+		{
+			template<class C>
+			class DoDistanceTransform{};
+
+			template<class T> struct ImagePromise<DoDistanceTransform<T> >
+			{
+				ImagePromise(const SubImage<T>&in_)
+				:in(in_){}
+
+				const SubImage<T>& in;
+
+				template<class C> void execute(Image<C>& im)
+				{
+					im.resize(in.size());
+					euclidean_distance_transform(in, im);
+				}
+			};	
+		};	
+			
+		template <class T>
+		Internal::ImagePromise<Internal::DoDistanceTransform<T> > euclidean_distance_transform(const SubImage<T> &in)
+		{
+			using namespace Internal;
+			return ImagePromise<DoDistanceTransform<T> >(in);
+		}
+	#else
+
+		///Compute Euclidean distance transform using the Felzenszwalb & Huttenlocher algorithm.
+		///@ingroup gVision
+		///@param in input image: thresholded so anything &gt; 0 is on the object
+		///@returns output image is euclidean distance of input image.
+		template <class T>
+		Image euclidean_distance_transform(const SubImage<T> &in);
+	#endif
+};
 #endif
