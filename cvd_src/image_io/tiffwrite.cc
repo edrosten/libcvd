@@ -207,7 +207,7 @@ void TIFFWritePimpl::write_raw_pixel_line(const bool* data)
 	for(int i=0; i < my_size.x  ;i++)
 		bool_rowbuf[i/8] |=  (data[i] & 1) << (7-i%8);
 
-	if(TIFFWriteEncodedStrip(tif, row, &bool_rowbuf[0], strip_size) == -1)
+	if(TIFFWriteScanline(tif, &bool_rowbuf[0], row) == -1)
 		throw WriteError(error_msg);
 
 	
@@ -255,6 +255,7 @@ TIFFWritePimpl::TIFFWritePimpl(ostream& os, ImageRef s, const string& t)
 		TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
 		TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 1);
 		TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 1);
+		TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, my_size.y);
 		bool_rowbuf.resize((my_size.x + 7)/8);
 	}
 	else if(t == "unsigned char")
