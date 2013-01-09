@@ -29,7 +29,6 @@ namespace CVD {
       For each pixel location, the bin id of its pixel's discretized direction is stored in bins[y][x].
       Additionally, the magnitude is stored in mags[y][x] for the non-maximal suppression step.
      */
-    cvd_timer timer;
     for(int y=1; y < im.size().y-1; y++) {
       for(int x=1; x < im.size().x-1; x++) {
         const double xgrad = ((out[y-1][x-1] + 2 * out[y-1][x] + out[y-1][x+1]) -
@@ -60,7 +59,6 @@ namespace CVD {
      */
     std::queue<ImageRef> edge_locations;
 
-    timer.reset();
     /* Perform non-maximal suppression along the gradient direction and also perform
        hysterisis thresholding. */
     for(int y=2; y < im.size().y-2; y++) {
@@ -123,7 +121,6 @@ namespace CVD {
     }
     //cout << "total time hysteris: " << timer.get_time() << endl;
 
-    timer.reset();
     /* While there are still unvisited accepted (strong) edge locations... */
     while (edge_locations.size() > 0) {
       /* Pop the next strong edge. */
@@ -201,7 +198,6 @@ namespace CVD {
       For each pixel location, the bin id of its pixel's discretized direction is stored in bins[y][x].
       Additionally, the magnitude is stored in mags[y][x] for the non-maximal suppression step.
      */
-    cvd_timer timer;
     for(int y=1; y < im.size().y-1; y++) {
       for(int x=1; x < im.size().x-1; x++) {
         const double ygrad = ((out[y-1][x-1] + 2 * out[y-1][x] + out[y-1][x+1]) -
@@ -250,7 +246,6 @@ namespace CVD {
      */
     std::queue<ImageRef> edge_locations;
 
-    timer.reset();
 
     for(int y=2; y < im.size().y-2; y++) {
       out[y][0] = 0;
@@ -327,7 +322,6 @@ namespace CVD {
     }
     //cout << "total time hysteris: " << timer.get_time() << endl;
 
-    timer.reset();
     /* While there are still unvisited accepted (strong) edge locations... */
     while (edge_locations.size() > 0) {
       /* Pop the next strong edge. */
@@ -390,7 +384,6 @@ namespace CVD {
   template <class T>
   void compute_gradient_direction_at(const BasicImage <T> &in, const BasicImage <T> &mask, const double threshold,
                                      BasicImage <T> &grad_dir_map) {
-    cvd_timer timer;
     zero_border(grad_dir_map);
     for(int y=1; y < in.size().y-1; y++) {
       for(int x=1; x < in.size().x-1; x++) {
