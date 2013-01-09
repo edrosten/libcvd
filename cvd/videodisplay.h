@@ -86,7 +86,15 @@ namespace CVD {
 	/// @ingroup gGL
 	class VideoDisplay
 	{
+		struct DoNotMapStruct
+		{
+			DoNotMapStruct(){}
+		};
+
 		public:
+			
+			static const DoNotMapStruct DoNotMap;
+
 			/// Construct (and display) a display window
 			/// @param left The local GL co-ordinate of the left of the window
 			/// @param top The local GL co-ordinate of the top of the window
@@ -94,9 +102,15 @@ namespace CVD {
 			/// @param bottom The local GL co-ordinate of bottom of the window
 			/// @param scale The number of image pixels per GL unit (default 1:1)
 			/// @param visualAttr The attributes passed to glXChooseVisual
-			VideoDisplay(double left, double top, double right, double bottom, double scale=1, int* visualAttr = defAttr);
+			/// @param map Whether or not to map the window
+			VideoDisplay(double left, double top, double right, double bottom, double scale=1, int* visualAttr = defAttr, bool map=true);
 
 
+			/// Construct (and display) a display window
+			/// @param size The GL co-ordinate window goes from (0,0) to (size.x, size.y)
+			/// @param map Whether or not to map the window
+			/// @param visualAttr The attributes passed to glXChooseVisual
+			VideoDisplay(ImageRef size, const DoNotMapStruct&,  int* visualAttr = defAttr);
 
 			/// Construct (and display) a display window
 			/// @param size The GL co-ordinate window goes from (0,0) to (size.x, size.y)
@@ -209,7 +223,7 @@ namespace CVD {
 			int operator = ( VideoDisplay& copyof );
 
 
-			void init(double, double, double, double, double, int* visualAttr);
+			void init(double, double, double, double, double, int* visualAttr, bool);
 	};
    
 } // CVD
