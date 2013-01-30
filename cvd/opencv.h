@@ -13,19 +13,19 @@ namespace CVD {
 		
 		template<class C> struct opencv_traits
 		{
-			static const int depth = cv::DataDepth<T>::value;
+			static const int depth = cv::DataDepth<C>::value;
 			static const int channels=1;
 		};
 
-		template<class C> struct opencv_traits<Rgb<C>>: public opencv_traits<C>
+		template<class C> struct opencv_traits<Rgb<C> >: public opencv_traits<C>
 		{
 			static const int channels=3;
-		}
+		};
 
-		template<class C> struct opencv_traits<Rgba<C>>: public opencv_traits<C>
+		template<class C> struct opencv_traits<Rgba<C> >: public opencv_traits<C>
 		{
 			static const int channels=4;
-		}
+		};
 
 		template<class C> struct opencv_type
 		{	
@@ -35,16 +35,13 @@ namespace CVD {
 
 
   template <class T>
-  cv::Mat to_opencv(const CVD::BasicImage<T> &img) {
-    return cv::Mat(img.size().x, img.size().y, Internal::opencv_type<T>::type, (void*)img.data(), img.row_stride() * sizeof(T));
+  cv::Mat toMat(const CVD::SubImage<T> &img) {
+    return cv::Mat(img.size().y, img.size().x, Internal::opencv_type<T>::type, (void*)img.data(), img.row_stride() * sizeof(T));
   }
 
   template <class T>
-  void equalizeHist(const CVD::BasicImage<T> &in, CVD::BasicImage<T> &out) {
-    cv::Mat in_(to_opencv(in));
-    cv::Mat out_(to_opencv(out));
-    equalizeHist(in_, out_);
+  void equalizeHist(const CVD::SubImage<T> &in, CVD::SubImage<T> &out) {
+    equalizeHist(toMat(in), toMat(out));
   }
-
 }
 #endif
