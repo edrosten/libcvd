@@ -373,4 +373,11 @@ printlibs:
 	@echo $(LOADLIBES)
 
 
+regressions/%.test: regressions/%.cc
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) $< -o $@ -lcvd -O3
+
+regressions/%.out: regressions/%.test
+	./$<  && touch $@
+
+
 include .deps
