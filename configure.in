@@ -767,7 +767,7 @@ CHECK_FOR_OPTION(ffmpeg, [
 		then
 
 			AC_CHECK_LIB(avutil, main, [], [a=1])
-			AC_CHECK_LIB(avformat, av_open_input_file, [], [a=1])
+			AC_CHECK_LIB(avformat, avformat_open_input, [], [a=1])
 			AC_CHECK_LIB(avformat, av_read_frame, [ffmpeg_recent=yes], [a=1]) #only in >= 0.4.9
 			AC_CHECK_LIB(avcodec, avcodec_open, [], [a=1])
 			AC_CHECK_LIB(swscale, sws_getContext, [], [a=1])

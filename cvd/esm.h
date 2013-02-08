@@ -65,7 +65,7 @@ struct ESMResult {
 };
 
 inline std::ostream & operator<<(std::ostream & out, const ESMResult & r ){
-    out << r.error << "\t" << r.pixels << "\t" << r.RMSE() << "\t" << "\t" << r.delta << "\t" << r.iterations;
+    out << r.error << "\t" << r.pixels << "\t" << r.RMSE() << "\t" << r.delta << "\t" << r.iterations;
     return out;
 }
 
@@ -468,7 +468,7 @@ public:
     }
 
     const ESMResult & optimize( const SubImage<IMAGE> & from, const SubImage<IMAGE> & to ){
-        Image<GRADIENT> fromGradient = Internal::gradient<IMAGE, GRADIENT>(from);
+        Image<GRADIENT> fromGradient = Internal::gradient<GRADIENT>(from);
         return optimize( from, fromGradient, to );
     }
 
@@ -675,7 +675,7 @@ public:
         }
         
         template <typename TRANSFORM, typename APPEARANCE, typename IMAGE, typename GRADIENT>
-        inline ESMResult esm_opt( TRANSFORM & T, APPEARANCE & A, const SubImage<IMAGE> & templateImage, const SubImage<GRADIENT> & templateGradient, const SubImage<IMAGE> & target, const int max_iterations = 40, const double min_delta = 1e-8, const double max_RMSE = 1.0 ){
+        inline ESMResult esm_opt( TRANSFORM & T, APPEARANCE & A, const SubImage<IMAGE> & templateImage, const SubImage<GRADIENT> & templateGradient, const SubImage<IMAGE> & target, const int max_iterations, const double min_delta, const double max_RMSE ){
             assert(templateImage.size() == templateGradient.size());
             
             const int dimensions = TRANSFORM::dimensions+APPEARANCE::dimensions;
