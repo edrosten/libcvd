@@ -80,60 +80,62 @@ namespace CVD {
 					//#endif
 				}
 
-				template <class T>
-					void transform_image_with_ADT(const Image <T> &feature, Image <Precision> &DT, Image <ImageRef> &ADT, T onval) {
-						const ImageRef img_sz(feature.size());
-						const double maxdist = img_sz.x * img_sz.y;
-						for (int x = 0; x < img_sz.x; x++) {
-							for (int y = 0; y < img_sz.y; y++) {
-								f[y] = DT[y][x];
-							}
-							transform_row(img_sz.y);
-							for (int y = 0; y < img_sz.y; y++) {
-								DT[y][x] = d[y];
-							}
-						}
+				template <class Functor>
+				/// Perform distance transform with reverse lookup.
+				/// @param ADT which edge pixel is closest to this one
+				void transform_image_with_ADT(Image <Precision> &DT, Image <ImageRef> &ADT, const Functor& f) {
+					const ImageRef img_sz(DT.size());
+					const double maxdist = img_sz.x * img_sz.y;
+					for (int x = 0; x < img_sz.x; x++) {
 						for (int y = 0; y < img_sz.y; y++) {
-							for (int x = 0; x < img_sz.x; x++) {
-								f[x] = DT[y][x];
+							f[y] = DT[y][x];
+						}
+						transform_row(img_sz.y);
+						for (int y = 0; y < img_sz.y; y++) {
+							DT[y][x] = d[y];
+						}
+					}
+					for (int y = 0; y < img_sz.y; y++) {
+						for (int x = 0; x < img_sz.x; x++) {
+							f[x] = DT[y][x];
+						}
+						transform_row(img_sz.x);
+						for (int x = 0; x < img_sz.x; x++) {
+							DT[y][x] = d[x];
+							const double hyp = d[x];
+							if (hyp >= maxdist) {
+								ADT[y][x] = ImageRef(-1, -1);
+								continue;
 							}
-							transform_row(img_sz.x);
-							for (int x = 0; x < img_sz.x; x++) {
-								DT[y][x] = d[x];
-								const double hyp = d[x];
-								if (hyp >= maxdist) {
-									ADT[y][x] = ImageRef(-1, -1);
-									continue;
-								}
-								const double dx = pos[x];
-								const double dy = sqrt(hyp - dx * dx);
-								const int ddy = dy;
-								const ImageRef candA(x - dx, y - ddy);
-								const ImageRef candB(x - dx, y + ddy);
-								const ImageRef candC(x + dx, y - ddy);
-								const ImageRef candD(x + dx, y + ddy);
-								/** cerr << "hyp=" << hyp << " dx="<< dx << " dy=" << dy << " ddy=" << ddy
-								  << " A=" << candA << " B=" << candB << " C=" << candC << " D=" << candD << endl;*/
-								if (DT.in_image(candA) && feature[candA] == onval) {
-									ADT[y][x] = candA;
-								}
-								else if (DT.in_image(candB) && feature[candB] == onval) {
-									ADT[y][x] = candB;
-								}
-								else if (DT.in_image(candC) && feature[candC] == onval) {
-									ADT[y][x] = candC;
-								}
-								else if (DT.in_image(candD) && feature[candD] == onval) {
-									ADT[y][x] = candD;
-								}
-								else {
-									//ADT[y][x] = ImageRef(-1,-1);
-									/**cerr << hyp << " " << ImageRef(x, y);*/
-									throw std::string("feature with onval set not found");
-								}
+							const double dx = pos[x];
+							const double dy = sqrt(hyp - dx * dx);
+							const int ddy = dy;
+							const ImageRef candA(x - dx, y - ddy);
+							const ImageRef candB(x - dx, y + ddy);
+							const ImageRef candC(x + dx, y - ddy);
+							const ImageRef candD(x + dx, y + ddy);
+							/** cerr << "hyp=" << hyp << " dx="<< dx << " dy=" << dy << " ddy=" << ddy
+							  << " A=" << candA << " B=" << candB << " C=" << candC << " D=" << candD << endl;*/
+							if (DT.in_image(candA) && f(candA)) {
+								ADT[y][x] = candA;
+							}
+							else if (DT.in_image(candB) && f(candB)) {
+								ADT[y][x] = candB;
+							}
+							else if (DT.in_image(candC) && f(candC)) {
+								ADT[y][x] = candC;
+							}
+							else if (DT.in_image(candD) && f(candD)) {
+								ADT[y][x] = candD;
+							}
+							else {
+								//ADT[y][x] = ImageRef(-1,-1);
+								/**cerr << hyp << " " << ImageRef(x, y);*/
+								throw std::string("feature with onval set not found");
 							}
 						}
 					}
+				}
 
 				void resize(const ImageRef &new_size) {
 					if (new_size != sz) {
@@ -147,26 +149,10 @@ namespace CVD {
 					}
 				}
 
-				template <class T, class Q> 
-					void find_onvals(const Image<T> &feature, const Q onval, Image <Precision> &out) {
-						for (int y = 0; y < out.size().y; y++) {
-							for (int x = 0; x < out.size().x; x++) {
-								if (feature[y][x] == onval) {
-									out[y][x] = 0;
-								}
-								else {
-									out[y][x] = big_number;
-								}
-							}
-						}
-					}
-
-
-				
 
 			public:
-				template <class T, class Q>
-				void transform_ADT(const Image <T> &feature, Image <Precision> &DT, Image <ImageRef> &ADT, const Q onval) {
+				template <class T, class Q, class Functor>
+				void transform_ADT(const SubImage<T>& feature, SubImage<Precision> &DT, SubImage<ImageRef> &ADT) {
 					if(feature.size() != DT.size())
 						throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
 						
@@ -174,8 +160,10 @@ namespace CVD {
 						throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
 
 					resize(feature.size());
-					find_onvals(feature, onval, DT);
-					transform_image_with_ADT(feature, DT, ADT, onval);
+
+					apply_functor(DT, NotZero<T>(feature));
+
+					transform_image_with_ADT(DT, ADT, NotZero<T>(feature));
 					for (int y = 0; y < DT.size().y; y++) {
 						for (int x = 0; x < DT.size().x; x++) {
 							DT[y][x] = sqrt(DT[y][x]);
@@ -246,6 +234,20 @@ namespace CVD {
 		dt.apply_functor(out,  typename DistanceTransformEuclidean<Q>::template NotZero<T>(in));
 		dt.transform(out);
 	}
+
+
+	///Compute Euclidean distance transform using the Felzenszwalb & Huttenlocher algorithm.
+	///@ingroup gVision
+	///@param in input image: thresholded so anything &gt; 0 is on the object
+	///@param out output image is euclidean distance of input image.
+	template<class T, class Q>
+	void euclidean_distance_transform(const SubImage<T> &in, SubImage<Q> &out, SubImage<ImageRef>& lookup_DT) {
+		if(in.size() != out.size())
+			throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
+		DistanceTransformEuclidean<Q> dt;
+		dt.transform_ADT(in, out, lookup_DT);
+	}
+
 
 	#ifndef DOXYGEN_IGNORE_INTERNAL
 		namespace Internal
