@@ -83,7 +83,7 @@ namespace CVD {
 				template <class Functor>
 				/// Perform distance transform with reverse lookup.
 				/// @param ADT which edge pixel is closest to this one
-				void transform_image_with_ADT(Image <Precision> &DT, Image <ImageRef> &ADT, const Functor& f) {
+				void transform_image_with_ADT(SubImage <Precision> &DT, SubImage <ImageRef> &ADT, const Functor& func) {
 					const ImageRef img_sz(DT.size());
 					const double maxdist = img_sz.x * img_sz.y;
 					for (int x = 0; x < img_sz.x; x++) {
@@ -116,16 +116,16 @@ namespace CVD {
 							const ImageRef candD(x + dx, y + ddy);
 							/** cerr << "hyp=" << hyp << " dx="<< dx << " dy=" << dy << " ddy=" << ddy
 							  << " A=" << candA << " B=" << candB << " C=" << candC << " D=" << candD << endl;*/
-							if (DT.in_image(candA) && f(candA)) {
+							if (DT.in_image(candA) && func(candA)) {
 								ADT[y][x] = candA;
 							}
-							else if (DT.in_image(candB) && f(candB)) {
+							else if (DT.in_image(candB) && func(candB)) {
 								ADT[y][x] = candB;
 							}
-							else if (DT.in_image(candC) && f(candC)) {
+							else if (DT.in_image(candC) && func(candC)) {
 								ADT[y][x] = candC;
 							}
-							else if (DT.in_image(candD) && f(candD)) {
+							else if (DT.in_image(candD) && func(candD)) {
 								ADT[y][x] = candD;
 							}
 							else {
@@ -151,7 +151,7 @@ namespace CVD {
 
 
 			public:
-				template <class T, class Q, class Functor>
+				template <class T>
 				void transform_ADT(const SubImage<T>& feature, SubImage<Precision> &DT, SubImage<ImageRef> &ADT) {
 					if(feature.size() != DT.size())
 						throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
