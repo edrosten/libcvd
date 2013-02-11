@@ -9,7 +9,7 @@ using namespace std;
 int main()
 {
 
-	
+	//Generate some random point sets.
 	for(int i=0; i < 1000; i++)
 	{
 		ImageRef s(50 + rand()%1000, 50%rand()%1000);
@@ -21,7 +21,7 @@ int main()
 		o.zero();
 		in.zero();
 
-		for(int i=1; i < 1 + rand()%1000; i++)
+		for(int i=1; i < 1 + rand()%10000; i++)
 			in[rand() % s.y][rand()%s.x] = 1;
 
 		Image<float> out(in.size());
@@ -30,6 +30,10 @@ int main()
 
 		euclidean_distance_transform(in, out, adt);
 		
+		//Make sure that the closest point matches the distance transform.
+		//Note that sometimes it fails to get anything for the closest point
+		//Also, note that this doesn't actually test to see if the closest point
+		//AND distance are correct, just consistent.
 		for(ImageRef p(-1,0); p.next(in.size()); )
 		{
 			float d = sqrt((p - adt[p]).mag_squared());

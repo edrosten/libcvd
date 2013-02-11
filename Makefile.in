@@ -314,6 +314,7 @@ clean:
 	find . -name '*.o' | xargs rm -f
 	find progs/ -perm +0100 -type f | xargs rm -f
 	rm -rf html man
+	rm -f regressions/*.out
 
 distclean: clean
 	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h .deps config.dep_tmp
@@ -373,8 +374,17 @@ printlibs:
 	@echo $(LOADLIBES)
 
 
+
+
+.PHONY: regressions
+
+REGRESSIONS=distance_transform fast_corner
+REGRESSION_OUT=$(patsubst %,regressions/%.out, $(REGRESSIONS))
+
+regressions:$(REGRESSION_OUT)
+
 regressions/%.test: regressions/%.cc
-	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) $< -o $@ -lcvd -O3
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O3 -lcvd
 
 regressions/%.out: regressions/%.test
 	./$<  && touch $@

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iterator>
 #include <iostream>
+#include <cstdlib>
 
 
 using namespace std;
@@ -69,9 +70,8 @@ template<int Num> void segment_test(const SubImage<byte>& im, vector<ImageRef>& 
 
 
 
-template<class A, class B, class C> void test(const Image<byte>& i, A funcf, B funcp, C funcs, int threshold)
+template<class A, class B, class C> void test(const Image<byte>& i, A funcf, B funcp, C funcs, int threshold, string type)
 {
-	cout << "Size: " << i.size() << " threshold: " << threshold << " ";
 
 	vector<ImageRef> faster, normal, simple;
 
@@ -93,55 +93,60 @@ template<class A, class B, class C> void test(const Image<byte>& i, A funcf, B f
 	vector<ImageRef>::iterator new_end = unique(all.begin(), all.end());
 	all.resize(new_end - all.begin());
 
-	cout << normal.size() << " " << faster.size() << " " << simple.size() << " " << all.size() << " ";
-
-
 
 	vector<ImageRef> bad;
 	set_symmetric_difference(faster.begin(), faster.end(), simple.begin(), simple.end(), back_inserter(bad));
 	set_symmetric_difference(normal.begin(), normal.end(), simple.begin(), simple.end(), back_inserter(bad));
 
 	if(bad.empty())
-	{
-		cout << "ok." << endl;
 		return;
-	}
+	
+	cout << "*********************************************" << type << endl;
+	cout << "Size: " << i.size() << " threshold: " << threshold << " ";
+	cout << normal.size() << " " << faster.size() << " " << simple.size() << " " << all.size() << " ";
+	cout << "fail." << endl;
+	
+	exit(1);
+		
 
-	VideoDisplay d(i.size(), 2);
+	#if 0
+		VideoDisplay d(i.size(), 2);
 
-	glDrawPixels(i);
-	glPointSize(3);
-	glBegin(GL_POINTS);
+		glDrawPixels(i);
+		glPointSize(3);
+		glBegin(GL_POINTS);
 
-	for(unsigned int i=0; i < all.size(); i++)
-	{
-		Rgb<byte> colour(0,0,0);
-
-		if(!binary_search(normal.begin(), normal.end(), all[i]))
-			colour.red = 255;
-
-		if(!binary_search(faster.begin(), faster.end(), all[i]))
-			colour.green = 255;
-
-		if(!binary_search(simple.begin(),simple.end(), all[i]))
-			colour.blue = 255;
-
-		//Colour can never be white. Black means OK.
-
-		if(colour != Rgb<byte>(0,0,0))
+		for(unsigned int i=0; i < all.size(); i++)
 		{
-			glColor(colour);
-			glVertex(all[i]);
+			Rgb<byte> colour(0,0,0);
+
+			if(!binary_search(normal.begin(), normal.end(), all[i]))
+				colour.red = 255;
+
+			if(!binary_search(faster.begin(), faster.end(), all[i]))
+				colour.green = 255;
+
+			if(!binary_search(simple.begin(),simple.end(), all[i]))
+				colour.blue = 255;
+
+			//Colour can never be white. Black means OK.
+
+			if(colour != Rgb<byte>(0,0,0))
+			{
+				glColor(colour);
+				glVertex(all[i]);
+			}
 		}
-	}
-	glEnd();
+		glEnd();
 
-	cout << "\x1b[31m BROKEN!\x1b[0m\n";
+		cout << "\x1b[31m BROKEN!\x1b[0m\n";
 
-	cin.get();
+		cin.get();
+
+	#endif
 }
 
-template<class A, class B, class C> void test_images(const Image<byte>& im, A funcf, B funcp, C funcs, int threshold)
+template<class A, class B, class C> void test_images(const Image<byte>& im, A funcf, B funcp, C funcs, int threshold, string type)
 {
 	ImageRef one(1,1);
 	ImageRef zero(0,0);
@@ -154,7 +159,7 @@ template<class A, class B, class C> void test_images(const Image<byte>& im, A fu
 		SubImage<byte> s = im.sub_image(zero, size);
 		copy(s.begin(), s.end(),part.begin());
 
-		test(part, funcf, funcp, funcs, threshold);
+		test(part, funcf, funcp, funcs, threshold, type);
 	}
 }
 
@@ -162,23 +167,16 @@ template<class A, class B, class C> void test_images(const Image<byte>& im, A fu
 int main(int argc, char** argv)
 {
 
-	for(;;)
+	for(int n=0; n < 100; n++)
 	{
-		Image<byte> im(ImageRef(drand48() * 1024 + 16, drand48()*1024 + 16));
+		Image<byte> im(ImageRef(drand48() * 256 + 16, drand48()*256 + 16));
 
 		for(byte* i = im.begin(); i != im.end(); i++)
 			*i =  (drand48() * 256);
 
 		int threshold = drand48() * 256;
-	
-		cout << "*************************FAST-9\n";
-		test_images(im, fast_corner_detect_9, fast_corner_detect_plain_9, segment_test<9>, threshold);
-
-		cout << "*************************FAST-10\n";
-		test_images(im, fast_corner_detect_10, fast_corner_detect_plain_10, segment_test<10>, threshold);
-
-		cout << "*************************FAST-12\n";
-		test_images(im, fast_corner_detect_12, fast_corner_detect_plain_12, segment_test<12>, threshold);
-		
+		test_images(im, fast_corner_detect_9, fast_corner_detect_plain_9, segment_test<9>, threshold, "FAST9");
+		test_images(im, fast_corner_detect_10, fast_corner_detect_plain_10, segment_test<10>, threshold, "FAST10");
+		test_images(im, fast_corner_detect_12, fast_corner_detect_plain_12, segment_test<12>, threshold, "FAST12");
 	}
 }
