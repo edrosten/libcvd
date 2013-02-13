@@ -384,7 +384,7 @@ REGRESSION_OUT=$(patsubst %,regressions/%.out, $(REGRESSIONS))
 regressions:$(REGRESSION_OUT)
 
 regressions/%.test: regressions/%.cc
-	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O3 -lcvd
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O3 -L. -lcvd
 
 regressions/%.out: regressions/%.test
 	./$<  && touch $@
