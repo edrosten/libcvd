@@ -328,10 +328,6 @@ distclean: clean
 
 depend: .deps
 
-.PHONY: ChangeLog 
-
-ChangeLog:
-	cvs log | gawk -f make/log_to_changelog.awk > ChangeLog
 
 .PRECIOUS: %.o
 
