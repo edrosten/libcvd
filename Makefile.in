@@ -372,17 +372,17 @@ printlibs:
 
 
 
-.PHONY: regressions
+.PHONY: test
 
 REGRESSIONS=distance_transform fast_corner load_and_save
-REGRESSION_OUT=$(patsubst %,regressions/%.out, $(REGRESSIONS))
+REGRESSION_OUT=$(patsubst %,tests/%.out, $(REGRESSIONS))
 
-regressions:$(REGRESSION_OUT)
+test:$(REGRESSION_OUT)
 
-regressions/%.test: regressions/%.cc
+tests/%.test: tests/%.cc
 	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O3 -L. -lcvd
 
-regressions/%.out: regressions/%.test
+tests/%.out: tests/%.test
 	./$<  && touch $@
 
 
