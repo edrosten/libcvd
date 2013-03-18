@@ -65,7 +65,7 @@ struct ESMResult {
 };
 
 inline std::ostream & operator<<(std::ostream & out, const ESMResult & r ){
-    out << r.error << "\t" << r.pixels << "\t" << r.RMSE() << "\t" << r.delta << "\t" << r.iterations;
+    out << r.error << " " << r.pixels << " " << r.RMSE() << " " << r.delta << " " << r.iterations;
     return out;
 }
 
@@ -214,23 +214,30 @@ public:
     HomographyPrefix() : Pre(TooN::Identity) {}
 
     template <int R, int C, typename P, typename B>
-    HomographyPrefix( const TooN::Matrix<R, C, P, B> & p ) : Pre(p) {
-        const TooN::Matrix<3> id = TooN::Identity;
-        H = TooN::gaussian_elimination(Pre, id);
+    HomographyPrefix( const TooN::Matrix<R, C, P, B> & p ) {
+        set_prefix(p);
     }
     
     template <int R, int C, typename P, typename B, int R2, int C2, typename P2, typename B2>
-    HomographyPrefix( const TooN::Matrix<R, C, P, B> & h, const TooN::Matrix<R2, C2, P2, B2> & p) : Pre(p) {
-        const TooN::Matrix<3> id = TooN::Identity;
-        H = h * TooN::gaussian_elimination(Pre, id);
+    HomographyPrefix( const TooN::Matrix<R, C, P, B> & h, const TooN::Matrix<R2, C2, P2, B2> & p) {
+        set_prefix(p);
+        H = h * H;
     }
     
     const TooN::Matrix<3> get_matrix() const { return H * Pre; }
     
+    template <int R, int C, typename P, typename B>
+    void set_prefix( const TooN::Matrix<R, C, P, B> & p) {
+        Pre = p;
+        const TooN::Matrix<3> id = TooN::Identity;
+        H = TooN::gaussian_elimination(Pre, id);
+        PreGrad = H.T().template slice<0,0,2,2>();  // this is an approximation, if Pre is a projective warp !
+    }
+
     const TooN::Vector<PARAMS> & get_jacobian( const TooN::Vector<2> & x, const TooN::Vector<2> & grad ) const {
         if( PARAMS > 2){
             const TooN::Vector<2> p = TooN::project(Pre * TooN::unproject(x));
-            return Homography<PARAMS>::get_jacobian(p, grad);
+            return Homography<PARAMS>::get_jacobian(p, PreGrad * grad);
         }
         return Homography<PARAMS>::get_jacobian(x, grad);
     }
@@ -238,6 +245,7 @@ public:
 protected:
     using Homography<PARAMS>::H;
     TooN::Matrix<3> Pre;
+    TooN::Matrix<2> PreGrad;
 };
 
 /// a special implementation for 2D homography-based transformations described
@@ -696,6 +704,7 @@ public:
         
                 // create the least squares system
                 wls.clear();
+                wls.add_prior(1e-10);
                 TooN::Vector<dimensions> J;
                 for(unsigned y = 0; y < mask.size(); ++y){
                     for(int x = mask[y][0]; x < mask[y][1]; ++x){
@@ -733,12 +742,16 @@ public:
 
 #if 0                
                 if(DEBUG_ESM){
-                    ostringstream sout;
-                    sout << "debug_" << setw(4) << setfill('0') << DEBUG_ESM << "_" << result.iterations << ".jpg";
+                    std::ostringstream sout;
+                    sout << "debug_" << std::setw(4) << std::setfill('0') << DEBUG_ESM << "_" << std::setw(4) << std::setfill('0') << result.iterations << ".jpg";
                     Image<byte> warped(templateImage.size());
+                    warped.fill(0);
                     Internal::transform(warped, target, T.get_matrix());
                     img_save(warped, sout.str());
-                    
+                    std::cout << wls.get_mu() << "\t" << T << std::endl;
+                    std::cout << wls.get_C_inv() << std::endl;
+                    std::cout << wls.get_vector() << std::endl;
+                    std::cout << result << std::endl;
                 }
 #endif
 
@@ -751,7 +764,13 @@ public:
 
 template <int PARAMS>
 inline std::ostream & operator<<(std::ostream & out, const Homography<PARAMS> & t ){
-    out << t.H[0] << "\t" << t.H[1] << "\t" << t.H[2];
+    out << t.get_matrix()[0] << " " << t.get_matrix()[1] << " " << t.get_matrix()[2];
+    return out;
+}
+
+template <int PARAMS>
+inline std::ostream & operator<<(std::ostream & out, const HomographyPrefix<PARAMS> & t ){
+    out << t.get_matrix()[0] << " " << t.get_matrix()[1] << " " << t.get_matrix()[2];
     return out;
 }
 
