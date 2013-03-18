@@ -50,14 +50,14 @@ namespace CVD {
      */
     for(int y=1; y < im.size().y-1; y++) {
       for(int x=1; x < im.size().x-1; x++) {
-        const double xgrad = ((out[y-1][x-1] + 2 * out[y-1][x] + out[y-1][x+1]) -
+        const double ygrad = ((out[y-1][x-1] + 2 * out[y-1][x] + out[y-1][x+1]) -
                               (out[y+1][x-1] + 2 * out[y+1][x] + out[y+1][x+1]));
-        const double ygrad = ((out[y-1][x-1] + 2 * out[y][x-1] + out[y+1][x-1]) -
+        const double xgrad = ((out[y-1][x-1] + 2 * out[y][x-1] + out[y+1][x-1]) -
                               (out[y-1][x+1] + 2 * out[y][x+1] + out[y+1][x+1]));
         const double mag = std::sqrt(xgrad * xgrad + ygrad * ygrad);
         mags[y][x] = mag;
         if (mag >= lower_threshold) {
-          double dir = std::atan(xgrad/ygrad);
+          double dir = std::atan(ygrad/xgrad);
           if (dir < 0) {
             dir += pi;
           }
