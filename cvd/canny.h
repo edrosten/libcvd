@@ -11,16 +11,17 @@ namespace CVD {
 
  	
   template <class T>
-  void canny_gradient(const BasicImage <T> &im, BasicImage <TooN::Vector<2> > &out, const double sigma = 1.0)
+  void canny_gradient(const BasicImage <T> &im, BasicImage <TooN::Vector<2> > &grad, const double sigma = 1.0)
   {
+  	  Image<T> out;
 	  convolveGaussian(im, out, sigma);
 
 	  for(int y=1; y < im.size().y-1; y++) {
 		  for(int x=1; x < im.size().x-1; x++) {
 			  const double xgrad = ((out[y-1][x-1] + 2 * out[y][x-1] + out[y+1][x-1]) - (out[y-1][x+1] + 2 * out[y][x+1] + out[y+1][x+1]));
 			  const double ygrad = ((out[y-1][x-1] + 2 * out[y-1][x] + out[y-1][x+1]) - (out[y+1][x-1] + 2 * out[y+1][x] + out[y+1][x+1]));
-			  out[y][x][0] = xgrad;
-			  out[y][x][1] = ygrad;
+			  grad[y][x][0] = xgrad;
+			  grad[y][x][1] = ygrad;
 		  }
 	  }
   }
