@@ -24,11 +24,11 @@ int main()
 		for(int i=1; i < 1 + rand()%10000; i++)
 			in[rand() % s.y][rand()%s.x] = 1;
 
-		Image<float> out(in.size());
+		Image<int> out(in.size());
 		Image<ImageRef> adt(in.size());
 
 
-		euclidean_distance_transform(in, out, adt);
+		euclidean_distance_transform_sq(in, out, adt);
 		
 		//Make sure that the closest point matches the distance transform.
 		//Note that sometimes it fails to get anything for the closest point
@@ -36,16 +36,19 @@ int main()
 		//AND distance are correct, just consistent.
 		for(ImageRef p(-1,0); p.next(in.size()); )
 		{
-			float d = sqrt((p - adt[p]).mag_squared());
-
-			if(abs(d - out[p]) > 1e-3 && adt[p] != ImageRef(-1,-1))
+			if(adt[p] != ImageRef(-1, -1))
 			{
-				cerr << "Error.\n";
-				cerr << d << endl;
-				cout << out[p] << endl;
-				cout << adt[p] << endl;
-				return 1;
-			}	
+				float d = ((p - adt[p]).mag_squared());
+
+				if(abs(d - out[p]) != 0)
+				{
+					cerr << "Error.\n";
+					cerr << d << endl;
+					cout << out[p] << endl;
+					cout << adt[p] << endl;
+					return 1;
+				}	
+			}
 		}
 	}
 }

@@ -25,7 +25,8 @@ namespace CVD {
 			public:
 				DistanceTransformEuclidean() 
 				:sz(ImageRef(-1,-1)),
-				 big_number(1e20) //Hmm, why doesn't HUGE_VAL work?
+				 big_number(1e9) //Hmm, why doesn't HUGE_VAL work?
+				                 //Anyway, hilariously small number here so it works with int, too.
 				 {}
 
 			private:
@@ -164,11 +165,11 @@ namespace CVD {
 					apply_functor(DT, NotZero<T>(feature));
 
 					transform_image_with_ADT(DT, ADT, NotZero<T>(feature));
-					for (int y = 0; y < DT.size().y; y++) {
+					/*for (int y = 0; y < DT.size().y; y++) {
 						for (int x = 0; x < DT.size().x; x++) {
 							DT[y][x] = sqrt(DT[y][x]);
 						}
-					}
+					}*/
 				}
 
 				void transform(SubImage<Precision> &out) {
@@ -176,12 +177,12 @@ namespace CVD {
 					//DistanceTransformPreProcess<T, Precision> preprocess;
 					//preprocess(feature, onval, out);
 					transform_image(out);
-					for (int y = 0; y < out.size().y; y++) {
+					/*for (int y = 0; y < out.size().y; y++) {
 						for (int x = 0; x < out.size().x; x++) {
 							out[y][x] = sqrt(out[y][x]);
 							//cout << out[y][x] << ",";
 						}
-					}
+					}*/
 				}
 
 
@@ -222,17 +223,42 @@ namespace CVD {
 
 		
 	
-	template <class T, class Q>
-	///Compute Euclidean distance transform using the Felzenszwalb & Huttenlocher algorithm.
+	///Compute squared Euclidean distance transform using the Felzenszwalb & Huttenlocher algorithm.
 	///@ingroup gVision
 	///@param in input image: thresholded so anything &gt; 0 is on the object
 	///@param out output image is euclidean distance of input image.
-	void euclidean_distance_transform(const SubImage<T> &in, SubImage<Q> &out) {
+	template <class T, class Q>
+	void euclidean_distance_transform_sq(const SubImage<T> &in, SubImage<Q> &out) {
 		if(in.size() != out.size())
 			throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
 		DistanceTransformEuclidean<Q> dt;
 		dt.apply_functor(out,  typename DistanceTransformEuclidean<Q>::template NotZero<T>(in));
 		dt.transform(out);
+	}
+
+
+	///Compute squared Euclidean distance transform using the Felzenszwalb & Huttenlocher algorithm.
+	///@ingroup gVision
+	///@param in input image: thresholded so anything &gt; 0 is on the object
+	///@param out output image is euclidean distance of input image.
+	template<class T, class Q>
+	void euclidean_distance_transform_sq(const SubImage<T> &in, SubImage<Q> &out, SubImage<ImageRef>& lookup_DT) {
+		if(in.size() != out.size())
+			throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
+		DistanceTransformEuclidean<Q> dt;
+		dt.transform_ADT(in, out, lookup_DT);
+	}
+
+	///Compute Euclidean distance transform using the Felzenszwalb & Huttenlocher algorithm.
+	///@ingroup gVision
+	///@param in input image: thresholded so anything &gt; 0 is on the object
+	///@param out output image is euclidean distance of input image.
+	template<class T, class Q>
+	void euclidean_distance_transform(const SubImage<T> &in, SubImage<Q> &out) {
+		euclidean_distance_transform_sq(in, out);
+		for (int y = 0; y < out.size().y; y++)
+			for (int x = 0; x < out.size().x; x++)
+				out[y][x] = sqrt(out[y][x]);
 	}
 
 
@@ -242,10 +268,10 @@ namespace CVD {
 	///@param out output image is euclidean distance of input image.
 	template<class T, class Q>
 	void euclidean_distance_transform(const SubImage<T> &in, SubImage<Q> &out, SubImage<ImageRef>& lookup_DT) {
-		if(in.size() != out.size())
-			throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
-		DistanceTransformEuclidean<Q> dt;
-		dt.transform_ADT(in, out, lookup_DT);
+		euclidean_distance_transform_sq(in, out, lookup_DT);
+		for (int y = 0; y < out.size().y; y++)
+			for (int x = 0; x < out.size().x; x++)
+				out[y][x] = sqrt(out[y][x]);
 	}
 
 
