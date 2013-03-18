@@ -3,11 +3,29 @@
 
 #include <cvd/image.h>
 #include <cvd/convolution.h>
+#include <TooN/TooN.h>
 #include <cmath>
 #include <queue>
 
 namespace CVD {
 
+ 	
+  template <class T>
+  void canny_gradient(const BasicImage <T> &im, BasicImage <TooN::Vector<2> > &out, const double sigma = 1.0)
+  {
+	  convolveGaussian(im, out, sigma);
+
+	  for(int y=1; y < im.size().y-1; y++) {
+		  for(int x=1; x < im.size().x-1; x++) {
+			  const double xgrad = ((out[y-1][x-1] + 2 * out[y][x-1] + out[y+1][x-1]) - (out[y-1][x+1] + 2 * out[y][x+1] + out[y+1][x+1]));
+			  const double ygrad = ((out[y-1][x-1] + 2 * out[y-1][x] + out[y-1][x+1]) - (out[y+1][x-1] + 2 * out[y+1][x] + out[y+1][x+1]));
+			  out[y][x][0] = xgrad;
+			  out[y][x][1] = ygrad;
+		  }
+	  }
+  }
+
+  
   template <class T>
   void canny(const BasicImage <T> &im, BasicImage <T> &out, const double sigma = 1.0, const double lower_threshold = 0.1, const double upper_threshold = 0.2) {
     //GRANTA_ASSERT(im.size() == out.size());
@@ -388,9 +406,9 @@ namespace CVD {
     for(int y=1; y < in.size().y-1; y++) {
       for(int x=1; x < in.size().x-1; x++) {
         if (mask[y][x] > threshold) {
-          const double xgrad = ((in[y-1][x-1] + 2 * in[y-1][x] + in[y-1][x+1]) -
+          const double ygrad = ((in[y-1][x-1] + 2 * in[y-1][x] + in[y-1][x+1]) -
                                 (in[y+1][x-1] + 2 * in[y+1][x] + in[y+1][x+1]));
-          const double ygrad = ((in[y-1][x-1] + 2 * in[y][x-1] + in[y+1][x-1]) -
+          const double xgrad = ((in[y-1][x-1] + 2 * in[y][x-1] + in[y+1][x-1]) -
                                 (in[y-1][x+1] + 2 * in[y][x+1] + in[y+1][x+1]));
           double dir = std::atan2(xgrad, ygrad);
           grad_dir_map[y][x] = dir;
