@@ -308,14 +308,6 @@ install-libs-debug-a:libcvd_debug.a
 
 install-libs:$(install_so) install-libs-a
 install-libs-debug:$(install_so_debug) install-libs-debug-a
-
-clean:
-	/bin/rm -f tmp libcvd.a $(sos) libcvd_debug.a $(dsos) $(dllname) $(ddllname) $(dllimportname) $(ddllimportname)
-	find . -name '*.o' | xargs rm -f
-	find progs/ -perm +0100 -type f | xargs rm -f
-	rm -rf html man
-	rm -f regressions/*.out
-
 distclean: clean
 	/bin/rm -f Makefile config.h config.status config.cache config.log cvd/config.h .deps config.dep_tmp
 	/bin/rm -rf debug
@@ -384,6 +376,30 @@ tests/%.test: tests/%.cc
 
 tests/%.out: tests/%.test
 	./$<  && touch $@
+
+
+
+.PHONY: examples
+EXAMPLES=colourmaps
+
+EXAMPLE_PROGS=$(patsubst %,examples/%, $(EXAMPLES))
+
+examples:$(EXAMPLE_PROGS)
+
+$(EXAMPLE_PROGS): % : %.cc
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O3 -L. -lcvd
+
+
+clean:
+	/bin/rm -f tmp libcvd.a $(sos) libcvd_debug.a $(dsos) $(dllname) $(ddllname) $(dllimportname) $(ddllimportname)
+	find . -name '*.o' | xargs rm -f
+	find progs/ -perm +0100 -type f | xargs rm -f
+	rm -rf html man
+	rm -f regressions/*.out
+	rm -r $(EXAMPLE_PROGS)
+
+
+
 
 
 include .deps

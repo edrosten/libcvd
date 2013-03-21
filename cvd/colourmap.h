@@ -88,27 +88,35 @@ namespace CVD
 	};
 
 
-
 	template<class C> struct Colourmap;
-	
 
 	///Handy class for generating a colourscale.
-	///
 	///Expected range is \f$[0, 1)\f$, and clamping is performed.
 	///Currently only RGB scales are provided. TODO: RGBA scales.
-	///@ingroup gDraw
+	///@ingroup gGraphics
+	///Examples in examples/colourmaps.cc
+	///@include colourmaps.cc
 	template<class C> struct Colourmap<Rgb<C> >
 	{
 		
 		///Glow/Hot colourscale (red-yellow-white)
+		///@param d Value in \f$[0, 1)\f$ to map
 		static Rgb<C> hot(double d) { return Internal::conv<C>(Internal::hot, d);} 
 
 		///Jet colourscale (red-yellow-green-cyan-blue)
+		///@param d Value in \f$[0, 1)\f$ to map
 		static Rgb<C> jet(double d) { return Internal::conv<C>(Internal::jet, d);} 
 
 		///Green-black-red colourscale
+		///@param d Value in \f$[0, 1)\f$ to map
 		static Rgb<C> gkr(double d) { return Internal::conv<C>(Internal::gkr, d);} 
 	};
+	
+
+	///@example colourmaps.cc
+	///Example of how to use the CVD::Colourmap class for visualisation.
+
+
 };
 
 
