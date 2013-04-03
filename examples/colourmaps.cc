@@ -1,7 +1,5 @@
-///@example colourmaps.cc
-///Example of how to use the CVD::Colourmap class for visualisation.
 #include <cvd/image_io.h>
-#include <cvd/colourmaps.h>
+#include <cvd/colourmap.h>
 using namespace CVD;
 using namespace std;
 
