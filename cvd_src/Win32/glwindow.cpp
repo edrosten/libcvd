@@ -38,6 +38,7 @@ namespace CVD {
 
 		bool has_just_closed;
 		bool is_closed;
+		bool needs_repaint;
 	};
 
 	static map<HWND, GLWindow::State> windowMap;
@@ -212,6 +213,7 @@ namespace CVD {
 
 		state->has_just_closed = false;
 		state->is_closed = false;
+		state->needs_repaint = false;
 
 		// handle events to make window appear
 		EventSummary summary;
@@ -394,6 +396,11 @@ namespace CVD {
 
 		if (state == NULL || state->is_closed) {
 			throw Exceptions::GLWindow::RuntimeError("Window is not open.");
+		}
+
+		if (state->needs_repaint) {
+			state->needs_repaint = false;
+			handler.on_event(*this, EVENT_EXPOSE);
 		}
 
 		MSG	msg;
@@ -620,6 +627,15 @@ namespace CVD {
 				markGLWindowAsClosed(&state);
 
 				return 0;
+			}
+
+			break;
+		case WM_PAINT: 
+			if(windowMap.count(hWnd) == 1) {
+				GLWindow::State& state = windowMap[hWnd];
+				state.needs_repaint = true;
+				// We don't want to return 0 here, as we don't actually paint anything straight away 
+				// (and so Windows will keep sending messages until we do).
 			}
 
 			break;
