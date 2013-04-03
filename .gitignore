@@ -18,4 +18,3 @@ libcvd_debug.[as]*
 progs/calibrate
 progs/cvd_display_image
 progs/video_play_source
-build/vc2008/libcvd-TooN-JPEG-PNG-TIFF-pthread.sdf
