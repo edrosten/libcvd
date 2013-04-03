@@ -1,0 +1,288 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>libcvd</ProjectName>
+    <ProjectGuid>{DB1962D5-5EBB-499D-9F84-4FCF6435063C}</ProjectGuid>
+    <RootNamespace>libcvd</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.60223.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..;$(INCLUDEDIR);..\..\..\;..\..\..\pthreads\include\;C:\Program Files (x86)\GnuWin32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <AdditionalDependencies>zlib.lib;libpng.lib;libtiff.lib;jpeg.lib;pthreadVCE2.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>..\..\lib\$(ProjectName)d.lib</OutputFile>
+      <AdditionalLibraryDirectories>$(LIBDIR);C:\Program Files (x86)\GnuWin32\lib;..\..\..\pthreads\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..;$(INCLUDEDIR);..\..\..\;..\..\..\pthreads\include\;C:\Program Files (x86)\GnuWin32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <AdditionalDependencies>zlib.lib;libpng.lib;libtiff.lib;jpeg.lib;pthreadVCE2.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>..\..\lib\$(ProjectName).lib</OutputFile>
+      <AdditionalLibraryDirectories>$(LIBDIR);C:\Program Files (x86)\GnuWin32\lib;..\..\..\pthreads\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\cvd_src\bayer.cxx" />
+    <ClCompile Include="..\..\cvd_src\image_io\bmp.cxx" />
+    <ClCompile Include="..\..\cvd_src\image_io\bmp_read.cc" />
+    <ClCompile Include="..\..\cvd_src\image_io\bmp_write.cc" />
+    <ClCompile Include="..\..\cvd_src\brezenham.cc" />
+    <ClCompile Include="..\..\cvd_src\colourspace_convert.cxx" />
+    <ClCompile Include="..\..\cvd_src\connected_components.cc" />
+    <ClCompile Include="..\..\cvd_src\convolution.cc" />
+    <ClCompile Include="..\..\cvd_src\cvd_timer.cc" />
+    <ClCompile Include="..\..\cvd_src\image_io\cvdimage.cxx" />
+    <ClCompile Include="..\..\cvd_src\deinterlacebuffer.cc" />
+    <ClCompile Include="..\..\cvd_src\diskbuffer2.cc" />
+    <ClCompile Include="..\..\cvd_src\draw.cc" />
+    <ClCompile Include="..\..\cvd_src\draw_toon.cc" />
+    <ClCompile Include="..\..\cvd_src\eventobject.cpp" />
+    <ClCompile Include="..\..\cvd_src\exceptions.cc" />
+    <ClCompile Include="..\..\cvd_src\fast_corner.cxx" />
+    <ClCompile Include="..\..\cvd_src\fast_corner_9_nonmax.cxx" />
+    <ClCompile Include="..\..\cvd_src\image_io\fits.cc" />
+    <ClCompile Include="..\..\cvd_src\image_io\fitswrite.cc" />
+    <ClCompile Include="..\..\cvd_src\gltext.cpp" />
+    <ClCompile Include="..\..\cvd_src\image_io.cc" />
+    <ClCompile Include="..\..\cvd_src\image_io\jpeg.cxx" />
+    <ClCompile Include="..\..\cvd_src\morphology.cc" />
+    <ClCompile Include="..\..\cvd_src\nonmax_suppression.cxx" />
+    <ClCompile Include="..\..\cvd_src\image_io\png.cc" />
+    <ClCompile Include="..\..\cvd_src\image_io\pnm_grok.cxx" />
+    <ClCompile Include="..\..\cvd_src\image_io\save_postscript.cxx" />
+    <ClCompile Include="..\..\cvd_src\posix\sched_yield.cc" />
+    <ClCompile Include="..\..\cvd_src\slower_corner_11.cxx" />
+    <ClCompile Include="..\..\cvd_src\slower_corner_7.cxx" />
+    <ClCompile Include="..\..\cvd_src\slower_corner_8.cxx" />
+    <ClCompile Include="..\..\cvd_src\synchronized.cpp" />
+    <ClCompile Include="..\..\cvd_src\tensor_voting.cc" />
+    <ClCompile Include="..\..\cvd_src\image_io\text.cxx" />
+    <ClCompile Include="..\..\cvd_src\image_io\text_write.cc" />
+    <ClCompile Include="..\..\cvd_src\thread.cpp" />
+    <ClCompile Include="..\..\cvd_src\image_io\tiff.cxx" />
+    <ClCompile Include="..\..\cvd_src\image_io\tiffwrite.cc" />
+    <ClCompile Include="..\..\cvd_src\timeddiskbuffer.cc" />
+    <ClCompile Include="..\..\cvd_src\videosource.cpp" />
+    <ClCompile Include="..\..\cvd_src\videosource_nodvbuffer.cc" />
+    <ClCompile Include="..\..\cvd_src\videosource_novideofilebuffer.cc" />
+    <ClCompile Include="..\..\cvd_src\yuv411_to_stuff.cxx" />
+    <ClCompile Include="..\..\cvd_src\yuv420.cpp" />
+    <ClCompile Include="..\..\cvd_src\yuv422.cpp" />
+    <ClCompile Include="..\..\cvd_src\fast\fast_10_detect.cxx" />
+    <ClCompile Include="..\..\cvd_src\fast\fast_10_score.cxx" />
+    <ClCompile Include="..\..\cvd_src\fast\fast_11_detect.cxx" />
+    <ClCompile Include="..\..\cvd_src\fast\fast_11_score.cxx" />
+    <ClCompile Include="..\..\cvd_src\fast\fast_12_detect.cxx" />
+    <ClCompile Include="..\..\cvd_src\fast\fast_12_score.cxx" />
+    <ClCompile Include="..\..\cvd_src\fast\fast_7_detect.cxx" />
+    <ClCompile Include="..\..\cvd_src\fast\fast_7_score.cxx" />
+    <ClCompile Include="..\..\cvd_src\fast\fast_8_detect.cxx" />
+    <ClCompile Include="..\..\cvd_src\fast\fast_8_score.cxx" />
+    <ClCompile Include="..\..\cvd_src\fast\fast_9_detect.cxx" />
+    <ClCompile Include="..\..\cvd_src\fast\fast_9_score.cxx" />
+    <ClCompile Include="..\..\cvd_src\i686\convolve_gaussian.cc" />
+    <ClCompile Include="..\..\cvd_src\i686\gradient.cc" />
+    <ClCompile Include="..\..\cvd_src\i686\median_3x3.cc" />
+    <ClCompile Include="..\..\cvd_src\i686\utility_byte_differences.cc" />
+    <ClCompile Include="..\..\cvd_src\i686\utility_double_int.cc" />
+    <ClCompile Include="..\..\cvd_src\i686\utility_float.cc" />
+    <ClCompile Include="..\..\cvd_src\noarch\convert_rgb_to_y.cc" />
+    <ClCompile Include="..\..\cvd_src\noarch\yuv420p_to_rgb_runner.cc" />
+    <ClCompile Include="..\..\cvd_src\noarch\yuv422_wrapper.cc" />
+    <ClCompile Include="..\..\cvd_src\Win32\glwindow.cpp" />
+    <ClCompile Include="..\..\cvd_src\Win32\win32.cpp" />
+    <ClCompile Include="..\..\cvd_src\Linux\videosource_nov4l1buffer.cc" />
+    <ClCompile Include="..\..\cvd_src\Linux\videosource_nov4lbuffer.cc" />
+    <ClCompile Include="..\..\cvd_src\OSX\videosource_noqtbuffer.cc" />
+    <ClCompile Include="..\..\cvd_src\SSE2\faster_corner_10.cxx" />
+    <ClCompile Include="..\..\cvd_src\SSE2\faster_corner_12.cxx" />
+    <ClCompile Include="..\..\cvd_src\SSE2\faster_corner_9.cxx" />
+    <ClCompile Include="..\..\cvd_src\SSE2\half_sample.cc" />
+    <ClCompile Include="..\..\cvd_src\SSE2\two_thirds_sample.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\cvd\abs.h" />
+    <ClInclude Include="..\..\cvd\argb.h" />
+    <ClInclude Include="..\..\cvd\bgrx.h" />
+    <ClInclude Include="..\..\cvd\bresenham.h" />
+    <ClInclude Include="..\..\cvd\brezenham.h" />
+    <ClInclude Include="..\..\cvd\byte.h" />
+    <ClInclude Include="..\..\cvd\camera.h" />
+    <ClInclude Include="..\..\cvd\colourspace.h" />
+    <ClInclude Include="..\..\cvd\colourspace_convert.h" />
+    <ClInclude Include="..\..\cvd\colourspace_frame.h" />
+    <ClInclude Include="..\..\cvd\colourspacebuffer.h" />
+    <ClInclude Include="..\..\cvd\colourspaces.h" />
+    <CustomBuild Include="config-TooN-JPEG-PNG-TIFF-pthread.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy "%(FullPath)" "%(RootDir)%(Directory)..\..\cvd\config.h"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)..\..\cvd\config.h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy "%(FullPath)" "%(RootDir)%(Directory)..\..\cvd\config.h"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)..\..\cvd\config.h;%(Outputs)</Outputs>
+    </CustomBuild>
+    <ClInclude Include="..\..\cvd\connected_components.h" />
+    <ClInclude Include="..\..\cvd\convolution.h" />
+    <ClInclude Include="..\..\cvd\cpu_hacks.h" />
+    <ClInclude Include="..\..\cvd\cvd_image.h" />
+    <ClInclude Include="..\..\cvd\cvd_timer.h" />
+    <ClInclude Include="..\..\cvd\deinterlacebuffer.h" />
+    <ClInclude Include="..\..\cvd\deinterlaceframe.h" />
+    <ClInclude Include="..\..\cvd\diskbuffer2.h" />
+    <ClInclude Include="..\..\cvd\diskbuffer2_frame.h" />
+    <ClInclude Include="..\..\cvd\documentation.h" />
+    <ClInclude Include="..\..\cvd\draw.h" />
+    <ClInclude Include="..\..\cvd\esm.h" />
+    <ClInclude Include="..\..\cvd\eventobject.h" />
+    <ClInclude Include="..\..\cvd\exceptions.h" />
+    <ClInclude Include="..\..\cvd\fast_corner.h" />
+    <ClInclude Include="..\..\cvd\gl_helpers.h" />
+    <ClInclude Include="..\..\cvd\gles1_helpers.h" />
+    <ClInclude Include="..\..\cvd\glwindow.h" />
+    <ClInclude Include="..\..\cvd\haar.h" />
+    <ClInclude Include="..\..\cvd\harris_corner.h" />
+    <ClInclude Include="..\..\cvd\helpers.h" />
+    <ClInclude Include="..\..\cvd\image.h" />
+    <ClInclude Include="..\..\cvd\image_convert.h" />
+    <ClInclude Include="..\..\cvd\image_convert_fwd.h" />
+    <ClInclude Include="..\..\cvd\image_interpolate.h" />
+    <ClInclude Include="..\..\cvd\image_io.h" />
+    <ClInclude Include="..\..\cvd\image_ref.h" />
+    <ClInclude Include="..\..\cvd\integral_image.h" />
+    <ClInclude Include="..\..\cvd\interpolate.h" />
+    <ClInclude Include="..\..\cvd\irls.h" />
+    <ClInclude Include="..\..\cvd\la.h" />
+    <ClInclude Include="..\..\cvd\localvideobuffer.h" />
+    <ClInclude Include="..\..\cvd\localvideoframe.h" />
+    <ClInclude Include="..\..\cvd\message_queue.h" />
+    <ClInclude Include="..\..\cvd\morphology.h" />
+    <ClInclude Include="..\..\cvd\nocopy.h" />
+    <ClInclude Include="..\..\cvd\nonmax_suppression.h" />
+    <ClInclude Include="..\..\cvd\random.h" />
+    <ClInclude Include="..\..\cvd\readaheadvideobuffer.h" />
+    <ClInclude Include="..\..\cvd\rgb.h" />
+    <ClInclude Include="..\..\cvd\rgb8.h" />
+    <ClInclude Include="..\..\cvd\rgba.h" />
+    <ClInclude Include="..\..\cvd\ringbuffer.h" />
+    <ClInclude Include="..\..\cvd\runnable.h" />
+    <ClInclude Include="..\..\cvd\runnable_batch.h" />
+    <ClInclude Include="..\..\cvd\serverpushjpegbuffer.h" />
+    <ClInclude Include="..\..\cvd\serverpushjpegframe.h" />
+    <ClInclude Include="..\..\cvd\synchronized.h" />
+    <ClInclude Include="..\..\cvd\tensor_voting.h" />
+    <ClInclude Include="..\..\cvd\thread.h" />
+    <ClInclude Include="..\..\cvd\timeddiskbuffer.h" />
+    <ClInclude Include="..\..\cvd\timer.h" />
+    <ClInclude Include="..\..\cvd\utility.h" />
+    <ClInclude Include="..\..\cvd\vector_image_ref.h" />
+    <ClInclude Include="..\..\cvd\videobuffer.h" />
+    <ClInclude Include="..\..\cvd\videobufferflags.h" />
+    <ClInclude Include="..\..\cvd\videobufferwithdata.h" />
+    <ClInclude Include="..\..\cvd\videodisplay.h" />
+    <ClInclude Include="..\..\cvd\videofilebuffer.h" />
+    <ClInclude Include="..\..\cvd\videofilebuffer_frame.h" />
+    <ClInclude Include="..\..\cvd\videoframe.h" />
+    <ClInclude Include="..\..\cvd\videosource.h" />
+    <ClInclude Include="..\..\cvd\vision.h" />
+    <ClInclude Include="..\..\cvd\vision_exceptions.h" />
+    <ClInclude Include="..\..\cvd\yc.h" />
+    <ClInclude Include="..\..\cvd\internal\aligned_mem.h" />
+    <ClInclude Include="..\..\cvd\internal\io\bmp.h" />
+    <ClInclude Include="..\..\cvd\internal\builtin_components.h" />
+    <ClInclude Include="..\..\cvd\internal\convert_pixel_types.h" />
+    <ClInclude Include="..\..\cvd\internal\io\cvdimage.h" />
+    <ClInclude Include="..\..\cvd\internal\io\fits.h" />
+    <ClInclude Include="..\..\cvd\internal\gl_types.h" />
+    <ClInclude Include="..\..\cvd\internal\gles1_types.h" />
+    <ClInclude Include="..\..\cvd\internal\is_pod.h" />
+    <ClInclude Include="..\..\cvd\internal\io\jpeg.h" />
+    <ClInclude Include="..\..\cvd\internal\load_and_save.h" />
+    <ClInclude Include="..\..\cvd\internal\name_CVD_rgb_types.h" />
+    <ClInclude Include="..\..\cvd\internal\name_builtin_types.h" />
+    <ClInclude Include="..\..\cvd\internal\io\parameter.h" />
+    <ClInclude Include="..\..\cvd\internal\pixel_operations.h" />
+    <ClInclude Include="..\..\cvd\internal\pixel_traits.h" />
+    <ClInclude Include="..\..\cvd\internal\io\png.h" />
+    <ClInclude Include="..\..\cvd\internal\io\pnm_grok.h" />
+    <ClInclude Include="..\..\cvd\internal\rgb_components.h" />
+    <ClInclude Include="..\..\cvd\internal\io\save_postscript.h" />
+    <ClInclude Include="..\..\cvd\internal\scalar_convert.h" />
+    <ClInclude Include="..\..\cvd\internal\shared_ptr.h" />
+    <ClInclude Include="..\..\cvd\internal\io\text.h" />
+    <ClInclude Include="..\..\cvd\internal\io\tiff.h" />
+    <ClInclude Include="..\..\cvd\internal\win.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

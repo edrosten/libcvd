@@ -1,0 +1,586 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\fast">
+      <UniqueIdentifier>{beeb66d1-4724-4f22-ae76-15139c294cbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\i686">
+      <UniqueIdentifier>{21741a59-3c3c-4a32-b0c1-bf8e5c2bdf2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\noarch">
+      <UniqueIdentifier>{9569302e-08e7-4617-9829-ece0914de8a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\pnm_src">
+      <UniqueIdentifier>{26dcf8ca-0b7d-423b-9598-fb02726a3182}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32">
+      <UniqueIdentifier>{23bb48f3-bf7b-4134-8eff-3ee6e0da3c0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Linux">
+      <UniqueIdentifier>{9f95246d-5543-46f2-9d55-8ed500336723}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\OSX">
+      <UniqueIdentifier>{872ff436-68f8-438f-aa7d-9bc499d39335}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SSE">
+      <UniqueIdentifier>{c1883efe-dbca-4261-a533-fb93b8991146}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\internal">
+      <UniqueIdentifier>{7397baa1-63e7-4ed7-aa06-9b5d7f765bc4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\cvd_src\bayer.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io\bmp.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io\bmp_read.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io\bmp_write.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\brezenham.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\colourspace_convert.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\connected_components.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\convolution.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\cvd_timer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io\cvdimage.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\deinterlacebuffer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\diskbuffer2.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\draw.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\draw_toon.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\eventobject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\exceptions.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\fast_corner.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\fast_corner_9_nonmax.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io\fits.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io\fitswrite.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\gltext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io\jpeg.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\morphology.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\nonmax_suppression.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io\png.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io\pnm_grok.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io\save_postscript.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\posix\sched_yield.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\slower_corner_11.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\slower_corner_7.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\slower_corner_8.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\synchronized.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\tensor_voting.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io\text.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io\text_write.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\thread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io\tiff.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\image_io\tiffwrite.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\timeddiskbuffer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\videosource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\videosource_nodvbuffer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\videosource_novideofilebuffer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\yuv411_to_stuff.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\yuv420.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\yuv422.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\fast\fast_10_detect.cxx">
+      <Filter>Source Files\fast</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\fast\fast_10_score.cxx">
+      <Filter>Source Files\fast</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\fast\fast_11_detect.cxx">
+      <Filter>Source Files\fast</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\fast\fast_11_score.cxx">
+      <Filter>Source Files\fast</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\fast\fast_12_detect.cxx">
+      <Filter>Source Files\fast</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\fast\fast_12_score.cxx">
+      <Filter>Source Files\fast</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\fast\fast_7_detect.cxx">
+      <Filter>Source Files\fast</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\fast\fast_7_score.cxx">
+      <Filter>Source Files\fast</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\fast\fast_8_detect.cxx">
+      <Filter>Source Files\fast</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\fast\fast_8_score.cxx">
+      <Filter>Source Files\fast</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\fast\fast_9_detect.cxx">
+      <Filter>Source Files\fast</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\fast\fast_9_score.cxx">
+      <Filter>Source Files\fast</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\i686\convolve_gaussian.cc">
+      <Filter>Source Files\i686</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\i686\gradient.cc">
+      <Filter>Source Files\i686</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\i686\median_3x3.cc">
+      <Filter>Source Files\i686</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\i686\utility_byte_differences.cc">
+      <Filter>Source Files\i686</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\i686\utility_double_int.cc">
+      <Filter>Source Files\i686</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\i686\utility_float.cc">
+      <Filter>Source Files\i686</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\noarch\convert_rgb_to_y.cc">
+      <Filter>Source Files\noarch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\noarch\yuv420p_to_rgb_runner.cc">
+      <Filter>Source Files\noarch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\noarch\yuv422_wrapper.cc">
+      <Filter>Source Files\noarch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\Win32\glwindow.cpp">
+      <Filter>Source Files\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\Win32\win32.cpp">
+      <Filter>Source Files\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\Linux\videosource_nov4l1buffer.cc">
+      <Filter>Source Files\Linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\Linux\videosource_nov4lbuffer.cc">
+      <Filter>Source Files\Linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\OSX\videosource_noqtbuffer.cc">
+      <Filter>Source Files\OSX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\SSE2\faster_corner_10.cxx">
+      <Filter>Source Files\SSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\SSE2\faster_corner_12.cxx">
+      <Filter>Source Files\SSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\SSE2\faster_corner_9.cxx">
+      <Filter>Source Files\SSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\SSE2\half_sample.cc">
+      <Filter>Source Files\SSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cvd_src\SSE2\two_thirds_sample.cc">
+      <Filter>Source Files\SSE</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\cvd\abs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\argb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\bgrx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\bresenham.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\brezenham.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\byte.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\colourspace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\colourspace_convert.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\colourspace_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\colourspacebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\colourspaces.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\connected_components.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\convolution.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\cpu_hacks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\cvd_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\cvd_timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\deinterlacebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\deinterlaceframe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\diskbuffer2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\diskbuffer2_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\documentation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\draw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\esm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\eventobject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\exceptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\fast_corner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\gl_helpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\gles1_helpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\glwindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\haar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\harris_corner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\helpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\image_convert.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\image_convert_fwd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\image_interpolate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\image_io.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\image_ref.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\integral_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\interpolate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\irls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\la.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\localvideobuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\localvideoframe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\message_queue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\morphology.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\nocopy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\nonmax_suppression.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\random.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\readaheadvideobuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\rgb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\rgb8.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\rgba.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\ringbuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\runnable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\runnable_batch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\serverpushjpegbuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\serverpushjpegframe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\synchronized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\tensor_voting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\timeddiskbuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\vector_image_ref.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\videobuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\videobufferflags.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\videobufferwithdata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\videodisplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\videofilebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\videofilebuffer_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\videoframe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\videosource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\vision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\vision_exceptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\yc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\aligned_mem.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\io\bmp.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\builtin_components.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\convert_pixel_types.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\io\cvdimage.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\io\fits.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\gl_types.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\gles1_types.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\is_pod.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\io\jpeg.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\load_and_save.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\name_CVD_rgb_types.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\name_builtin_types.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\io\parameter.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\pixel_operations.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\pixel_traits.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\io\png.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\io\pnm_grok.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\rgb_components.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\io\save_postscript.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\scalar_convert.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\shared_ptr.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\io\text.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\io\tiff.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cvd\internal\win.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="config-TooN-JPEG-PNG-TIFF-pthread.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>
