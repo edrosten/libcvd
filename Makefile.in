@@ -380,7 +380,7 @@ tests/%.out: tests/%.test
 
 
 .PHONY: examples
-EXAMPLES=colourmaps
+EXAMPLES=colourmaps distance_transform
 
 EXAMPLE_PROGS=$(patsubst %,examples/%, $(EXAMPLES))
 

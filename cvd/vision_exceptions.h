@@ -31,6 +31,14 @@ namespace CVD {
 					what = "Input ImageRefs not in image in " + function;
 				};
 			};
+
+
+			struct BadInput: public All{
+				BadInput(const std::string& function)
+				{
+					what = "Bad input in " + function;
+				};
+			};
 		};
 	}
 }
