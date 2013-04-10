@@ -119,7 +119,7 @@ namespace CVD
 		static Rgb<C> gkr(double d) { return Internal::conv<C>(Internal::gkr, d);} 
 		///Gray colourscale
 		///@param d Value in \f$[0, 1)\f$ to map
-		static Rgb<C> gray(double d) { return Internal::conv<C>(Internal::gray, d);} 
+		static Rgb<C> grey(double d) { return Internal::conv<C>(Internal::grey, d);} 
 	};
 	
 
