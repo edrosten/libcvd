@@ -13,6 +13,13 @@ namespace CVD
 	
 	namespace Internal
 	{
+		Rgb<float> grey(float d)
+		{
+			using std::max; 
+			using std::min;
+			d = max(0.f, min(d, 1.0f));
+			return Rgb<float>(d, d, d);
+		}
 			
 		Rgb<float> hot(float d)
 		{
@@ -110,6 +117,9 @@ namespace CVD
 		///Green-black-red colourscale
 		///@param d Value in \f$[0, 1)\f$ to map
 		static Rgb<C> gkr(double d) { return Internal::conv<C>(Internal::gkr, d);} 
+		///Gray colourscale
+		///@param d Value in \f$[0, 1)\f$ to map
+		static Rgb<C> gray(double d) { return Internal::conv<C>(Internal::gray, d);} 
 	};
 	
 
