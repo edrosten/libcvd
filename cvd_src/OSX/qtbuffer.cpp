@@ -41,6 +41,7 @@ Foundation, Inc.,
 #undef check
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
