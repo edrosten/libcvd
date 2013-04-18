@@ -35,12 +35,12 @@ namespace CVD {
 
 
   template <class T>
-  cv::Mat toMat(const CVD::SubImage<T> &img) {
+  cv::Mat toMat(const CVD::BasicImage<T> &img) {
     return cv::Mat(img.size().y, img.size().x, Internal::opencv_type<T>::type, (void*)img.data(), img.row_stride() * sizeof(T));
   }
 
   template <class T>
-  void equalizeHist(const CVD::SubImage<T> &in, CVD::SubImage<T> &out) {
+  void equalizeHist(const CVD::BasicImage<T> &in, CVD::BasicImage<T> &out) {
     equalizeHist(toMat(in), toMat(out));
   }
 }

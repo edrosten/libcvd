@@ -2573,7 +2573,7 @@ inline int fast_corner_score_11(const byte* cache_0, const int offset[], int b)
 	return b-1;
 }
 
-void fast_corner_score_11(const SubImage<byte>& i, const vector<ImageRef>& corners, int b, vector<int>& scores)
+void fast_corner_score_11(const BasicImage<byte>& i, const vector<ImageRef>& corners, int b, vector<int>& scores)
 {
 	scores.resize(corners.size());
 		int pixel[16] = {

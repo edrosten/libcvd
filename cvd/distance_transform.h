@@ -56,7 +56,7 @@ namespace CVD {
 				}
 			}
 
-			void transform_image(SubImage<Precision> &DT) {
+			void transform_image(BasicImage<Precision> &DT) {
 				const ImageRef img_sz(DT.size());
 				for (int x = 0; x < img_sz.x; x++) {
 					for (int y = 0; y < img_sz.y; y++) {
@@ -83,7 +83,7 @@ namespace CVD {
 			template <class Functor>
 			/// Perform distance transform with reverse lookup.
 			/// @param ADT which edge pixel is closest to this one
-			void transform_image_with_ADT(SubImage <Precision> &DT, SubImage <ImageRef> &ADT, const Functor& func) {
+			void transform_image_with_ADT(BasicImage <Precision> &DT, BasicImage <ImageRef> &ADT, const Functor& func) {
 				const ImageRef img_sz(DT.size());
 				const double maxdist = img_sz.x * img_sz.y;
 				for (int x = 0; x < img_sz.x; x++) {
@@ -152,7 +152,7 @@ namespace CVD {
 
 		public:
 			template <class T>
-			void transform_ADT(const SubImage<T>& feature, SubImage<Precision> &DT, SubImage<ImageRef> &ADT) {
+			void transform_ADT(const BasicImage<T>& feature, BasicImage<Precision> &DT, BasicImage<ImageRef> &ADT) {
 				if(feature.size() != DT.size())
 					throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
 					
@@ -166,7 +166,7 @@ namespace CVD {
 				transform_image_with_ADT(DT, ADT, NotZero<T>(feature));
 			}
 
-			void transform(SubImage<Precision> &out) {
+			void transform(BasicImage<Precision> &out) {
 				resize(out.size());
 				transform_image(out);
 			}
@@ -175,11 +175,11 @@ namespace CVD {
 			template<class C>
 			struct NotZero
 			{
-				NotZero(const SubImage<C>& im_)
+				NotZero(const BasicImage<C>& im_)
 				:im(im_)
 				{}
 
-				const SubImage<C>& im;
+				const BasicImage<C>& im;
 				bool operator()(const ImageRef& i) const
 				{
 					return im[i] != 0;
@@ -187,7 +187,7 @@ namespace CVD {
 			};
 			
 			template<class Out, class Functor>
-			void apply_functor(SubImage<Out>& out, const Functor& f)
+			void apply_functor(BasicImage<Out>& out, const Functor& f)
 			{
 				for (int y = 0; y < out.size().y; y++)
 					for (int x = 0; x < out.size().x; x++)
@@ -216,7 +216,7 @@ namespace CVD {
 	///@param out output image is euclidean distance of input image.
 	///@throws Exceptions::Vision::BadInput Throws if the input contains no points.
 	template <class T, class Q>
-	void euclidean_distance_transform_sq(const SubImage<T> &in, SubImage<Q> &out) {
+	void euclidean_distance_transform_sq(const BasicImage<T> &in, BasicImage<Q> &out) {
 		if(in.size() != out.size())
 			throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
 		DistanceTransformEuclidean<Q> dt;
@@ -233,7 +233,7 @@ namespace CVD {
 	///@param lookup_DT For each output pixel, this is the location of the closest input pixel.
 	///@throws Exceptions::Vision::BadInput Throws if the input contains no points.
 	template<class T, class Q>
-	void euclidean_distance_transform_sq(const SubImage<T> &in, SubImage<Q> &out, SubImage<ImageRef>& lookup_DT) {
+	void euclidean_distance_transform_sq(const BasicImage<T> &in, BasicImage<Q> &out, BasicImage<ImageRef>& lookup_DT) {
 		if(in.size() != out.size())
 			throw Exceptions::Vision::IncompatibleImageSizes(__FUNCTION__);
 		DistanceTransformEuclidean<Q> dt;
@@ -247,7 +247,7 @@ namespace CVD {
 	///@param out output image is euclidean distance of input image.
 	///@throws Exceptions::Vision::BadInput Throws if the input contains no points.
 	template<class T, class Q>
-	void euclidean_distance_transform(const SubImage<T> &in, SubImage<Q> &out) {
+	void euclidean_distance_transform(const BasicImage<T> &in, BasicImage<Q> &out) {
 		euclidean_distance_transform_sq(in, out);
 		for (int y = 0; y < out.size().y; y++)
 			for (int x = 0; x < out.size().x; x++)
@@ -263,7 +263,7 @@ namespace CVD {
 	///@param lookup_DT For each output pixel, this is the location of the closest input pixel.
 	///@throws Exceptions::Vision::BadInput Throws if the input contains no points.
 	template<class T, class Q>
-	void euclidean_distance_transform(const SubImage<T> &in, SubImage<Q> &out, SubImage<ImageRef>& lookup_DT) {
+	void euclidean_distance_transform(const BasicImage<T> &in, BasicImage<Q> &out, BasicImage<ImageRef>& lookup_DT) {
 		euclidean_distance_transform_sq(in, out, lookup_DT);
 		for (int y = 0; y < out.size().y; y++)
 			for (int x = 0; x < out.size().x; x++)
@@ -279,10 +279,10 @@ namespace CVD {
 
 			template<class T> struct ImagePromise<DoDistanceTransform<T> >
 			{
-				ImagePromise(const SubImage<T>&in_)
+				ImagePromise(const BasicImage<T>&in_)
 				:in(in_){}
 
-				const SubImage<T>& in;
+				const BasicImage<T>& in;
 
 				template<class C> void execute(Image<C>& im)
 				{
@@ -293,7 +293,7 @@ namespace CVD {
 		};	
 			
 		template <class T>
-		Internal::ImagePromise<Internal::DoDistanceTransform<T> > euclidean_distance_transform(const SubImage<T> &in)
+		Internal::ImagePromise<Internal::DoDistanceTransform<T> > euclidean_distance_transform(const BasicImage<T> &in)
 		{
 			using namespace Internal;
 			return ImagePromise<DoDistanceTransform<T> >(in);
@@ -306,7 +306,7 @@ namespace CVD {
 		///@returns output image is euclidean distance of input image.
 		///@throws Exceptions::Vision::BadInput Throws if the input contains no points.
 		template <class T>
-		Image euclidean_distance_transform(const SubImage<T> &in);
+		Image euclidean_distance_transform(const BasicImage<T> &in);
 	#endif
 
 

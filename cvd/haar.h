@@ -134,7 +134,7 @@ inline void haar2D(It from, const int width, const int height, int stride = -1){
 /// @param I image to be transformed
 /// @ingroup gVision
 template<class T>
-inline void haar2D( SubImage<T> & I ){
+inline void haar2D( BasicImage<T> & I ){
     haar2D(I.data(), I.size().x, I.size().y, I.row_stride());
 }
 

@@ -12,13 +12,13 @@ using namespace std;
 using namespace CVD;
 
 template <typename T>
-Image<T> create_bayer( const ImageRef & size, const SubImage<byte> & pattern ){
+Image<T> create_bayer( const ImageRef & size, const BasicImage<byte> & pattern ){
     assert(pattern.size() == ImageRef(2,2));
     Image<T> result(size);
     for( int y = 0; y < size.y; y += 2 ){
         for(int x = 0; x < size.x; x +=2 ){
-            SubImage<T> sub = result.sub_image(ImageRef(x,y), ImageRef(2,2));
-            reinterpret_cast<SubImage<byte> &>(sub).copy_from(pattern);
+            BasicImage<T> sub = result.sub_image(ImageRef(x,y), ImageRef(2,2));
+            reinterpret_cast<BasicImage<byte> &>(sub).copy_from(pattern);
         }
     }
     return result;

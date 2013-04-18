@@ -110,7 +110,7 @@ namespace CVD
 	///@param p Point at which to interpolate extremum
 	///@return Location of local extremum in image coordinates
 	///@ingroup gVision
-	template<class I> TooN::Vector<2> interpolate_extremum(const SubImage<I>& i, ImageRef p)
+	template<class I> TooN::Vector<2> interpolate_extremum(const BasicImage<I>& i, ImageRef p)
 	{
 	    CVD_IMAGE_ASSERT(p.x > 0 && p.y > 0 && p.x < i.size().x-1 && p.y < i.size().y-1, ImageError::AccessOutsideImage);
 		
@@ -190,7 +190,7 @@ namespace CVD
 	///@param p Point at which to interpolate extremum
 	///@return pair containing Location of local extremum in image coordinates and the value of the extemum
 	///@ingroup gVision
-	template<class I> std::pair<TooN::Vector<2>, double> interpolate_extremum_value(const SubImage<I>& i, ImageRef p)
+	template<class I> std::pair<TooN::Vector<2>, double> interpolate_extremum_value(const BasicImage<I>& i, ImageRef p)
 	{
 	    CVD_IMAGE_ASSERT(p.x > 0 && p.y > 0 && p.x < i.size().x-1 && p.y < i.size().y-1, ImageError::AccessOutsideImage);
 

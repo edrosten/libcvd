@@ -35,6 +35,7 @@
 #include <iostream>
 #include <cctype>
 #include <cvd/exceptions.h>
+#include <cassert>
 
 namespace CVD {
 
@@ -58,6 +59,13 @@ public:
 	/// Construct an ImageRef from a stream
 	/// @param is The stream to read
 	inline ImageRef(std::istream& is);
+
+	#if __cplusplus >= 201103
+	
+	ImageRef(const std::initializer_list<int>& init)
+	:
+	#endif
+
 
 	//Iteration
 

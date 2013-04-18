@@ -78,21 +78,21 @@ namespace Internal { // forward declaration of some internal functions
     inline std::vector<TooN::Vector<2,int> > erode( const std::vector<TooN::Vector<2,int> > & in );
 
     // H takes pixels in out to pixels in in as a 2D homography (3x3 matrix)
-    template <typename T> inline std::vector<TooN::Vector<2,int> > transform_perspective( SubImage<T> & out, const SubImage<T> & in, const TooN::Matrix<3> & H);
+    template <typename T> inline std::vector<TooN::Vector<2,int> > transform_perspective( BasicImage<T> & out, const BasicImage<T> & in, const TooN::Matrix<3> & H);
     // H takes pixels in out to pixels in in as a 2D affine transformation (3x3 matrix)
-    template <typename T> inline std::vector<TooN::Vector<2,int> > transform_affine( SubImage<T> & out, const SubImage<T> & in, const TooN::Matrix<3> & H);
+    template <typename T> inline std::vector<TooN::Vector<2,int> > transform_affine( BasicImage<T> & out, const BasicImage<T> & in, const TooN::Matrix<3> & H);
     // H takes pixels in out to pixels in in as a 2D translation only (stored in the 3x3 matrix)
     // This is extra optimized to use the constant mixing factors in the bi-linear interpolation
-    template <typename T> inline std::vector<TooN::Vector<2,int> > transform_translation( SubImage<T> & out, const SubImage<T> & in, const TooN::Matrix<3> & H);
+    template <typename T> inline std::vector<TooN::Vector<2,int> > transform_translation( BasicImage<T> & out, const BasicImage<T> & in, const TooN::Matrix<3> & H);
     // automatically selects the right transform implementation based on the properties of H
-    template <typename T> inline std::vector<TooN::Vector<2,int> > transform( SubImage<T> & out, const SubImage<T> & in, const TooN::Matrix<3> & H);
+    template <typename T> inline std::vector<TooN::Vector<2,int> > transform( BasicImage<T> & out, const BasicImage<T> & in, const TooN::Matrix<3> & H);
     
     // calculates the gradient of a one component image within the given bounds only. The 
     // function uses central differences, but does not divide by 2!
-    template<typename GRADIENT, typename IMAGE> inline Image<GRADIENT> gradient( const SubImage<IMAGE> & img, const std::vector<TooN::Vector<2,int> > & bounds );
+    template<typename GRADIENT, typename IMAGE> inline Image<GRADIENT> gradient( const BasicImage<IMAGE> & img, const std::vector<TooN::Vector<2,int> > & bounds );
     // calculates the gradient of a one component image directly. The 
     // function uses central differences, but does not divide by 2!
-    template<typename GRADIENT, typename IMAGE> inline Image<GRADIENT> gradient( const SubImage<IMAGE> & img );
+    template<typename GRADIENT, typename IMAGE> inline Image<GRADIENT> gradient( const BasicImage<IMAGE> & img );
     
     /// a full ESM optimization function. It takes a template image and its gradient, a target image and a 
     /// general transform object, plus some parameters and iterates until convergence.
@@ -107,7 +107,7 @@ namespace Internal { // forward declaration of some internal functions
     ///
     /// @ingroup gEsm
     template <typename TRANSFORM, typename APPEARANCE, typename IMAGE, typename GRADIENT>
-    inline ESMResult esm_opt( TRANSFORM & T, APPEARANCE & A, const SubImage<IMAGE> & templateImage, const SubImage<GRADIENT> & templateGradient, const SubImage<IMAGE> & target, const int max_iterations = 40, const double min_delta = 1e-8, const double max_RMSE = 1.0 );                
+    inline ESMResult esm_opt( TRANSFORM & T, APPEARANCE & A, const BasicImage<IMAGE> & templateImage, const BasicImage<GRADIENT> & templateGradient, const BasicImage<IMAGE> & target, const int max_iterations = 40, const double min_delta = 1e-8, const double max_RMSE = 1.0 );                
 } // namespace Internal
 
 /// a generic implementation for 2D homography-based transformations parameterized
@@ -395,7 +395,7 @@ inline TooN::Matrix<3,3,P> scaleHomography( const TooN::Matrix<3,3,P> & H, const
 /// Helper function to compute the 2D homography between to images.
 /// @ingroup gEsm
 template<int PARAMS, typename APPEARANCE, typename IMAGE>
-inline TooN::Matrix<3> inter_frame_homography( const SubImage<IMAGE> & from, const SubImage<IMAGE> & to, const TooN::Matrix<3> & init = TooN::Identity, ESMResult * const res = NULL){    
+inline TooN::Matrix<3> inter_frame_homography( const BasicImage<IMAGE> & from, const BasicImage<IMAGE> & to, const TooN::Matrix<3> & init = TooN::Identity, ESMResult * const res = NULL){    
     TooN::Matrix<3> prefix = TooN::Identity;
 #if 1
     prefix(0,2) = -from.size().x/2;
@@ -444,7 +444,7 @@ public:
     ESMEstimator( const Image<IMAGE> & t) : templ(t), max_iterations(40), min_delta(1e-5), max_RMSE(1e-2) {
         templGradient = Internal::gradient<IMAGE, GRADIENT>(templ);
     }
-    ESMEstimator( const SubImage<IMAGE> & t) : max_iterations(40), min_delta(1e-5), max_RMSE(1e-2) {
+    ESMEstimator( const BasicImage<IMAGE> & t) : max_iterations(40), min_delta(1e-5), max_RMSE(1e-2) {
         templ.copy_from(t);
         templGradient = Internal::gradient<IMAGE, GRADIENT>(templ);
     }
@@ -460,7 +460,7 @@ public:
         templGradient = Internal::gradient<GRADIENT>(templ);
     }
 
-    void set_image( const SubImage<IMAGE> & t ){
+    void set_image( const BasicImage<IMAGE> & t ){
         Image<IMAGE> temp;
         temp.copy_from(t);
         set_image(temp);
@@ -471,16 +471,16 @@ public:
         appearance = APPEARANCE();
     }
 
-    const ESMResult & optimize( const SubImage<IMAGE> & to ){
+    const ESMResult & optimize( const BasicImage<IMAGE> & to ){
         return result = Internal::esm_opt( transform, appearance, templ, templGradient, to, max_iterations, min_delta, max_RMSE);
     }
 
-    const ESMResult & optimize( const SubImage<IMAGE> & from, const SubImage<IMAGE> & to ){
+    const ESMResult & optimize( const BasicImage<IMAGE> & from, const BasicImage<IMAGE> & to ){
         Image<GRADIENT> fromGradient = Internal::gradient<GRADIENT>(from);
         return optimize( from, fromGradient, to );
     }
 
-    const ESMResult & optimize( const SubImage<IMAGE> & from, const SubImage<GRADIENT> & fromGradient, const SubImage<IMAGE> & to ){
+    const ESMResult & optimize( const BasicImage<IMAGE> & from, const BasicImage<GRADIENT> & fromGradient, const BasicImage<IMAGE> & to ){
         return result = Internal::esm_opt( transform, appearance, from, fromGradient, to, max_iterations, min_delta, max_RMSE);
     }
 
@@ -571,7 +571,7 @@ public:
         
         // H takes pixels in out to pixels in in as a 2D homography (3x3 matrix)
         template <typename T>
-        inline std::vector<TooN::Vector<2,int> > transform_perspective( SubImage<T> & out, const SubImage<T> & in, const TooN::Matrix<3> & H){
+        inline std::vector<TooN::Vector<2,int> > transform_perspective( BasicImage<T> & out, const BasicImage<T> & in, const TooN::Matrix<3> & H){
             const ImageRef & size = out.size();
             const TooN::Vector<2> insize = vec(in.size() - ImageRef(1,1));
             const TooN::Vector<3> across = H.T()[0];
@@ -595,7 +595,7 @@ public:
         
         // H takes pixels in out to pixels in in as a 2D affine transformation (3x3 matrix)
         template <typename T>
-        inline std::vector<TooN::Vector<2,int> > transform_affine( SubImage<T> & out, const SubImage<T> & in, const TooN::Matrix<3> & H){
+        inline std::vector<TooN::Vector<2,int> > transform_affine( BasicImage<T> & out, const BasicImage<T> & in, const TooN::Matrix<3> & H){
             const ImageRef & size = out.size();
             const TooN::Vector<2> insize = vec(in.size() - ImageRef(1,1));
             const TooN::Vector<2> across = H.T()[0].slice<0,2>();
@@ -619,7 +619,7 @@ public:
         // H takes pixels in out to pixels in in as a 2D translation only (stored in the 3x3 matrix)
         // This is extra optimized to use the constant mixing factors in the bi-linear interpolation
         template <typename T>
-        inline std::vector<TooN::Vector<2,int> > transform_translation( SubImage<T> & out, const SubImage<T> & in, const TooN::Matrix<3> & H){
+        inline std::vector<TooN::Vector<2,int> > transform_translation( BasicImage<T> & out, const BasicImage<T> & in, const TooN::Matrix<3> & H){
             const ImageRef & size = out.size();
             const TooN::Vector<2> insize = vec(in.size() - ImageRef(1,1));
             const TooN::Vector<2> across = H.T()[0].slice<0,2>();
@@ -650,7 +650,7 @@ public:
         }
         
         template <typename T>
-        inline std::vector<TooN::Vector<2,int> > transform( SubImage<T> & out, const SubImage<T> & in, const TooN::Matrix<3> & H){
+        inline std::vector<TooN::Vector<2,int> > transform( BasicImage<T> & out, const BasicImage<T> & in, const TooN::Matrix<3> & H){
             const double perspective = H(2,0)*H(2,0) + H(2,1)*H(2,1);
             if(perspective < 1e-10)
                 return transform_affine(out, in, H);
@@ -658,7 +658,7 @@ public:
         }
         
         template<typename GRADIENT, typename IMAGE>
-        inline Image<GRADIENT> gradient( const SubImage<IMAGE> & img, const std::vector<TooN::Vector<2,int> > & bounds ){
+        inline Image<GRADIENT> gradient( const BasicImage<IMAGE> & img, const std::vector<TooN::Vector<2,int> > & bounds ){
             assert(bounds.size() == unsigned(img.size().y));
             Image<GRADIENT> grad(img.size());
             for(int y = 1; y < img.size().y-1; ++y){
@@ -671,7 +671,7 @@ public:
         }
         
         template<typename GRADIENT, typename IMAGE>
-        inline Image<GRADIENT> gradient( const SubImage<IMAGE> & img ){
+        inline Image<GRADIENT> gradient( const BasicImage<IMAGE> & img ){
             Image<GRADIENT> grad(img.size());
             for(int y = 1; y < img.size().y-1; ++y){
                 for(int x = 1; x < img.size().x-1; ++x){
@@ -683,7 +683,7 @@ public:
         }
         
         template <typename TRANSFORM, typename APPEARANCE, typename IMAGE, typename GRADIENT>
-        inline ESMResult esm_opt( TRANSFORM & T, APPEARANCE & A, const SubImage<IMAGE> & templateImage, const SubImage<GRADIENT> & templateGradient, const SubImage<IMAGE> & target, const int max_iterations, const double min_delta, const double max_RMSE ){
+        inline ESMResult esm_opt( TRANSFORM & T, APPEARANCE & A, const BasicImage<IMAGE> & templateImage, const BasicImage<GRADIENT> & templateGradient, const BasicImage<IMAGE> & target, const int max_iterations, const double min_delta, const double max_RMSE ){
             assert(templateImage.size() == templateGradient.size());
             
             const int dimensions = TRANSFORM::dimensions+APPEARANCE::dimensions;

@@ -18,7 +18,7 @@ namespace CVD
 			using namespace std;
 			
 			//Compute pointer offsets for a bunch of ImageRef offsets.
-			template<class T> vector<ptrdiff_t> offsets(const vector<ImageRef>& v, const SubImage<T>& s)
+			template<class T> vector<ptrdiff_t> offsets(const vector<ImageRef>& v, const BasicImage<T>& s)
 			{
 				vector<ptrdiff_t> off;
 
@@ -73,7 +73,7 @@ namespace CVD
 	/// @param out The destination image.
 	/// @ingroup gVision
 	template<class Accumulator, class T>
-	void morphology(const SubImage<T>& in, const std::vector<ImageRef>& selem, const Accumulator& a_, SubImage<T>& out)
+	void morphology(const BasicImage<T>& in, const std::vector<ImageRef>& selem, const Accumulator& a_, BasicImage<T>& out)
 	{
 		using Internal::MorphologyHelpers::offsets;	
 		using Internal::MorphologyHelpers::row_split;	
@@ -271,11 +271,11 @@ namespace CVD
 
 			template<class C, class D>  struct ImagePromise<PerformMorphology<C, D> >
 			{
-				ImagePromise(const SubImage<C>& im, const D& acc, const std::vector<ImageRef>& s_)
+				ImagePromise(const BasicImage<C>& im, const D& acc, const std::vector<ImageRef>& s_)
 				:i(im),a(acc),s(s_)
 				{}
 
-				const SubImage<C>& i;
+				const BasicImage<C>& i;
 				const D& a;
 				const std::vector<ImageRef>& s;
 
@@ -287,7 +287,7 @@ namespace CVD
 			};
 		};
 
-		template<class C, class D> Internal::ImagePromise<Internal::PerformMorphology<C, D> > morphology(const SubImage<C>& c, const std::vector<ImageRef>& selem, const D& a)
+		template<class C, class D> Internal::ImagePromise<Internal::PerformMorphology<C, D> > morphology(const BasicImage<C>& c, const std::vector<ImageRef>& selem, const D& a)
 		{
 			return Internal::ImagePromise<Internal::PerformMorphology<C, D> >(c, a, selem);
 		}
@@ -300,7 +300,7 @@ namespace CVD
 		/// @param a_ The morphological operation to perform.  See Morphology
 		/// @param out The destination image.
 		/// @ingroup gVision
-		Image<T> morphology(const SubImage<T>& in, const std::vector<ImageRef>& selem, const Accumulator& a_);
+		Image<T> morphology(const BasicImage<T>& in, const std::vector<ImageRef>& selem, const Accumulator& a_);
 
 	#endif
 
@@ -586,7 +586,7 @@ namespace CVD
 			return v[2];
 		}
 
-		template<class T> T median4(const SubImage<T>& im, int r, int c)
+		template<class T> T median4(const BasicImage<T>& im, int r, int c)
 		{
 			return median4(im[r][c], im[r][c+1], im[r+1][c], im[r+1][c+1]);
 		}
@@ -598,11 +598,11 @@ namespace CVD
 			return v[3];
 		}
 
-		template<class T> T median6_row(const SubImage<T>& im, int r, int c)
+		template<class T> T median6_row(const BasicImage<T>& im, int r, int c)
 		{
 			return median6(im[r][c], im[r][c+1], im[r][c+2], im[r+1][c], im[r+1][c+1], im[r+1][c+2]);
 		}
-		template<class T> T median6_col(const SubImage<T>& im, int r, int c)
+		template<class T> T median6_col(const BasicImage<T>& im, int r, int c)
 		{
 			return median6(im[r][c], im[r][c+1], im[r+1][c], im[r+1][c+1], im[r+2][c], im[r+2][c+1]);
 		}
@@ -611,7 +611,7 @@ namespace CVD
 	
 	#ifndef DOXYGEN_IGNORE_INTERNAL
 		//Overload for median filtering of byte images, to special-case 3x3
-		void morphology(const SubImage<byte>& in, const std::vector<ImageRef>& selem, const Morphology::Median<byte>& m, SubImage<byte>& out);
+		void morphology(const BasicImage<byte>& in, const std::vector<ImageRef>& selem, const Morphology::Median<byte>& m, BasicImage<byte>& out);
 	#endif
 
 }

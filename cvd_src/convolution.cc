@@ -212,7 +212,7 @@ template <class T> inline T clamp01(T x) { return x < 0 ? 0 : (x > 1 ? 1 : x); }
 // See "Recursive Gaussian Derivative Filters", by van Vliet, Young and Verbeck, 1998
 // and "Boundary Conditions for Young - van Vliet Recursive Filtering", by Triggs and Sdika, 2005
 // Can result in values just outside of the input range
-void van_vliet_blur(const double b[], const CVD::SubImage<float> in, CVD::SubImage<float> out)
+void van_vliet_blur(const double b[], const CVD::BasicImage<float> in, CVD::BasicImage<float> out)
 {
     assert(in.size() == out.size());
     const int w = in.size().x;

@@ -44,7 +44,7 @@ namespace CVD{
 @throw IncompatibleImageSizes if out does not have the correct dimensions.
 @ingroup gVision
 */
-template<class C> void twoThirdsSample(const SubImage<C>& in, SubImage<C>& out)
+template<class C> void twoThirdsSample(const BasicImage<C>& in, BasicImage<C>& out)
 {
     typedef typename Pixel::traits<C>::wider_type sum_type;
 	if( (in.size()/3*2) != out.size())
@@ -73,7 +73,7 @@ template<class C> void twoThirdsSample(const SubImage<C>& in, SubImage<C>& out)
 /**
 @overload
 */
-void twoThirdsSample(const SubImage<byte>& in, SubImage<byte>& out);
+void twoThirdsSample(const BasicImage<byte>& in, BasicImage<byte>& out);
 
   #ifndef DOXYGEN_IGNORE_INTERNAL
   namespace Internal
@@ -81,11 +81,11 @@ void twoThirdsSample(const SubImage<byte>& in, SubImage<byte>& out);
   	template<class C> class twoThirdsSampler{};
 	template<class C>  struct ImagePromise<twoThirdsSampler<C> >
 	{
-		ImagePromise(const SubImage<C>& im)
+		ImagePromise(const BasicImage<C>& im)
 		:i(im)
 		{}
 
-		const SubImage<C>& i;
+		const BasicImage<C>& i;
 		template<class D> void execute(Image<D>& j)
 		{
 			j.resize(i.size()/3*2);
@@ -93,7 +93,7 @@ void twoThirdsSample(const SubImage<byte>& in, SubImage<byte>& out);
 		}
 	};
   };
-  template<class C> Internal::ImagePromise<Internal::twoThirdsSampler<C> > twoThirdsSample(const SubImage<C>& c)
+  template<class C> Internal::ImagePromise<Internal::twoThirdsSampler<C> > twoThirdsSample(const BasicImage<C>& c)
   {
     return Internal::ImagePromise<Internal::twoThirdsSampler<C> >(c);
   }
@@ -105,7 +105,7 @@ void twoThirdsSample(const SubImage<byte>& in, SubImage<byte>& out);
     /// @param from The image to convert from
 	/// @return The converted image
     /// @ingroup gVision
-  	template<class C> Image<C> twoThirdsSample(const SubImage<C>& from);
+  	template<class C> Image<C> twoThirdsSample(const BasicImage<C>& from);
 
   #endif
 
@@ -270,7 +270,7 @@ void gradient(const BasicImage<byte>& im, BasicImage<short[2]>& out);
 #endif
 
 
-template <class T, class S, typename Precision> inline void sample(const SubImage<S>& im, Precision x, Precision y, T& result)
+template <class T, class S, typename Precision> inline void sample(const BasicImage<S>& im, Precision x, Precision y, T& result)
 {
   typedef typename Pixel::Component<S>::type SComp;
   typedef typename Pixel::Component<T>::type TComp;
@@ -285,13 +285,13 @@ template <class T, class S, typename Precision> inline void sample(const SubImag
   }
  }
 
-template <class T, class S, typename Precision> inline T sample(const SubImage<S>& im, Precision x, Precision y){
+template <class T, class S, typename Precision> inline T sample(const BasicImage<S>& im, Precision x, Precision y){
     T result;
     sample( im, x, y, result);
     return result;
 }
 
-inline void sample(const SubImage<float>& im, double x, double y, float& result)
+inline void sample(const BasicImage<float>& im, double x, double y, float& result)
 {
     const int lx = (int)x;
     const int ly = (int)y;
@@ -320,7 +320,7 @@ inline void sample(const SubImage<float>& im, double x, double y, float& result)
  * @Note: this will collide with transform in the std namespace
  */
 template <typename T, typename S, typename P>
-int transform(const SubImage<S>& in, SubImage<T>& out, const TooN::Matrix<2, 2, P>& M, const TooN::Vector<2, P>& inOrig, const TooN::Vector<2, P>& outOrig, const T defaultValue = T())
+int transform(const BasicImage<S>& in, BasicImage<T>& out, const TooN::Matrix<2, 2, P>& M, const TooN::Vector<2, P>& inOrig, const TooN::Vector<2, P>& outOrig, const T defaultValue = T())
 {
     const int w = out.size().x, h = out.size().y, iw = in.size().x, ih = in.size().y; 
     const TooN::Vector<2, P> across = M.T()[0];
@@ -419,7 +419,7 @@ int transform(const SubImage<S>& in, SubImage<T>& out, const TooN::Matrix<2, 2, 
   
 /// warp or unwarps an image according to two camera models.
 template <typename T, typename CAM1, typename CAM2>
-void warp( const SubImage<T> & in, const CAM1 & cam_in, SubImage<T> & out, const CAM2 & cam_out){
+void warp( const BasicImage<T> & in, const CAM1 & cam_in, BasicImage<T> & out, const CAM2 & cam_out){
 	const ImageRef size = out.size();
 	for(int y = 0; y < size.y; ++y){
 		for(int x = 0; x < size.x; ++x){
@@ -436,7 +436,7 @@ void warp( const SubImage<T> & in, const CAM1 & cam_in, SubImage<T> & out, const
 /// returns the result image. The size of the output image needs to be
 /// passed in as well.
 template <typename T, typename CAM1, typename CAM2>
-Image<T> warp( const SubImage<T> & in, const CAM1 & cam_in, const ImageRef & size, const CAM2 & cam_out){
+Image<T> warp( const BasicImage<T> & in, const CAM1 & cam_in, const ImageRef & size, const CAM2 & cam_out){
 	Image<T> result(size);
 	warp(in, cam_in, result, cam_out);
 	return result;
@@ -446,7 +446,7 @@ Image<T> warp( const SubImage<T> & in, const CAM1 & cam_in, const ImageRef & siz
 /// returns the result image. The size of the output image is the
 /// same as the input image size.
 template <typename T, typename CAM1, typename CAM2>
-Image<T> warp( const SubImage<T> & in, const CAM1 & cam_in, const CAM2 & cam_out){
+Image<T> warp( const BasicImage<T> & in, const CAM1 & cam_in, const CAM2 & cam_out){
 	Image<T> result(in.size());
 	warp(in, cam_in, result, cam_out);
 	return result;
@@ -535,7 +535,7 @@ namespace median {
     }
 }
 
-    template <class T> void median_filter_3x3(const SubImage<T>& I, SubImage<T> out)
+    template <class T> void median_filter_3x3(const BasicImage<T>& I, BasicImage<T> out)
     {
 	assert(out.size() == I.size());
 	const int s = I.row_stride();
@@ -544,7 +544,7 @@ namespace median {
 	    median::median_filter_3x3(I[i]+1, s, n, out[i]+1);
     }
 
-void median_filter_3x3(const SubImage<byte>& I, SubImage<byte> out);
+void median_filter_3x3(const BasicImage<byte>& I, BasicImage<byte> out);
 
 //template<class T>
 

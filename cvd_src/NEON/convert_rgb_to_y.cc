@@ -4,7 +4,7 @@
 namespace CVD {
 
 	namespace Internal {
-		void convert_rgb_to_grey_NEON(const SubImage<Rgb<byte> >& from, SubImage<byte>& to, const unsigned r, const unsigned g, const unsigned b) {
+		void convert_rgb_to_grey_NEON(const BasicImage<Rgb<byte> >& from, BasicImage<byte>& to, const unsigned r, const unsigned g, const unsigned b) {
 			const uint8x8_t red = vdup_n_u8(r);
 			const uint8x8_t green = vdup_n_u8(g);
 			const uint8x8_t blue = vdup_n_u8(b);
@@ -26,7 +26,7 @@ namespace CVD {
 		}
 	}
 
-	void ConvertImage<Rgb<byte>, byte, Pixel::CIE<Rgb<byte>, byte>, 1>::convert(const SubImage<Rgb<byte> >& from, SubImage<byte>& to) 
+	void ConvertImage<Rgb<byte>, byte, Pixel::CIE<Rgb<byte>, byte>, 1>::convert(const BasicImage<Rgb<byte> >& from, BasicImage<byte>& to) 
 	{
 
 		if((from.size().x % 8) == 0){

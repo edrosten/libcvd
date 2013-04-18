@@ -17,7 +17,7 @@ namespace CVD{
 		}
 	}
 
-	void morphology(const SubImage<byte>& in, const std::vector<ImageRef>& selem, const Morphology::Median<byte>& m, SubImage<byte>& out)
+	void morphology(const BasicImage<byte>& in, const std::vector<ImageRef>& selem, const Morphology::Median<byte>& m, BasicImage<byte>& out)
 	{
 		//If we happen to be given a 3x3 square, then perform
 		//median filtering using the hand coded functions.

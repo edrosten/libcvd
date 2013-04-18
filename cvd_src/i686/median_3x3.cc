@@ -63,7 +63,7 @@ namespace CVD {
 	
     }
 
-    void median_filter_3x3(const SubImage<byte>& I, SubImage<byte> out)
+    void median_filter_3x3(const BasicImage<byte>& I, BasicImage<byte> out)
     {
 	assert(out.size() == I.size());
 	const int s = I.row_stride();

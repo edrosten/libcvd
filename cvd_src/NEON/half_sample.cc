@@ -6,7 +6,7 @@ namespace CVD
 {
 	namespace Internal{
 				
-		void halfSampleNEON( const SubImage<byte> & in, SubImage<byte> & out ){
+		void halfSampleNEON( const BasicImage<byte> & in, BasicImage<byte> & out ){
 			for( int y = 0; y < in.size().y; y += 2){
 				const byte * in_top = in[y];
 				const byte * in_bottom = in[y+1];

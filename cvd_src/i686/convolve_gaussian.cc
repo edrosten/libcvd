@@ -247,7 +247,7 @@ inline void forward_to_backward(const __m128 M[], const __m128 i_plus, const __m
 // See "Recursive Gaussian Derivative Filters", by van Vliet, Young and Verbeck, 1998
 // and "Boundary Conditions for Young - van Vliet Recursive Filtering", by Triggs and Sdika, 2005
 // This can produce output with values slightly outside the input range.
-void van_vliet_blur_simd(const double b[], const SubImage<float> in, SubImage<float> out)
+void van_vliet_blur_simd(const double b[], const BasicImage<float> in, BasicImage<float> out)
 {
     assert(in.size() == out.size());
     const int w = in.size().x;
