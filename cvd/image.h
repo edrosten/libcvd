@@ -131,6 +131,13 @@ namespace ImageUtil
 template<class T> class BasicImageIterator
 {
 	public:
+		//Make it look like a standard iterator
+		typedef std::forward_iterator_tag iterator_category;
+		typedef T value_type;
+		typedef std::ptrdiff_t difference_type;
+		typedef T* pointer;
+		typedef T& reference;
+
 		const BasicImageIterator& operator++()
 		{
 			ptr++;
@@ -150,8 +157,8 @@ template<class T> class BasicImageIterator
 			operator++();
 		}
 	
-		const T* operator->() const { return ptr; }
-		const T& operator*() const { return *ptr;}
+		T* operator->() const { return ptr; }
+		T& operator*() const { return *ptr;}
 
 		bool operator<(const BasicImageIterator& s) const 
 		{ 
@@ -185,19 +192,13 @@ template<class T> class BasicImageIterator
 		}
 
 
-		//Make it look like a standard iterator
-		typedef std::forward_iterator_tag iterator_category;
-		typedef T value_type;
-		typedef std::ptrdiff_t difference_type;
-		typedef const T* pointer;
-		typedef const T& reference;
 
 
 
 		BasicImageIterator()
 		{}
 
-		BasicImageIterator(T* start, int image_width, int row_stride, const T* off_end)
+		BasicImageIterator(T* start, int image_width, int row_stride, T* off_end)
 		:ptr(start),
 		 row_end(start + image_width), 
 		 end(off_end), 
@@ -207,7 +208,7 @@ template<class T> class BasicImageIterator
 		{ }
 
 		//Prevent automatic conversion from a pointer (ie Image::iterator)
-		explicit BasicImageIterator(const T* end) 
+		explicit BasicImageIterator(T* end) 
 		:ptr(end),is_end(1),row_increment(0),total_width(0)
 		{ }
 
@@ -578,7 +579,7 @@ class Image: public BasicImage<T>
 			*num_copies = 1;
  			this->my_size = size;
  			this->my_stride = size.x;
-            this->my_data = Internal::aligned_alloc<T>(this->totalsize(), 16);
+            this->my_data = Internal::aligned_alloc<T>(this->size().area(), 16);
           }
 		}
 
@@ -645,7 +646,7 @@ class Image: public BasicImage<T>
 		{
 			if(this->my_data && *num_copies && --(*num_copies) == 0)
 			{
-                Internal::aligned_free<T>(this->my_data, this->totalsize());
+                Internal::aligned_free<T>(this->my_data, this->size().area());
 			    this->my_data = 0;
 			    delete   num_copies;
 			    num_copies = 0;
