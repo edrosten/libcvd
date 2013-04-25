@@ -5,14 +5,8 @@ namespace CVD {
 
 	void ConvertImage<Rgb<byte>, byte, Pixel::CIE<Rgb<byte>, byte>, 1>::convert(const BasicImage<Rgb<byte> >& from, BasicImage<byte>& to) 
 	{
-		const Rgb<byte>* rgb = from.data();
-		byte* gray = to.data(), *gend = to.data() + to.totalsize();
-
-		while (gray < gend)
-		{
-			Pixel::CIE<Rgb<byte>,byte>::convert(*rgb, *gray);
-			rgb++;
-			gray++;
-		}
+		for(int y=0; y < from.size().y; y++)
+			for(int x=0; x < from.size().x; x++)
+				Pixel::CIE<Rgb<byte>,byte>::convert(from[y][x], to[y][x]);
 	}
 }
