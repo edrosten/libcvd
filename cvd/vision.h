@@ -109,34 +109,22 @@ void twoThirdsSample(const BasicImage<byte>& in, BasicImage<byte>& out);
 
   #endif
 
-/// subsamples an image to half its size by averaging 2x2 pixel blocks
-/// @param in input image
-/// @param out output image, must have the right dimensions versus input image
-/// @throw IncompatibleImageSizes if out does not have half the dimensions of in
-/// @ingroup gVision
-template <class T>
-void halfSample(const BasicImage<T>& in, BasicImage<T>& out)
-{
-    typedef typename Pixel::traits<T>::wider_type sum_type;
-    if( (in.size()/2) != out.size())
-        throw Exceptions::Vision::IncompatibleImageSizes("halfSample");
-    const T* top = in.data();
-    const T* bottom = top + in.size().x;
-    const T* end = top + in.totalsize();
-    int ow = out.size().x;
-    int skip = in.size().x + (in.size().x % 2);
-    T* p = out.data();
-    while (bottom < end) {      
-      for (int j=0; j<ow; j++) {
-	*p = static_cast<T>((sum_type(top[0]) + top[1] + bottom[0] + bottom[1])/4);
-	p++;
-	top += 2;
-	bottom += 2;
-      }
-      top += skip;
-      bottom += skip;
+    /// subsamples an image to half its size by averaging 2x2 pixel blocks
+    /// @param in input image
+    /// @param out output image, must have the right dimensions versus input image
+    /// @throw IncompatibleImageSizes if out does not have half the dimensions of in
+    /// @ingroup gVision
+    template <class T>
+    void halfSample(const BasicImage<T>& in, BasicImage<T>& out)
+    {
+	typedef typename Pixel::traits<T>::wider_type sum_type;
+	if( (in.size()/2) != out.size())
+	    throw Exceptions::Vision::IncompatibleImageSizes("halfSample");
+	
+	for(int yo=0; yo < out.size().y; yo++)
+	    for(int xo=0; xo < out.size().x; xo++)
+	    	out[yo][xo] = static_cast<T>((sum_type(in[yo*2][xo*2]) + in[yo*2+1][xo*2] + in[yo*2][xo*2+1] + in[yo*2+1][xo*2+1])/4);
     }
-}
 
 void halfSample(const BasicImage<byte>& in, BasicImage<byte>& out);
 
