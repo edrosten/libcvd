@@ -375,7 +375,7 @@ template<class T> class BasicImage
 		/// Set all the pixels in the image to zero. This is a relatively fast operation, using <code>memset</code>.
 		inline void zero()
 		{
-			fill(0);
+			fill(T());
 		}
 
 		/// Set all the pixels in the image to a value. This is a relatively fast operation, using <code>memfill</code>.
