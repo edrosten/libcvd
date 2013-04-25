@@ -1131,7 +1131,7 @@ int main(int argc, char* argv[])
     if(generateErrorImage){
 	cerr << "Generating errors.pgm..." << endl;
 	Image<float> errorImage(imageSize);
-	zeroPixels(errorImage.data(), errorImage.totalsize());
+	errorImage.zero();
 	for (size_t i=0; i<errors.size(); i++)
         {
 	    ImageRef p = ir_rounded(errors[i].first/factor);
