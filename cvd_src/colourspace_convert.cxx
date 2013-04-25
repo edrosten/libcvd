@@ -1,3 +1,4 @@
+//FIXME
 /*                       
 			 This file is part of the CVD Library.
 
@@ -27,7 +28,7 @@
 
 namespace CVD
 {
-	
+/*	
   template<> void convert_image(const BasicImage<bayer_bggr>& from, BasicImage<Rgb<byte> >& to)
   {
     ColourSpace::bayer_to_rgb_bggr(reinterpret_cast<const unsigned char*>(from.data()), 
@@ -220,4 +221,6 @@ namespace CVD
 	{
 		ColourSpace::vuy422_to_grey(reinterpret_cast<const byte*>(from.data()), to.data(), from.size().x, from.size().y);
 	}	
+
+	*/
 }
