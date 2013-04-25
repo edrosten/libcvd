@@ -571,12 +571,17 @@ CHECK_FOR_OPTION(videodisplay,[
 	else
 
 		AC_PATH_X
-		if test x$x_includes != x
+		if test x"$x_includes" != x
 		then
 			APPEND(CXXFLAGS, -I$x_includes)
 		fi
 
-		APPEND(LIBS, [-L$x_libraries -lX11 -lXext])
+		if test "$x_libraries" != ""
+		then
+			APPEND(LIBS, [-L$x_libraries])
+		fi
+
+		APPEND(LIBS, [-lX11 -lXext])
 		AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
 		AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
 		AC_CHECK_LIB(GLU,gluGetString, [], [a=1])
