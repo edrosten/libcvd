@@ -220,23 +220,21 @@ struct multiplyBy
 };
 
 template <class S, class T, int Sn=Pixel::Component<S>::count, int Tn=Pixel::Component<T>::count> struct Gradient;
+
 template <class S, class T> struct Gradient<S,T,1,2> {
-  typedef typename Pixel::Component<S>::type SComp;
-  typedef typename Pixel::Component<T>::type TComp;
-  typedef typename Pixel::traits<SComp>::wider_type diff_type;
-  static void gradient(const BasicImage<S>& I, BasicImage<T>& grad) {
-    int w = I.size().x;
-    typename BasicImage<S>::const_iterator s = I.begin() + w + 1;
-    typename BasicImage<S>::const_iterator end = I.end() - w - 1;
-    typename BasicImage<T>::iterator t = grad.begin() + w + 1;
-    while (s != end) {
-      Pixel::Component<T>::get(*t, 0) = Pixel::scalar_convert<TComp,SComp,diff_type>(diff_type(*(s+1)) - *(s-1));
-      Pixel::Component<T>::get(*t, 1) = Pixel::scalar_convert<TComp,SComp,diff_type>(diff_type(*(s+w)) - *(s-w));
-      s++;
-      t++;
-    }
-    zeroBorders(grad);
-  }
+	typedef typename Pixel::Component<S>::type SComp;
+	typedef typename Pixel::Component<T>::type TComp;
+	typedef typename Pixel::traits<SComp>::wider_type diff_type;
+	static void gradient(const BasicImage<S>& I, BasicImage<T>& grad) {
+		for(int y=0; y < I.size().y; y++)
+			for(int x=0; x < I.size().x; x++)
+			{
+				Pixel::Component<T>::get(grad[y][x], 0) = Pixel::scalar_convert<TComp,SComp,diff_type>(diff_type(I[y][x+1]) - I[y][x-1]);
+				Pixel::Component<T>::get(grad[y][x], 1) = Pixel::scalar_convert<TComp,SComp,diff_type>(diff_type(I[y+1][x]) - I[y-1][x]);
+			}
+
+		zeroBorders(grad);
+	}
 };
 
 /// computes the gradient image from an image. The gradient image contains two components per pixel holding
