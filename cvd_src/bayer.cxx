@@ -20,7 +20,8 @@
 */
 #include <string.h>
 #include <cvd/config.h>
-#include <cvd/colourspace.h>
+#include <cvd/colourspaces.h>
+#include <cvd/colourspace_convert.h>
 
 //Written by Ethan
 //Modified by Olaf :)
@@ -708,8 +709,11 @@ struct bayer_sample_grbg {
 //template <typename T, class SAMPLER>
 //void bayer_to_rgb(const T* bggr, T* rgb, unsigned int width, unsigned int height)
 template <typename T, class SAMPLER>
-void bayer_to_rgb(const T* bggr, T* rgb, unsigned int width, unsigned int height)
+void bayer_to_rgb(const T* bggr, int bggr_stride, T* rgb, int rgb_stride, unsigned int width, unsigned int height)
 {
+  int rgb_inc = rgb_stride - width;
+  int bggr_inc = bggr_stride - width;
+
   const T* row = bggr;
   const T* next = bggr+width;
   const T* prev = bggr;
@@ -724,7 +728,10 @@ void bayer_to_rgb(const T* bggr, T* rgb, unsigned int width, unsigned int height
 	out += 2; row += 2; next += 2;
   }
   SAMPLER::upper_right(out, row, next);
-  out += 2; row += 2; next += 2;
+
+  out += 2+rgb_inc;
+  row += 2+bggr_inc;
+  next += 2+bggr_inc;
 
   // Middle rows
   for (unsigned int i=1; i<height-1; i+=2) {
@@ -736,7 +743,12 @@ void bayer_to_rgb(const T* bggr, T* rgb, unsigned int width, unsigned int height
 		out += 2; prev+= 2; row += 2; next += 2;
 	}
 	SAMPLER::odd_right(out, prev, row, next);
-	out += 2; prev+= 2; row += 2; next += 2;
+
+    out += 2+rgb_inc;
+    row += 2+bggr_inc;
+    next += 2+bggr_inc;
+	prev += 2+bggr_inc;
+
 	// even row
 	SAMPLER::even_left(out, prev, row, next);
 	out += 2; prev+= 2; row += 2; next += 2;
@@ -745,7 +757,11 @@ void bayer_to_rgb(const T* bggr, T* rgb, unsigned int width, unsigned int height
 		out += 2; prev+= 2; row += 2; next += 2;
 	}
 	SAMPLER::even_right(out, prev, row, next);
-	out += 2; prev+= 2; row += 2; next += 2;
+
+    out += 2+rgb_inc;
+    row += 2+bggr_inc;
+    next += 2+bggr_inc;
+	prev += 2+bggr_inc;
   }
   // last row
   SAMPLER::lower_left(out, prev, row);
@@ -757,61 +773,17 @@ void bayer_to_rgb(const T* bggr, T* rgb, unsigned int width, unsigned int height
   SAMPLER::lower_right(out, prev, row);
 }
 
-void bayer_to_rgb_rggb(const unsigned char* rggb, unsigned char* rgb, unsigned int width, unsigned int height){
-	bayer_to_rgb<unsigned char, bayer_sample_rggb<unsigned char,read_host_byteorder<unsigned char> > >(rggb, rgb, width, height);
-}
-
-void bayer_to_rgb_gbrg(const unsigned char* rggb, unsigned char* rgb, unsigned int width, unsigned int height){
-	bayer_to_rgb<unsigned char, bayer_sample_gbrg<unsigned char,read_host_byteorder<unsigned char> > >(rggb, rgb, width, height);
-}
-
-void bayer_to_rgb_grbg(const unsigned char* rggb, unsigned char* rgb, unsigned int width, unsigned int height){
-	bayer_to_rgb<unsigned char, bayer_sample_grbg<unsigned char,read_host_byteorder<unsigned char> > >(rggb, rgb, width, height);
-}
-
-void bayer_to_rgb_bggr(const unsigned char* bggr, unsigned char* rgb, unsigned int width, unsigned int height){
-	bayer_to_rgb<unsigned char, bayer_sample_bggr<unsigned char,read_host_byteorder<unsigned char> > >(bggr, rgb, width, height);
-}
-
-void bayer_to_rgb_rggb(const unsigned short* rggb, unsigned short* rgb, unsigned int width, unsigned int height){
-	bayer_to_rgb<unsigned short, bayer_sample_rggb<unsigned short,read_host_byteorder<unsigned short> > >(rggb, rgb, width, height);
-}
-
-void bayer_to_rgb_gbrg(const unsigned short* rggb, unsigned short* rgb, unsigned int width, unsigned int height){
-	bayer_to_rgb<unsigned short, bayer_sample_gbrg<unsigned short,read_host_byteorder<unsigned short> > >(rggb, rgb, width, height);
-}
-
-void bayer_to_rgb_grbg(const unsigned short* rggb, unsigned short* rgb, unsigned int width, unsigned int height){
-	bayer_to_rgb<unsigned short, bayer_sample_grbg<unsigned short,read_host_byteorder<unsigned short> > >(rggb, rgb, width, height);
-}
-
-void bayer_to_rgb_bggr(const unsigned short* bggr, unsigned short* rgb, unsigned int width, unsigned int height){
-	bayer_to_rgb<unsigned short, bayer_sample_bggr<unsigned short,read_host_byteorder<unsigned short> > >(bggr, rgb, width, height);
-}
-
-void bayer_to_rgb_rggb_be(const unsigned short* rggb, unsigned short* rgb, unsigned int width, unsigned int height){
-	bayer_to_rgb<unsigned short, bayer_sample_rggb<unsigned short,read_net_byteorder<unsigned short> > >(rggb, rgb, width, height);
-}
-
-void bayer_to_rgb_gbrg_be(const unsigned short* rggb, unsigned short* rgb, unsigned int width, unsigned int height){
-	bayer_to_rgb<unsigned short, bayer_sample_gbrg<unsigned short,read_net_byteorder<unsigned short> > >(rggb, rgb, width, height);
-}
-
-void bayer_to_rgb_grbg_be(const unsigned short* rggb, unsigned short* rgb, unsigned int width, unsigned int height){
-	bayer_to_rgb<unsigned short, bayer_sample_grbg<unsigned short,read_net_byteorder<unsigned short> > >(rggb, rgb, width, height);
-}
-
-void bayer_to_rgb_bggr_be(const unsigned short* bggr, unsigned short* rgb, unsigned int width, unsigned int height){
-	bayer_to_rgb<unsigned short, bayer_sample_bggr<unsigned short,read_net_byteorder<unsigned short> > >(bggr, rgb, width, height);
-}
 
 template <class T>
 inline T cie(T * c) { return (c[0]*77 + c[1]*150 + c[2]*29)>>8; }
 
 // TYPE is 0, 1, 2, 3 corresponding to the layouts RGGB = 0, GBRG = 1, GRBG = 2, BGGR = 3
 template<class T, class SAMPLER>
-void bayer_to_grey(const T* bggr, T* grey, unsigned int width, unsigned int height)
+void bayer_to_grey(const T* bggr, int bggr_stride, T* grey, int grey_stride, unsigned int width, unsigned int height)
 {
+  int grey_inc = grey_stride - width;
+  int bggr_inc = bggr_stride - width;
+
   const T* row = bggr;
   const T* next = bggr+width;
   const T* prev = bggr;
@@ -829,10 +801,14 @@ void bayer_to_grey(const T* bggr, T* grey, unsigned int width, unsigned int heig
   }
   SAMPLER::upper_right(out, row, next);
   grey[0] = cie(out[0]); grey[1] = cie(out[1]);
-  grey += 2; row += 2; next += 2;
+
+  grey += 2+grey_inc;
+  row += 2+bggr_inc;
+  next += 2+bggr_inc;
 
   // Middle rows
   for (unsigned int i=1; i<height-1; i+=2) {
+
 	// odd row
 	SAMPLER::odd_left(out, prev, row, next);
 	grey[0] = cie(out[0]); grey[1] = cie(out[1]);
@@ -842,9 +818,16 @@ void bayer_to_grey(const T* bggr, T* grey, unsigned int width, unsigned int heig
 		grey[0] = cie(out[0]); grey[1] = cie(out[1]);
 		grey += 2; prev +=2; row += 2; next += 2;
 	}
+
 	SAMPLER::odd_right(out, prev, row, next);
 	grey[0] = cie(out[0]); grey[1] = cie(out[1]);
-	grey += 2; prev +=2; row += 2; next += 2;
+
+
+    grey += 2+grey_inc;
+    row += 2+bggr_inc;
+    next += 2+bggr_inc;
+	prev += 2+bggr_inc;
+
 	// even row
 	SAMPLER::even_left(out, prev, row, next);
 	grey[0] = cie(out[0]); grey[1] = cie(out[1]);
@@ -854,10 +837,17 @@ void bayer_to_grey(const T* bggr, T* grey, unsigned int width, unsigned int heig
 		grey[0] = cie(out[0]); grey[1] = cie(out[1]);
 		grey += 2; prev +=2; row += 2; next += 2;
 	}
+
 	SAMPLER::even_right(out, prev, row, next);
 	grey[0] = cie(out[0]); grey[1] = cie(out[1]);
-	grey += 2; prev +=2; row += 2; next += 2;
+	
+    grey += 2+grey_inc;
+    row += 2+bggr_inc;
+    next += 2+bggr_inc;
+	prev += 2+bggr_inc;
+
   }
+  
   // last row
   SAMPLER::lower_left(out, prev, row);
   grey[0] = cie(out[0]); grey[1] = cie(out[1]);
@@ -869,52 +859,56 @@ void bayer_to_grey(const T* bggr, T* grey, unsigned int width, unsigned int heig
   SAMPLER::lower_right(out, prev, row);
 }
 
-void bayer_to_grey_rggb(const unsigned char* rggb, unsigned char* grey, unsigned int width, unsigned int height){
-	bayer_to_grey<unsigned char, bayer_sample_rggb<unsigned char,read_host_byteorder<unsigned char> > >(rggb, grey, width, height);
+
+
+template<class B, class P, template<class,class> class Sampler, template<class> class ByteOrder>
+void convert_bayer_to_rgb(const BasicImage<B>& bayer, BasicImage<Rgb<P> >& out)
+{
+	if(bayer.size() != out.size())
+		throw Exceptions::Image::IncompatibleImageSizes("convert_image");
+
+	bayer_to_rgb<P, Sampler<P, ByteOrder<P> > >(
+		reinterpret_cast<const P*>(bayer.data()), bayer.row_stride(),
+		reinterpret_cast<P*>(out.data()), out.row_stride(),
+		out.size().x, out.size().y);
 }
 
-void bayer_to_grey_gbrg(const unsigned char* rggb, unsigned char* grey, unsigned int width, unsigned int height){
-	bayer_to_grey<unsigned char,bayer_sample_gbrg<unsigned char,read_host_byteorder<unsigned char> > >(rggb, grey, width, height);
+template<class B, class P, template<class,class> class Sampler, template<class> class ByteOrder>
+void convert_bayer_to_grey(const BasicImage<B>& bayer, BasicImage<P>& out)
+{
+	if(bayer.size() != out.size())
+		throw Exceptions::Image::IncompatibleImageSizes("convert_image");
+
+	bayer_to_grey<P, Sampler<P, ByteOrder<P> > >(
+		reinterpret_cast<const P*>(bayer.data()), bayer.row_stride(),
+		out.data(), out.row_stride(),
+		out.size().x, out.size().y);
 }
 
-void bayer_to_grey_grbg(const unsigned char* rggb, unsigned char* grey, unsigned int width, unsigned int height){
-	bayer_to_grey<unsigned char,bayer_sample_grbg<unsigned char,read_host_byteorder<unsigned char> > >(rggb, grey, width, height);
+
 }
 
-void bayer_to_grey_bggr(const unsigned char* bggr, unsigned char* grey, unsigned int width, unsigned int height){
-	bayer_to_grey<unsigned char,bayer_sample_bggr<unsigned char,read_host_byteorder<unsigned char> > >(bggr, grey, width, height);
+
+#define MAKE_CONVERT(Bayer, Suffix, Pixel, ByteOrder) \
+template<> void convert_image(const BasicImage<bayer_##Bayer##Suffix>& from, BasicImage<Pixel>& to)\
+{\
+	ColourSpace::convert_bayer_to_grey<bayer_##Bayer##Suffix, Pixel, ColourSpace::bayer_sample_##Bayer, ColourSpace::ByteOrder>(from, to);\
+}\
+template<> void convert_image(const BasicImage<bayer_##Bayer##Suffix>& from, BasicImage<Rgb<Pixel> >& to)\
+{\
+	ColourSpace::convert_bayer_to_rgb<bayer_##Bayer##Suffix, Pixel, ColourSpace::bayer_sample_##Bayer, ColourSpace::ByteOrder>(from, to);\
 }
 
-void bayer_to_grey_rggb(const unsigned short* rggb, unsigned short* grey, unsigned int width, unsigned int height){
-	bayer_to_grey<unsigned short, bayer_sample_rggb<unsigned short,read_host_byteorder<unsigned short> > >(rggb, grey, width, height);
-}
+#define MAKE_CONVERT4(X, Y, B)\
+MAKE_CONVERT(bggr, X, Y, B)\
+MAKE_CONVERT(gbrg, X, Y, B)\
+MAKE_CONVERT(grbg, X, Y, B)\
+MAKE_CONVERT(rggb, X, Y, B)
 
-void bayer_to_grey_gbrg(const unsigned short* rggb, unsigned short* grey, unsigned int width, unsigned int height){
-	bayer_to_grey<unsigned short,bayer_sample_gbrg<unsigned short,read_host_byteorder<unsigned short> > >(rggb, grey, width, height);
-}
+MAKE_CONVERT4(, byte, read_host_byteorder)
+MAKE_CONVERT4(16, unsigned short, read_host_byteorder)
+MAKE_CONVERT4(16be, unsigned short, read_net_byteorder)
 
-void bayer_to_grey_grbg(const unsigned short* rggb, unsigned short* grey, unsigned int width, unsigned int height){
-	bayer_to_grey<unsigned short,bayer_sample_grbg<unsigned short,read_host_byteorder<unsigned short> > >(rggb, grey, width, height);
-}
 
-void bayer_to_grey_bggr(const unsigned short* bggr, unsigned short* grey, unsigned int width, unsigned int height){
-	bayer_to_grey<unsigned short,bayer_sample_bggr<unsigned short,read_host_byteorder<unsigned short> > >(bggr, grey, width, height);
-}
 
-void bayer_to_grey_rggb_be(const unsigned short* rggb, unsigned short* grey, unsigned int width, unsigned int height){
-	bayer_to_grey<unsigned short, bayer_sample_rggb<unsigned short,read_net_byteorder<unsigned short> > >(rggb, grey, width, height);
 }
-
-void bayer_to_grey_gbrg_be(const unsigned short* rggb, unsigned short* grey, unsigned int width, unsigned int height){
-	bayer_to_grey<unsigned short,bayer_sample_gbrg<unsigned short,read_net_byteorder<unsigned short> > >(rggb, grey, width, height);
-}
-
-void bayer_to_grey_grbg_be(const unsigned short* rggb, unsigned short* grey, unsigned int width, unsigned int height){
-	bayer_to_grey<unsigned short,bayer_sample_grbg<unsigned short,read_net_byteorder<unsigned short> > >(rggb, grey, width, height);
-}
-
-void bayer_to_grey_bggr_be(const unsigned short* bggr, unsigned short* grey, unsigned int width, unsigned int height){
-	bayer_to_grey<unsigned short,bayer_sample_bggr<unsigned short,read_net_byteorder<unsigned short> > >(bggr, grey, width, height);
-}
-
-}}
