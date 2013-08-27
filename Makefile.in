@@ -168,6 +168,7 @@ dsos= $(dsoname) $(dsoname1) $(dsoname2)
 
 ifeq (@debug_build@,yes)
 	DTARGETS=libcvd_debug.a $(dsoname) $(ddllname)
+	DINSTALL=install-libs-debug
 endif
 
 all: libcvd.a $(soname) $(dllname) progs $(DTARGETS)
@@ -241,7 +242,7 @@ man: libcvd.a
 	touch man
 
 
-install: install-nodebug install-libs-debug
+install: install-nodebug $(DINSTALL)
 
 install-nodebug: install-progs install-headers install-libs 
 
