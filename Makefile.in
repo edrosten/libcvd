@@ -397,7 +397,7 @@ clean:
 	find progs/ -perm +0100 -type f | xargs rm -f
 	rm -rf html man
 	rm -f regressions/*.out
-	rm -r $(EXAMPLE_PROGS)
+	rm -rf $(EXAMPLE_PROGS)
 
 
 
