@@ -92,7 +92,7 @@ CVD_OBJS=   \
 			cvd_src/morphology.o                            \
 			cvd_src/colourspace_convert.o                   \
 			cvd_src/draw.o                                  \
-			cvd_src/yuv422.o                                \
+			cvd_src/noarch/yuv422.o                         \
 			cvd_src/yuv420.o                                \
 			cvd_src/image_io/pnm_grok.o                     \
 			cvd_src/image_io/bmp.o                          \

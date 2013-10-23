@@ -1,93 +1,105 @@
+#include "cvd/image.h"
 #include "cvd/utility.h"
 #include "cvd/colourspace.h"
+#include "cvd/colourspaces.h"
+#include "cvd/image_convert.h"
 #include "cvd_src/yuv422.h"
 
 namespace CVD {
-  namespace ColourSpace {
-    
-	void yuv422_to_rgb_c(const unsigned char* yuv, unsigned char* rgb, unsigned int total)
-	{
-	  int yy, uu, vv, ug_plus_vg, ub, vr;
-	  int r,g,b;
-	  //rgb += width*(height-1)*3;
-	  total /= 2;
-	  while (total--) {
-	    yy = yuv[0] << 8;
-	    uu = yuv[1] - 128;
-	    vv = yuv[3] - 128;
-	    ug_plus_vg = uu * 88 + vv * 183;
-	    ub = uu * 454;
-	    vr = vv * 359;
-	    r = (yy + vr) >> 8;
-	    g = (yy - ug_plus_vg) >> 8;
-	    b = (yy + ub) >> 8;
-	    rgb[0] = r < 0 ? 0 : (r > 255 ? 255 : (unsigned char)r);
-	    rgb[1] = g < 0 ? 0 : (g > 255 ? 255 : (unsigned char)g);
-	    rgb[2] = b < 0 ? 0 : (b > 255 ? 255 : (unsigned char)b);
-	    yy = yuv[2] << 8;
-	    r = (yy + vr) >> 8;
-	    g = (yy - ug_plus_vg) >> 8;
-	    b = (yy + ub) >> 8;
-	    rgb[3] = r < 0 ? 0 : (r > 255 ? 255 : (unsigned char)r);
-	    rgb[4] = g < 0 ? 0 : (g > 255 ? 255 : (unsigned char)g);
-	    rgb[5] = b < 0 ? 0 : (b > 255 ? 255 : (unsigned char)b);
-	    yuv += 4;
-	    rgb += 6;
-	  }
-	}
-
-	void yuv422_to_grey_c(const unsigned char* yuv, unsigned char* grey, unsigned int total)
-	{
-	  total/=2;
-	  while (total--) {
-	    grey[0] = yuv[0];
-	    grey[1] = yuv[2];
-	    yuv += 4;
-	    grey += 2;
-	  }
-	}
-
-	void vuy422_to_rgb(const unsigned char* yuv, unsigned char* rgb, unsigned int width, unsigned int height)
-	{
-		int yy, uu, vv, ug_plus_vg, ub, vr;
-		int r,g,b;
-		unsigned int total = width*height;
-		total /= 2;
-		while (total--) {
-			yy = yuv[1] << 8;
-			uu = yuv[0] - 128;
-			vv = yuv[2] - 128;
-			ug_plus_vg = uu * 88 + vv * 183;
-			ub = uu * 454;
-			vr = vv * 359;
-			r = (yy + vr) >> 8;
-			g = (yy - ug_plus_vg) >> 8;
-			b = (yy + ub) >> 8;
-			rgb[0] = r < 0 ? 0 : (r > 255 ? 255 : (unsigned char)r);
-			rgb[1] = g < 0 ? 0 : (g > 255 ? 255 : (unsigned char)g);
-			rgb[2] = b < 0 ? 0 : (b > 255 ? 255 : (unsigned char)b);
-			yy = yuv[3] << 8;
-			r = (yy + vr) >> 8;
-			g = (yy - ug_plus_vg) >> 8;
-			b = (yy + ub) >> 8;
-			rgb[3] = r < 0 ? 0 : (r > 255 ? 255 : (unsigned char)r);
-			rgb[4] = g < 0 ? 0 : (g > 255 ? 255 : (unsigned char)g);
-			rgb[5] = b < 0 ? 0 : (b > 255 ? 255 : (unsigned char)b);
-			yuv += 4;
-			rgb += 6;
-		}
-	}
 	
-	void vuy422_to_grey(const unsigned char* yuv, unsigned char* grey, unsigned int width, unsigned int height)
-	{
-		unsigned int total = width*height;
-		total/=2;
-		while (total--) {
-			grey[0] = yuv[1];
-			grey[1] = yuv[3];
-			yuv += 4;
-			grey += 2;
+	namespace{
+		unsigned char saturate(int i)
+		{
+			if(i<0)
+				return 0;
+			else if(i>255)
+				return 255;
+			else 
+				return 0;
+		}
+
+		struct yuv422_ind{
+			static const int y1 = 0;
+			static const int uu = 1;
+			static const int y2 = 2;
+			static const int vv = 3;
+		};
+
+		struct vuy422_ind{
+			static const int y1=1;
+			static const int uu=0;
+			static const int vv=2;
+			static const int y2=3;
+		};
+
+		template<class C, class Ind>
+		void convert_422(const BasicImage<C>& from, BasicImage<Rgb<byte> >& to)
+		{
+			int yy, uu, vv, ug_plus_vg, ub, vr;
+			int r,g,b;
+
+			for(int y=0; y < from.size().y; y++)
+			{
+				const unsigned char* yuv = reinterpret_cast<const unsigned char*>(from[y]);
+
+				for(int x=0; x < from.size().x; x+=2, yuv+=4)
+				{
+					uu = yuv[Ind::uu] - 128;
+					vv = yuv[Ind::vv] - 128;
+					ug_plus_vg = uu * 88 + vv * 183;
+					ub = uu * 454;
+					vr = vv * 359;
+
+					yy = yuv[Ind::y1] << 8;
+					r = (yy + vr) >> 8;
+					g = (yy - ug_plus_vg) >> 8;
+					b = (yy + ub) >> 8;
+					to[y][x+0].red   = saturate(r);
+					to[y][x+0].green = saturate(g);
+					to[y][x+0].blue  = saturate(b);
+
+					yy = yuv[Ind::y2] << 8;
+					r = (yy + vr) >> 8;
+					g = (yy - ug_plus_vg) >> 8;
+					b = (yy + ub) >> 8;
+					to[y][x+1].red   = saturate(r);
+					to[y][x+1].green = saturate(g);
+					to[y][x+1].blue  = saturate(b);
+				}
+			}
+		}
+
+		template<class C, class Ind> void convert_422_grey(const BasicImage<C>& from, BasicImage<byte>& to)
+		{
+			for(int y=0; y < from.size().y; y++)
+			{
+				const unsigned char* yuv = reinterpret_cast<const unsigned char*>(from[y]);
+				for(int x=0; x < from.size().x; x+=2, yuv+=4)
+				{
+					to[y][x+0] = yuv[Ind::y1];
+					to[y][x+1] = yuv[Ind::y2];
+				}
+			}
 		}
 	}
-  }
+
+	template<> void convert_image(const BasicImage<yuv422>& from, BasicImage<Rgb<byte> >& to)
+	{
+		convert_422<yuv422, yuv422_ind>(from, to);
+	}
+
+	template<> void convert_image(const BasicImage<yuv422>& from, BasicImage<byte>& to)
+	{
+		convert_422_grey<yuv422, yuv422_ind>(from, to);
+	}
+
+	template<> void convert_image(const BasicImage<vuy422>& from, BasicImage<Rgb<byte> >& to)
+	{
+		convert_422<vuy422, vuy422_ind>(from, to);
+	}
+
+	template<> void convert_image(const BasicImage<vuy422>& from, BasicImage<byte>& to)
+	{
+		convert_422_grey<vuy422, vuy422_ind>(from, to);
+	}
 }

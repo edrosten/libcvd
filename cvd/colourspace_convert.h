@@ -88,14 +88,14 @@ namespace CVD
 	/// @param from The input data
 	/// @param to The output data
 	/// @ingroup gImageIO
-	template<> void convert_image(const BasicImage<yuv411>& from, BasicImage<Rgb<byte> >& to);
+	//template<> void convert_image(const BasicImage<yuv411>& from, BasicImage<Rgb<byte> >& to);
 
 
 	/// Convert YUV 411 pixel data to Y only
 	/// @param from The input data
 	/// @param to The output data
 	/// @ingroup gImageIO
-	template<> void convert_image(const BasicImage<yuv411>& from, BasicImage<byte>& to);
+//	template<> void convert_image(const BasicImage<yuv411>& from, BasicImage<byte>& to);
 	
 	/// Convert YUV 422 pixel data to RGB
 	/// @param from The input data
@@ -116,7 +116,7 @@ namespace CVD
 	/// Convert YUV 411 pixel data to both Y and RGB
 	/// @param from The input data
 	/// @ingroup gImageIO
-	template<> std::pair<Image<byte>,Image<Rgb<byte> > > convert_image_pair(const BasicImage<yuv411>& from);
+	//template<> std::pair<Image<byte>,Image<Rgb<byte> > > convert_image_pair(const BasicImage<yuv411>& from);
 	
 	
 	/// Convert VUY 422 pixel data to RGB
@@ -132,8 +132,8 @@ namespace CVD
 	template<> void convert_image(const BasicImage<vuy422>& from, BasicImage<byte>& to);	
 
 
-	template<> struct IsConvertible<yuv411,      Rgb<byte> > { static const bool is=1; };
-	template<> struct IsConvertible<yuv411,      byte>       { static const bool is=1; };
+//	template<> struct IsConvertible<yuv411,      Rgb<byte> > { static const bool is=1; };
+//	template<> struct IsConvertible<yuv411,      byte>       { static const bool is=1; };
 	template<> struct IsConvertible<yuv422,      Rgb<byte> > { static const bool is=1; };
 	template<> struct IsConvertible<yuv422,      byte>       { static const bool is=1; };
 	template<> struct IsConvertible<bayer_bggr,  byte>       { static const bool is=1; };
