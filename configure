@@ -8966,9 +8966,9 @@ done > config.have_bits
 cat config.have_bits - <<ENDDEPS  | awk -f make/compile_deps.awk > config.dep_tmp
 
 #SIMD dependencies
-i686/yuv411_to_stuff_MMX                             inline_asm mmxext 32bit x86
-i686/yuv411_to_stuff_MMX_64                          inline_asm mmxext x86
-yuv411_to_stuff                                      END
+#i686/yuv411_to_stuff_MMX                             inline_asm mmxext 32bit x86
+#i686/yuv411_to_stuff_MMX_64                          inline_asm mmxext x86
+#yuv411_to_stuff                                      END
 
 SSE2/half_sample                                     sse2
 i686/halfsample,MMX/half_sample                      mmx 32bit x86 assembler

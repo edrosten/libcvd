@@ -152,8 +152,8 @@ namespace CVD {
 			return makeConvertBufferBit<T, byte>(r);
 		else if(c == "rgb<byte>" || c == "rgb")
 			return makeConvertBufferBit<T, Rgb<byte> >(r);
-		else if(c == "yuv411")
-			return makeConvertBufferBit<T, yuv411>(r);
+		//else if(c == "yuv411")
+			//return makeConvertBufferBit<T, yuv411>(r);
 		else if(c == "yuv422")
 			return makeConvertBufferBit<T, yuv422>(r);
 		else if(c == "yuv420p")
@@ -280,7 +280,7 @@ namespace CVD {
 	
 	template <> VideoBuffer<byte>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
 	template <> VideoBuffer<unsigned short>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
-	template <> VideoBuffer<yuv411>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
+	//template <> VideoBuffer<yuv411>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
 	template <> VideoBuffer<yuv422>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
 	template <> VideoBuffer<Rgb<byte> >* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
 	template <> VideoBuffer<bayer_bggr>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
