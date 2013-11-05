@@ -179,7 +179,11 @@ CXXFLAGS="$(echo "$CXXFLAGS" | sed -e's/-O2//')"
 #
 # Always use ggdb if possible
 #
-TEST_AND_SET_CXXFLAG(-ggdb)
+AC_ARG_ENABLE(ggdb, [   --disable-ggdb           do not use ggdb flag])
+if test "$enable_ggdb" != no
+then 
+	TEST_AND_SET_CXXFLAG(-ggdb)
+fi
 
 
 ########################################
