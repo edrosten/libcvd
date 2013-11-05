@@ -394,9 +394,13 @@ template<class T> class SubImage
 		}
 
 		/// Set all the pixels in the image to zero. This is a relatively fast operation, using <code>memset</code>.
+		/// WARNING WARNING WARNING!
+		/// This function blindly uses memset. If you use it on sufficiently non-POD data, then it will put objects
+		/// into an invalid state.
 		inline void zero() 
 		{
-			fill(0);
+			for(int y=0; y < my_size.y; y++)
+				memset((*this)[y], 0, sizeof(T) * my_size.x);
 		}
 
 		/// Set all the pixels in the image to a value. This is a relatively fast operation, using <code>memfill</code>.
