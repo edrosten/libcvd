@@ -743,6 +743,7 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
+enable_ggdb
 enable_debug
 with_optimize
 with_simd
@@ -1417,6 +1418,7 @@ Optional Features:
   --disable-option-checking  ignore unrecognized --enable/--with options
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+   --disable-ggdb           do not use ggdb flag
   --disable-debug            disable debug build
   --enable-gpl            Allow the use of GPL libraries.
   --disable-ssefast9      Disable the probably OK SSE FAST-9 detector (debgging only)
@@ -4714,6 +4716,13 @@ CXXFLAGS="$(echo "$CXXFLAGS" | sed -e's/-O2//')"
 #
 # Always use ggdb if possible
 #
+# Check whether --enable-ggdb was given.
+if test "${enable_ggdb+set}" = set; then :
+  enableval=$enable_ggdb;
+fi
+
+if test "$enable_ggdb" != no
+then
 
 	if test "" == ""
 	then
@@ -4755,6 +4764,7 @@ $as_echo "no" >&6; }
 		ts_success=no
 	fi
 
+fi
 
 
 ########################################
@@ -6665,11 +6675,40 @@ fi
 
 	if test "$host_vendor" == apple
 	then
+		save_LIBS="$LIBS"
+
 		LIBS="$LIBS  -framework OpenGL /usr/X11R6/lib/libX11.dylib /usr/X11R6/lib/libGLU.dylib /usr/X11R6/lib/libGL.dylib"
 		# all of the following is already covered in the framework
 		# AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
 		# AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
 		# AC_CHECK_LIB(GLU,gluGetString, [], [a=1])
+
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for X11 using dubious methods..." >&5
+$as_echo_n "checking for X11 using dubious methods...... " >&6; }
+
+		a=0
+		cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <X11/Xlib.h>
+		int main()
+		{
+			XOpenDisplay(NULL);
+		}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; a=1
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+		if test x$a == x1
+		then
+			LIBS="$save_LIBS"
+		fi
+
 	else
 
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for X" >&5

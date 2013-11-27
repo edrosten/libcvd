@@ -179,7 +179,11 @@ CXXFLAGS="$(echo "$CXXFLAGS" | sed -e's/-O2//')"
 #
 # Always use ggdb if possible
 #
-TEST_AND_SET_CXXFLAG(-ggdb)
+AC_ARG_ENABLE(ggdb, [   --disable-ggdb           do not use ggdb flag])
+if test "$enable_ggdb" != no
+then 
+	TEST_AND_SET_CXXFLAG(-ggdb)
+fi
 
 
 ########################################
@@ -563,11 +567,28 @@ CHECK_FOR_OPTION(videodisplay,[
 
 	if test "$host_vendor" == apple
 	then
+		save_LIBS="$LIBS"
+
 		APPEND(LIBS, [ -framework OpenGL /usr/X11R6/lib/libX11.dylib /usr/X11R6/lib/libGLU.dylib /usr/X11R6/lib/libGL.dylib])
 		# all of the following is already covered in the framework
 		# AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
 		# AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
 		# AC_CHECK_LIB(GLU,gluGetString, [], [a=1])
+
+		AC_MSG_CHECKING([for X11 using dubious methods...])
+
+		a=0
+		AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <X11/Xlib.h>
+		int main()
+		{
+			XOpenDisplay(NULL);
+		}])],  [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
+		
+		if test x$a == x1
+		then
+			LIBS="$save_LIBS"
+		fi
+
 	else
 
 		AC_PATH_X

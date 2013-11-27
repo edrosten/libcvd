@@ -372,10 +372,13 @@ template<class T> class BasicImage
 			return my_stride;
 		}
 
-		/// Set all the pixels in the image to zero. This is a relatively fast operation, using <code>memset</code>.
-		inline void zero()
+		/// WARNING WARNING WARNING!
+		/// This function blindly uses memset. If you use it on sufficiently non-POD data, then it will put objects
+		/// into an invalid state.
+		inline void zero() 
 		{
-			fill(T());
+			for(int y=0; y < my_size.y; y++)
+				memset((*this)[y], 0, sizeof(T) * my_size.x);
 		}
 
 		/// Set all the pixels in the image to a value. This is a relatively fast operation, using <code>memfill</code>.
