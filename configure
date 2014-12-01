@@ -9013,7 +9013,7 @@ SSE2/half_sample                                     sse2
 i686/halfsample,MMX/half_sample                      mmx 32bit x86 assembler
 noarch/half_sample                                   END
 
-i686/rgb_to_gray,i686/convert_rgb_to_y               32bit mmxext x86 assembler
+i686/rgb_to_gray,noarch/convert_rgb_to_y               32bit mmxext x86 assembler
 noarch/convert_rgb_to_y                              END
 
 
