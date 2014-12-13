@@ -8514,9 +8514,9 @@ else
   a=1
 fi
  #only in >= 0.4.9
-			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for avcodec_open in -lavcodec" >&5
-$as_echo_n "checking for avcodec_open in -lavcodec... " >&6; }
-if ${ac_cv_lib_avcodec_avcodec_open+:} false; then :
+			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for avcodec_open2 in -lavcodec" >&5
+$as_echo_n "checking for avcodec_open2 in -lavcodec... " >&6; }
+if ${ac_cv_lib_avcodec_avcodec_open2+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -8530,27 +8530,27 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char avcodec_open ();
+char avcodec_open2 ();
 int
 main ()
 {
-return avcodec_open ();
+return avcodec_open2 ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_avcodec_avcodec_open=yes
+  ac_cv_lib_avcodec_avcodec_open2=yes
 else
-  ac_cv_lib_avcodec_avcodec_open=no
+  ac_cv_lib_avcodec_avcodec_open2=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_avcodec_avcodec_open" >&5
-$as_echo "$ac_cv_lib_avcodec_avcodec_open" >&6; }
-if test "x$ac_cv_lib_avcodec_avcodec_open" = xyes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_avcodec_avcodec_open2" >&5
+$as_echo "$ac_cv_lib_avcodec_avcodec_open2" >&6; }
+if test "x$ac_cv_lib_avcodec_avcodec_open2" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_LIBAVCODEC 1
 _ACEOF
