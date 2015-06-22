@@ -4703,6 +4703,57 @@ $as_echo "no" >&6; }
 	fi
 
 
+
+cpp11=no
+for i in "" -std=c++14 -std=c++1y
+do
+
+	flag="$i"
+
+	if test x$i == x
+	then
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking For C++1y support" >&5
+$as_echo_n "checking For C++1y support... " >&6; }
+	else
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking For C++1y support with flag $flag" >&5
+$as_echo_n "checking For C++1y support with flag $flag... " >&6; }
+	fi
+
+	save_CXXFLAGS="$CXXFLAGS"
+	CXXFLAGS="$CXXFLAGS $flag"
+
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+	#include <array>
+	int main()
+	{
+		auto a=1;
+	}
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  cpp11=yes
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cpp11" >&5
+$as_echo "$cpp11" >&6; }
+
+
+	if test x$cpp11 != xno
+	then
+		cpp11="$flag"
+		break
+	fi
+	CXXFLAGS="$save_CXXFLAGS"
+done
+
+if test x$cpp11 == xno
+then
+	as_fn_error $? "\"No C++14 support. Please add to CXXFLAGS\"" "$LINENO" 5
+fi
+
 CPPFLAGS="$CPPFLAGS -I"$(eval echo $includedir)""
 
 ########################################

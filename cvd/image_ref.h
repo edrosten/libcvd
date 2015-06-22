@@ -40,11 +40,11 @@ public:
 	/// @param is The stream to read
 	inline ImageRef(std::istream& is);
 
-	#if __cplusplus >= 201103
-	
-	ImageRef(const std::initializer_list<int>& init)
-	:
-	#endif
+	//#if __cplusplus >= 201103
+	//
+	//ImageRef(const std::initializer_list<int>& init)
+//	:
+//	#endif
 
 
 	//Iteration

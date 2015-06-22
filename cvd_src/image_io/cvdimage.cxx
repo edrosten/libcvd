@@ -13,22 +13,8 @@
 #include <set>
 #include <climits>
 
-#if defined WIN32 && !defined __MINGW32__
-	#include <array>
-	namespace std{namespace tr1{}}
-	typedef __int64 int64_t;
-	typedef unsigned __int64 uint64_t;
-	typedef unsigned __int16 uint16_t;
-#else
-	#include <stdint.h>
-
-	#ifdef __GNUC__
-		#include <tr1/array>
-		using namespace std::tr1;
-	#else
-		#include <array>
-	#endif
-#endif
+#include <array>
+#include <cstdint>
 
 using namespace std;
 
