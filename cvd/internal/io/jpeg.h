@@ -64,7 +64,7 @@ namespace JPEG
 
 			static const int top_row_first=1;
 		protected:
-			std::auto_ptr<WritePimpl> t; 
+			std::unique_ptr<WritePimpl> t; 
 	};
 
 	template<class C> struct writer::Outgoing<Rgb<C> > 

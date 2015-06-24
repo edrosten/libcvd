@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector> 
+#include <memory> 
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/image.h>
 #include <cvd/internal/load_and_save.h>
@@ -83,7 +84,7 @@ namespace CVD
 			static const int top_row_first=1;
 
 		private:
-			std::auto_ptr<pnm_writer> p;
+			std::unique_ptr<pnm_writer> p;
 	};
 
 

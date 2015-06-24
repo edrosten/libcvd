@@ -55,7 +55,7 @@ namespace CVD {
 	template<> class Parameter<void>
 	{
 		private:
-			std::auto_ptr<Parameter<Internal::UntypedParameter> > param;
+			std::unique_ptr<Parameter<Internal::UntypedParameter> > param;
 			
 		public:
 			Parameter()
@@ -64,16 +64,16 @@ namespace CVD {
 			Parameter(const Parameter& p)
 			{
 				if(p.param.get())
-					std::auto_ptr<Parameter<Internal::UntypedParameter> >(p.param->duplicate());
+					std::unique_ptr<Parameter<Internal::UntypedParameter> >(p.param->duplicate());
 			}
 
 			template<class C> Parameter(const Parameter<C>& p)
-			:param(std::auto_ptr<Parameter<Internal::UntypedParameter> >(static_cast<Parameter<Internal::UntypedParameter>*>(new Parameter<C>(p))))
+			:param(std::unique_ptr<Parameter<Internal::UntypedParameter> >(static_cast<Parameter<Internal::UntypedParameter>*>(new Parameter<C>(p))))
 			{}
 
 			template<class C> Parameter& operator=(const Parameter<C>& p)
 			{
-				param = std::auto_ptr<Parameter<Internal::UntypedParameter> >(static_cast<Parameter<Internal::UntypedParameter>*>(new Parameter<C>(p)));
+				param = std::unique_ptr<Parameter<Internal::UntypedParameter> >(static_cast<Parameter<Internal::UntypedParameter>*>(new Parameter<C>(p)));
 				return *this;
 			}
 			

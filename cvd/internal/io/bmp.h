@@ -58,7 +58,7 @@ namespace CVD {
 				static const int top_row_first=0;
 
 			protected:
-				std::auto_ptr<WritePimpl> t; 
+				std::unique_ptr<WritePimpl> t; 
 		};
 
 		template<class C> struct Writer::Outgoing<Rgb<C> > 

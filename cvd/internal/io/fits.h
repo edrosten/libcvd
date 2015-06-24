@@ -80,7 +80,7 @@ namespace FITS
 					                      Head> > > > > > > > > > > > > > > > > > Types;
 		
 		private:
-			std::auto_ptr<ReadPimpl> t; 
+			std::unique_ptr<ReadPimpl> t; 
 	};
 
 	

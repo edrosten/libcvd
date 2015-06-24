@@ -249,7 +249,6 @@ template<class T> struct randtest
 				{
 					cerr << " data mismatch.\n";
 
-					typedef typename Pixel::Component<Type>::type  Ct;
 					double t=0, minval = HUGE_VAL, maxval=-HUGE_VAL;
 					for(int y=0; y < in.size().y; y++)
 						for(int x=0; x < in.size().x; x++)
@@ -266,7 +265,7 @@ template<class T> struct randtest
 
 							}
 
-					cerr << "Mismatch is " << 100* t * 1.0 / in.totalsize()/(maxval - minval) << "% per pixel\n";
+					cerr << "Mismatch is " << 100* t * 1.0 / in.size().area()/(maxval - minval) << "% per pixel\n";
 
 					cerr << "Min is: " << minval << endl;
 					cerr << "Max is: " << maxval << endl;

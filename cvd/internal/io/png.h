@@ -49,7 +49,7 @@ class png_reader
 				                              Head> > > > > > > Types;
 
 	private:
-		std::auto_ptr<PNGPimpl> p;
+		std::unique_ptr<PNGPimpl> p;
 	
 };
 

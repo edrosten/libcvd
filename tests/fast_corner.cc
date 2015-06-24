@@ -164,14 +164,14 @@ template<class A, class B, class C> void test_images(const Image<byte>& im, A fu
 }
 
 
-int main(int argc, char** argv)
+int main(int , char** )
 {
 
 	for(int n=0; n < 100; n++)
 	{
 		Image<byte> im(ImageRef(drand48() * 256 + 16, drand48()*256 + 16));
 
-		for(byte* i = im.begin(); i != im.end(); i++)
+		for(Image<byte>::iterator i = im.begin(); i != im.end(); i++)
 			*i =  (drand48() * 256);
 
 		int threshold = drand48() * 256;

@@ -606,6 +606,13 @@ namespace CVD
       if(!pVidFrame) throw(All("put_frame got passed an alien frame"));
 
       error = dc1394_capture_enqueue(mpLDCP->pCamera, pDV3Frame->mpDC1394Frame);
+
+      if(error != DC1394_SUCCESS)
+      {
+        //FIXME we really need to clean up exceptions here!
+        throw(All("failed to reenqueue frame"));
+      }
+
       delete pDV3Frame;
     }
 

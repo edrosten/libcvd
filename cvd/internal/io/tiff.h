@@ -68,7 +68,7 @@ namespace TIFF
 					                      Head> > > > > > > > > > > > > Types;
 		
 		private:
-			std::auto_ptr<TIFFPimpl> t; 
+			std::unique_ptr<TIFFPimpl> t; 
 	};
 
 

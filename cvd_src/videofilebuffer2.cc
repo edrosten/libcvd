@@ -110,7 +110,7 @@ class VFHolderBase
 		return f;
 	};
 
-	virtual auto_ptr<VFHolderBase> duplicate()=0;
+	virtual unique_ptr<VFHolderBase> duplicate()=0;
 };
 
 template<class C>
@@ -138,7 +138,7 @@ class VFHolder: public VFHolderBase
 		frame=f;
 	}
 
-	auto_ptr<VFHolderBase> duplicate();
+	unique_ptr<VFHolderBase> duplicate();
 
 
 };
@@ -184,7 +184,7 @@ class RawVideoFileBufferPIMPL
 	}
 	private:
 
-	auto_ptr<VFHolderBase> next_frame;
+	unique_ptr<VFHolderBase> next_frame;
 
 	string codec;
 		
@@ -408,7 +408,7 @@ class RawVideoFileBufferPIMPL
 	}
 
 	template<typename T>
-	auto_ptr<VFHolderBase> read_frame_from_video()
+	unique_ptr<VFHolderBase> read_frame_from_video()
 	{
 
 		if(PixFmt<T>::get() != output_fmt)
@@ -425,7 +425,7 @@ class RawVideoFileBufferPIMPL
 			if(r == AVERROR_EOF)
 			{
 				DS("EOF");
-				return auto_ptr<VFHolderBase>();
+				return unique_ptr<VFHolderBase>();
 			}
 			else if(r < 0)
 			{
@@ -467,7 +467,7 @@ class RawVideoFileBufferPIMPL
 				
 
 				ready=true;
-				return auto_ptr<VFHolderBase>(new VFHolder<T>(new VideoFileFrame<T>(timestamp, ret)));
+				return unique_ptr<VFHolderBase>(new VFHolder<T>(new VideoFileFrame<T>(timestamp, ret)));
 			}
 			
 			cont:
@@ -502,7 +502,7 @@ class RawVideoFileBufferPIMPL
 			throw Exceptions::VideoFileBuffer::EndOfFile();
 
 		//Safely grab the frame
-		auto_ptr<VFHolderBase> fr = next_frame;
+		unique_ptr<VFHolderBase> fr = move(next_frame);
 		load_next_frame();
 
 		if(next_frame.get() == NULL)
@@ -575,14 +575,14 @@ class RawVideoFileBufferPIMPL
 };
 
 template<class C>
-auto_ptr<VFHolderBase> VFHolder<C>::duplicate()
+unique_ptr<VFHolderBase> VFHolder<C>::duplicate()
 {
 	VideoFileFrame<C> *fr = static_cast<VideoFileFrame<C>*>(frame);
 
 	Image<C> copy;
 	copy.copy_from(*fr);
 
-	return auto_ptr<VFHolderBase>(new VFHolder(RawVideoFileBufferPIMPL::generate_frame<C>(fr->timestamp(), copy)));
+	return unique_ptr<VFHolderBase>(new VFHolder(RawVideoFileBufferPIMPL::generate_frame<C>(fr->timestamp(), copy)));
 }
 
 ///Public implementation of RawVideoFileBuffer
