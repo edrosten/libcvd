@@ -4,6 +4,8 @@
 #include "cvd/colourspaces.h"
 #include "cvd/image_convert.h"
 
+
+#include <iostream>
 namespace CVD {
 	
 	namespace{
@@ -14,7 +16,7 @@ namespace CVD {
 			else if(i>255)
 				return 255;
 			else 
-				return 0;
+				return i;
 		}
 
 		struct yuv422_ind{
@@ -84,6 +86,7 @@ namespace CVD {
 
 	template<> void convert_image(const BasicImage<yuv422>& from, BasicImage<Rgb<byte> >& to)
 	{
+		std::cout << "lawlz\n";
 		convert_422<yuv422, yuv422_ind>(from, to);
 	}
 
