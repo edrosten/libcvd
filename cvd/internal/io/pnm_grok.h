@@ -43,7 +43,7 @@ namespace CVD
 										    	  Head> > > > > Types;
 
 		private:
-			std::auto_ptr<pnm_in> p;
+			std::unique_ptr<pnm_in> p;
 		
 	};
 

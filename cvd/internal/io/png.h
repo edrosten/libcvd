@@ -127,7 +127,7 @@ class png_writer
 		static const int top_row_first=1;
 
 	private:
-		std::auto_ptr<WriterPimpl> p;
+		std::unique_ptr<WriterPimpl> p;
 };
 
 

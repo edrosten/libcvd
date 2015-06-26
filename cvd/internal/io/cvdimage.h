@@ -80,7 +80,7 @@ namespace CVDimage
 
 			static const int top_row_first=1;
 		protected:
-			std::auto_ptr<WritePimpl> t; 
+			std::unique_ptr<WritePimpl> t; 
 	};
 
 	template <> struct writer::Outgoing<bayer_bggr> 

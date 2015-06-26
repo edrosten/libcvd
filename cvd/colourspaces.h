@@ -139,21 +139,27 @@ namespace CVD
 	/// @ingroup gVideoBuffer
 	struct yuv411
 	{
-		unsigned char val;
+		//unsigned char val;
+	};
+
+
+	/// A datatype to represent MJPEG data
+	struct MJPEG
+	{
 	};
 
 	/// A datatype to represent yuv422 (yuyv) data.
 	/// @ingroup gVideoBuffer
 	struct yuv422
 	{
-		unsigned short val;
+		//unsigned short val;
 	};
 
 	/// A datatype to represent yuv420p (yy...u...v) data.
 	/// @ingroup gVideoBuffer
 	struct yuv420p
 	{
-		unsigned short val;
+		//unsigned short val;
 	};
 	
 	/// A datatype to represent the other yuv422 (uyvy) data. This is returned
@@ -162,7 +168,7 @@ namespace CVD
 	/// @ingroup gVideoBuffer
 	struct vuy422
 	{
-		unsigned short val;
+		//unsigned short val;
 	};
 
 	namespace PNM{
@@ -185,6 +191,8 @@ namespace CVD
 		template<> struct type_name<yuv422> { static std::string name(){return "yuv422" ;}};
 		template<> struct type_name<yuv420p>{ static std::string name(){return "yuv420p";}};
 		template<> struct type_name<vuy422> { static std::string name(){return "vuy422" ;}};
+
+		template<> struct type_name<MJPEG> { static std::string name(){return "MJPEG" ;}};
 	}
 
   namespace Pixel {

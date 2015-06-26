@@ -18,6 +18,7 @@
 #include <cvd/exceptions.h>
 #include <string>
 #include <utility>
+#include <type_traits>
 #include <iterator>
 #include <cvd/internal/aligned_mem.h>
 
@@ -82,7 +83,7 @@ namespace ImageError
 }
 
 
-namespace ImageUtil
+namespace Internal
 {
 	template<class T> inline void memfill(T* data, int n, const T val)
 	{
@@ -105,6 +106,39 @@ namespace ImageUtil
 	{
 		memset(data, val, n);
 	}
+
+
+	//Detecting a typedef...
+	template<class C>
+	struct IsDummy
+	{
+		//Fake function to pretend to return an instance of a type
+		template<class S>
+		static const C& get();
+
+		//Two typedefs guaranteed to have different sizes
+		typedef char One[1];
+		typedef char Two[2];
+
+
+		//Class to give us a size 2 return value or fail on 
+		//substituting S
+		template<int S> 
+		struct SFINAE_dummy
+		{
+			typedef Two Type;
+		};
+
+		static One& detect_dummy(...);
+
+		template<class S>
+		static typename SFINAE_dummy<sizeof(typename S::dummy)>::Type& detect_dummy(const S&);
+
+		static const bool Is = (sizeof(detect_dummy(get<C>()))==2);
+	};
+
+
+
 }
 
 
@@ -173,8 +207,6 @@ template<class T> class BasicImageIterator
 
 
 
-
-
 		BasicImageIterator()
 		{}
 
@@ -199,6 +231,183 @@ template<class T> class BasicImageIterator
 		int row_increment, total_width;
 };
 
+template<class C> class BasicImage;
+
+namespace Internal
+{
+	
+	//The structure is a little funny. We use inheritance here as a way of conditional
+	//namespacing. So think of it like that not subclassing :)
+	//
+	//Essentially there are two image "types". One is an image of pixels, and includes
+	//all the per-pixel types like byte, Rgb<byte> float, etc. These have the properties
+	//that there is precisely one element per pixel. That makes pixel access obvious and
+	//straightforward, so slicing (sub images) works fine and so on. Types need not be POD
+	//
+	//The other type is for images of crud. This includes yuv422, yuv420p and MJPEG. These
+	//have no easy way of accessing pixels in general and no wasy way of creating sub images.
+	//Technically, the types like YUV422 can be sub-imaged and have strides, but I've got no
+	//use case for that and no one wants it.
+	//
+	//Silly types have a typedef called "dummy" because they're a placeholder and so don't
+	//actually represent the underlying data.
+
+
+	//This is the image data holder for silly types lilke 
+	template<class T, bool D = Internal::IsDummy<T>::Is> class ImageData
+	{
+		public:
+
+			ImageData(const ImageData&) = default;
+			ImageData& operator=(const ImageData&)=default;
+
+		protected:
+			ImageData()=default;
+
+
+			ImageRef my_size;
+			size_t   data_length;
+			void*    my_data;
+
+			using PointerType = void*;
+			using ConstPointerType = const void*;
+	};
+
+	template<class T> class ImageData<T, false>
+	{
+		public:
+			/// Construct an image from a block of data, assuming tight packing.
+			/// @param data The image data in horizontal scanline order
+			/// @param size The size of the image
+			ImageData(T* data, const ImageRef& size)
+			:my_data(data),my_size(size),my_stride(size.x)
+			{
+			}
+
+			/// Construct an image from a block of data.
+			/// @param data The image data in horizontal scanline order
+			/// @param size The size of the image
+			/// @param stride The row stride (or width, including the padding)
+			ImageData(T* data, const ImageRef& size, int stride)
+			:my_data(data),my_size(size),my_stride(stride)
+			{
+			}
+
+			/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
+			/// with <code>-D CVD_IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is 
+			/// thrown.
+			inline T& operator[](const ImageRef& pos)
+			{
+				CVD_IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
+				return (my_data[pos.y*my_stride + pos.x]);
+			}
+			
+			/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
+			/// with <code>-D CVD_IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is 
+			/// thrown.
+			inline const T& operator[](const ImageRef& pos) const 
+			{
+				CVD_IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
+				return (my_data[pos.y*my_stride + pos.x]);
+			}
+
+			/// Access pointer to pixel row. Returns the pointer to the first element of the passed row.
+			/// Allows to use [y][x] on images to access a pixel. Bounds checking is only performed if the library is compiled
+			/// with <code>-D CVD_IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is
+			/// thrown.
+			inline T* operator[](int row)
+			{
+				CVD_IMAGE_ASSERT(in_image(ImageRef(0,row)), ImageError::AccessOutsideImage);
+				return my_data+row*my_stride;
+			}
+
+			/// Access pointer to pixel row. Returns the pointer to the first element of the passed row.
+			/// Allows to use [y][x] on images to access a pixel. Bounds checking is only performed if the library is compiled
+			/// with <code>-D CVD_IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is
+			/// thrown.
+			inline const T* operator[](int row) const
+			{
+				CVD_IMAGE_ASSERT(in_image(ImageRef(0,row)), ImageError::AccessOutsideImage);
+				return my_data+row*my_stride;
+			}
+
+			/// Given a pointer, this returns the image position as an ImageRef
+			inline ImageRef pos(const T* ptr) const
+			{
+				int diff = ptr - my_data;
+				return ImageRef(diff % my_stride, diff / my_size.x);
+			}
+
+			typedef BasicImageIterator<T> iterator;
+			typedef BasicImageIterator<const T> const_iterator;
+
+			/// The data type of the pixels in the image.
+			typedef T value_type;
+			
+			/// Returns an iterator referencing the first (top-left) pixel in the image
+			inline iterator begin()
+			{
+				return BasicImageIterator<T>(my_data, my_size.x, my_stride, end_ptr());
+			}
+			/// Returns a const iterator referencing the first (top-left) pixel in the image
+			inline const_iterator begin() const
+			{
+				return BasicImageIterator<const T>(my_data, my_size.x, my_stride, end_ptr());
+			}
+
+			/// Returns an iterator pointing to one past the end of the image
+			inline iterator end()
+			{
+				//Operator [] would always throw here!
+				return BasicImageIterator<T>(end_ptr());
+			}
+			/// Returns a const iterator pointing to one past the end of the image
+			inline const_iterator end() const
+			{
+				//Operator [] would always throw here!
+				return BasicImageIterator<const T>(end_ptr());
+			}
+
+
+			/// What is the row stride of the image?
+			inline int row_stride() const
+			{
+				return my_stride;
+			}
+			
+			/// Return a sub image
+			/// @param start Top left pixel of the sub image
+			/// @param size width and  height of the sub image
+			BasicImage<T> sub_image(const ImageRef& start, const ImageRef& size);
+
+			/// Return a sub image
+			/// @param start Top left pixel of the sub image
+			/// @param size width and  height of the sub image
+			const BasicImage<T> sub_image(const ImageRef& start, const ImageRef& size) const;
+
+			ImageData(const ImageData&) = default;
+			ImageData& operator=(const ImageData&)=default;
+
+		protected:
+				ImageData()=default;
+
+				///Return an off-the-end pointer without ever throwing AccessOutsideImage
+				T* end_ptr() { return my_data+my_size.y*my_stride; }
+
+				///Return an off-the-end pointer without ever throwing AccessOutsideImage
+				const T* end_ptr() const { return my_data+my_size.y*my_stride; }
+
+
+
+				ImageRef my_size;
+				int my_stride;	
+				T* my_data;
+				using PointerType = T*;
+				using ConstPointerType = const T*;
+	};
+
+}
+
 /// A generic image class to manage a block of arbitrarily padded data as an image. Provides
 /// basic image access such as accessing a particular pixel co-ordinate. 
 /// @param T The pixel type for this image. Typically either
@@ -209,25 +418,20 @@ template<class T> class BasicImageIterator
 /// arbitrary externally-managed block of data as though it were an image. Use
 /// the derived Image class if you want an image which also has its own data.
 /// @ingroup gImage
-template<class T> class BasicImage
+template<class T> class BasicImage : public Internal::ImageData<T>
 {
-	public:
-		/// Construct an image from a block of data.
-		/// @param data The image data in horizontal scanline order
-		/// @param size The size of the image
-		/// @param stride The row stride (or width, including the padding)
-		BasicImage(T* data, const ImageRef& size, int stride)
-		:my_data(data),my_size(size),my_stride(stride)
-		{
-		}
+	static const bool IsDummy = Internal::IsDummy<T>::Is;
+	protected:
+		using Internal::ImageData<T>::my_size;
+		using Internal::ImageData<T>::my_data;
+		using typename Internal::ImageData<T>::PointerType;
+		using typename Internal::ImageData<T>::ConstPointerType;
 
-		/// Construct an image from a block of data, assuming tight packing.
-		/// @param data The image data in horizontal scanline order
-		/// @param size The size of the image
-		BasicImage(T* data, const ImageRef& size)
-		:my_data(data),my_size(size),my_stride(size.x)
-		{
-		}
+
+	public:
+		
+		//Inherit all constructors
+		using Internal::ImageData<T>::ImageData;
 
 		/// Is this pixel co-ordinate inside the image?
 		/// @param ir The co-ordinate to test
@@ -248,91 +452,17 @@ template<class T> class BasicImage
 		virtual ~BasicImage()
 		{}
 
-		/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
-		/// with <code>-D CVD_IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is 
-		/// thrown.
-		inline T& operator[](const ImageRef& pos)
-		{
-			CVD_IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
-			return (my_data[pos.y*my_stride + pos.x]);
-		}
-		
-		/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
-		/// with <code>-D CVD_IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is 
-		/// thrown.
-		inline const T& operator[](const ImageRef& pos) const 
-		{
-			CVD_IMAGE_ASSERT(in_image(pos), ImageError::AccessOutsideImage);
-			return (my_data[pos.y*my_stride + pos.x]);
-		}
-
-        /// Access pointer to pixel row. Returns the pointer to the first element of the passed row.
-        /// Allows to use [y][x] on images to access a pixel. Bounds checking is only performed if the library is compiled
-        /// with <code>-D CVD_IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is
-        /// thrown.
-        inline T* operator[](int row)
-        {
-            CVD_IMAGE_ASSERT(in_image(ImageRef(0,row)), ImageError::AccessOutsideImage);
-            return my_data+row*my_stride;
-        }
-
-        /// Access pointer to pixel row. Returns the pointer to the first element of the passed row.
-        /// Allows to use [y][x] on images to access a pixel. Bounds checking is only performed if the library is compiled
-        /// with <code>-D CVD_IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is
-        /// thrown.
-        inline const T* operator[](int row) const
-        {
-            CVD_IMAGE_ASSERT(in_image(ImageRef(0,row)), ImageError::AccessOutsideImage);
-            return my_data+row*my_stride;
-        }
-
-		/// Given a pointer, this returns the image position as an ImageRef
-		inline ImageRef pos(const T* ptr) const
-		{
-			int diff = ptr - data();
-			return ImageRef(diff % my_stride, diff / my_size.x);
-		}
 
 		/// Returns the raw image data
-		inline const T* data() const
+		inline ConstPointerType data() const
 		{
 			return my_data;
 		}
 		
 		/// Returns the raw image data
-		inline T* data()
+		inline PointerType data()
 		{
 			return my_data;
-		}
-
-		typedef BasicImageIterator<T> iterator;
-		typedef BasicImageIterator<const T> const_iterator;
-
-		/// The data type of the pixels in the image.
-		typedef T value_type;
-		
-		/// Returns an iterator referencing the first (top-left) pixel in the image
-		inline iterator begin()
-		{
-			return BasicImageIterator<T>(data(), size().x, my_stride, end_ptr());
-		}
-		/// Returns a const iterator referencing the first (top-left) pixel in the image
-		inline const_iterator begin() const
-		{
-			return BasicImageIterator<const T>(data(), size().x, my_stride, end_ptr());
-		}
-
-		/// Returns an iterator pointing to one past the end of the image
-		inline iterator end()
-		{
-			//Operator [] would always throw here!
-			return BasicImageIterator<T>(end_ptr());
-		}
-		/// Returns a const iterator pointing to one past the end of the image
-		inline const_iterator end() const
-		{
-			//Operator [] would always throw here!
-			return BasicImageIterator<const T>(end_ptr());
 		}
 
 		inline void copy_from( const BasicImage<T> & other ){
@@ -346,17 +476,11 @@ template<class T> class BasicImage
 			return my_size;
 		}
 
-		/// What is the row stride of the image?
-		inline int row_stride() const
+		///Set image data to all zero bytes. 
+		///This only works on POD
+		inline void  zero() 
 		{
-			return my_stride;
-		}
-
-		/// WARNING WARNING WARNING!
-		/// This function blindly uses memset. If you use it on sufficiently non-POD data, then it will put objects
-		/// into an invalid state.
-		inline void zero() 
-		{
+			static_assert(std::is_pod<T>::value, "Error: zero() only works on POD types");
 			for(int y=0; y < my_size.y; y++)
 				memset((*this)[y], 0, sizeof(T) * my_size.x);
 		}
@@ -366,46 +490,17 @@ template<class T> class BasicImage
 		inline void fill(const T d)
 		{
 			for(int y=0; y < my_size.y; y++)
-				ImageUtil::memfill( (*this)[y], my_size.x, d);
+				Internal::memfill( (*this)[y], my_size.x, d);
 		}
 
 		/// Copy constructor
 		/// @param copyof The image to copy
-		BasicImage(const BasicImage& copyof)
-		{
-		  my_size = copyof.my_size;
-		  my_data = copyof.my_data;
-		  my_stride = copyof.my_stride;
-		}
+		BasicImage(const BasicImage& copyof)=default;
 		
-		void operator=(const BasicImage&copyof)
-		{
-			my_size = copyof.my_size;
-			my_data = copyof.my_data;
-			my_stride = copyof.my_stride;
-		}
+		/// Assignment operator
+		/// @param copyof The image to copy
+		BasicImage& operator=(const BasicImage&copyof)=default;
 
-		/// Return a sub image
-		/// @param start Top left pixel of the sub image
-		/// @param size width and  height of the sub image
-		BasicImage sub_image(const ImageRef& start, const ImageRef& size)
-		{
-			CVD_IMAGE_ASSERT(in_image(start), ImageError::AccessOutsideImage);
-			CVD_IMAGE_ASSERT(in_image(start + size - ImageRef(1,1)), ImageError::AccessOutsideImage);
-			return BasicImage( &operator[](start), size, my_stride);
-		}
-
-		/// Return const a sub image
-		/// @param start Top left pixel of the sub image
-		/// @param size width and  height of the sub image
-		const BasicImage sub_image(const ImageRef& start, const ImageRef& size) const
-		{	
-			CVD_IMAGE_ASSERT(in_image(start), ImageError::AccessOutsideImage);
-			CVD_IMAGE_ASSERT(in_image(start + size - ImageRef(1,1)), ImageError::AccessOutsideImage);
-
-			T*ptr = my_data + start.y * my_stride + start.x;
-			return BasicImage(ptr, size, my_stride);
-		}
 
 		/// Return a reference to a BasicImage. Useful for passing anonymous BasicImages to functions.
 		BasicImage& ref()
@@ -414,21 +509,25 @@ template<class T> class BasicImage
 		}
 
 	protected:
-		T* my_data;       ///< The raw image data
-		ImageRef my_size; ///< The size of the image
-		int my_stride;    ///< The row stride
 		
-		///Return an off-the-end pointer without ever throwing AccessOutsideImage
-		T* end_ptr() { return my_data+my_size.y*my_stride; }
-
-		///Return an off-the-end pointer without ever throwing AccessOutsideImage
-		const T* end_ptr() const { return my_data+my_size.y*my_stride; }
-
-		BasicImage()
-		{}
+		BasicImage()=default;
 
 };
 
+
+template<class C> BasicImage<C> Internal::ImageData<C, false>::sub_image(const ImageRef& start, const ImageRef& size)
+{
+	CVD_IMAGE_ASSERT(in_image(start), ImageError::AccessOutsideImage);
+	CVD_IMAGE_ASSERT(in_image(start + size - ImageRef(1,1)), ImageError::AccessOutsideImage);
+	return BasicImage<C>( &operator[](start), size, my_stride);
+}
+
+template<class C> const BasicImage<C> Internal::ImageData<C, false>::sub_image(const ImageRef& start, const ImageRef& size) const
+{
+	CVD_IMAGE_ASSERT(in_image(start), ImageError::AccessOutsideImage);
+	CVD_IMAGE_ASSERT(in_image(start + size - ImageRef(1,1)), ImageError::AccessOutsideImage);
+	return BasicImage<C>( &operator[](start), size, my_stride);
+}
 
 /// A full image which manages its own data.
 /// @param T The pixel type for this image. Typically either
@@ -642,6 +741,8 @@ class Image: public BasicImage<T>
 			{
               //For images with zero pixels (e.g. 0 by 100 image),
               //we still want to preserve non-zero dimensions in the size.
+				
+
 				this->my_size = copyof->my_size;
 				this->my_stride = copyof->my_stride;
                 if (copyof->my_data != NULL) {

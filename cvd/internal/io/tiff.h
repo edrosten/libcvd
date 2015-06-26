@@ -153,7 +153,7 @@ namespace TIFF
 
 			static const int top_row_first=1;
 		private:
-			std::auto_ptr<TIFFWritePimpl> t; 
+			std::unique_ptr<TIFFWritePimpl> t; 
 	};
 	
 

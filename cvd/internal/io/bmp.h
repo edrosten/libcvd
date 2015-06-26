@@ -37,7 +37,7 @@ namespace CVD {
 						                   Head> > Types;
 
 			private:
-				std::auto_ptr<ReadPimpl> t;
+				std::unique_ptr<ReadPimpl> t;
 		};
 
 		class WritePimpl;
