@@ -26,8 +26,10 @@ template <class T>
 class Rgb
 {
 public:
-  /// Default constructor. Sets everything to 0.
-  explicit Rgb() : red(0), green(0), blue(0) {}
+
+  Rgb() = default;
+  Rgb(const Rgb&) = default;
+  Rgb& operator=(const Rgb&)=default;
 
   /// Constructs a colour as specified
   /// @param r The red component
@@ -41,11 +43,6 @@ public:
   T green; ///< The green component
   T blue;  ///< The blue component
    
-  /// Assignment operator
-  /// @param c The colour to copy from
-    inline Rgb<T>& operator=(const Rgb<T>& c)
-    {red = c.red; green = c.green; blue = c.blue; return *this;}
-	    
   /// Logical equals operator. Returns true if each component is the same.
   /// @param c Rgb to compare with
   inline bool operator==(const Rgb<T>& c) const

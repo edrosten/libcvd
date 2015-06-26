@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <memory>
 
 #include <cvd/config.h>
 
@@ -52,12 +53,13 @@ namespace CVD {
 	{
 		static VideoBuffer<T>* make(const std::string& filename)
 		{
-			using std::auto_ptr;
+			using std::unique_ptr;
 			using std::ifstream;
+			using std::make_unique;
 
-			auto_ptr<std::ifstream> stream(new ifstream(filename.c_str()));
+			unique_ptr<std::ifstream> stream  = std::make_unique<ifstream>(filename);
+			unique_ptr<VideoBuffer<T>> buf = make_unique<ServerPushJpegBuffer<T>>(*stream);
 			
-			auto_ptr<VideoBuffer<T> > buf(static_cast<VideoBuffer<T>*>(new ServerPushJpegBuffer<T>(*stream)));
 			return new VideoBufferWithData<T, std::ifstream>(buf, stream);
 		}
 	};
@@ -96,9 +98,9 @@ namespace CVD {
 	{
 		static VideoBuffer<T>* make(DeinterlaceBufferFields::Fields f, bool& linedouble, const std::string& url)
 		{
-			std::auto_ptr<VideoBuffer<T> > source  = std::auto_ptr<VideoBuffer<T> > (static_cast<VideoBuffer<T>*>(open_video_source<T>(url)));
-			std::auto_ptr<VideoBuffer<T> > de_int  = std::auto_ptr<VideoBuffer<T> > (static_cast<DeinterlaceBuffer<T>*>(new DeinterlaceBuffer<T>(*source, f, linedouble)));
-			return new VideoBufferWithData<T, VideoBuffer<T> >(de_int, source);
+			auto source  = std::unique_ptr<VideoBuffer<T>>(open_video_source<T>(url));
+			std::unique_ptr<VideoBuffer<T>> buf = std::make_unique<DeinterlaceBuffer<T>>(*source, f, linedouble);
+			return new VideoBufferWithData<T, VideoBuffer<T> >(buf, source);
 		}
 	};
 
@@ -119,8 +121,9 @@ namespace CVD {
 	template<class Out, class In, bool can_convert> struct MakeConverter{
 		static VideoBuffer<Out>* make(const std::string& r)
 		{
-			std::auto_ptr<VideoBuffer<In> > buf  = std::auto_ptr<VideoBuffer<In> > (static_cast<VideoBuffer<In>*>(open_video_source<In>(r)));
-			std::auto_ptr<VideoBuffer<Out> > cvt = std::auto_ptr<VideoBuffer<Out> >(static_cast<VideoBuffer<Out>*>( new ColourspaceBuffer<Out, In>(*buf)));
+			std::unique_ptr<VideoBuffer<In>> buf  { open_video_source<In>(r) };
+
+			std::unique_ptr<VideoBuffer<Out>> cvt =  std::make_unique<ColourspaceBuffer<Out, In>>(*buf);
 			return new VideoBufferWithData<Out, VideoBuffer<In> >(cvt, buf);
 		}
 	};
@@ -323,13 +326,13 @@ namespace CVD {
 			int ra_frames=0;
 			get_jpegstream_options(vs, ra_frames);
 
-			auto_ptr<VideoBuffer<T> > jpeg_buffer(makeJPEGStream<T>::make(vs.identifier));
+			std::unique_ptr<VideoBuffer<T> > jpeg_buffer(makeJPEGStream<T>::make(vs.identifier));
 
 			if(ra_frames == 0)
 				return jpeg_buffer.release();
 			else
 			{
-				auto_ptr<VideoBuffer<T> > b(new ReadAheadVideoBuffer<T>(*(jpeg_buffer.get()), ra_frames));
+				std::unique_ptr<VideoBuffer<T>> b = std::make_unique<ReadAheadVideoBuffer<T>>(*(jpeg_buffer.get()), ra_frames);
 				return new VideoBufferWithData<T, VideoBuffer<T> >(b, jpeg_buffer);
 			}
 		}

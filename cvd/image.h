@@ -293,6 +293,25 @@ namespace Internal
 			{
 			}
 
+			//We need them here in order to provide the functionality for
+			//the asserts below. Technically they can apply to dummy types but
+			//why bother?
+
+			/// Is this pixel co-ordinate inside the image?
+			/// @param ir The co-ordinate to test
+			bool in_image(const ImageRef& ir) const
+			{
+				return ir.x >=0 && ir.y >=0 && ir.x < my_size.x && ir.y < my_size.y;
+			}
+
+			/// Is this pixel co-ordinate inside the image, and not too close to the edges?
+			/// @param ir The co-ordinate to test
+			/// @param border The size of the border: positive points inside the image.
+			bool in_image_with_border(const ImageRef& ir, int border) const
+			{
+				return ir.x >=border && ir.y >=border && ir.x < my_size.x - border && ir.y < my_size.y - border;
+			}
+
 			/// Access a pixel from the image. Bounds checking is only performed if the library is compiled
 			/// with <code>-D CVD_IMAGE_DEBUG</code>, in which case an ImageError::AccessOutsideImage exception is 
 			/// thrown.
@@ -399,9 +418,9 @@ namespace Internal
 
 
 
+				T* my_data;
 				ImageRef my_size;
 				int my_stride;	
-				T* my_data;
 				using PointerType = T*;
 				using ConstPointerType = const T*;
 	};
@@ -433,20 +452,6 @@ template<class T> class BasicImage : public Internal::ImageData<T>
 		//Inherit all constructors
 		using Internal::ImageData<T>::ImageData;
 
-		/// Is this pixel co-ordinate inside the image?
-		/// @param ir The co-ordinate to test
-		bool in_image(const ImageRef& ir) const
-		{
-			return ir.x >=0 && ir.y >=0 && ir.x < my_size.x && ir.y < my_size.y;
-		}
-
-		/// Is this pixel co-ordinate inside the image, and not too close to the edges?
-		/// @param ir The co-ordinate to test
-		/// @param border The size of the border: positive points inside the image.
-		bool in_image_with_border(const ImageRef& ir, int border) const
-		{
-			return ir.x >=border && ir.y >=border && ir.x < my_size.x - border && ir.y < my_size.y - border;
-		}
 
 		/// The image data is not destroyed when a BasicImage is destroyed.
 		virtual ~BasicImage()
@@ -480,7 +485,7 @@ template<class T> class BasicImage : public Internal::ImageData<T>
 		///This only works on POD
 		inline void  zero() 
 		{
-			static_assert(std::is_pod<T>::value, "Error: zero() only works on POD types");
+			static_assert(std::is_trivially_copyable<T>::value, "Error: zero() only works on POD types");
 			for(int y=0; y < my_size.y; y++)
 				memset((*this)[y], 0, sizeof(T) * my_size.x);
 		}

@@ -16,8 +16,8 @@ template <class T, class D>
 class VideoBufferWithData: public VideoBuffer<T> 
 {
 	public: 
-		VideoBufferWithData(std::auto_ptr<VideoBuffer<T> >& buf_, std::auto_ptr<D>& d)
-		:VideoBuffer<T>(buf_->type()), buf(buf_),extra_data(d)
+		VideoBufferWithData(std::unique_ptr<VideoBuffer<T> >& buf_, std::unique_ptr<D>& d)
+		:VideoBuffer<T>(buf_->type()), buf(std::move(buf_)),extra_data(move(d))
 		{}
 
 		ImageRef size()
@@ -62,9 +62,9 @@ class VideoBufferWithData: public VideoBuffer<T>
 
 
 	private:
-		std::auto_ptr<VideoBuffer<T> > buf;
+		std::unique_ptr<VideoBuffer<T> > buf;
 	public:
-		std::auto_ptr<D> extra_data;
+		std::unique_ptr<D> extra_data;
 };
 
 }
