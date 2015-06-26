@@ -139,6 +139,7 @@ namespace CVD
 	/// @ingroup gVideoBuffer
 	struct yuv411
 	{
+		typedef int dummy;
 		//unsigned char val;
 	};
 
@@ -146,12 +147,14 @@ namespace CVD
 	/// A datatype to represent MJPEG data
 	struct MJPEG
 	{
+		typedef int dummy;
 	};
 
 	/// A datatype to represent yuv422 (yuyv) data.
 	/// @ingroup gVideoBuffer
 	struct yuv422
 	{
+		typedef int dummy;
 		//unsigned short val;
 	};
 
@@ -159,6 +162,7 @@ namespace CVD
 	/// @ingroup gVideoBuffer
 	struct yuv420p
 	{
+		typedef int dummy;
 		//unsigned short val;
 	};
 	
@@ -168,6 +172,7 @@ namespace CVD
 	/// @ingroup gVideoBuffer
 	struct vuy422
 	{
+		typedef int dummy;
 		//unsigned short val;
 	};
 

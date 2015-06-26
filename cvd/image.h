@@ -260,14 +260,19 @@ namespace Internal
 
 			ImageData(const ImageData&) = default;
 			ImageData& operator=(const ImageData&)=default;
+			
+			ImageData(void* data, size_t len, ImageRef sz)
+			:my_data(data),my_size(sz), data_length(len)
+			{
+			}
 
 		protected:
 			ImageData()=default;
 
 
+			void*    my_data;
 			ImageRef my_size;
 			size_t   data_length;
-			void*    my_data;
 
 			using PointerType = void*;
 			using ConstPointerType = const void*;
@@ -531,7 +536,9 @@ template<class C> const BasicImage<C> Internal::ImageData<C, false>::sub_image(c
 {
 	CVD_IMAGE_ASSERT(in_image(start), ImageError::AccessOutsideImage);
 	CVD_IMAGE_ASSERT(in_image(start + size - ImageRef(1,1)), ImageError::AccessOutsideImage);
-	return BasicImage<C>( &operator[](start), size, my_stride);
+
+	C *ptr = my_data + start.y * my_stride + start.x;
+	return BasicImage<C>( ptr , size, my_stride);
 }
 
 /// A full image which manages its own data.
