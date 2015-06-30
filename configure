@@ -648,10 +648,6 @@ have_toon
 have_shared_ptr
 have_videodisplay
 XMKMF
-have_pthread_yield_np
-have_pthread_yield
-have_sched_yield
-have_pthread
 have_posix_rt
 have_qtbuffer
 cygwin_hacks
@@ -763,7 +759,6 @@ with_o2buffer
 with_qtbuffer
 with_posix_rt
 with_videodisplay
-with_pthread
 with_jpeg
 with_jpegbuffer
 with_tiff
@@ -1453,7 +1448,6 @@ Optional Packages:
   --without-qtbuffer	  compile without quicktime buffer support (MacOSX only)
   --without-posix_rt          compile without POSIX-RT (better cvd_timer) support
   --without-videodisplay  compile without videodisplay support
-  --without-pthread       compile without PThread support
   --without-jpeg          compile without JPEG support
   --with-jpegbuffer=N     Set JPEG read buffer size. N>1 will not be able to read multiple JPEGS from a stream.
   --without-tiff          compile without TIFF support
@@ -4477,7 +4471,7 @@ minor=$cvd_minor
 #Lists of  optional components
 #
 
-all_options="pthread videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm posix_rt"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm posix_rt"
 dodginess_options=
 options=
 simd_all_options=
@@ -6505,123 +6499,6 @@ fi
 
 
 
-
-
-	if test "$with_pthread" != no && test "$have_pthread" != yes
-	then
-		if test "$with_pthread" == ""
-		then
-			with_pthread=yes
-		fi
-
-		save_LIBS="$LIBS"
-		save_CXXFLAGS="$CXXFLAGS"
-		a=
-
-
-	if test "$host_os" != cygwin
-	then
-		CXXFLAGS="$CXXFLAGS -pthread"
-		LIBS="$LIBS -pthread"
-	else
-		LIBS="$LIBS -lpthread"
-	fi
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for working pthreads" >&5
-$as_echo_n "checking for working pthreads... " >&6; }
-	if test "$cross_compiling" = yes; then :
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "cannot run test program while cross compiling
-See \`config.log' for more details" "$LINENO" 5; }
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <pthread.h>
-						void*foo(void*){}
-						pthread_t th;
-
-						int main(){pthread_create(&th,NULL,foo,NULL);return 0;}
-_ACEOF
-if ac_fn_cxx_try_run "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }; a=1
-fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-
-
-
-		if test x$a == x
-		then
-			$as_echo "#define CVD_HAVE_PTHREAD 1" >>confdefs.h
-
-			have_pthread=yes
-
-			options="$options pthread"
-
-	# check for existence of pthread_yield
-	# Mac OS X only has pthread_yield_np
-	a=
-	ac_fn_cxx_check_func "$LINENO" "sched_yield" "ac_cv_func_sched_yield"
-if test "x$ac_cv_func_sched_yield" = xyes; then :
-  have_sched_yield=yes
-
-else
-  a=sy
-fi
-
-
-	if test x$a != x
-	then
-		ac_fn_cxx_check_func "$LINENO" "pthread_yield" "ac_cv_func_pthread_yield"
-if test "x$ac_cv_func_pthread_yield" = xyes; then :
-  have_pthread_yield=yes
-
-else
-  a=py
-fi
-
-	fi
-
-
-	if test x$a != x
-	then
-		ac_fn_cxx_check_func "$LINENO" "pthread_yield_np" "ac_cv_func_pthread_yield_np"
-if test "x$ac_cv_func_pthread_yield_np" = xyes; then :
-  have_pthread_yield_np=yes
-
-else
-  a=pyn
-fi
-
-	fi
-
-	if test x$a = xpyn
-	then
-		dodginess_options="$dodginess_options no_pthread_yield"
-		dodginess_options="$dodginess_options no_sched_yield"
-	elif test x$a = py
-	then
-		dodginess_options="$dodginess_options no_sched_yield"
-	fi
-
-		else
-			LIBS="$save_LIBS"
-			CXXFLAGS="$save_CXXFLAGS"
-		fi
-	fi
-
-	if test "$have_pthread" != yes
-	then
-		:
-
-	fi
-
-
 ################################################################################
 #
 #Check for optional libraries
@@ -6636,12 +6513,6 @@ echo -------------------------------
 # Check whether --with-videodisplay was given.
 if test "${with_videodisplay+set}" = set; then :
   withval=$with_videodisplay;
-fi
-
-
-# Check whether --with-pthread was given.
-if test "${with_pthread+set}" = set; then :
-  withval=$with_pthread;
 fi
 
 
@@ -9141,15 +9012,6 @@ posix/get_time_of_day_ns                             posix_rt
 get_time_of_day_ns                                   END
 
 #Libraries
-synchronized,eventobject,thread                      pthread END
-
-posix/sched_yield                                    pthread sched_yield
-posix/pthread_yield                                  pthread pthread_yield
-posix/pthread_yield_np                               pthread pthread_yield_np
-nothing                                              END
-
-thread/runnable_batch                                tr1_shared_ptr pthread
-nothread/runnable_batch                              tr1_shared_ptr END
 
 nothing                                              windows
 noarch/posix_memalign                                memalign

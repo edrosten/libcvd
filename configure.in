@@ -29,7 +29,7 @@ AC_SUBST(minor, $cvd_minor)
 #Lists of  optional components
 #
 
-all_options="pthread videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm posix_rt"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm posix_rt"
 dodginess_options=
 options=
 simd_all_options=
@@ -535,51 +535,6 @@ CHECK_FOR_OPTION(posix_rt, [
 ])
 
 
-	
-CHECK_FOR_OPTION(pthread, [
-	
-	if test "$host_os" != cygwin
-	then
-		APPEND(CXXFLAGS, -pthread)
-		APPEND(LIBS, -pthread)
-	else
-		APPEND(LIBS, -lpthread)
-	fi
-	AC_MSG_CHECKING(for working pthreads)
-	AC_RUN_IFELSE([AC_LANG_SOURCE([#include <pthread.h>
-						void*foo(void*){}
-						pthread_t th;
-
-						int main(){pthread_create(&th,NULL,foo,NULL);return 0;}])],
-						[AC_MSG_RESULT(yes)],
-						[AC_MSG_RESULT(no); a=1])
-], [
-	# check for existence of pthread_yield
-	# Mac OS X only has pthread_yield_np
-	a=
-	AC_CHECK_FUNC(sched_yield, AC_SUBST(have_sched_yield, yes), a=sy)
-
-	if test x$a != x
-	then
-		AC_CHECK_FUNC(pthread_yield, AC_SUBST(have_pthread_yield, yes),a=py)
-	fi
-
-
-	if test x$a != x
-	then
-		AC_CHECK_FUNC(pthread_yield_np, AC_SUBST(have_pthread_yield_np, yes),a=pyn)
-	fi
-
-	if test x$a = xpyn
-	then
-		APPEND(dodginess_options, no_pthread_yield)
-		APPEND(dodginess_options, no_sched_yield)
-	elif test x$a = py
-	then
-		APPEND(dodginess_options, no_sched_yield)
-	fi
-])
-
 ################################################################################
 #
 #Check for optional libraries
@@ -591,7 +546,6 @@ echo Checking for optional libraries
 echo -------------------------------
 
 AC_ARG_WITH(videodisplay, [  --without-videodisplay  compile without videodisplay support])
-AC_ARG_WITH(pthread, [  --without-pthread       compile without PThread support])
 AC_ARG_WITH(jpeg,    [  --without-jpeg          compile without JPEG support])
 AC_ARG_WITH(jpegbuffer, [  --with-jpegbuffer=N     Set JPEG read buffer size. N>1 will not be able to read multiple JPEGS from a stream.])
 AC_ARG_WITH(tiff, [  --without-tiff          compile without TIFF support])
@@ -1057,15 +1011,6 @@ posix/get_time_of_day_ns                             posix_rt
 get_time_of_day_ns                                   END
 
 #Libraries
-synchronized,eventobject,thread                      pthread END
-
-posix/sched_yield                                    pthread sched_yield
-posix/pthread_yield                                  pthread pthread_yield
-posix/pthread_yield_np                               pthread pthread_yield_np
-nothing                                              END
-
-thread/runnable_batch                                tr1_shared_ptr pthread
-nothread/runnable_batch                              tr1_shared_ptr END
 
 nothing                                              windows
 noarch/posix_memalign                                memalign

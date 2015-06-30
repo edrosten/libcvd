@@ -5,18 +5,11 @@
 #include <cvd/config.h>
 #include <cvd/videobuffer.h>
 
-#ifdef CVD_HAVE_PTHREAD
 #include <deque>
-#include <cvd/thread.h>
-#include <cvd/synchronized.h>
-#include <cvd/eventobject.h>
-#endif
 
 namespace CVD {
     #ifndef CVD_HAVE_PTHREAD
-    #ifndef _WIN32
     #warning ReadAheadVideoBuffer will not do any read-ahead because threads are not supported in this build
-    #endif
     template <class T> 
     class ReadAheadVideoBuffer : public VideoBuffer<T>
     {
