@@ -39,9 +39,11 @@ namespace CVD {
 			int yy, uu, vv, ug_plus_vg, ub, vr;
 			int r,g,b;
 
+			size_t bytes_per_row = from.size().x * 2;
+
 			for(int y=0; y < from.size().y; y++)
 			{
-				const unsigned char* yuv = reinterpret_cast<const unsigned char*>(from[y]);
+				const unsigned char* yuv = reinterpret_cast<const unsigned char*>(from.data()) + bytes_per_row*y;
 
 				for(int x=0; x < from.size().x; x+=2, yuv+=4)
 				{
@@ -72,9 +74,14 @@ namespace CVD {
 
 		template<class C, class Ind> void convert_422_grey(const BasicImage<C>& from, BasicImage<byte>& to)
 		{
+			//yuv422 / vuy422 is along the lines of yuyv
+			//which is 4 bytes for 2 pixels, i.e. 2 bytes per pixel
+			
+			size_t bytes_per_row = from.size().x * 2;
+
 			for(int y=0; y < from.size().y; y++)
 			{
-				const unsigned char* yuv = reinterpret_cast<const unsigned char*>(from[y]);
+				const unsigned char* yuv = reinterpret_cast<const unsigned char*>(from.data()) + bytes_per_row*y;
 				for(int x=0; x < from.size().x; x+=2, yuv+=4)
 				{
 					to[y][x+0] = yuv[Ind::y1];
@@ -86,7 +93,6 @@ namespace CVD {
 
 	template<> void convert_image(const BasicImage<yuv422>& from, BasicImage<Rgb<byte> >& to)
 	{
-		std::cout << "lawlz\n";
 		convert_422<yuv422, yuv422_ind>(from, to);
 	}
 

@@ -251,6 +251,9 @@ namespace Internal
 	//
 	//Silly types have a typedef called "dummy" because they're a placeholder and so don't
 	//actually represent the underlying data.
+	//
+	//Dummy types are usually of fixed size (e.g. yuv types) and so the size is/should be known
+	//at compile time. In this case, the dummy struct must provide a std::ratio called bytes_per_pixel
 
 
 	//This is the image data holder for silly types lilke 
@@ -263,6 +266,11 @@ namespace Internal
 			
 			ImageData(void* data, size_t len, ImageRef sz)
 			:my_data(data),my_size(sz), data_length(len)
+			{
+			}
+
+			ImageData(void* data, ImageRef sz)
+			:my_data(data),my_size(sz), data_length(T::bytes_per_pixel::num*sz.area()/T::bytes_per_pixel::den)
 			{
 			}
 

@@ -5,6 +5,7 @@
 #include <cvd/internal/builtin_components.h>
 #include <cvd/internal/pixel_traits.h>
 #include <cvd/internal/name_builtin_types.h>
+#include <ratio>
 
 namespace CVD
 {
@@ -139,7 +140,9 @@ namespace CVD
 	/// @ingroup gVideoBuffer
 	struct yuv411
 	{
+		//Layout uyyvyy is 6 bytes for 4 pixels
 		typedef int dummy;
+		typedef std::ratio<6, 4> bytes_per_pixel;
 		//unsigned char val;
 	};
 
@@ -154,7 +157,9 @@ namespace CVD
 	/// @ingroup gVideoBuffer
 	struct yuv422
 	{
+		//yuyv is 4 bytes for 2 pixels
 		typedef int dummy;
+		typedef std::ratio<4, 2> bytes_per_pixel;
 		//unsigned short val;
 	};
 
@@ -163,6 +168,7 @@ namespace CVD
 	struct yuv420p
 	{
 		typedef int dummy;
+		typedef std::ratio<4, 2> bytes_per_pixel;
 		//unsigned short val;
 	};
 	
@@ -173,6 +179,7 @@ namespace CVD
 	struct vuy422
 	{
 		typedef int dummy;
+		typedef std::ratio<4, 2> bytes_per_pixel;
 		//unsigned short val;
 	};
 
