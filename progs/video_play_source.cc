@@ -32,11 +32,17 @@
 #include <cvd/image.h>
 #include <typeinfo>
 #include <cstdlib>
+#include <thread>
+#include <condition_variable>
+#include <atomic>
+#include <mutex>
 #include <cvd/rgb.h>
 #include <cvd/byte.h>
 #include <cvd/glwindow.h>
 #include <cvd/gl_helpers.h>
 #include <cvd/videosource.h>
+
+#include "progs/tinyformat.h"
 
 #ifdef CVD_HAVE_V4LBUFFER
 	#include <cvd/Linux/v4lbuffer.h>
@@ -54,9 +60,12 @@ class Actions: public GLWindow::EventHandler
 		int back_one;
 		int expose;
 		int quit;
+		int recording;
+		int new_recording;
+
 
 		Actions()
-		:paused(0),advance_one(0),expose(0),quit(0)
+		:paused(0),advance_one(0),expose(0),quit(0),recording(0),new_recording(0)
 		{}
 
 		void clear()
@@ -64,12 +73,18 @@ class Actions: public GLWindow::EventHandler
 			advance_one=0;
 			expose=0;
 			back_one=0;
+			new_recording=0;
 		}
 
 		virtual void on_key_down(GLWindow&, int key)
 		{
 			if(key == ' ' || key == 'p')
 				paused = !paused;
+			else if (key == 'q' || key== 27)
+			{
+				recording=0;
+				quit=1;
+			}
 			else if(key == '.')
 			{
 				advance_one=1;
@@ -79,6 +94,12 @@ class Actions: public GLWindow::EventHandler
 			{
 				back_one=1;
 				paused=1;
+			}
+			else if(key == 'r')
+			{
+				recording=!recording;
+				if(recording)
+					new_recording = true;
 			}
 		}
 
@@ -102,7 +123,59 @@ class Actions: public GLWindow::EventHandler
 };
 
 
-template<class C> void play(string s)
+template<class C>
+class MessageQueue
+{
+	private:
+		std::deque<C> data;
+		std::mutex queue_mutex;
+		std::atomic<int> length;
+		std::condition_variable empty;
+
+
+	public:
+		MessageQueue()
+		{
+			length=0;
+		}
+		void push(const C& a)
+		{
+			lock_guard<mutex> lock(queue_mutex);
+			data.push_back(a);
+			length = data.size();
+			empty.notify_one();
+		}
+
+		void push(C&& a)
+		{
+			lock_guard<mutex> lock(queue_mutex);
+			data.emplace_back(move(a));
+			length = data.size();
+			empty.notify_one();
+		}
+
+		C pop()
+		{
+			unique_lock<mutex> lock(queue_mutex);
+
+			while(data.empty())
+				empty.wait(lock);
+
+			C a = move(data.front());
+			data.pop_front();
+			length = data.size();
+			return a;
+		}
+
+		int get_length() const
+		{
+			return length;
+		}
+};
+
+
+
+template<class C> void play(string s, string fmt)
 {
 	VideoBuffer<C> *buffer = open_video_source<C>(s);
 	
@@ -151,12 +224,46 @@ template<class C> void play(string s)
 
 	Actions a;
 
+	string action="Playing";
+	string rec;
+	bool old_paused = 0;
+
+	int rec_sequence=-1;
+	int rec_number=0;
+
+	MessageQueue<pair<unique_ptr<Image<C>>,string>> save_queue;
+	
+	//Spawn some saver threads
+	for(unsigned int i=0; i < thread::hardware_concurrency(); i++)
+	{
+		thread([&](){
+			for(;;)
+			{
+				auto s=save_queue.pop();
+				
+				try{
+					img_save(*(s.first), s.second);
+				}
+				catch(CVD::Exceptions::All e)
+				{
+					cerr << "Error saving: " << fmt << ": " << e.what << endl;
+				}
+			}
+		}).detach();
+	}
+
 	for(;;)
 	{
 		a.clear();
 		display.handle_events(a);
 
-		if(a.quit)
+		if(a.new_recording)
+		{
+			rec_sequence++;
+			rec_number=0;
+		}
+
+		if(a.quit && save_queue.get_length() == 0)
 			break;
 
 		new_frame=0;
@@ -171,12 +278,40 @@ template<class C> void play(string s)
 				buffer->put_frame(frame);
 			frame = buffer->get_frame();
 			new_frame=1;
+
+			if(a.recording)
+			{
+				rec = tfm::format(fmt.c_str(), rec_sequence, rec_number);
+				unique_ptr<Image<C>> img = make_unique<Image<C>>();
+				img->copy_from(*frame);
+				save_queue.push(move(make_pair(move(img), rec)));
+			}
+			else
+				rec = "";
+
+			rec_number++;
+
 			glTexImage2D(*frame, 0, GL_TEXTURE_RECTANGLE_NV);
 		}
-		
+
+
+		if(old_paused != a.paused)
+			new_frame = true;
+		old_paused = a.paused;
+
+		if(a.paused)
+			action = "Paused";
+		else if (a.recording)
+			action = "Recording";
+		else if (a.quit)
+			action = "Quitting";
+		else
+			action = "Playing";
+
+
 		if(a.expose || new_frame)
 		{
-			cerr << a.expose << endl;
+			glEnable(texTarget);
 			glBegin(GL_QUADS);
 			glTexCoord2i(0, 0);
 			glVertex2i(0,0);
@@ -187,6 +322,19 @@ template<class C> void play(string s)
 			glTexCoord2i(0, frame->size().y);
 			glVertex2i(0, display.size().y);
 			glEnd ();
+			glDisable(texTarget);
+
+
+			glPushMatrix();
+			glTranslatef(10,30,0);
+			glScalef(20,-20,20);
+			glColor3f(1,0,0);
+			glDrawText(action + " " + rec);
+			glTranslatef(0,-1.5,0);
+			if(save_queue.get_length() > 0)
+				glDrawText(tfm::format("%03i queued writes", save_queue.get_length()));
+			glPopMatrix();
+				
 			glFlush();
 			display.swap_buffers();
 		}
@@ -209,29 +357,65 @@ template<class C> void play(string s)
 
 int main(int argc, char* argv[])
 {
-	int arg=1;
+	int help = 0;
 	int type=0;
-	
-	if(argc-1 >=1)
-	{
-	    if(argv[arg] == string("-mono"))
-		{
-			arg++;
-			type=1;
-		}
-	}
+	int error=0;
 
-	if(arg != argc-1)
+	string fmt;
+	int c;
+		
+	opterr = 0;
+	while((c=getopt(argc, argv, "hmf:")) != -1)
+	{
+		if(c == 'h')
+			help=1;
+		else if(c == 'm')
+			type=1;
+		else if(c == 'f')
+			fmt = optarg;	
+		else if(c == '?')
+		{
+			error=1;
+			if(optopt == 'f')
+				cerr << "Error: Option -f requires an argumnt\n";
+			else 
+				cerr << "Error: Unknown option -" << optopt << endl;
+		}
+		else
+			abort();
+
+	}
+	
+	if(optind != argc-1)
 	{	
 		cerr << "Error: specify the video source\n";
-		return 1;
+		error = 1;
 	}
+
+	if(help || error)
+	{
+		clog << "Usage: [-h] [-m] [-f fmt] buffer \n"
+			 << " -h      Display this message\n"
+			 << " -m      Run the buffer in mono mode\n"
+			 << " -f      Format string for recording video frames, e.g. image-%03i-%05i.png\n"
+			 << "         The numbers are respectively the sequence number and the frame number\n"
+			 << "         within the sequence.\n"
+			 << "Keys: \n"
+			 << "<space> pause\n"
+			 << ",       reverse one frame (requires seekable buffer)\n"
+			 << ".       advance one frame (requires seekable buffer)\n"
+			 << "r       start/stop recording.\n"
+			 << "q       quit (this may take a while if writing is in progress)\n"; 
+
+		return (error != false);
+	}
+
 	try
 	{
 		if(type == 1)
-			play<byte>(argv[arg]);
+			play<byte>(argv[optind], fmt);
 		else
-			play<Rgb<byte> >(argv[arg]);
+			play<Rgb<byte> >(argv[optind], fmt);
 	}
 	catch(CVD::Exceptions::All& e)
 	{
