@@ -400,7 +400,7 @@ namespace CVD
 			log << "        unit pos:      " << mode.unit_pos_x << "x" << mode.unit_pos_y << "\n";
 			log << "        color codings: " << mode.color_codings.num << "\n";
 
-			for(unsigned int i=0; i <  mode.color_codings.num; i++)
+			for(unsigned int i=0; i <  mode.color_codings.num && i < DC1394_COLOR_CODING_NUM; i++)
 			    log << "            color: " << mode.color_codings.codings[i] << "(" << coding(mode.color_codings.codings[i]) << ")\n";
 			log << "        color: " << mode.color_coding <<  "(" << coding(mode.color_coding) << ")\n";
 
@@ -417,7 +417,7 @@ namespace CVD
 			// does the mode exist ?
 			// does it support the colour format we need ?
 			unsigned int i;
-			for(i = 0; i < mode.color_codings.num; ++i)
+			for(i = 0; i < mode.color_codings.num && i < DC1394_COLOR_CODING_NUM ; ++i)
 			{
 				if(mode.color_codings.codings[i] == nTargetColourCoding)
 					break;
