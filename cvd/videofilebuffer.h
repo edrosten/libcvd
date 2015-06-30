@@ -115,7 +115,7 @@ namespace CVD
 			std::string codec_name();
 		
 		private:
-			std::auto_ptr<RawVideoFileBufferPIMPL> p;
+			std::unique_ptr<RawVideoFileBufferPIMPL> p;
 	};
 	}
 
