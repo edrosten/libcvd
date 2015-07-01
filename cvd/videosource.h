@@ -16,6 +16,7 @@
 #include <cvd/colourspaces.h>
 #include <cvd/videobufferwithdata.h>
 #include <cvd/readaheadvideobuffer.h>
+#include <cvd/video/skipbuffer.h>
 
 #include <cvd/diskbuffer2.h>
 #include <cvd/serverpushjpegbuffer.h>
@@ -111,6 +112,25 @@ namespace CVD {
 			throw  VideoSourceException("DeinterlaceBuffer cannot handle input type");
  		}
  	};
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+	//
+	// Colourspace conversion buffer
+	//
+    
+	void get_skip_options(const VideoSource& vs, bool& do_seek, double& seek, int& drop);
+	template<class T> struct makeSkipBuffer
+	{
+		static VideoBuffer<T>* make(bool do_seek, double seek, int drop, const std::string& url)
+		{
+			auto source  = std::unique_ptr<VideoBuffer<T>>(open_video_source<T>(url));
+			std::unique_ptr<VideoBuffer<T>> buf = std::make_unique<SkipBuffer<T>>(*source, do_seek, seek, drop);
+			return new VideoBufferWithData<T, VideoBuffer<T> >(buf, source);
+		}
+	};
+
+
     ////////////////////////////////////////////////////////////////////////////////
 	//
 	// Colourspace conversion buffer
@@ -328,6 +348,16 @@ namespace CVD {
 
 			return makeDeinterlaceBuffer<T>::make(f, linedouble, vs.identifier);
 		}
+		else if(vs.protocol == "skip")
+		{
+			double seek=0;
+			bool do_seek=0;
+			int drop=0;
+
+			get_skip_options(vs, do_seek, seek, drop);
+
+			return makeSkipBuffer<T>::make(do_seek, seek, drop, vs.identifier);
+		}
 		else if(vs.protocol == "colourspace")
 		{
 			std::string from = "byte";
@@ -484,7 +514,7 @@ jpegstream://<(wget http//my.camera/file_representing_video -O - )
 @endverbatim
 
 Fields are:
-bool = true | yes | 1 ! false | no | 0
+bool = true | yes | 1 | false | no | 0
 offset = <width>x<height>
 size = <offset> | qvga | vga | pal | ntsc | xga
 
@@ -531,6 +561,10 @@ Options supported by the various protocols are:
 'colourspace' protcol (ColourspaceBuffer): identifier is a video URL
       from = byte | mono | gray | grey | yuv411 | yuv422 | rgb<byte> 
 	         | rgb | bayer_bggr | bayer_gbrg | bayer_grbg | bayer_rggb  (default mono)
+
+'skip' protocol: identifier is a video URL
+	seek = <double>
+	drip = <int>
 
 @endverbatim
 

@@ -286,6 +286,26 @@ namespace CVD {
 		}
 	}
 
+	void get_skip_options(const VideoSource& vs, bool& do_seek, double& seek, int& drop)
+	{
+		
+		for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it)
+		{		
+			if(it->first == "seek")
+			{
+				do_seek=true;
+				seek = atof(it->second.c_str());
+			}
+			else if(it->first == "drop")
+			{
+				drop = atoi(it->second.c_str());
+			}
+			else
+				throw VideoSourceException("invalid option for files protocol: "+it->first +
+										   "\n\t valid options: seek=<time>, drop=<n>"); 
+		}
+	}
+
 	void get_colourspace_options(const VideoSource& vs, string& colourspace)
 	{
 		colourspace = "mono";
