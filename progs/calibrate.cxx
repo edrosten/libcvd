@@ -39,7 +39,7 @@ string videoDevice = "colourspace:[from=yuv422]//qt://0";
 string videoDevice = "v4l2:///dev/video0";
 #endif
 
-typedef Camera::Quintic CameraModel;
+typedef Camera::OldCameraAdapter<Camera::Harris> CameraModel;
 static const int NumCameraParams = CameraModel::num_parameters;
 
 Vector<NumCameraParams> badVector()
