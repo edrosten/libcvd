@@ -681,7 +681,7 @@ class Image: public BasicImage<T>
 			*num_copies = 1;
  			this->my_size = size;
  			this->my_stride = size.x;
-            this->my_data = Internal::aligned_alloc<T>(this->size().area(), 16);
+            this->my_data = new T[this->size().area()];
           }
 		}
 
@@ -748,7 +748,7 @@ class Image: public BasicImage<T>
 		{
 			if(this->my_data && *num_copies && --(*num_copies) == 0)
 			{
-                Internal::aligned_free<T>(this->my_data, this->size().area());
+				delete[] this->my_data;
 			    this->my_data = 0;
 			    delete   num_copies;
 			    num_copies = 0;
