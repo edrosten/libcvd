@@ -261,7 +261,7 @@ namespace Camera {
 			/// Get the derivative of image frame wrt camera frame at the last computed projection
 			/// in the form \f$ \begin{bmatrix} \frac{\partial \text{im1}}{\partial \text{cam1}} & \frac{\partial \text{im1}}{\partial \text{cam2}} \\ \frac{\partial \text{im2}}{\partial \text{cam1}} & \frac{\partial \text{im2}}{\partial \text{cam2}} \end{bmatrix} \f$
 			/// @sa get_derivative()
-			inline TooN::Matrix<2,2> get_derivative(const TooN::Vector<2>& pt) const
+			inline TooN::Matrix<2,2> get_derivative_at(const TooN::Vector<2>& pt) const
 			{
 				TooN::Matrix<2,2> J;
 
@@ -681,7 +681,7 @@ namespace Camera {
 
 		TooN::Matrix<2> get_derivative() const
 		{
-			return C::get_derivative(my_last_camframe);
+			return C::get_derivative_at(my_last_camframe);
 
 		}
 
