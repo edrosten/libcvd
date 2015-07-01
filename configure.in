@@ -450,7 +450,7 @@ CHECK_FOR_OPTION(dc1394v2, [
 
 case "$host" in
 	*linux*)
-		os_all_options="dc1394v2 dc1394v1 v4l2buffer v4l1buffer"
+		os_all_options="dc1394v2 dc1394v1 v4l2buffer"
 		
 		if test "$have_dc1394v2" != yes || test "$with_dc1394v1v2" == "yes"
 		then
@@ -469,38 +469,8 @@ case "$host" in
 								int main(){V4L2_PIX_FMT_GREY;return 0;}])], 
 								[AC_MSG_RESULT(yes)],
 								[AC_MSG_RESULT(no); a=1])
-			if test x$a = x1
-			then
-				a=
-
-				AC_MSG_CHECKING(for strange v4l2)
-				AC_COMPILE_IFELSE([AC_LANG_SOURCE([	#include <sys/types.h>
-									#include <linux/types.h>
-									#include <videodevx/videodev.h>
-									int main(){V4L2_PIX_FMT_GREY;return 0;}])], 
-									[AC_MSG_RESULT(yes)],
-									[AC_MSG_RESULT(no); a=1])
-
-				if test x$a = x
-				then
-					APPEND(dodginess_options, strange_v4l2)
-					strange_v4l2=yes
-					AC_DEFINE(CVD_INTERNAL_HAVE_STRANGE_V4L2, 1)
-				fi
-			fi
 		])
 		
-		if test x$strange_v4l2 != xyes
-		then
-			CHECK_FOR_OPTION(v4l1buffer, [AC_CHECK_HEADERS(linux/videodev.h,[], [a=1])])
-		else
-			CHECK_FOR_OPTION(v4l1buffer, [
-				AC_MSG_CHECKING(for strange v4l)
-				AC_COMPILE_IFELSE([AC_LANG_SOURCE([	#include <videodevx/videodev.h>
-									int main(){VIDEO_PALETTE_GREY;return 0;}])], 
-									[AC_MSG_RESULT(yes)],
-									[AC_MSG_RESULT(no); a=1])])
-		fi
 		
 		;;
 	*windows*)
@@ -993,13 +963,8 @@ Linux/dvbuffer3_dc1394v1,Linux/dvbuffer,videosource_dvbuffer,DVBUFFER    dc1394v
 videosource_nodvbuffer                                                   END
 
 
-Linux/v4l1buffer,Linux/videosource_v4l1buffer        v4l1buffer
-Linux/videosource_nov4l1buffer                       END
-
-
 Linux/v4lbuffer,V4LBUFFER,Linux/videosource_v4lbuffer                    v4l2buffer 
 Linux/videosource_nov4lbuffer                                            END
-Linux/v4l2buffer                                     v4l2buffer END
 Linux/v4lcontrol                                     v4l2buffer END
 
 

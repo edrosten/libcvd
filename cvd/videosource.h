@@ -219,23 +219,6 @@ namespace CVD {
 #endif
 
 	void get_files_options(const VideoSource& vs, int& fps, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob);
-	
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	// v4l1 buffer
-	//
-
-	template <class T> VideoBuffer<T>* makeV4L1Buffer(const std::string&, const ImageRef& )
-	{
-		throw VideoSourceException("V4L1Buffer cannot handle types other than byte, bayer, yuv422, Rgb<byte>");
-	}
-
-	template <> VideoBuffer<byte>* makeV4L1Buffer(const std::string& dev, const ImageRef& size);
-	template <> VideoBuffer<bayer>* makeV4L1Buffer(const std::string& dev, const ImageRef& size);
-	template <> VideoBuffer<yuv422>* makeV4L1Buffer(const std::string& dev, const ImageRef& size);
-	template <> VideoBuffer<Rgb<byte> >* makeV4L1Buffer(const std::string& dev, const ImageRef& size);
-
-	void get_v4l1_options(const VideoSource& vs, ImageRef& size);
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
@@ -361,11 +344,6 @@ namespace CVD {
 				vb = new ReadAheadVideoBuffer<T>(*vb, ra_frames);
 			return vb;
 		}
-		else if (vs.protocol == "v4l1") {
-			ImageRef size;
-			get_v4l1_options(vs, size);
-			return makeV4L1Buffer<T>(vs.identifier, size);
-		} 
 		else if (vs.protocol == "v4l2") {
 			ImageRef size;
 			int input;
@@ -405,7 +383,6 @@ namespace CVD {
 									   "colourspace, jpegstream, "
 									   "file, "
 									   "v4l2, "
-									   "v4l1, "
 									   "dc1394, "
 									   "qt, "
 									   "files"
@@ -442,7 +419,7 @@ conversion) which are chained to other buffers by taking a URL as an argument.
 The url syntax is the following:
 @verbatim
 url		 := protocol ':' [ '[' options ']' ] // identifier
-protocol := "files" | "file" | "v4l2" | "v4l1" | "jpegstream" | "dc1394" | "qt" | "colourspace" | "deinterlace"
+protocol := "files" | "file" | "v4l2" | "jpegstream" | "dc1394" | "qt" | "colourspace" | "deinterlace"
 options  := option [ ',' options ]
 option	 := name [ '=' value ]
 @endverbatim
@@ -521,9 +498,6 @@ Options supported by the various protocols are:
 'file' protocol (VideoFileBuffer): identifier is path to file
 	   read_ahead  [= <number>] (default is 50 if specified without value)
 	   on_end = repeat_last | unset_pending | loop (default is repeat_last)
-
-'v4l1' protocol (V4L1Buffer): identifier is device name
-	   size = <size>  (default is 0x0)
 
 'v4l2' protocol (V4LBuffer): identifier is device name
 	   size = <size> (default vga)

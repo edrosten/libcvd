@@ -652,7 +652,6 @@ have_posix_rt
 have_qtbuffer
 cygwin_hacks
 have_windows
-have_v4l1buffer
 have_v4l2buffer
 have_dc1394v1
 have_dc1394v2
@@ -6021,7 +6020,7 @@ fi
 
 case "$host" in
 	*linux*)
-		os_all_options="dc1394v2 dc1394v1 v4l2buffer v4l1buffer"
+		os_all_options="dc1394v2 dc1394v1 v4l2buffer"
 
 		if test "$have_dc1394v2" != yes || test "$with_dc1394v1v2" == "yes"
 		then
@@ -6187,36 +6186,6 @@ else
 $as_echo "no" >&6; }; a=1
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-			if test x$a = x1
-			then
-				a=
-
-				{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for strange v4l2" >&5
-$as_echo_n "checking for strange v4l2... " >&6; }
-				cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-	#include <sys/types.h>
-									#include <linux/types.h>
-									#include <videodevx/videodev.h>
-									int main(){V4L2_PIX_FMT_GREY;return 0;}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }; a=1
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-				if test x$a = x
-				then
-					dodginess_options="$dodginess_options strange_v4l2"
-					strange_v4l2=yes
-					$as_echo "#define CVD_INTERNAL_HAVE_STRANGE_V4L2 1" >>confdefs.h
-
-				fi
-			fi
 
 
 		if test x$a == x
@@ -6240,104 +6209,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 	fi
 
 
-		if test x$strange_v4l2 != xyes
-		then
-
-	if test "$with_v4l1buffer" != no && test "$have_v4l1buffer" != yes
-	then
-		if test "$with_v4l1buffer" == ""
-		then
-			with_v4l1buffer=yes
-		fi
-
-		save_LIBS="$LIBS"
-		save_CXXFLAGS="$CXXFLAGS"
-		a=
-		for ac_header in linux/videodev.h
-do :
-  ac_fn_cxx_check_header_mongrel "$LINENO" "linux/videodev.h" "ac_cv_header_linux_videodev_h" "$ac_includes_default"
-if test "x$ac_cv_header_linux_videodev_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LINUX_VIDEODEV_H 1
-_ACEOF
-
-else
-  a=1
-fi
-
-done
-
-
-		if test x$a == x
-		then
-			$as_echo "#define CVD_HAVE_V4L1BUFFER 1" >>confdefs.h
-
-			have_v4l1buffer=yes
-
-			options="$options v4l1buffer"
-
-		else
-			LIBS="$save_LIBS"
-			CXXFLAGS="$save_CXXFLAGS"
-		fi
-	fi
-
-	if test "$have_v4l1buffer" != yes
-	then
-		:
-
-	fi
-
-		else
-
-	if test "$with_v4l1buffer" != no && test "$have_v4l1buffer" != yes
-	then
-		if test "$with_v4l1buffer" == ""
-		then
-			with_v4l1buffer=yes
-		fi
-
-		save_LIBS="$LIBS"
-		save_CXXFLAGS="$CXXFLAGS"
-		a=
-
-				{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for strange v4l" >&5
-$as_echo_n "checking for strange v4l... " >&6; }
-				cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-	#include <videodevx/videodev.h>
-									int main(){VIDEO_PALETTE_GREY;return 0;}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }; a=1
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-		if test x$a == x
-		then
-			$as_echo "#define CVD_HAVE_V4L1BUFFER 1" >>confdefs.h
-
-			have_v4l1buffer=yes
-
-			options="$options v4l1buffer"
-
-		else
-			LIBS="$save_LIBS"
-			CXXFLAGS="$save_CXXFLAGS"
-		fi
-	fi
-
-	if test "$have_v4l1buffer" != yes
-	then
-		:
-
-	fi
-
-		fi
 
 		;;
 	*windows*)
@@ -8994,13 +8865,8 @@ Linux/dvbuffer3_dc1394v1,Linux/dvbuffer,videosource_dvbuffer,DVBUFFER    dc1394v
 videosource_nodvbuffer                                                   END
 
 
-Linux/v4l1buffer,Linux/videosource_v4l1buffer        v4l1buffer
-Linux/videosource_nov4l1buffer                       END
-
-
 Linux/v4lbuffer,V4LBUFFER,Linux/videosource_v4lbuffer                    v4l2buffer
 Linux/videosource_nov4lbuffer                                            END
-Linux/v4l2buffer                                     v4l2buffer END
 Linux/v4lcontrol                                     v4l2buffer END
 
 

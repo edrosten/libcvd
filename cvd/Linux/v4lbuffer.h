@@ -6,12 +6,7 @@
 
 #include <vector>
 
-#ifdef CVD_INTERNAL_HAVE_STRANGE_V4L2
-		#include <videodevx/videodev.h>
-#else
-		#include <linux/videodev2.h>
-#endif
-
+#include <linux/videodev2.h>
 
 
 #include <cvd/videobuffer.h>
@@ -21,28 +16,6 @@
 #include <cvd/timer.h>
 #include <cvd/colourspaces.h>
 #include <fcntl.h>
-
-#ifndef VIDEO_PALETTE_GREY
-/* These are restored from videodev.h, removed in recent v4l2. */
-#define VIDEO_PALETTE_GREY      1       /* Linear greyscale */
-#define VIDEO_PALETTE_HI240     2       /* High 240 cube (BT848) */
-#define VIDEO_PALETTE_RGB565    3       /* 565 16 bit RGB */
-#define VIDEO_PALETTE_RGB24     4       /* 24bit RGB */
-#define VIDEO_PALETTE_RGB32     5       /* 32bit RGB */
-#define VIDEO_PALETTE_RGB555    6       /* 555 15bit RGB */
-#define VIDEO_PALETTE_YUV422    7       /* YUV422 capture */
-#define VIDEO_PALETTE_YUYV      8
-#define VIDEO_PALETTE_UYVY      9       /* The great thing about standards is ... */
-#define VIDEO_PALETTE_YUV420    10
-#define VIDEO_PALETTE_YUV411    11      /* YUV411 capture */
-#define VIDEO_PALETTE_RAW       12      /* RAW capture (BT848) */
-#define VIDEO_PALETTE_YUV422P   13      /* YUV 4:2:2 Planar */
-#define VIDEO_PALETTE_YUV411P   14      /* YUV 4:1:1 Planar */
-#define VIDEO_PALETTE_YUV420P   15      /* YUV 4:2:0 Planar */
-#define VIDEO_PALETTE_YUV410P   16      /* YUV 4:1:0 Planar */
-#define VIDEO_PALETTE_PLANAR    13      /* start of planar entries */
-#define VIDEO_PALETTE_COMPONENT 7       /* start of component entries */
-#endif
 
 namespace CVD {
 
@@ -88,50 +61,40 @@ namespace V4L
 	template<> struct format<byte>
 	{
 		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_GREY;
-		static const unsigned int v4l1_palette = VIDEO_PALETTE_GREY;
 	};
 		
-	#ifdef V4L2_PIX_FMT_SBGGR8
 	template<> struct format<bayer_grbg>
 	{
 		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_SBGGR8;
-		static const unsigned int v4l1_palette = VIDEO_PALETTE_RAW;
 	};
 	template<> struct format<bayer_bggr>
 	{
 		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_SBGGR8;
-		static const unsigned int v4l1_palette = VIDEO_PALETTE_RAW;
 	};
-	#endif
 
 	template<> struct format<yuv422>
 	{
 		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_YUYV;
-		static const unsigned int v4l1_palette = VIDEO_PALETTE_YUV422;
 	};
 
 	template<> struct format<vuy422>
 	{
 		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_UYVY;
-		static const unsigned int v4l1_palette = VIDEO_PALETTE_UYVY;
 	};
 
 	template<> struct format<yuv420p>
 	{
 		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_YUV420;
-		static const unsigned int v4l1_palette = VIDEO_PALETTE_YUV420P;
 	};
 
 	template<> struct format<Rgb<byte> >
 	{
 		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_RGB24;
-		static const unsigned int v4l1_palette = VIDEO_PALETTE_RGB24;
 	};
 
 	template<> struct format<Rgb8>
 	{
 		static const unsigned int v4l2_fmt = V4L2_PIX_FMT_RGB32;
-		static const unsigned int v4l1_palette = VIDEO_PALETTE_RGB32;
 	};
 #endif
 	
