@@ -35,7 +35,7 @@ public:
   /// @param r The red component
   /// @param g The green component
   /// @param b The blue component
-  explicit inline Rgb(T r, T g, T b) : red(r),green(g),blue(b) {}
+  inline Rgb(T r, T g, T b) : red(r),green(g),blue(b) {}
 
   template <class S> inline explicit Rgb(const Rgb<S>& rgb) : red(static_cast<T>(rgb.red)), green(static_cast<T>(rgb.green)), blue(static_cast<T>(rgb.blue)) {}
 
