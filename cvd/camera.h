@@ -42,8 +42,8 @@ namespace Camera {
 	/// Get the component of the motion of a point in the direction provided 
 	///	with respect to each of the internal camera parameters
 	/// @param direction The (x,y) direction to use
-    TooN::Vector<num_parameters> get_parameter_derivs(const TooN::Vector<2>& pos, const TooN::Vector<2>& direction) const ;
-	TooN::Matrix<Camera::Linear::num_parameters,2> get_parameter_derivs(const TooN::Vector<2>& pos) const;
+    inline TooN::Vector<num_parameters> get_parameter_derivs(const TooN::Vector<2>& pos, const TooN::Vector<2>& direction) const ;
+	inline TooN::Matrix<Camera::Linear::num_parameters,2> get_parameter_derivs(const TooN::Vector<2>& pos) const;
 
 	/// Update the internal camera parameters by adding the vector given
 	/// @param updates Update vector in the format 
