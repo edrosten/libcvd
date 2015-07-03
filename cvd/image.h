@@ -232,6 +232,7 @@ template<class T> class BasicImageIterator
 };
 
 template<class C> class BasicImage;
+template<class C> using SubImage [[deprecated]]= BasicImage<C>;
 
 namespace Internal
 {
