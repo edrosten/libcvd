@@ -497,13 +497,6 @@ then
 	])
 fi
 
-#Check for POSIX clock_getres
-AC_ARG_WITH(posix_rt,    [  --without-posix_rt          compile without POSIX-RT (better cvd_timer) support])
-
-CHECK_FOR_OPTION(posix_rt, [
-	AC_CHECK_LIB(rt, clock_getres, [], [a=1])
-])
-
 
 ################################################################################
 #
@@ -970,10 +963,6 @@ Linux/v4lcontrol                                     v4l2buffer END
 
 OSX/qtbuffer,OSX/videosource_qtbuffer                qtbuffer
 OSX/videosource_noqtbuffer                           END 
-
-nothing                                              windows
-posix/get_time_of_day_ns                             posix_rt
-get_time_of_day_ns                                   END
 
 #Libraries
 

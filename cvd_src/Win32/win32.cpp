@@ -1,5 +1,3 @@
-#include "win32.h" 
-
 #include <time.h>
 #include <string>
 #include <vector>
@@ -8,37 +6,7 @@
 #include <io.h>
 #include <stdlib.h>
 
-#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
-  #define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
-#else
-  #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
-#endif
-
-// implementation from http://www.openasthra.com/c-tidbits/gettimeofday-function-for-windows/
 namespace CVD {
-
-long long get_time_of_day_ns()
-{
-    FILETIME ft;
-    long long tmpres = 0;
-    static int tzflag;
-
-	//Contains a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC).
-	GetSystemTimeAsFileTime(&ft);
-
-	tmpres |= ft.dwHighDateTime;
-	tmpres <<= 32;
-	tmpres |= ft.dwLowDateTime;
-
-	//tempres is in 100ns increments
-	//Convert it to ns
-	tmpres *= 100;
-
-	/*converting file time to unix epoch*/
-	tmpres -= DELTA_EPOCH_IN_MICROSECS * (long long)1000; 
-
-    return tmpres;
-}
 
 namespace Internal {
 

@@ -11,9 +11,10 @@
 #include <string>
 #include <cassert>
 #include <deque>
-struct timeval;
+#include <chrono>
 
 namespace CVD {
+
 
 /// Provides the time elapsed in seconds. This predominantly a wrapper for
 /// the system call
@@ -33,35 +34,16 @@ class cvd_timer
 		/// How many seconds have elapsed since the start time?
 		double get_time();
 
-		/// Convert the current time from units of nanoseconds into a double,
-		/// correcting for the start time
-		/// @param time The current time in nanoseconds
-		double conv_ntime(signed long long time);
-
-		/// Convert the current time from a timeval into a double, correcting
-		/// for the start time
-		/// @param tv The current time as a timeval
-		double conv_ntime(const struct timeval& tv);
 
 		/// Convert current time given as double by correcting for the start time
 		/// @param time current time as double
-		double conv_ntime(const double & time) const {
-			return time - startTimeInNanoSeconds * 1.e-9;
-		}
+		double conv_ntime(const double & time)const;
 
 		/// Sets the start time to the current time
 		double reset();
 		
-		/// Sets the start time to a specified time
-		///@param t zero relative to the Epoch.
-		void reset(const double t);
-		
-		/// Sets the start time to a specified time
-		///@param t zero relative to the Epoch.
-		void reset_ns(long long t);
-
 	private:
-		long long startTimeInNanoSeconds;
+		std::chrono::high_resolution_clock::time_point start;
 };
 
 extern cvd_timer timer;

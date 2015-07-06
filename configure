@@ -648,7 +648,6 @@ have_toon
 have_shared_ptr
 have_videodisplay
 XMKMF
-have_posix_rt
 have_qtbuffer
 cygwin_hacks
 have_windows
@@ -756,7 +755,6 @@ with_v4l1buffer
 with_v4l2buffer
 with_o2buffer
 with_qtbuffer
-with_posix_rt
 with_videodisplay
 with_jpeg
 with_jpegbuffer
@@ -1445,7 +1443,6 @@ Optional Packages:
   --without-v4l2buffer	  compile without v4l2buffer (Video4Linux2) support (Linux only)
   --without-o2buffer	  compile without sgi video (IRIX only)
   --without-qtbuffer	  compile without quicktime buffer support (MacOSX only)
-  --without-posix_rt          compile without POSIX-RT (better cvd_timer) support
   --without-videodisplay  compile without videodisplay support
   --without-jpeg          compile without JPEG support
   --with-jpegbuffer=N     Set JPEG read buffer size. N>1 will not be able to read multiple JPEGS from a stream.
@@ -6279,96 +6276,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 fi
 
-#Check for POSIX clock_getres
-
-# Check whether --with-posix_rt was given.
-if test "${with_posix_rt+set}" = set; then :
-  withval=$with_posix_rt;
-fi
-
-
-
-	if test "$with_posix_rt" != no && test "$have_posix_rt" != yes
-	then
-		if test "$with_posix_rt" == ""
-		then
-			with_posix_rt=yes
-		fi
-
-		save_LIBS="$LIBS"
-		save_CXXFLAGS="$CXXFLAGS"
-		a=
-
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for clock_getres in -lrt" >&5
-$as_echo_n "checking for clock_getres in -lrt... " >&6; }
-if ${ac_cv_lib_rt_clock_getres+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lrt  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char clock_getres ();
-int
-main ()
-{
-return clock_getres ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_rt_clock_getres=yes
-else
-  ac_cv_lib_rt_clock_getres=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_rt_clock_getres" >&5
-$as_echo "$ac_cv_lib_rt_clock_getres" >&6; }
-if test "x$ac_cv_lib_rt_clock_getres" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBRT 1
-_ACEOF
-
-  LIBS="-lrt $LIBS"
-
-else
-  a=1
-fi
-
-
-
-		if test x$a == x
-		then
-			$as_echo "#define CVD_HAVE_POSIX_RT 1" >>confdefs.h
-
-			have_posix_rt=yes
-
-			options="$options posix_rt"
-
-		else
-			LIBS="$save_LIBS"
-			CXXFLAGS="$save_CXXFLAGS"
-		fi
-	fi
-
-	if test "$have_posix_rt" != yes
-	then
-		:
-
-	fi
-
-
 
 ################################################################################
 #
@@ -8872,10 +8779,6 @@ Linux/v4lcontrol                                     v4l2buffer END
 
 OSX/qtbuffer,OSX/videosource_qtbuffer                qtbuffer
 OSX/videosource_noqtbuffer                           END
-
-nothing                                              windows
-posix/get_time_of_day_ns                             posix_rt
-get_time_of_day_ns                                   END
 
 #Libraries
 

@@ -7,50 +7,41 @@
 
 #include "cvd/timer.h"
 #include <iostream>
-#if defined(WIN32) && !defined(__MINGW32__)
-#include "Win32/win32.h"
-#else
-#include <sys/time.h>  //gettimeofday
-#endif
+#include <chrono>
+
+using namespace  std;
+using namespace  std::chrono;
 
 namespace CVD {
 
-cvd_timer::cvd_timer()
+
+long long get_time_of_day_ns()
 {
-	startTimeInNanoSeconds = get_time_of_day_ns();
+	auto time = high_resolution_clock::now();
+
+	return time_point_cast<chrono::nanoseconds>(time).time_since_epoch().count();
 }
 
-cvd_timer::cvd_timer(double t)
+
+
+cvd_timer::cvd_timer()
 {
-	reset(t);
+	start = high_resolution_clock::now();
 }
 
 double cvd_timer::reset() 
 {
-  long long temp  = get_time_of_day_ns();
-  double elapsed =  (temp - startTimeInNanoSeconds) / 1e9;
-  startTimeInNanoSeconds = temp;
-  return elapsed;
+	auto now = high_resolution_clock::now();
+	double r = duration<float>(now - start).count();
+	start = now;
+
+	return r;
 }
 
 double cvd_timer::get_time() 
 {
-  return (get_time_of_day_ns()-startTimeInNanoSeconds)/1e9;
-}
-
-// Conv from units of nanosecs (specifically for v4l2 : kernel 2.4
-double cvd_timer::conv_ntime(signed long long time)
-{
-  return (time-startTimeInNanoSeconds)/1e9;
-}
-
-// Conv from units of nanosecs (specifically for v4l2 : kernel 2.6
-// Let the overloading mecnanism sort out the difference in the 
-// headers from 2.4 hee, hee, hee
-double cvd_timer::conv_ntime(const struct timeval& tv)
-{
-	double time = tv.tv_sec + tv.tv_usec*1e-6;
-	return time-startTimeInNanoSeconds / 1e9;
+  auto now = high_resolution_clock::now();
+  return duration<float>(now - start).count();
 }
 
 double get_time_of_day() 
@@ -59,15 +50,12 @@ double get_time_of_day()
 }
 
 
-void cvd_timer::reset(const double t)
+double cvd_timer::conv_ntime(const double & time) const 
 {
-	startTimeInNanoSeconds = (long long)(t * 1e9);
+	double start_seconds = time_point_cast<duration<float>>(start).time_since_epoch().count();
+	return time - start_seconds;
 }
 
-void cvd_timer::reset_ns(long long t)
-{
-	startTimeInNanoSeconds = t;
-}
 
 cvd_timer timer;
 
