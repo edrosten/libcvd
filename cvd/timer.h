@@ -28,9 +28,6 @@ class cvd_timer
 		/// Create a timer, and set the start time to be now
 		cvd_timer();
 
-		/// Create a timer, and set the start time to be the specified time
-		cvd_timer(double start);
-
 		/// How many seconds have elapsed since the start time?
 		double get_time();
 
