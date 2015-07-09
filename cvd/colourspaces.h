@@ -1,7 +1,6 @@
 #ifndef CVD_COLOURSPACES_H
 #define CVD_COLOURSPACES_H
 
-#include <cvd/internal/is_pod.h>
 #include <cvd/internal/builtin_components.h>
 #include <cvd/internal/pixel_traits.h>
 #include <cvd/internal/name_builtin_types.h>
@@ -329,64 +328,6 @@ namespace CVD
         };
     }
 
-   
-#ifndef DOXYGEN_IGNORE_INTERNAL
-    namespace Internal
-    {
-      template<> struct is_POD<bayer_bggr>
-      {
-	enum { is_pod = 1 };
-      };
-      template<> struct is_POD<bayer_gbrg>
-      {
-	enum { is_pod = 1 };
-      };
-      template<> struct is_POD<bayer_grbg>
-      {
-	enum { is_pod = 1 };
-      };
-      template<> struct is_POD<bayer_rggb>
-      {
-	enum { is_pod = 1 };
-      };
-      template<> struct is_POD<bayer_bggr16>
-      {
-	enum { is_pod = 1 };
-      };
-      template<> struct is_POD<bayer_gbrg16>
-      {
-	enum { is_pod = 1 };
-      };
-      template<> struct is_POD<bayer_grbg16>
-      {
-	enum { is_pod = 1 };
-      };
-      template<> struct is_POD<bayer_rggb16>
-      {
-	enum { is_pod = 1 };
-      };
-      template<> struct is_POD<bayer_bggr16be>
-      {
-	enum { is_pod = 1 };
-      };
-      template<> struct is_POD<bayer_gbrg16be>
-      {
-	enum { is_pod = 1 };
-      };
-      template<> struct is_POD<bayer_grbg16be>
-      {
-	enum { is_pod = 1 };
-      };
-      template<> struct is_POD<bayer_rggb16be>
-      {
-	enum { is_pod = 1 };
-      };
-      template<> struct is_POD<yuv411>
-      {
-	enum { is_pod = 1 };
-      };
-    }
-#endif
 }
 
 #endif

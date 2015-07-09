@@ -1,14 +1,12 @@
 #ifndef CVD_UTILITY_H
 #define CVD_UTILITY_H
 
-#ifndef _WIN32
-#include <stdint.h>
-#endif
+#include <cstdint>
 
 #include <cvd/image.h>
-#include <cvd/internal/is_pod.h>
 #include <cvd/internal/pixel_traits.h>
 #include <cvd/internal/convert_pixel_types.h>
+#include <type_traits>
 
 namespace CVD { //begin namespace
 
@@ -53,7 +51,7 @@ in the output image
     }
   }
   
-  template <class T, bool pod = Internal::is_POD<T>::is_pod> struct ZeroPixel {
+  template <class T, bool pod = std::is_pod<T>::value> struct ZeroPixel {
       static void zero(T& t) { 
 	  for (unsigned int c=0; c<Pixel::Component<T>::count; c++)
 	      Pixel::Component<T>::get(t,c) = 0;
@@ -64,7 +62,7 @@ in the output image
       static void zero(T& t) { memset(&t,0,sizeof(T)); }
   };
   
-  template <class T, bool pod = Internal::is_POD<T>::is_pod> struct ZeroPixels {
+  template <class T, bool pod = std::is_pod<T>::value> struct ZeroPixels {
       static void zero(T* pixels, int count) {
 	  if (count) {
 	      ZeroPixel<T>::zero(*pixels);

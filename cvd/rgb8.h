@@ -1,9 +1,6 @@
 #ifndef __RGB8_H
 #define __RGB8_H
 
-#include <cvd/internal/is_pod.h>
-
-
 namespace CVD {
 
 /// @ingroup gImage
@@ -28,16 +25,6 @@ struct Rgb8
    explicit Rgb8(unsigned char r, unsigned char g, unsigned char b, unsigned char a=0)
    : red(r), green(g), blue(b), dummy(a) {}
 };
-
-#ifndef DOXYGEN_IGNORE_INTERNAL
-namespace Internal
-{
-  template <> struct is_POD<Rgb8>
-  {
-    enum { is_pod = 1 };
-  };
-}
-#endif
 
 } // end namespace 
 #endif

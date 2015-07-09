@@ -2,12 +2,11 @@
 #define CVD_CONVERT_PIXEL_TYPES_H
 
 #include <math.h>
-
+#include <type_traits>
 #include <cvd/abs.h>
 #include <cvd/internal/scalar_convert.h>
 #include <cvd/internal/builtin_components.h>
 #include <cvd/internal/rgb_components.h>
-#include <cvd/internal/is_pod.h>
 #include <limits>
 
 namespace CVD{namespace Pixel
@@ -265,7 +264,7 @@ namespace CVD{namespace Pixel
 
   
   template <class From, class To, class Conv=typename DefaultConversion<From,To>::type, 
-    bool both_pod=CVD::Internal::is_POD<From>::is_pod && CVD::Internal::is_POD<To>::is_pod> struct ConvertPixels {
+    bool both_pod=std::is_trivially_copyable<From>::value && std::is_trivially_copyable<To>::value> struct ConvertPixels {
     static inline void convert(const From* from, To* to, size_t count) {
       for (size_t i=0; i<count; i++) 
 	Conv::convert(from[i], to[i]);

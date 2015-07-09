@@ -2,7 +2,6 @@
 #define CVD_QT_ARGB_H
 
 #include <iostream>
-#include <cvd/internal/is_pod.h>
 
 namespace CVD {
 
@@ -79,16 +78,6 @@ inline std::ostream& operator <<(std::ostream& os, const Argb<unsigned char>& x)
              << static_cast<unsigned int>(x.green) << ","
              << static_cast<unsigned int>(x.blue) << ")";
 }
-
-#ifndef DOXYGEN_IGNORE_INTERNAL
-namespace Internal
-{
-  template<class C> struct is_POD<Argb<C> >
-  {
-    enum { is_pod = is_POD<C>::is_pod };
-  };
-}
-#endif
 
 
 

@@ -14,8 +14,6 @@
 
 #include <cvd/byte.h>
 
-#include <cvd/internal/is_pod.h>
-
 namespace CVD {
 
   /// A colour consisting of red, green and blue components.
@@ -98,17 +96,6 @@ inline std::ostream& operator <<(std::ostream& os, const Rgb<byte>& x)
 	    << static_cast<int>(x.green) << ","
 	    << static_cast<int>(x.blue) << ")";
 }
-
-#ifndef DOXYGEN_IGNORE_INTERNAL
-namespace Internal
-{
-  template<class C> struct is_POD<Rgb<C> >
-  {
-    enum { is_pod = is_POD<C>::is_pod };
-  };
-}
-#endif
-
 
 } // end namespace
 #endif

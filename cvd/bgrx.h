@@ -2,7 +2,6 @@
 #define CVD_INCLUDE_BGRX_H
 
 #include <iostream>
-#include <cvd/internal/is_pod.h>
 
 namespace CVD {
 
@@ -76,17 +75,6 @@ inline std::ostream& operator <<(std::ostream& os, const Bgrx<unsigned char>& x)
              << static_cast<unsigned int>(x.green) << ","
              << static_cast<unsigned int>(x.red) << ",";
 }
-
-#ifndef DOXYGEN_IGNORE_INTERNAL
-namespace Internal
-{
-  template<class C> struct is_POD<Bgrx<C> >
-  {
-    enum { is_pod = is_POD<C>::is_pod };
-  };
-}
-#endif
-
 
 
 } // end namespace 

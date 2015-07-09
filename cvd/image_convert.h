@@ -5,13 +5,14 @@
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/internal/rgb_components.h>
 #include <cvd/image.h>
+#include <type_traits>
 
 namespace CVD
 {
 
 	// The most general case: one row at a time
 
-	template <class From, class To, class Conv=typename Pixel::DefaultConversion<From,To>::type, int both_pod=Internal::is_POD<From>::is_pod && Internal::is_POD<To>::is_pod> struct ConvertImage {
+	template <class From, class To, class Conv=typename Pixel::DefaultConversion<From,To>::type, int both_pod=std::is_trivially_copyable<From>::value && std::is_trivially_copyable<To>::value> struct ConvertImage {
 		static void convert(const BasicImage<From>& from, BasicImage<To>& to) {
 			for (int r=0; r<from.size().y; r++)
 				Pixel::ConvertPixels<From,To,Conv>::convert(from[r], to[r], from.size().x);

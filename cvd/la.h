@@ -2,7 +2,6 @@
 #define CVD_LA_H
 
 #include <iostream>
-#include <cvd/internal/is_pod.h>
 
 namespace CVD {
 
@@ -73,17 +72,6 @@ namespace CVD {
     return os << "(" << static_cast<unsigned int>(x.luminance) << ","
 	      << static_cast<unsigned int>(x.alpha) << ")";
   }
-  
-#ifndef DOXYGEN_IGNORE_INTERNAL
-  namespace Internal
-  {
-    template<class C> struct is_POD<La<C> >
-      {
-	enum { is_pod = is_POD<C>::is_pod };
-      };
-  }
-#endif
-  
   
   
 } // end namespace 
