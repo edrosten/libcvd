@@ -82,6 +82,11 @@ class DeinterlaceBuffer : public VideoBuffer<T>
 		ImageRef size();
 		
 		CVD::VideoFrame<T>* get_frame();
+
+		virtual RawVideoBuffer* source_buffer()
+		{
+			return &m_vidbuf;
+		}
 		
 		void put_frame(CVD::VideoFrame<T>* f);
 		
