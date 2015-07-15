@@ -232,14 +232,20 @@ template<class C> void play(string s, string fmt)
 	int rec_number=0;
 
 	MessageQueue<pair<unique_ptr<Image<C>>,string>> save_queue;
+
+	vector<thread> savers;
 	
 	//Spawn some saver threads
 	for(unsigned int i=0; i < thread::hardware_concurrency(); i++)
 	{
-		thread([&](){
+		savers.push_back(thread([&](){
 			for(;;)
 			{
 				auto s=save_queue.pop();
+				
+				//This essentially indicates a quit.
+				if(s.first == nullptr)
+					break;
 				
 				try{
 					img_save(*(s.first), s.second);
@@ -249,7 +255,7 @@ template<class C> void play(string s, string fmt)
 					cerr << "Error saving: " << fmt << ": " << e.what << endl;
 				}
 			}
-		}).detach();
+		}));
 	}
 
 	for(;;)
@@ -351,6 +357,14 @@ template<class C> void play(string s, string fmt)
 
 	if(frame)
 		buffer->put_frame(frame);
+	
+	cout << "Joining all threads...\n";
+	//Quit all the threads.
+	for(unsigned int i=0; i < savers.size(); i++)
+		save_queue.push(make_pair(nullptr, ""));
+
+	for(auto& t:savers)
+		t.join();
 
 	cout << "Exiting\n";
 }
