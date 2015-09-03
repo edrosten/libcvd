@@ -175,7 +175,7 @@ class MessageQueue
 
 
 
-template<class C> void play(string s, string fmt)
+template<class C> void play(string s, string fmt, unsigned int decimate)
 {
 	VideoBuffer<C> *buffer = open_video_source<C>(s);
 	
@@ -285,7 +285,7 @@ template<class C> void play(string s, string fmt)
 			frame = buffer->get_frame();
 			new_frame=1;
 
-			if(a.recording)
+			if(a.recording && (rec_number % decimate) == 0)
 			{
 				rec = tfm::format(fmt.c_str(), rec_sequence, rec_number);
 				unique_ptr<Image<C>> img = make_unique<Image<C>>();
@@ -374,12 +374,13 @@ int main(int argc, char* argv[])
 	int help = 0;
 	int type=0;
 	int error=0;
+	unsigned int decimate=1;
 
 	string fmt;
 	int c;
 		
 	opterr = 0;
-	while((c=getopt(argc, argv, "hmf:")) != -1)
+	while((c=getopt(argc, argv, "hmf:d:")) != -1)
 	{
 		if(c == 'h')
 			help=1;
@@ -387,10 +388,20 @@ int main(int argc, char* argv[])
 			type=1;
 		else if(c == 'f')
 			fmt = optarg;	
+		else if(c == 'd')
+		{
+			istringstream d(optarg);
+			d >> decimate;
+
+			if(!d.good())
+			{
+				cerr << "Error: could not parse " << optarg << " as argument for -d\n";
+			}
+		}
 		else if(c == '?')
 		{
 			error=1;
-			if(optopt == 'f')
+			if(optopt == 'f' || optopt == 'd')
 				cerr << "Error: Option -f requires an argumnt\n";
 			else 
 				cerr << "Error: Unknown option -" << optopt << endl;
@@ -414,6 +425,7 @@ int main(int argc, char* argv[])
 			 << " -f      Format string for recording video frames, e.g. image-%03i-%05i.png\n"
 			 << "         The numbers are respectively the sequence number and the frame number\n"
 			 << "         within the sequence.\n"
+			 << " -d      Decimation factor for recording. 1 = record every frame.\n"
 			 << "Keys: \n"
 			 << "<space> pause\n"
 			 << ",       reverse one frame (requires seekable buffer)\n"
@@ -427,9 +439,9 @@ int main(int argc, char* argv[])
 	try
 	{
 		if(type == 1)
-			play<byte>(argv[optind], fmt);
+			play<byte>(argv[optind], fmt, decimate);
 		else
-			play<Rgb<byte> >(argv[optind], fmt);
+			play<Rgb<byte> >(argv[optind], fmt, decimate);
 	}
 	catch(CVD::Exceptions::All& e)
 	{
