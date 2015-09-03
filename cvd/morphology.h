@@ -282,7 +282,14 @@ namespace CVD
 				template<class E> void execute(Image<E>& j)
 				{
 					j.resize(i.size());
-					morphology(i, s, a, j);
+					if(i.data() == j.data())
+					{
+						Image<E> b(j.size());
+						morpholog(i, s, a, b);
+						j=b;
+					}
+					else
+						morphology(i, s, a, j);
 				}
 			};
 		};
