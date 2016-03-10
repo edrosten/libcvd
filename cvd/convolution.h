@@ -11,7 +11,6 @@
 #include <cvd/exceptions.h>
 #include <cvd/image.h>
 #include <cvd/internal/pixel_operations.h>
-#include <cvd/internal/aligned_mem.h>
 #include <cvd/utility.h>
 
 namespace CVD {
@@ -416,9 +415,9 @@ template <class T> void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& 
     int h = I.size().y;
     int swin = 2*ksize;
 
-    AlignedMem<sum_type,16> buffer(w*(swin+1));
-    AlignedMem<sum_type,16> aligned_rowbuf(w);
-    AlignedMem<sum_type,16> aligned_outbuf(w);
+    std::vector<sum_type> buffer(w*(swin+1));
+    std::vector<sum_type> aligned_rowbuf(w);
+    std::vector<sum_type> aligned_outbuf(w);
 
     sum_type* rowbuf = aligned_rowbuf.data();
     sum_type* outbuf = aligned_outbuf.data();

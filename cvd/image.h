@@ -20,7 +20,6 @@
 #include <utility>
 #include <type_traits>
 #include <iterator>
-#include <cvd/internal/aligned_mem.h>
 
 namespace CVD {
 
