@@ -30,6 +30,5 @@ Latest documentation here: https://codedocs.xyz/edrosten/libcvd/ or just run Dox
 
 
 ## Status of unit tests
-
-[![Build Status](https://drone.io/edrosten/libcvd/status.png)](https://drone.io/edrosten/libcvd/latest)
+[![Build Status](https://drone.io/github.com/edrosten/libcvd/status.png)](https://drone.io/github.com/edrosten/libcvd/latest)
 
