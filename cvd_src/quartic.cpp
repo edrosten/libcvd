@@ -1,5 +1,3 @@
-#include <tag/quartic.h>
-
 #include <cmath>
 #include <cassert>
 #include <algorithm>

@@ -35,36 +35,6 @@ template <class T> struct operations<T,1> {
     inline static void zero(T& t) { t = T(); }
 };
 
-template <class T, unsigned int N=Pixel::Component<T>::count>
-struct difference {
-    typedef typename Pixel::Component<T>::type TComp;
-    typedef typename Pixel::traits<TComp>::wider_type diff_type;
-    static inline diff_type avgabs(const T& a, const T& b) {
-        diff_type sum = diff_type();
-        for (unsigned int i=0; i<N; i++)
-            sum += std::abs((diff_type)Pixel::Component<T>::get(a,i) - Pixel::Component<T>::get(b,i));
-        return sum/N;
-    }
-    static inline diff_type avg(const T& a, const T& b) {
-        diff_type sum = diff_type();
-        for (unsigned int i=0; i<N; i++)
-            sum += (diff_type)Pixel::Component<T>::get(a,i) - Pixel::Component<T>::get(b,i);
-        return sum/N;
-    }
-};
-
-template <class T>
-struct difference<T, 1> {
-    typedef typename Pixel::Component<T>::type TComp;
-    typedef typename Pixel::traits<TComp>::wider_type diff_type;
-    static inline diff_type avgabs(const T& a, const T& b) {
-        return CVD::abs((diff_type)Pixel::Component<T>::get(a,0) - Pixel::Component<T>::get(b,0));
-    }
-    static inline diff_type avg(const T& a, const T& b) {
-        return (diff_type)Pixel::Component<T>::get(a,0) - (diff_type)Pixel::Component<T>::get(b,0);
-    }
-};
-
 };
 
 };
