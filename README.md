@@ -1,5 +1,7 @@
 # libCVD
 
+Note, the master branch is now libCVD-2.0 which is in beta and requires C++14.
+
 ## Compiling and installing
 
 To install on a unix system:
