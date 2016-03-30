@@ -2,5 +2,5 @@
 for i in `cat .sourcefiles`
 do 
 	echo -n ${i%/*}/
-	$CXX $1 -MM -MG -DMAKE_DEPEND $i
+	$1 $2 -MM -MG -DMAKE_DEPEND $i
 done
