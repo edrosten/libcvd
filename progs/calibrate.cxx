@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <random>
 
 #include <TooN/helpers.h>
 #include <TooN/Cholesky.h>
@@ -15,7 +16,6 @@
 #include <cvd/image_io.h>
 #include <cvd/image_interpolate.h>
 #include <cvd/glwindow.h>
-#include <cvd/random.h>
 #include <cvd/timer.h>
 #include <cvd/colourspaces.h>
 #include <cvd/colourspace_convert.h>
@@ -702,6 +702,15 @@ bool optimiseIntersection(image_interpolate<Interpolate::Bilinear, float> &imgIn
     return (fabs(aboveVal - belowVal) < 1 && fabs(leftVal - rightVal) < 1);
 }
 
+mt19937 engine;
+normal_distribution<double> gaussian;
+
+double rand_g()
+{
+	return gaussian(engine);
+}
+
+
 int main(int argc, char* argv[])
 {
     getOptions(argc, argv);
@@ -734,8 +743,6 @@ int main(int argc, char* argv[])
     disp.set_title(titlePrefix);
 
     double curr = timer.get_time();
-    srand48(static_cast<long int>(curr));
-    srand(static_cast<unsigned int>(curr));
     imageSize = videoBuffer->size();
 
     cameraModel.get_parameters() = cameraParameters;
