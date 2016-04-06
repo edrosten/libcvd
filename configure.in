@@ -207,6 +207,11 @@ then
 	AC_MSG_ERROR("No C++14 support. Please add to CXXFLAGS")
 fi
 
+
+#Hack: do this properly
+AC_CHECK_LIB(pthread, main,[],[a=1])
+
+
 APPEND(CPPFLAGS, [-I"$(eval echo $includedir)"])
 
 ########################################
