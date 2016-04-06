@@ -146,7 +146,9 @@ void convolveGaussian_simd(const BasicImage<float>& I, BasicImage<float>& out, d
     const int h = I.size().y;
     const int swin = 2*ksize;
 
-    AlignedMem<float,16> buffer(w*(swin+1));
+    vector<float> buffer(w*(swin+1));
+
+
     vector<float*> rows(swin+1);
 
     for (int k=0;k<swin+1;k++)
@@ -260,7 +262,7 @@ void van_vliet_blur_simd(const double b[], const BasicImage<float> in, BasicImag
     unsigned int csr_state = _mm_getcsr();
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-    AlignedMem<__m128,16> tmpArray(w>h?w:h);
+    vector<__m128> tmpArray(w>h?w:h);
     __m128 * tmp = tmpArray.data();
 
 #ifdef WIN32
