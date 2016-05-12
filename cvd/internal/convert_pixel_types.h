@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <type_traits>
+#include <cstring>
 #include <cvd/internal/scalar_convert.h>
 #include <cvd/internal/builtin_components.h>
 #include <cvd/internal/rgb_components.h>
@@ -260,7 +261,7 @@ namespace CVD{namespace Pixel
 
   template <class T> struct ConvertPixels<T,T,GenericConversion<T,T>,true> {
     static inline void convert(const T* from, T* to, size_t count) {
-      memcpy(to, from, count*sizeof(T));
+      std::memcpy(to, from, count*sizeof(T));
     }
   };
 	

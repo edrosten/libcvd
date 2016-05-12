@@ -1,5 +1,5 @@
 #include <cvd/distance_transform.h>
-#include <cvd/random.h>
+#include <random>
 #include <cvd/image_io.h>
 #include <algorithm>
 
@@ -10,10 +10,14 @@ int main()
 {
 	//Create a blank image.
 	Image<byte> im(ImageRef(128, 128), 0);
+		
+	mt19937 engine;
+	uniform_int_distribution<int> rand_x(0, im.size().x-1);
+	uniform_int_distribution<int> rand_y(0, im.size().y-1);
 
 	//Scatter down 7 points at random.
 	for(int i=1; i < 8; i++)
-		im[rand() % im.size().y][rand() % im.size().x] = i;
+		im[rand_y(engine)][rand_x(engine)]= i;
 
 	Image<int> dt(im.size());
 	Image<ImageRef> inverse_dt(im.size());
