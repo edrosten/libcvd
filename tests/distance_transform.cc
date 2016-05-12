@@ -1,6 +1,6 @@
 #include <cvd/distance_transform.h>
 #include <cvd/image_io.h>
-#include <cvd/random.h>
+#include <random>
 #include <cvd/image_convert.h>
 #include <utility>
 using namespace CVD;
@@ -9,10 +9,13 @@ using namespace std;
 int main()
 {
 
+    mt19937 engine;
+	uniform_int_distribution<int> rand_size(50, 1050);
 	//Generate some random point sets.
 	for(int i=0; i < 1000; i++)
 	{
-		ImageRef s(50 + rand()%1000, 50%rand()%1000);
+		ImageRef s(rand_size(engine), rand_size(engine));
+
 
 		Image<byte> in(s);
 
@@ -21,8 +24,13 @@ int main()
 		o.zero();
 		in.zero();
 
+		uniform_int_distribution<int> rand_x(0, in.size().x-1);
+		uniform_int_distribution<int> rand_y(0, in.size().y-1);
+
+
 		for(int i=1; i < 1 + rand()%10000; i++)
-			in[rand() % s.y][rand()%s.x] = 1;
+			in[rand_y(engine)][rand_x(engine)]= 1;
+
 
 		Image<int> out(in.size());
 		Image<ImageRef> adt(in.size());

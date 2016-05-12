@@ -80,19 +80,42 @@ namespace Pixel
 		  }
 		};
 		
-		
-		static float float_for_byte[512];
-		static double double_for_byte[512];
-		
-		template <class S> bool buildLookupTable(S table[]) {
-		  for (int i=0; i<=511; i++)
-		    table[i] = (S)((i-255)/255.0);    
-		  return true;
+		namespace Internal
+		{
+			//Trivial constexpr array since std::array isn't.
+			template<class T, int N>
+			struct trivial_array
+			{
+				T elems[N];
+
+				constexpr T& operator[](size_t i)
+				{
+					return elems[i];
+				}
+
+				constexpr const T& operator[](size_t i) const
+				{
+					return elems[i];
+				}
+			};
+
+			template <class S> 
+			constexpr trivial_array<S, 512> buildLookupTable()
+			{
+				trivial_array<S, 512> table =  {};
+				for (int i=0; i<=511; i++)
+					table[i] = (S)((i-255)/255.0);    
+
+				return table;
+			}
+
+			constexpr static trivial_array<float, 512> float_for_byte = buildLookupTable<float>();
+			constexpr static trivial_array<double, 512> double_for_byte = buildLookupTable<double>();
 		}
-		const static bool init_float_for_byte = buildLookupTable(float_for_byte);
-		const static bool init_double_for_byte = buildLookupTable(double_for_byte);
-		inline float byte_to_float(int b) { return float_for_byte[b+255]; }
-		inline double byte_to_double(int b) { return double_for_byte[b+255]; }
+
+		
+		inline float byte_to_float(int b) { return Internal::float_for_byte[b+255]; }
+		inline double byte_to_double(int b) { return Internal::double_for_byte[b+255]; }
 		
 		//Convert a "D" to "To" scaled as if we are converting "From" type to a "To" type.
 		//Special code is invoked if both D and To are integral.
