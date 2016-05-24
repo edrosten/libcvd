@@ -115,10 +115,24 @@ namespace CVD
 	/// @param to The output data
 	/// @ingroup gImageIO
 	template<> void convert_image(const BasicImage<vuy422>& from, BasicImage<byte>& to);	
+	
+	/// Convert YUV420p pixel data to RGB
+	/// @param from The input data
+	/// @param to The output data
+	/// @ingroup gImageIO
+	template<> void convert_image(const BasicImage<yuv420p>& from, BasicImage<Rgb<byte>>& to);
+
+	/// Convert YUV420p pixel data to Y only
+	/// @param from The input data
+	/// @param to The output data
+	/// @ingroup gImageIO
+	template<> void convert_image(const BasicImage<yuv420p>& from, BasicImage<byte>& to);
 
 
 //	template<> struct IsConvertible<yuv411,      Rgb<byte> > { static const bool is=1; };
 //	template<> struct IsConvertible<yuv411,      byte>       { static const bool is=1; };
+	template<> struct IsConvertible<yuv420p,     Rgb<byte> > { static const bool is=1; };
+	template<> struct IsConvertible<yuv420p,     byte>       { static const bool is=1; };
 	template<> struct IsConvertible<yuv422,      Rgb<byte> > { static const bool is=1; };
 	template<> struct IsConvertible<yuv422,      byte>       { static const bool is=1; };
 	template<> struct IsConvertible<bayer_bggr,  byte>       { static const bool is=1; };

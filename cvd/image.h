@@ -274,6 +274,13 @@ namespace Internal
 			{
 			}
 
+			/// What is the row stride of the image?
+			inline size_t datalength() const
+			{
+				return data_length;
+			}
+			
+
 		protected:
 			ImageData()=default;
 

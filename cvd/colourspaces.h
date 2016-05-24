@@ -167,7 +167,7 @@ namespace CVD
 	struct yuv420p
 	{
 		typedef int dummy;
-		typedef std::ratio<4, 2> bytes_per_pixel;
+		typedef std::ratio<6, 4> bytes_per_pixel;
 		//unsigned short val;
 	};
 	

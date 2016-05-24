@@ -914,8 +914,8 @@ i686/gradient                                        sse2
 noarch/gradient                                      END
 
 
-i686/yuv420p_to_rgb,i686/yuv420p_to_rgb_runner       mmx 32bit x86 assembler
-noarch/yuv420p_to_rgb_runner                         END
+#i686/yuv420p_to_rgb,i686/yuv420p_to_rgb_runner       mmx 32bit x86 assembler
+#noarch/yuv420p_to_rgb_runner                         END
 
 #i686/yuv422_to_rgb,i686/yuv422_to_grey,i686/yuv422_wrapper     mmxext 32bit x86 assembler
 #noarch/yuv422_wrapper                                          END
