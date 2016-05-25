@@ -37,7 +37,7 @@ in the output image
 	*p = 1;
     }
     if (in.size() == out.size() && size == in.size() && begin == ImageRef() && dst == ImageRef()) {
-      Pixel::ConvertPixels<S,T>::convert(in.data(), out.data(), in.totalsize());
+	  convert_image(in, out);
       return;
     }
     
