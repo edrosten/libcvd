@@ -32,4 +32,10 @@ namespace CVD{
 		throw VideoSourceException("V4LBuffer is not compiled in to libcvd.");
 	}
 
+
+	template <> VideoBuffer<yuv420p>* makeV4LBuffer(const std::string&, const ImageRef&, int, bool, bool)
+	{
+		throw VideoSourceException("V4LBuffer is not compiled in to libcvd.");
+	}
+
 }

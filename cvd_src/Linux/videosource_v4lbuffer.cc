@@ -34,4 +34,8 @@ namespace CVD{
 		return new V4LBuffer<Rgb8>(dev, size, input, interlaced, 0, verbose);
 	}
 
+	template <> VideoBuffer<yuv420p>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose)
+	{
+		return new V4LBuffer<yuv420p>(dev, size, input, interlaced, 0, verbose);
+	}
 }
