@@ -75,7 +75,10 @@ namespace CVD {
 			}
 
 			//! Returns true if the thread is still running.
-			bool isRunning() const;
+			bool isRunning() const
+			{
+				return myRunningFlag;
+			}
 
 			//! This blocks until the thread has actually terminated.  
 			/** If the thread is infinite looping, this will block forever! */
