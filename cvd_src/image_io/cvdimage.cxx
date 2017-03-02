@@ -230,7 +230,7 @@ struct Huff{
 // count is always 65535 and the smallest nonzero count is at least 1. 0 means
 // no counts, so it is ignored in the huffman tree. This way, all the data
 // required to rebuild the tree can be stored in 512 bytes.
-void create_normalized_hist(const Image<byte>& im, std::array<size_t,256>& h)
+void create_normalized_hist(const Image<byte>& im, array<size_t,256>& h)
 {
         fill(h.begin(), h.end(), 0);
 
@@ -248,7 +248,7 @@ void create_normalized_hist(const Image<byte>& im, std::array<size_t,256>& h)
 
 // Given a histogram of for the symbols to encode, create a tree for a
 // corresponding Huffman code
-Huff* create_tree(const std::array<size_t,256>& h, vector<Huff*>& symbols)
+Huff* create_tree(const array<size_t,256>& h, vector<Huff*>& symbols)
 {
 	set<Huff*,Huff> table;
 
@@ -302,9 +302,9 @@ enum cvd_predictors {
 
 struct SortIndex
 {
-	const std::array<size_t, 256>& d;
+	const array<size_t, 256>& d;
 
-	SortIndex(const std::array<size_t,256>& aa)
+	SortIndex(const array<size_t,256>& aa)
 	:d(aa)
 	{}
 
@@ -317,7 +317,7 @@ struct SortIndex
 
 // given a image (or "some data") and a histogram of the contained symbols,
 // create a Huffman tree, encode the data and return the new code
-vector<PackType> huff_compress(const Image<byte>& im, const std::array<size_t,256>& h)
+vector<PackType> huff_compress(const Image<byte>& im, const array<size_t,256>& h)
 {
 	//Create a Huffman compression tree
 	vector<Huff*> terminals;
@@ -357,8 +357,8 @@ vector<PackType> huff_compress(const Image<byte>& im, const std::array<size_t,25
 	//starting offset by 16 different shifts.
 
 	//This allows the symbols to be efficiently stuffed in to the stream later.
-	std::array<std::array<std::array<PackType, 20>, PackBits>, 256> fast_symbols;
-	std::array<std::array<int, PackBits>, 256> fast_symbols_num_chunks;
+	array<array<array<PackType, 20>, PackBits>, 256> fast_symbols;
+	array<array<int, PackBits>, 256> fast_symbols_num_chunks;
 
 	for(unsigned int i=0; i < symbols.size(); i++)
 		if(symbols[i].size())
@@ -415,7 +415,7 @@ vector<PackType> huff_compress(const Image<byte>& im, const std::array<size_t,25
 // given an encoded data stream and a histogram of the encoded symbols, create
 // a Huffman tree, decode the data and store it in the image ret.
 // No particular effort has been paid to efficiency.
-template<class P> void huff_decompress(const vector<P>& b, const std::array<size_t,256>& h, Image<byte>& ret)
+template<class P> void huff_decompress(const vector<P>& b, const array<size_t,256>& h, Image<byte>& ret)
 {
 	vector<Huff*> terminals;
 	Huff* table = create_tree(h, terminals);
@@ -465,7 +465,7 @@ class ReadPimpl
 
 	private:
 		void read_header(std::istream& is);
-		std::array<size_t, 256> read_hist(std::istream& is);
+		array<size_t, 256> read_hist(std::istream& is);
 		vector<PackType> read_data(std::istream& is);
 		void bayer_swap_rows(void);
 
@@ -547,7 +547,7 @@ ReadPimpl::ReadPimpl(istream& in)
 	pred_mode = PRED_HORIZONTAL;
 	row = 0;
 	read_header(in);
-	std::array<size_t,256> h = read_hist(in);
+	array<size_t,256> h = read_hist(in);
 
 	diff.resize(ImageRef(xs*bypp,ys));
 	buffer = new byte[xs*bypp];
@@ -604,9 +604,9 @@ void ReadPimpl::read_header(istream& in)
 	} else throw CVD::Exceptions::Image_IO::MalformedImage(string("Error in CVD image: unknown data type"));
 }
 
-std::array<size_t, 256> ReadPimpl::read_hist(std::istream& is)
+array<size_t, 256> ReadPimpl::read_hist(std::istream& is)
 {
-	std::array<size_t, 256> h;
+	array<size_t, 256> h;
 	for (unsigned int i = 0; i < h.size(); i++) {
 		h[i] = ((is.get() & 255)<<8) | (is.get()&255);
 	}
@@ -714,7 +714,7 @@ class WritePimpl
 		
 	private:
 		void write_header(std::ostream& os);
-		void write_hist(std::ostream& os, const std::array<size_t, 256>& h);
+		void write_hist(std::ostream& os, const array<size_t, 256>& h);
 		void write_data(std::ostream& os, vector<PackType>& data);
 		void bayer_swap_rows(void);
 
@@ -841,7 +841,7 @@ void WritePimpl::write_header(std::ostream& os)
 	os << "\n";
 }
 
-void WritePimpl::write_hist(std::ostream& os, const std::array<size_t, 256>& h)
+void WritePimpl::write_hist(std::ostream& os, const array<size_t, 256>& h)
 {
 	// have to go through the data anyway, but one might want to copy the
 	// two least significant bytes out of each int, store them in a new
@@ -875,7 +875,7 @@ WritePimpl::~WritePimpl()
 	if (buffer2!=NULL) delete[] buffer2;
 	write_header(o);
 
-	std::array<size_t, 256> h;
+	array<size_t, 256> h;
         create_normalized_hist(diff, h);
 	write_hist(o, h);
 
