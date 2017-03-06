@@ -6,8 +6,6 @@
 #include <cvd/rgb.h>
 #include <cvd/image_convert.h>
 
-#include <cvd/config.h>
-
 namespace CVD
 {
 		
@@ -65,9 +63,7 @@ namespace CVD
 	template<> void convert_image(const BasicImage<bayer_gbrg16be>& from, BasicImage<Rgb<unsigned short> >& to);
 	template<> void convert_image(const BasicImage<bayer_rggb16be>& from, BasicImage<Rgb<unsigned short> >& to);
 
-	#ifdef CVD_HAVE_JPEG
-		template<> void convert_image(const BasicImage<MJPEG>& from, BasicImage<Rgb<byte> >& to);
-	#endif
+	template<> void convert_image(const BasicImage<MJPEG>& from, BasicImage<Rgb<byte> >& to);
 
 	/// Convert YUV 411 pixel data to RGB
 	/// @param from The input data

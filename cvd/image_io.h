@@ -1,8 +1,6 @@
 #ifndef CVD_IMAGE_IO_H
 #define CVD_IMAGE_IO_H
 
-#include <cvd/config.h>
-
 #include <cvd/exceptions.h>
 #include <cvd/image_convert.h>
 #include <cvd/internal/load_and_save.h>
@@ -20,20 +18,9 @@
 #include <cvd/internal/io/fits.h>
 #include <cvd/internal/io/text.h>
 #include <cvd/internal/io/cvdimage.h>
-
-
-#ifdef CVD_HAVE_JPEG
-	#include <cvd/internal/io/jpeg.h>
-#endif
-
-#ifdef CVD_HAVE_TIFF
-	#include <cvd/internal/io/tiff.h>
-#endif
-
-
-#ifdef CVD_HAVE_PNG
-	#include <cvd/internal/io/png.h>
-#endif
+#include <cvd/internal/io/jpeg.h>
+#include <cvd/internal/io/tiff.h>
+#include <cvd/internal/io/png.h>
 
 namespace CVD
 {
@@ -46,32 +33,6 @@ namespace CVD
 	//
 
 	#ifndef DOXYGEN_IGNORE_INTERNAL
-	namespace ImageType
-	{
-		enum ImageType
-		{
-			Automatic= -2,
-			Unknown = -1,
-			PNM=0,
-			PS=1,
-			EPS=2,
-			BMP=3,
-			#ifdef CVD_HAVE_JPEG
-				JPEG=4,
-			#endif
-			#ifdef CVD_HAVE_PNG
-				PNG=5,
-			#endif
-			#ifdef CVD_HAVE_TIFF
-				TIFF=6,
-			#endif
-			TXT=7,
-			TEXT=7,
-			FITS=8,
-			CVD=9,
-		};
-	}
-
 	namespace Internal
 	{
 		class ImageLoaderIstream{};
@@ -102,7 +63,6 @@ namespace CVD
 	};
 	#endif
 
-	#ifdef DOXYGEN_INCLUDE_ONLY_FOR_DOCS
 	// This is not the real definition, but this is what it would look like if all
 	// the macros were expanded. The real definition is above
 	/// Contains the enumeration of possible image types
@@ -112,24 +72,24 @@ namespace CVD
 		enum ImageType
 		{	
 			/// Placeholder type telling @ref save_image to deduce the type from the filename
-			Automatic,
+			Automatic= -2,
 			/// Unknown image type (can be returned by @ref string_to_image_type
-			Unknown,
+			Unknown = -1,
 			/// PNM image format (PBM, PGM or PPM).
 			/// This writes 8 or 16 bit raw PGMs or PPMs. PBM is not currently supported
-			PNM, 
+			PNM = 0 , 
 			/// JPEG image format. This is a compressed (lossy) image format, but defaults to 95% quality, which has very few compression artefacts. This image type is only present if libjpeg is available.
 			/// RGB and Greyscale JPEGs are supported
-			JPEG,
+			JPEG = 1,
 			/// Windows BMP (or DIB) format. Uncompressed 8 bit grey scale and 24 bit RGB are supported.
-			BMP,
+			BMP = 2,
 			/// PNG image format. 1, 8 and 16 bit, Greyscale, RGB and RGBA images are supported.
 			/// This image type is only present if libpng is available.
-			PNG,
+			PNG = 3,
 			/// TIFF image format. 1, 8, 16, 32 (float) and 64 (double) suported. Greyscale, RGB and RGBA supported.
 			/// This image type is only present if libtiff is available. G4 FAX encoding is used for bools, otherwise
 			/// "Deflate" compression is used.
-			TIFF,
+			TIFF = 4,
 			/// Postscript  format. This outputs a bare PostScript image with the coordinate system set up 
 			/// to that (x,y) corresponds to pixel (x,y), with (0,0) being at the top left of the pixel (0,0).
 			/// The Y axis is therefore inverted compared to normal postscript drawing, but is image aligned.
@@ -137,24 +97,23 @@ namespace CVD
 			/// ".5 .5 translate" after the image.
 			/// The image data in encoded in ASCII-85 for portability. Helper functions are provided for
 			/// generating EPS figures. See CVD::output_eps_header and CVD::output_eps_footer
-			PS,
+			PS = 5,
 			/// EPS format. This outputs a complete EPS (Encapsulated PostScript) figure.
-			EPS,
+			EPS = 6,
 			/// Plain text format. Grey-scale floating point only. This can be read in to MATLAB
 			/// with the load() function. There is no metadata, so it is not possible to support 
 			/// multiple types. 
-			TXT,
+			TXT = 7,
 			/// CVD image format. 8 bit Grey-scale, RGB and RGBA
 			/// images are currently supported. Files of this type
 			/// have a simple PNM-like header, but use a lossless
 			/// compression scheme (line-wise prediction + Huffman).
-			CVD,
+			CVD = 8,
 			/// FITS images. Supports (native) byte, short, unsigned short, int, float and double
 			/// of greyscale, RGB and RGBA. Signed char is supported lossley but inefficiently. 
-			FITS,
+			FITS = 9,
 		};
 	}
-	#endif
 
 	#ifndef DOXYGEN_IGNORE_INTERNAL
 
@@ -215,18 +174,12 @@ namespace CVD
 
 	  if(c == 'P')
 	    CVD::Internal::readImage<I, PNM::Reader>(im, i);
-#ifdef CVD_HAVE_JPEG
 	  else if(c == 0xff)
 	    CVD::Internal::readImage<I, JPEG::reader>(im, i);
-#endif
-#ifdef CVD_HAVE_TIFF
 	  else if(c == 'I' || c == 'M') //Little or big endian TIFF
 	    CVD::Internal::readImage<I, TIFF::tiff_reader>(im, i);
-#endif
-#ifdef CVD_HAVE_PNG
 	  else if(c == 0x89)
 	    CVD::Internal::readImage<I, PNG::png_reader>(im, i);
-#endif
 	  else if(c == 'B')
 	    CVD::Internal::readImage<I, BMP::Reader>(im, i);
 	  else if(c == 'S')

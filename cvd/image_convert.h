@@ -1,7 +1,6 @@
 #ifndef CVD_IMAGE_CONVERT_H
 #define CVD_IMAGE_CONVERT_H
 
-#include <cvd/config.h>
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/internal/rgb_components.h>
 #include <cvd/image.h>

@@ -1,8 +1,7 @@
 #include <string.h>
-#include <cvd/config.h>
 #include <cvd/colourspaces.h>
 #include <cvd/colourspace_convert.h>
-
+#include <arpa/inet.h>
 //Written by Ethan
 //Modified by Olaf :)
 
@@ -27,31 +26,9 @@ struct read_net_byteorder<unsigned short>
 {
   static unsigned short get(const unsigned short & from) 
   {
-    #ifdef CVD_ARCH_LITTLE_ENDIAN
-		return ((from&0xff)<<8) | ((from&0xff00) >> 8);
-	#else
-		return from; 
-	#endif
-
+		return ntohs(from); 
   }
 };
-
-#if 0
-#ifdef WIN32
-template <>
-struct read_net_byteorder<unsigned long>
-{
-  static unsigned short get(const unsigned short & from) { return ntohl(from); }
-};
-#else
-template <>
-struct read_net_byteorder<uint32_t>
-{
-  static unsigned short get(const unsigned short & from) { return ntohl(from); }
-};
-
-#endif
-#endif
 
 // RGRGRG
 // GBGBGB

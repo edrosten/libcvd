@@ -1,4 +1,3 @@
-#include <cvd/config.h>
 #include <cvd/exceptions.h>
 #include <cvd/diskbuffer2.h>
 

@@ -10,7 +10,6 @@
 #include <cvd/videobufferflags.h>
 #include <cvd/diskbuffer2_frame.h>
 #include <cvd/image_io.h>
-#include <cvd/config.h>
 
 namespace CVD
 {
@@ -21,9 +20,7 @@ namespace CVD
 	/// used as normal. The filenames are returned in alphabetical (and numerical) order.
 	/// @param gl The pattern from which to generate the strings
 	/// @relatesalso DiskBuffer2
-	#ifdef CVD_HAVE_GLOB
 	std::vector<std::string> globlist(const std::string& gl);
-	#endif
 
 	namespace Exceptions
 	{
