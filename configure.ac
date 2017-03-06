@@ -1070,33 +1070,4 @@ AC_SUBST(OFLAGS, $OFLAGS)
 echo $CXXFLAGS
 echo $LIBS
 
-#Create config.h file, in a temporary location,
-#then compare it to the existing config.h file.
-#Do nothing if they are the same. This prevents
-#excessive rebuilding.
-
-echo -n 'Generating config... '
-
-cat << FOO > cvd/config_tmp.h
-#ifndef CVD_CONFIG_H
-#define CVD_CONFIG_H
-#ifdef WIN32
-	#include <cvd/internal/win.h>
-#endif
-FOO
-
-echo '#define CVD_HAVE_CPU_'$host_cpu 1 | cat - confdefs.h | grep CVD_ | sort | sed 's/#define CVD_.*HAVE_\(.*\) .*/#ifndef CVD_DISABLE_\1\
-    &\
-#endif/' >> cvd/config_tmp.h
-echo '#endif' >> cvd/config_tmp.h
-
-if ! diff -q cvd/config_tmp.h cvd/config.h
-then
-	echo 'New configuration'
-	mv cvd/config_tmp.h cvd/config.h
-else
-	echo 'configuration unchanged'
-	rm cvd/config_tmp.h
-fi
-
 AC_OUTPUT(Makefile)
