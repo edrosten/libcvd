@@ -1,4 +1,3 @@
-m4_include([m4/ax_cxx_compile_stdcxx.m4])
 AC_INIT(CVD,0.8)
 AC_COPYRIGHT(Copyright foo)
 
@@ -168,7 +167,46 @@ TEST_AND_SET_CXXFLAG(-Wextra)
 TEST_AND_SET_CXXFLAG(-pipe)
 
 
-AX_CXX_COMPILE_STDCXX(14, noext, mandatory)
+cpp11=no
+for i in "" -std=c++14 -std=c++1y
+do
+	
+	flag="$i"
+
+	if test x$i == x
+	then
+		AC_MSG_CHECKING(For C++1y support)
+	else
+		AC_MSG_CHECKING(For C++1y support with flag $flag)
+	fi
+
+	save_CXXFLAGS="$CXXFLAGS"
+	APPEND(CXXFLAGS, $flag)
+
+	AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+	#include <array>
+	int main()
+	{
+		auto a=1;
+	}
+	])], [cpp11=yes])
+
+	AC_MSG_RESULT($cpp11)
+
+
+	if test x$cpp11 != xno
+	then
+		cpp11="$flag"
+		break
+	fi
+	CXXFLAGS="$save_CXXFLAGS"
+done
+
+if test x$cpp11 == xno
+then
+	AC_MSG_ERROR("No C++14 support. Please add to CXXFLAGS")
+fi
+
 
 #Hack: do this properly
 AC_CHECK_LIB(pthread, main,[],[a=1])
