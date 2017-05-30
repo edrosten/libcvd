@@ -160,8 +160,7 @@ VideoFrame<T>* DeinterlaceBuffer<T>::get_frame()
 	if(!m_loadnewframe)
 		time += 0.5/frame_rate(); 
 	
-	Image<T> im(size());
-	DeinterlaceFrame<T>* frame = new DeinterlaceFrame<T>(time, im);
+	DeinterlaceFrame<T>* frame = new DeinterlaceFrame<T>(time, Image<T>(size()));
 
 
 	if(m_fields == Fields::OddOnly || 

@@ -103,7 +103,7 @@ namespace CVD
 			/// Plain text format. Grey-scale floating point only. This can be read in to MATLAB
 			/// with the load() function. There is no metadata, so it is not possible to support 
 			/// multiple types. 
-			TXT = 7,
+			TXT = 7, TEXT=7,
 			/// CVD image format. 8 bit Grey-scale, RGB and RGBA
 			/// images are currently supported. Files of this type
 			/// have a simple PNM-like header, but use a lossless

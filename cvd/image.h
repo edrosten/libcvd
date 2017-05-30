@@ -21,6 +21,7 @@
 #include <type_traits>
 #include <iterator>
 
+
 namespace CVD {
 
 namespace Exceptions {
@@ -135,9 +136,6 @@ namespace Internal
 
 		static const bool Is = (sizeof(detect_dummy(get<C>()))==2);
 	};
-
-
-
 }
 
 
@@ -231,7 +229,7 @@ template<class T> class BasicImageIterator
 };
 
 template<class C> class BasicImage;
-template<class C> using SubImage [[deprecated]]= BasicImage<C>;
+template<class C> using SubImage = BasicImage<C>;
 
 namespace Internal
 {
@@ -428,7 +426,12 @@ namespace Internal
 			ImageData& operator=(const ImageData&)=default;
 
 		protected:
-				ImageData()=default;
+				ImageData()
+				{
+					my_data=nullptr;
+					my_size = ImageRef(0,0);
+					my_stride = 0;
+				}
 
 				///Return an off-the-end pointer without ever throwing AccessOutsideImage
 				T* end_ptr() { return my_data+my_size.y*my_stride; }
@@ -511,6 +514,7 @@ template<class T> class BasicImage : public Internal::ImageData<T>
 		}
 
 		/// Set all the pixels in the image to a value. This is a relatively fast operation, using <code>memfill</code>.
+		/// Safe to run on empty images.
 		/// @param d The value to write into the image
 		inline void fill(const T d)
 		{
@@ -525,13 +529,6 @@ template<class T> class BasicImage : public Internal::ImageData<T>
 		/// Assignment operator
 		/// @param copyof The image to copy
 		BasicImage& operator=(const BasicImage&copyof)=default;
-
-
-		/// Return a reference to a BasicImage. Useful for passing anonymous BasicImages to functions.
-		BasicImage& ref()
-		{
-			return *this;
-		}
 
 	protected:
 		
@@ -561,16 +558,7 @@ template<class C> const BasicImage<C> Internal::ImageData<C, false>::sub_image(c
 /// <code>CVD::byte</code> or <code>CVD::Rgb<CVD::byte> ></code> are used,
 /// but images could be constructed of any available type.
 ///
-/// Images do reference counting on the data, so multiple images can point
-/// to one block of data. This means that copying an image is like copying a
-/// pointer (so use the same care); to further the analogy, operator[]()
-/// dereferences images. Copy constructing is quite fast (a 16-byte copy and
-/// an increment), so images can be efficiently passed back in functions or
-/// used in containers like std::vector
-///
-/// Image<> inherits all debugging macros from BasicImage and BasicImage.
-/// In addition, the macro CVD_IMAGE_DEBUG_INITIALIZE_RANDOM will cause allocated
-/// memory to be initialized with random numbers before any constructors are called.
+/// The images behave much like 2D STL vectors. Iterators iterate over the pixels.
 ///
 /// Loading and saving, format conversion and some copying functionality is
 /// provided by external functions rather than as part of this class. See
@@ -578,7 +566,7 @@ template<class C> const BasicImage<C> Internal::ImageData<C, false>::sub_image(c
 /// for documentation of these functions.
 /// @ingroup gImage
 template<class T> 
-class Image: public BasicImage<T>
+class Image: public SubImage<T>
 {
 	private:
 		struct CopyPlaceHolder
@@ -586,68 +574,60 @@ class Image: public BasicImage<T>
 			const Image* im;
 		};
 
+		using SubImage<T>::my_size;
+		using SubImage<T>::my_stride;
+		using SubImage<T>::my_data;
+
 	public:
 
 		/// The data type of the pixels in the image.
 		typedef T value_type;
 
-		///Copy constructor. This does not copy the data, it just creates a new
-		///reference to the image data
-		///@param copy The image to copy
-		Image(const Image& copy) :
-			BasicImage<T>(copy)
-		{
-			dup_from(&copy);
+		inline void copy_from( const SubImage<T> & other ){
+			resize(other.size());
+			std::copy(other.begin(), other.end(), this->begin());
 		}
 
-
-		/**CopyFrom" constructor. If constructed from this, it creates
-		   a new copy of the data.  This provides symmetry with @copy_from
-		   @ref copy_from_me
-		   @param c The (placeholder) image to copy from.
-		**/
-		Image(const CopyPlaceHolder& c)
+		///Copy constructor: new allocation and copy the data.
+		///@param copy The image to copy
+		Image(const Image& i)
+		:Image(i.size())
 		{
-			dup_from(NULL);
-			copy_from(*(c.im));
+			copy_from(i);
 		}
 		
-		///This returns a place holder from which an image can be constructed.
-		///On construction, a new copy of the data is made.
-		CopyPlaceHolder copy_from_me() const
-		{	
-			CopyPlaceHolder c = {this};
-			return c;
-		}
 
-
-		///Make a (new) copy of the image, also making a copy of the data
-		///@param copy The image to copy
-		void copy_from(const BasicImage<T>& copy)
+		///Move constructor: steal the pointer.
+		Image(Image&& move_from)
 		{
-            resize(copy.size());
-            std::copy(copy.begin(), copy.end(), this->begin());
+			my_size = move_from.my_size;
+			my_stride = move_from.my_stride;
+			my_data = move_from.my_data;
+
+			move_from.erase_fields();
 		}
 
-		///Make this image independent of any copies (i.e. force a copy of the image data).
-		void make_unique()
-		{
-			if(*num_copies > 1)
-			{
-				Image<T> tmp(*this);
-				copy_from(tmp);
-			}
-		}
-
-		///Assign this image to another one. This does not copy the data, it just creates a new
-		///reference to the image data
+		/// Copy the data.
 		///@param copyof The image to copy
-		const Image& operator=(const Image& copyof)
+		Image& operator=(const Image& i)
 		{
-			remove();
-			dup_from(&copyof);
+			resize(i.size());
+			copy_from(i);
 			return *this;
 		}
+
+		Image& operator=(Image&& move_from)
+		{
+			my_size = move_from.my_size;
+			my_stride = move_from.my_stride;
+			my_data = move_from.my_data;
+
+			move_from.erase_fields();
+
+			return *this;
+		}
+
+
 		
 		#ifndef DOXYGEN_IGNORE_INTERNAL
 		template<class C> const Image& operator=(Internal::ImagePromise<C> p)
@@ -657,39 +637,25 @@ class Image: public BasicImage<T>
 		}
 
 		template<class C> Image(Internal::ImagePromise<C> p)
+		:SubImage<T>()
 		{
-			dup_from(NULL);
 			p.execute(*this);
 		}
 		#endif
 		
-		///Default constructor
+		///Default constructor: everything set to zero.
 		Image()
 		{
-			dup_from(NULL);
+	
+			erase_fields();
 		}
+
 
 		///Create an empty image of a given size.
 		///@param size The size of image to create
 		Image(const ImageRef& size)
 		{
-          //If the size of the image is zero pixels along any dimension,
-          //still keep any of the non-zero dimensions in the size. The
-          //caller should expect the size passed to the constructor
-          //to be the same as the value returned by .size()
-          if (size.x == 0 || size.y == 0) {
-            dup_from(NULL);
-            this->my_size = size;
-            this->my_stride = size.x;
-          }
-          else
-          {
-			num_copies = new int;
-			*num_copies = 1;
- 			this->my_size = size;
- 			this->my_stride = size.x;
-            this->my_data = new T[this->size().area()];
-          }
+          resize(size);
 		}
 
 		///Create a filled image of a given size
@@ -697,99 +663,59 @@ class Image: public BasicImage<T>
 		///@param val  The value to fill the image with
 		Image(const ImageRef& size, const T& val)
 		{
-			Image<T> tmp(size);
-			tmp.fill(val);
-			dup_from(&tmp);
-		}
-
-		///Create a filled image of a given size
-		///@param p std::pair<ImageRef, T> containing the size and fill value.
-		///Useful for creating containers of images with ImageCreationIterator
-		Image(const std::pair<ImageRef, T>& p)
-		{
-			Image<T> tmp(p.first);
-			tmp.fill(p.second);
-			dup_from(&tmp);
+			resize(size);
+			fill(val);
 		}
 
 		///Resize the image (destroying the data).
-		///This does not affect any other images pointing to this data.
 		///@param size The new size of the image
 		void resize(const ImageRef& size)
 		{	
-			if(size != BasicImage<T>::my_size || *num_copies > 1)
+			if(size == ImageRef(0,0))
 			{
-			   Image<T> new_im(size);
-			   *this = new_im;
+				delete_old();
+			}
+			else if(size != BasicImage<T>::my_size)
+			{
+				delete_old();
+				my_data = new T[size.area()];
+				my_size = size;
+				my_stride = size.x;
 			}
 		}
 
 		///Resize the image (destroying the data). 
-		///This does not affect any other images pointing to this data.
 		//The resized image is filled with val.
 		///@param size The new size of the image
 		///@param val  The value to fill the image with
 		void resize(const ImageRef& size, const T& val)
 		{
-			if(*num_copies > 1 || size != BasicImage<T>::my_size)
-			{
-              Image<T> new_im(size, val);
-              *this = new_im;
-			}
-				else fill(val);
+			resize(size);
+			fill(val);
 		}
 
 		///The destructor removes the image data
 		~Image()
 		{
-			remove();
+			delete_old();
 		}
 
 		
 	private:
-
-
-		int* num_copies;			//Reference count.
-
-		inline void remove()		//Get rid of a reference to the data
+		void delete_old()
 		{
-			if(this->my_data && *num_copies && --(*num_copies) == 0)
-			{
-				delete[] this->my_data;
-			    this->my_data = 0;
-			    delete   num_copies;
-			    num_copies = 0;
-			}
+			delete[] my_data;
+			erase_fields();
+		}
+		
+		void erase_fields()
+		{
+			SubImage<T>::my_size = ImageRef(0,0);
+			my_data = nullptr;
+			my_stride = 0;
 		}
 
-		inline void dup_from(const Image* copyof)  //Duplicate from another image
-		{
-			if(copyof != NULL)
-			{
-              //For images with zero pixels (e.g. 0 by 100 image),
-              //we still want to preserve non-zero dimensions in the size.
-				
 
-				this->my_size = copyof->my_size;
-				this->my_stride = copyof->my_stride;
-                if (copyof->my_data != NULL) {
-                  this->my_data = copyof->my_data;
-                  num_copies = copyof->num_copies;
-                  (*num_copies)++;
-                }
-                else {
-                  this->my_data = 0;
-                  num_copies = 0;
-                }
-			}
-			else
-			{
-				this->my_size.home();
-                this->my_data = 0;
-                this->my_stride = 0;
-                num_copies = 0;
-			}
-		}
 };
 
 

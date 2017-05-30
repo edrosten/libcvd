@@ -178,9 +178,9 @@ class RawVideoFileBufferPIMPL
 	VideoBufferFlags::OnEndOfBuffer end_of_buffer_behaviour;
 			
 	public:	
-	template<class T> static VideoFileFrame<T>* generate_frame(double t, Image<T> im)
+	template<class T> static VideoFileFrame<T>* generate_frame(double t, Image<T>&& im)
 	{
-		return new VideoFileFrame<T>(t, im);
+		return new VideoFileFrame<T>(t, move(im));
 	}
 	private:
 
@@ -467,7 +467,7 @@ class RawVideoFileBufferPIMPL
 				
 
 				ready=true;
-				return unique_ptr<VFHolderBase>(new VFHolder<T>(new VideoFileFrame<T>(timestamp, ret)));
+				return unique_ptr<VFHolderBase>(new VFHolder<T>(new VideoFileFrame<T>(timestamp, std::move(ret))));
 			}
 			
 			cont:
@@ -582,7 +582,7 @@ unique_ptr<VFHolderBase> VFHolder<C>::duplicate()
 	Image<C> copy;
 	copy.copy_from(*fr);
 
-	return unique_ptr<VFHolderBase>(new VFHolder(RawVideoFileBufferPIMPL::generate_frame<C>(fr->timestamp(), copy)));
+	return unique_ptr<VFHolderBase>(new VFHolder(RawVideoFileBufferPIMPL::generate_frame<C>(fr->timestamp(), move(copy))));
 }
 
 ///Public implementation of RawVideoFileBuffer

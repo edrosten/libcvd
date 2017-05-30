@@ -4,6 +4,7 @@
 #include <cvd/localvideoframe.h>
 #include <cvd/rgb.h>
 #include <cvd/byte.h>
+#include <utility>
 
 struct AVCodecContext;
 
@@ -33,8 +34,8 @@ namespace CVD
 			/// Construct a video frame from an Image and a timestamp
 			/// @param time The timestamp of this frame
 			/// @param local The Image to use for this frame
-			VideoFileFrame(double time, CVD::Image<T>& local)
-			:LocalVideoFrame<T>(time, local)
+			VideoFileFrame(double time, CVD::Image<T>&& local)
+			:LocalVideoFrame<T>(time, std::move(local))
 			{
 			}	
 

@@ -2,7 +2,7 @@
 #define CVD_COLOURSPACE_FRAME_H
 
 #include <cvd/localvideoframe.h>
-#include <string>
+#include <utility>
 
 namespace CVD
 {
@@ -18,8 +18,8 @@ namespace CVD
 			{
 			}
 
-			ColourspaceFrame(double time, CVD::Image<T>& converted)
-			:LocalVideoFrame<T>(time, converted)
+			ColourspaceFrame(double time, CVD::Image<T>&& converted)
+			:LocalVideoFrame<T>(time, std::move(converted))
 			{
 			}	
 	};

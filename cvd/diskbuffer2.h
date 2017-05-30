@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <utility>
 #include <fstream>
 #include <errno.h>
 
@@ -172,7 +173,7 @@ namespace CVD
 			throw Exceptions::DiskBuffer2::BadImage(file_names[next_frame], err.what);
 		}
 
-		DiskBuffer2Frame<T>* vf = new DiskBuffer2Frame<T>(next_frame * time_per_frame + start_time, foo, file_names[next_frame]);
+		DiskBuffer2Frame<T>* vf = new DiskBuffer2Frame<T>(next_frame * time_per_frame + start_time, std::move(foo), file_names[next_frame]);
 
 		next_frame++;
 		

@@ -69,11 +69,8 @@ template <class T, class From> class ColourspaceBuffer : public CVD::LocalVideoB
 		{
 			VideoFrame<From>* fr = m_vidbuf.get_frame();
 			Image<T> cv = convert_image<T>(*fr);
-
-			ColourspaceFrame<T>* ret = new ColourspaceFrame<T>(fr->timestamp(), cv);
-
+			ColourspaceFrame<T>* ret = new ColourspaceFrame<T>(fr->timestamp(), std::move(cv));
 			m_vidbuf.put_frame(fr);
-
 			return ret;
 		}
 

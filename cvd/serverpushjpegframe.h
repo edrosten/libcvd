@@ -21,8 +21,8 @@ template<class T> class ServerPushJpegFrame: public LocalVideoFrame<T>
 		{
 		}
 
-		ServerPushJpegFrame(double time, CVD::Image<T>& im, const std::string& data)
-		:LocalVideoFrame<T>(time, im),image_data(data)
+		ServerPushJpegFrame(double time, CVD::Image<T>&& im, const std::string& data)
+		:LocalVideoFrame<T>(time, std::move(im)),image_data(data)
 		{
 		}	
 		

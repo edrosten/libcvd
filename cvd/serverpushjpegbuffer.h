@@ -78,7 +78,7 @@ template<class C> class ServerPushJpegBuffer: public LocalVideoBuffer<C>
 				goto loop;
 			}
 			
-			return new ServerPushJpegFrame<C>(get_time_of_day(), c, data);
+			return new ServerPushJpegFrame<C>(get_time_of_day(), std::move(c), data);
 		}
 
 		void put_frame(VideoFrame<C>* f)

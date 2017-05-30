@@ -3,6 +3,7 @@
 
 #include <cvd/localvideoframe.h>
 #include <string>
+#include <utility>
 
 namespace CVD
 {
@@ -31,8 +32,8 @@ namespace CVD
 			{
 			}
 
-			DiskBuffer2Frame(double time, CVD::Image<T>& from_disk, const std::string& file)
-			:LocalVideoFrame<T>(time, from_disk),frame_name(file)
+			DiskBuffer2Frame(double time, CVD::Image<T>&& from_disk, const std::string& file)
+			:LocalVideoFrame<T>(time, std::move(from_disk)),frame_name(file)
 			{
 			}	
 

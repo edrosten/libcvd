@@ -2,6 +2,7 @@
 #define __DEINTERLACE_FRAME_H__
 
 #include <cvd/localvideoframe.h>
+#include <utility>
 
 namespace CVD
 {
@@ -29,8 +30,8 @@ namespace CVD
 			{
 			}
 
-			DeinterlaceFrame(double time, Image<T>& im)
-			   :LocalVideoFrame<T>(time, im)
+			DeinterlaceFrame(double time, Image<T>&& im)
+			   :LocalVideoFrame<T>(time, std::move(im))
 			{
 			}	
 			

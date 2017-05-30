@@ -28,7 +28,7 @@ namespace CVD
 	/// @param T The pixel type of the video frames
 	/// @ingroup gVideoFrame
 	template<class T> 
-	class LocalVideoFrame: public VideoFrame<T>
+		class LocalVideoFrame: public VideoFrame<T>
 	{
 
 		public:
@@ -36,31 +36,34 @@ namespace CVD
 			virtual ~LocalVideoFrame()
 			{
 			}
-			
-			/// Construct a video frame from an Image and a timestamp
+
+			/// Construct a video frame from an Image and a timestamp.
+			/// Note that the local video frame wants to own the image data
+			/// so only a move constructor is provided.
 			/// @param time The timestamp of this frame
 			/// @param local The Image to use for this frame
-			LocalVideoFrame(double time, CVD::Image<T>& local)
-			:VideoFrame<T>(time, local.data(), local.size()),
-			 im(local)
+			LocalVideoFrame(double time, CVD::Image<T>&& local)
+				:VideoFrame<T>(time, nullptr, local.size()),
+				im(std::move(local))
 			{
+				this->my_data = im.data();
 			}	
 
 			/// Returns the image. A LocalVideoFrame can be treated just like any other Image
 			/// (for example it can use optimised copying)
-		        Image<T>& image()
+			Image<T>& image()
 			{
 				return im;
 			}
-		        const Image<T>& image() const
+			const Image<T>& image() const
 			{
 				return im;
 			}
 
 			double& timestamp() 
-			  {
-			    return this->my_timestamp;
-			  }
+			{
+				return this->my_timestamp;
+			}
 
 		private:
 			CVD::Image<T>		  im;
