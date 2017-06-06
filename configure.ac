@@ -422,8 +422,6 @@ echo -----------------------------------------------
 echo Checking for operating system specific features
 echo -----------------------------------------------
 
-AC_ARG_ENABLE(gpl,       [  --enable-gpl            Allow the use of GPL libraries.])
-
 AC_ARG_WITH(dc1394v1v2,[  --with-dc1394v1v2       Force libDC1394 v1 and v2 co-exist. This will break FORMAT_7.])
 AC_ARG_WITH(dc1394v1,  [  --without-dc1394v1      do not use libDC1394v1 (use try v2 instead) for dvbuffer3 (Linux/OSX). Disable dvbuffer (Linux).])
 AC_ARG_WITH(dc1394v2,  [  --without-dc1394v2      do not use libDC1394v2 (use try v1 instead) for dvbuffer3 (Linux/OSX). ])
@@ -741,45 +739,39 @@ fi
 
 
 CHECK_FOR_OPTION(ffmpeg, [
-	if test "$enable_gpl" != no && test "$enable_gpl" != ""
+	AC_MSG_CHECKING([for ffmpeg headers])
+	AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+		#define __STDC_CONSTANT_MACROS
+		#include <libavcodec/avcodec.h>
+		#include <libavformat/avformat.h>
+		#include <libswscale/swscale.h>
+		int main(){}
+	])], [ ffmpeg_new_headers=1], [])
+
+	if test "$ffmpeg_new_headers" == 1
 	then
-		AC_MSG_CHECKING([for ffmpeg headers])
-		AC_COMPILE_IFELSE([AC_LANG_SOURCE([
-			#define __STDC_CONSTANT_MACROS
-			#include <libavcodec/avcodec.h>
-			#include <libavformat/avformat.h>
-			#include <libswscale/swscale.h>
-			int main(){}
-		])], [ ffmpeg_new_headers=1], [])
 
-		if test "$ffmpeg_new_headers" == 1
+		AC_CHECK_LIB(avutil, main, [], [a=1])
+		AC_CHECK_LIB(avformat, avformat_open_input, [], [a=1])
+		AC_CHECK_LIB(avformat, av_read_frame, [ffmpeg_recent=yes], [a=1]) #only in >= 0.4.9
+		AC_CHECK_LIB(avcodec, avcodec_open2, [], [a=1])
+		AC_CHECK_LIB(swscale, sws_getContext, [], [a=1])
+
+
+		if test "$with_oldffmpeg" == yes
 		then
-
-			AC_CHECK_LIB(avutil, main, [], [a=1])
-			AC_CHECK_LIB(avformat, avformat_open_input, [], [a=1])
-			AC_CHECK_LIB(avformat, av_read_frame, [ffmpeg_recent=yes], [a=1]) #only in >= 0.4.9
-			AC_CHECK_LIB(avcodec, avcodec_open2, [], [a=1])
-			AC_CHECK_LIB(swscale, sws_getContext, [], [a=1])
-
-
-			if test "$with_oldffmpeg" == yes
-			then
-				AC_SUBST(have_oldffmpeg, yes)
-			fi
-
-			have_avcodec_decode_video2=0
-			AC_CHECK_LIB(avcodec, avcodec_decode_video2, [have_avcodec_decode_video2=1])
-			if test $have_avcodec_decode_video2==1
-			then
-				AC_DEFINE(CVD_INTERNAL_FFMPEG_USE_AVCODEC_DECODE_VIDEO2)
-			fi
-
-		else
-			a=1
+			AC_SUBST(have_oldffmpeg, yes)
 		fi
+
+		have_avcodec_decode_video2=0
+		AC_CHECK_LIB(avcodec, avcodec_decode_video2, [have_avcodec_decode_video2=1])
+		if test $have_avcodec_decode_video2==1
+		then
+			AC_DEFINE(CVD_INTERNAL_FFMPEG_USE_AVCODEC_DECODE_VIDEO2)
+		fi
+
 	else
 		a=1
-		AC_MSG_WARN([FFMPEG currently requires the use of --enable-gpl])
 	fi
 ])
 

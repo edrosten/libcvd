@@ -715,6 +715,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -747,7 +748,6 @@ with_sse
 with_sse2
 with_assembler
 with_inline_asm
-enable_gpl
 with_dc1394v1v2
 with_dc1394v1
 with_dc1394v2
@@ -831,6 +831,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE_TARNAME}'
@@ -1083,6 +1084,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1220,7 +1230,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1373,6 +1383,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1412,7 +1423,6 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
    --disable-ggdb           do not use ggdb flag
   --disable-debug            disable debug build
-  --enable-gpl            Allow the use of GPL libraries.
   --disable-ssefast9      Disable the probably OK SSE FAST-9 detector (debgging only)
   --disable-ssefast10     Disable the probably OK SSE FAST-10 detector (debgging only)
   --disable-ssefast12     Disable the probably OK SSE FAST-12 detector (debgging only)
@@ -5869,12 +5879,6 @@ echo -----------------------------------------------
 echo Checking for operating system specific features
 echo -----------------------------------------------
 
-# Check whether --enable-gpl was given.
-if test "${enable_gpl+set}" = set; then :
-  enableval=$enable_gpl;
-fi
-
-
 
 # Check whether --with-dc1394v1v2 was given.
 if test "${with_dc1394v1v2+set}" = set; then :
@@ -8107,18 +8111,16 @@ fi
 		save_CXXFLAGS="$CXXFLAGS"
 		a=
 
-	if test "$enable_gpl" != no && test "$enable_gpl" != ""
-	then
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ffmpeg headers" >&5
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ffmpeg headers" >&5
 $as_echo_n "checking for ffmpeg headers... " >&6; }
-		cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-			#define __STDC_CONSTANT_MACROS
-			#include <libavcodec/avcodec.h>
-			#include <libavformat/avformat.h>
-			#include <libswscale/swscale.h>
-			int main(){}
+		#define __STDC_CONSTANT_MACROS
+		#include <libavcodec/avcodec.h>
+		#include <libavformat/avformat.h>
+		#include <libswscale/swscale.h>
+		int main(){}
 
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"; then :
@@ -8126,10 +8128,10 @@ if ac_fn_cxx_try_compile "$LINENO"; then :
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
-		if test "$ffmpeg_new_headers" == 1
-		then
+	if test "$ffmpeg_new_headers" == 1
+	then
 
-			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lavutil" >&5
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lavutil" >&5
 $as_echo_n "checking for main in -lavutil... " >&6; }
 if ${ac_cv_lib_avutil_main+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -8170,7 +8172,7 @@ else
   a=1
 fi
 
-			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for avformat_open_input in -lavformat" >&5
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for avformat_open_input in -lavformat" >&5
 $as_echo_n "checking for avformat_open_input in -lavformat... " >&6; }
 if ${ac_cv_lib_avformat_avformat_open_input+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -8217,7 +8219,7 @@ else
   a=1
 fi
 
-			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for av_read_frame in -lavformat" >&5
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for av_read_frame in -lavformat" >&5
 $as_echo_n "checking for av_read_frame in -lavformat... " >&6; }
 if ${ac_cv_lib_avformat_av_read_frame+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -8259,7 +8261,7 @@ else
   a=1
 fi
  #only in >= 0.4.9
-			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for avcodec_open2 in -lavcodec" >&5
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for avcodec_open2 in -lavcodec" >&5
 $as_echo_n "checking for avcodec_open2 in -lavcodec... " >&6; }
 if ${ac_cv_lib_avcodec_avcodec_open2+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -8306,7 +8308,7 @@ else
   a=1
 fi
 
-			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for sws_getContext in -lswscale" >&5
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for sws_getContext in -lswscale" >&5
 $as_echo_n "checking for sws_getContext in -lswscale... " >&6; }
 if ${ac_cv_lib_swscale_sws_getContext+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -8355,14 +8357,14 @@ fi
 
 
 
-			if test "$with_oldffmpeg" == yes
-			then
-				have_oldffmpeg=yes
+		if test "$with_oldffmpeg" == yes
+		then
+			have_oldffmpeg=yes
 
-			fi
+		fi
 
-			have_avcodec_decode_video2=0
-			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for avcodec_decode_video2 in -lavcodec" >&5
+		have_avcodec_decode_video2=0
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for avcodec_decode_video2 in -lavcodec" >&5
 $as_echo_n "checking for avcodec_decode_video2 in -lavcodec... " >&6; }
 if ${ac_cv_lib_avcodec_avcodec_decode_video2+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -8402,19 +8404,14 @@ if test "x$ac_cv_lib_avcodec_avcodec_decode_video2" = xyes; then :
   have_avcodec_decode_video2=1
 fi
 
-			if test $have_avcodec_decode_video2==1
-			then
-				$as_echo "#define CVD_INTERNAL_FFMPEG_USE_AVCODEC_DECODE_VIDEO2 1" >>confdefs.h
+		if test $have_avcodec_decode_video2==1
+		then
+			$as_echo "#define CVD_INTERNAL_FFMPEG_USE_AVCODEC_DECODE_VIDEO2 1" >>confdefs.h
 
-			fi
-
-		else
-			a=1
 		fi
+
 	else
 		a=1
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: FFMPEG currently requires the use of --enable-gpl" >&5
-$as_echo "$as_me: WARNING: FFMPEG currently requires the use of --enable-gpl" >&2;}
 	fi
 
 
@@ -8933,35 +8930,6 @@ OFLAGS=$OFLAGS
 
 echo $CXXFLAGS
 echo $LIBS
-
-#Create config.h file, in a temporary location,
-#then compare it to the existing config.h file.
-#Do nothing if they are the same. This prevents
-#excessive rebuilding.
-
-echo -n 'Generating config... '
-
-cat << FOO > cvd/config_tmp.h
-#ifndef CVD_CONFIG_H
-#define CVD_CONFIG_H
-#ifdef WIN32
-	#include <cvd/internal/win.h>
-#endif
-FOO
-
-echo '#define CVD_HAVE_CPU_'$host_cpu 1 | cat - confdefs.h | grep CVD_ | sort | sed 's/#define CVD_.*HAVE_\(.*\) .*/#ifndef CVD_DISABLE_\1\
-    &\
-#endif/' >> cvd/config_tmp.h
-echo '#endif' >> cvd/config_tmp.h
-
-if ! diff -q cvd/config_tmp.h cvd/config.h
-then
-	echo 'New configuration'
-	mv cvd/config_tmp.h cvd/config.h
-else
-	echo 'configuration unchanged'
-	rm cvd/config_tmp.h
-fi
 
 ac_config_files="$ac_config_files Makefile"
 
