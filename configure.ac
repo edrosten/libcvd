@@ -29,7 +29,7 @@ AC_SUBST(minor, $cvd_minor)
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm posix_rt"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm"
 dodginess_options=
 options=
 simd_all_options=
@@ -786,8 +786,6 @@ echo Checking for platform compatibility
 echo -----------------------------------
 
 AC_ARG_WITH(glob, [  --without-glob          Compile without diskbuffer glob matching (for debugging only)  ])
-AC_ARG_WITH(memalign, [  --without-memalign      Compile without posix_memalign (for debugging only)  ])
-
 
 
 CHECK_FOR_OPTION(glob, [
@@ -816,10 +814,6 @@ then
 else
 	dodginess_options="$dodginess_options missing_c99_feenableexcept"
 fi
-
-CHECK_FOR_OPTION(memalign, [
-	AC_CHECK_FUNC(posix_memalign, [], [a=1])
-], [], [APPEND(dodginess_options, no_posix_memalign)])
 
 ################################################################################
 #
@@ -962,10 +956,6 @@ OSX/qtbuffer,OSX/videosource_qtbuffer                qtbuffer
 OSX/videosource_noqtbuffer                           END 
 
 #Libraries
-
-nothing                                              windows
-noarch/posix_memalign                                memalign
-noarch/default_memalign                              END
 
 Win32/glwindow,gltext                                windows
 videodisplay,glwindow,gltext                         videodisplay END

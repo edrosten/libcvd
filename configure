@@ -635,7 +635,6 @@ have_fast10
 have_fast9
 have_fast8
 have_fast7
-have_memalign
 have_glob
 docs
 have_ffmpeg
@@ -768,7 +767,6 @@ with_lapack
 with_acml
 with_x
 with_glob
-with_memalign
 enable_ssefast9
 enable_ssefast10
 enable_ssefast12
@@ -1467,7 +1465,6 @@ Optional Packages:
   --with-acml[=directory] Use BLAS and LAPACK routines from the ACML library [located in the specified directory]
   --with-x                use the X Window System
   --without-glob          Compile without diskbuffer glob matching (for debugging only)
-  --without-memalign      Compile without posix_memalign (for debugging only)
 
 Some influential environment variables:
   CC          C compiler command
@@ -4477,7 +4474,7 @@ minor=$cvd_minor
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm posix_rt"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm"
 dodginess_options=
 options=
 simd_all_options=
@@ -8490,13 +8487,6 @@ if test "${with_glob+set}" = set; then :
 fi
 
 
-# Check whether --with-memalign was given.
-if test "${with_memalign+set}" = set; then :
-  withval=$with_memalign;
-fi
-
-
-
 
 
 	if test "$with_glob" != no && test "$have_glob" != yes
@@ -8594,48 +8584,6 @@ then
 else
 	dodginess_options="$dodginess_options missing_c99_feenableexcept"
 fi
-
-
-	if test "$with_memalign" != no && test "$have_memalign" != yes
-	then
-		if test "$with_memalign" == ""
-		then
-			with_memalign=yes
-		fi
-
-		save_LIBS="$LIBS"
-		save_CXXFLAGS="$CXXFLAGS"
-		a=
-
-	ac_fn_cxx_check_func "$LINENO" "posix_memalign" "ac_cv_func_posix_memalign"
-if test "x$ac_cv_func_posix_memalign" = xyes; then :
-
-else
-  a=1
-fi
-
-
-
-		if test x$a == x
-		then
-			$as_echo "#define CVD_HAVE_MEMALIGN 1" >>confdefs.h
-
-			have_memalign=yes
-
-			options="$options memalign"
-
-		else
-			LIBS="$save_LIBS"
-			CXXFLAGS="$save_CXXFLAGS"
-		fi
-	fi
-
-	if test "$have_memalign" != yes
-	then
-		:
-		dodginess_options="$dodginess_options no_posix_memalign"
-	fi
-
 
 ################################################################################
 #
@@ -8823,10 +8771,6 @@ OSX/qtbuffer,OSX/videosource_qtbuffer                qtbuffer
 OSX/videosource_noqtbuffer                           END
 
 #Libraries
-
-nothing                                              windows
-noarch/posix_memalign                                memalign
-noarch/default_memalign                              END
 
 Win32/glwindow,gltext                                windows
 videodisplay,glwindow,gltext                         videodisplay END
