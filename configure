@@ -642,6 +642,7 @@ have_oldffmpeg
 have_tiff
 have_jpeg
 have_png
+have_libuvc
 have_lapack
 have_toon
 have_shared_ptr
@@ -4474,7 +4475,7 @@ minor=$cvd_minor
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm libuvc"
 dodginess_options=
 options=
 simd_all_options=
@@ -7521,6 +7522,101 @@ fi
 
 
 
+	if test "$with_libuvc" != no && test "$have_libuvc" != yes
+	then
+		if test "$with_libuvc" == ""
+		then
+			with_libuvc=yes
+		fi
+
+		save_LIBS="$LIBS"
+		save_CXXFLAGS="$CXXFLAGS"
+		a=
+
+	for ac_header in libuvc/libuvc.h
+do :
+  ac_fn_cxx_check_header_mongrel "$LINENO" "libuvc/libuvc.h" "ac_cv_header_libuvc_libuvc_h" "$ac_includes_default"
+if test "x$ac_cv_header_libuvc_libuvc_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBUVC_LIBUVC_H 1
+_ACEOF
+
+else
+  a=1
+fi
+
+done
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for uvc_stream_get_frame in -luvc" >&5
+$as_echo_n "checking for uvc_stream_get_frame in -luvc... " >&6; }
+if ${ac_cv_lib_uvc_uvc_stream_get_frame+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-luvc  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char uvc_stream_get_frame ();
+int
+main ()
+{
+return uvc_stream_get_frame ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  ac_cv_lib_uvc_uvc_stream_get_frame=yes
+else
+  ac_cv_lib_uvc_uvc_stream_get_frame=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_uvc_uvc_stream_get_frame" >&5
+$as_echo "$ac_cv_lib_uvc_uvc_stream_get_frame" >&6; }
+if test "x$ac_cv_lib_uvc_uvc_stream_get_frame" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBUVC 1
+_ACEOF
+
+  LIBS="-luvc $LIBS"
+
+else
+  a=1
+fi
+
+
+
+		if test x$a == x
+		then
+			$as_echo "#define CVD_HAVE_LIBUVC 1" >>confdefs.h
+
+			have_libuvc=yes
+
+			options="$options libuvc"
+
+		else
+			LIBS="$save_LIBS"
+			CXXFLAGS="$save_CXXFLAGS"
+		fi
+	fi
+
+	if test "$have_libuvc" != yes
+	then
+		:
+
+	fi
+
+
 
 	if test "$with_png" != no && test "$have_png" != yes
 	then
@@ -8672,6 +8768,12 @@ do
 done > config.have_bits
 
 
+################################################################################
+#
+#
+# I have no idea what was in my head here!
+#
+
 
 #The dependency list
 #The file format is as follows:
@@ -8769,6 +8871,9 @@ Linux/v4lcontrol                                     v4l2buffer END
 
 OSX/qtbuffer,OSX/videosource_qtbuffer                qtbuffer
 OSX/videosource_noqtbuffer                           END
+
+uvcbuffer,videosource_uvcbuffer						libuvc
+videosource_nouvcbuffer						END
 
 #Libraries
 

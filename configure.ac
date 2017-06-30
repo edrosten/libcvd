@@ -29,7 +29,7 @@ AC_SUBST(minor, $cvd_minor)
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm libuvc"
 dodginess_options=
 options=
 simd_all_options=
@@ -667,6 +667,10 @@ CHECK_FOR_OPTION(lapack, [
 
 
 
+CHECK_FOR_OPTION(libuvc, [
+	AC_CHECK_HEADERS(libuvc/libuvc.h, [], [a=1])
+	AC_CHECK_LIB(uvc, uvc_stream_get_frame, [], [a=1])
+])
 
 CHECK_FOR_OPTION(png, [
 	AC_CHECK_HEADERS(png.h, [], [a=1])
@@ -857,6 +861,12 @@ do
 done > config.have_bits
 
 
+################################################################################
+#
+#
+# I have no idea what was in my head here!
+#
+
 
 #The dependency list
 #The file format is as follows:
@@ -954,6 +964,9 @@ Linux/v4lcontrol                                     v4l2buffer END
 
 OSX/qtbuffer,OSX/videosource_qtbuffer                qtbuffer
 OSX/videosource_noqtbuffer                           END 
+
+uvcbuffer,videosource_uvcbuffer						libuvc 
+videosource_nouvcbuffer						END
 
 #Libraries
 

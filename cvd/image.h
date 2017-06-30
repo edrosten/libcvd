@@ -278,10 +278,15 @@ namespace Internal
 				return data_length;
 			}
 			
+			ImageData()
+			{
+				my_data=0;
+				my_size=ImageRef(0,0);
+				data_length=0;
+			}
+
 
 		protected:
-			ImageData()=default;
-
 
 			void*    my_data;
 			ImageRef my_size;
@@ -425,14 +430,14 @@ namespace Internal
 			ImageData(const ImageData&) = default;
 			ImageData& operator=(const ImageData&)=default;
 
-		protected:
-				ImageData()
-				{
-					my_data=nullptr;
-					my_size = ImageRef(0,0);
-					my_stride = 0;
-				}
+			ImageData()
+			{
+				my_data=nullptr;
+				my_size = ImageRef(0,0);
+				my_stride = 0;
+			}
 
+		protected:
 				///Return an off-the-end pointer without ever throwing AccessOutsideImage
 				T* end_ptr() { return my_data+my_size.y*my_stride; }
 
@@ -575,7 +580,7 @@ class Image: public SubImage<T>
 		};
 
 		using SubImage<T>::my_size;
-		using SubImage<T>::my_stride;
+		//using SubImage<T>::my_stride;
 		using SubImage<T>::my_data;
 
 	public:
@@ -583,9 +588,10 @@ class Image: public SubImage<T>
 		/// The data type of the pixels in the image.
 		typedef T value_type;
 
-		inline void copy_from( const SubImage<T> & other ){
+		inline Image& copy_from( const SubImage<T> & other ){
 			resize(other.size());
 			std::copy(other.begin(), other.end(), this->begin());
+			return *this;
 		}
 
 		///Copy constructor: new allocation and copy the data.
@@ -600,10 +606,7 @@ class Image: public SubImage<T>
 		///Move constructor: steal the pointer.
 		Image(Image&& move_from)
 		{
-			my_size = move_from.my_size;
-			my_stride = move_from.my_stride;
-			my_data = move_from.my_data;
-
+			static_cast<Internal::ImageData<T>&>(*this) = move_from;
 			move_from.erase_fields();
 		}
 
@@ -618,10 +621,7 @@ class Image: public SubImage<T>
 
 		Image& operator=(Image&& move_from)
 		{
-			my_size = move_from.my_size;
-			my_stride = move_from.my_stride;
-			my_data = move_from.my_data;
-
+			static_cast<Internal::ImageData<T>&>(*this) = move_from;
 			move_from.erase_fields();
 
 			return *this;
@@ -664,24 +664,15 @@ class Image: public SubImage<T>
 		Image(const ImageRef& size, const T& val)
 		{
 			resize(size);
-			fill(val);
+			this->fill(val);
 		}
 
+		
 		///Resize the image (destroying the data).
 		///@param size The new size of the image
 		void resize(const ImageRef& size)
 		{	
-			if(size == ImageRef(0,0))
-			{
-				delete_old();
-			}
-			else if(size != BasicImage<T>::my_size)
-			{
-				delete_old();
-				my_data = new T[size.area()];
-				my_size = size;
-				my_stride = size.x;
-			}
+			resize_(size, DD<Internal::IsDummy<T>::Is>{} );
 		}
 
 		///Resize the image (destroying the data). 
@@ -704,19 +695,58 @@ class Image: public SubImage<T>
 	private:
 		void delete_old()
 		{
-			delete[] my_data;
+			delete_(DD<Internal::IsDummy<T>::Is>{});
 			erase_fields();
 		}
 		
 		void erase_fields()
 		{
-			SubImage<T>::my_size = ImageRef(0,0);
-			my_data = nullptr;
-			my_stride = 0;
+			static_cast<Internal::ImageData<T>&>(*this) = Internal::ImageData<T>();
+		}
+		
+		//Allow type switching on dummy data: the internals are quite different
+		//for dummy types.
+		template<int Dummy> struct DD{};
+
+		template<int Dummy> void resize_(const ImageRef& size, DD<Dummy>)
+		{
+			if(size == ImageRef(0,0))
+			{
+				delete_old();
+			}
+			else if(size != BasicImage<T>::my_size)
+			{
+				delete_old();
+				static_cast<BasicImage<T>&>(*this) = BasicImage<T>(new T[size.area()], size);
+			}
 		}
 
+		void resize_(const ImageRef& size, DD<true>)
+		{
+			if(size == ImageRef(0,0))
+			{
+				delete_old();
+			}
+			else if(size != BasicImage<T>::my_size)
+			{
+				delete_old();
+				static_cast<BasicImage<T>&>(*this) = BasicImage<T>(nullptr, size);
+				my_data = new char [this->datalength()];
+			}
+		}
+
+		template<int Dummy> void delete_(DD<Dummy>)
+		{
+			delete[] my_data;
+		}
+
+		void delete_(DD<true>)
+		{
+			delete[] static_cast<char*>(my_data);
+		}
 
 };
+
 
 
 } // end namespace

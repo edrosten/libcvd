@@ -360,6 +360,26 @@ namespace CVD {
 		}
 	}
 
+	void get_uvc_options(const VideoSource& vs, ImageRef& size, double& fps, bool& jpeg, bool& verbose)
+	{
+		size = ImageRef(640,480);
+		fps = 30;
+		jpeg = 0;
+		verbose=0;
+		for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it) {
+			if (it->first == "size")
+				size = parseImageRef(it->second, true);
+			else if (it->first == "fps") {
+				fps = stod(it->second.c_str());
+			} else if (it->first == "verbose") {
+						verbose = parseBoolFlag(it->second);
+			} else if (it->first == "mjpeg" || it->first == "jpeg") {
+						jpeg = parseBoolFlag(it->second);
+			} else
+				throw VideoSourceException("invalid option for 'uvc' protocol: "+it->first+"\n\t valid options: size, fps, mjpeg, verbose");
+		}
+	}
+
 
 	void get_v4l2_options(const VideoSource& vs, ImageRef& size, int& input, bool& interlaced, bool& verbose)
 	{

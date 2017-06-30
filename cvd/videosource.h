@@ -263,6 +263,23 @@ namespace CVD {
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
+	// uvc buffer
+	//
+
+	template <class T> VideoBuffer<T>* makeUVCBuffer(const std::string&, const ImageRef&, double, bool, bool)
+	{
+		throw VideoSourceException("UVCBuffer cannot handle types other than yuv422, or Rgb<byte>");
+	}
+
+	template <> VideoBuffer<yuv422>* makeUVCBuffer(const std::string& dev, const ImageRef& size, double fps, bool mjpeg, bool verbose);
+	template <> VideoBuffer<Rgb<byte> >* makeUVCBuffer(const std::string& dev, const ImageRef& size, double fps, bool mjpeg, bool verbose);
+
+	void get_uvc_options(const VideoSource& vs, ImageRef& size, double& fps, bool& mjpeg, bool& verbose);
+
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	//
 	// video file buffer
 	//
 
@@ -381,6 +398,13 @@ namespace CVD {
 			bool interlaced, verbose;
 			get_v4l2_options(vs, size, input, interlaced, verbose);
 			return makeV4LBuffer<T>(vs.identifier, size, input, interlaced, verbose);	
+		} 
+		else if (vs.protocol == "uvc") {
+			ImageRef size;
+			bool mjpeg, verbose;
+			double fps;
+			get_uvc_options(vs, size, fps, mjpeg, verbose);
+			return makeUVCBuffer<T>(vs.identifier, size, fps, mjpeg, verbose);	
 		} 
 		else if (vs.protocol == "dc1394") {
 			int cam_no = atoi(vs.identifier.c_str());
@@ -536,6 +560,11 @@ Options supported by the various protocols are:
 	   interlaced | fields [= <bool> ]
 		   verbose [ = <bool> ]
 
+'uvc' protocol (UVCBuffer): identifier is device name
+	   size = <size> (default vga)
+	   fps = <number>
+	   mjpeg [ = <bool> ]
+		   verbose [ = <bool> ]
 'dc1394' protocol (DVBuffer): identifier is camera number
 	   fps = <number> (default is camera default)
 	   size = <size>
