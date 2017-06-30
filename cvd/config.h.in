@@ -5,4 +5,5 @@
 	#undef CVD_HAVE_JPEG
 	#undef CVD_HAVE_PNG
 	#undef CVD_HAVE_TIFF
+	#undef CVD_INTERNAL_JPEG_BUFFER_SIZE
 #endif

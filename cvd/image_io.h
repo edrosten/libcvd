@@ -1,6 +1,7 @@
 #ifndef CVD_IMAGE_IO_H
 #define CVD_IMAGE_IO_H
 
+#include <cvd/config.h>
 #include <cvd/exceptions.h>
 #include <cvd/image_convert.h>
 #include <cvd/internal/load_and_save.h>
