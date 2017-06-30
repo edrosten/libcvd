@@ -80,16 +80,22 @@ namespace CVD
 			PNM = 0 , 
 			/// JPEG image format. This is a compressed (lossy) image format, but defaults to 95% quality, which has very few compression artefacts. This image type is only present if libjpeg is available.
 			/// RGB and Greyscale JPEGs are supported
+			#ifdef CVD_HAVE_JPEG
 			JPEG = 1,
+			#endif
 			/// Windows BMP (or DIB) format. Uncompressed 8 bit grey scale and 24 bit RGB are supported.
 			BMP = 2,
 			/// PNG image format. 1, 8 and 16 bit, Greyscale, RGB and RGBA images are supported.
 			/// This image type is only present if libpng is available.
+			#ifdef CVD_HAVE_PNG
 			PNG = 3,
+			#endif
 			/// TIFF image format. 1, 8, 16, 32 (float) and 64 (double) suported. Greyscale, RGB and RGBA supported.
 			/// This image type is only present if libtiff is available. G4 FAX encoding is used for bools, otherwise
 			/// "Deflate" compression is used.
+			#ifdef CVD_HAVE_TIFF
 			TIFF = 4,
+			#endif
 			/// Postscript  format. This outputs a bare PostScript image with the coordinate system set up 
 			/// to that (x,y) corresponds to pixel (x,y), with (0,0) being at the top left of the pixel (0,0).
 			/// The Y axis is therefore inverted compared to normal postscript drawing, but is image aligned.

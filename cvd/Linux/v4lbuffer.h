@@ -2,8 +2,6 @@
 #ifndef CVD_V4LBUFFER_H
 #define CVD_V4LBUFFER_H
 
-#include <cvd/config.h>
-
 #include <vector>
 
 #include <linux/videodev2.h>

@@ -23,7 +23,6 @@ AC_DEFINE_UNQUOTED(CVD_MINOR_VERSION,$cvd_minor)
 AC_SUBST(minor, $cvd_minor)
 
 
-
 ################################################################################
 #
 #Lists of  optional components
@@ -571,40 +570,10 @@ CHECK_FOR_OPTION(videodisplay,[
 	
 ])
 
-CHECK_FOR_OPTION(shared_ptr, [
-	AC_MSG_CHECKING([for shared_ptr])
-	AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <memory>
-	int main(){std::shared_ptr<int> i; return  0;}])], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
-	
-	if test x$a == x1
-	then
-		a=0
-		AC_MSG_CHECKING([for tr1::shared_ptr])
-		AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <tr1/memory>
-		int main(){std::tr1::shared_ptr<int> i; return  0;}])], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
-		AC_DEFINE(CVD_INTERNAL_NEED_TR1)
-		APPEND(dodginess_options, tr1_shared_ptr)
-	fi
-])
-
-
 CHECK_FOR_OPTION(toon, [
 	AC_MSG_CHECKING([for TooN])
 	AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <TooN/TooN.h>
 	int main(){TooN::Vector<2, double> v=TooN::Zeros;return 0;}])], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
-
-	if test x$a = x1 
-	then
-		AC_MSG_CHECKING([for old TooN])
-		AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <TooN/TooN.h>
-		int main(){TooN::Vector<2> v;return 0;}])], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=2]) 
-
-		if test x$a = x1
-		then
-			AC_MSG_WARN([Your version of TooN is too old. You need version 2.0-beta3 or later.])
-		fi
-		a=1
-	fi
 ])
 
 CHECK_FOR_OPTION(lapack, [
@@ -675,13 +644,6 @@ CHECK_FOR_OPTION(libuvc, [
 CHECK_FOR_OPTION(png, [
 	AC_CHECK_HEADERS(png.h, [], [a=1])
 	AC_CHECK_LIB(png, png_init_io, [], [a=1])
-	oldpng=0
-	AC_CHECK_LIB(png, png_set_expand_gray_1_2_4_to_8, [], [oldpng=1])
-	if test $oldpng == 1
-	then
-		APPEND(dodginess_options, oldpng)
-		AC_DEFINE(CVD_INTERNAL_HAVE_OLD_PNG, 1)
-	fi
 ])
 
 CHECK_FOR_OPTION(jpeg, [
@@ -1065,4 +1027,6 @@ AC_SUBST(OFLAGS, $OFLAGS)
 echo $CXXFLAGS
 echo $LIBS
 
+
+AC_CONFIG_HEADERS(cvd/config.h)
 AC_OUTPUT(Makefile)
