@@ -11,6 +11,7 @@
 #include <cvd/utility.h>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 #include <cvd/config.h>
 #ifdef CVD_HAVE_TOON
@@ -110,7 +111,7 @@ void drawLine(BasicImage<T>& im, double x1, double y1, double x2, double y2, con
     double dy = y2-y1;
     int w = im.size().x;
     int h = im.size().y;
-    double len = abs(dx)+abs(dy);
+    double len = std::abs(dx)+std::abs(dy);
     for(int t=0;t<=len;t++) {
         int x = (int)(x1 + t/(len)*dx+0.5);
         int y = (int)(y1 + t/(len)*dy+0.5);

@@ -1,6 +1,6 @@
 //-*- c++ -*-
 #ifndef CVD_INC_CONNECTED_COMPONENTS_H
-#define CVD_CONNECTED_COMPONENTS_SO2_H
+#define CVD_INC_CONNECTED_COMPONENTS_H
 
 #include <cvd/image_ref.h>
 #include <vector>
