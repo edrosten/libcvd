@@ -45,16 +45,13 @@ It is released under the LGPL License.
          	 	- Firewire cameras
                 - Firewire over USB cameras produced by PointGrey - see http://www.ptgrey.com/products/fireflymv/index.asp \n
                   Use DVBuffer3 for that and make sure to set an image resolution
-		  - IRIX
-          		- DMedia video capture
-		  - OSX
-		  		- QuickTime video capture
 		  - All UNIX platforms
 		        - Live capture from HTTP server push JPEG cameras.
 		  - All platforms
           		- AVI and MPEG file (all codecs supported by ffmpeg)
           		- list of images
 				- Server push multipart JPEG streams.
+				- libUVC for USB video camera streamw
 		  - Convenient run-time selection using a URL-like syntax
     - Colorspace conversions on images and video streams
     - Various image processing tools
@@ -87,13 +84,9 @@ It is released under the LGPL License.
 		- Supports the OSX build environment including:
 			- Frameworks
 			- .dylib libraries
-	- iOS
-		- XCode project provided
 	- Cygwin: x86
 	- MinGW: x86 (native and cross compile)
 	- MinGW: x86_64 (cross compile)
-	- Win32: Visual Studio 2008
-	- Win32: Visual Studio 2010 (via import of the VS 2008 project file)
 
   -Has worked on (current status unknown):
 	- Linux: PPC
@@ -103,6 +96,10 @@ It is released under the LGPL License.
 	- uCLinux: Blackfin  (cross compile)
 	- FreeBSD: x86
 	- OpenBSD: XScale
+	- Win32: Visual Studio 2008
+	- Win32: Visual Studio 2010 (via import of the VS 2008 project file)
+	- iOS
+		- XCode project provided
   
   -No longer supported
 	- IRIX SGI O2: MIPS (configuration hacks removed)
