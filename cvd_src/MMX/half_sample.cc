@@ -1,5 +1,4 @@
 #include "cvd/vision.h"
-#include "cvd/config.h"
 
 namespace CVD
 {

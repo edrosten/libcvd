@@ -1,4 +1,3 @@
-#include "cvd/config.h"
 #include "cvd/image_convert.h"
 #include "cvd/utility.h"
 

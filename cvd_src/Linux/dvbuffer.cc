@@ -87,9 +87,6 @@
 #include <errno.h>
 #include <string.h>
 
-#include "cvd/config.h"
-
-
 #include "cvd_src/Linux/kernel-video1394.h"
 
 #include <sys/ioctl.h>
@@ -489,11 +486,7 @@ DC::RawDCVideo::RawDCVideo(int camera_no, int num_dma_buffers, int bright, int e
   /*-----------------------------------------------------------------------
    *  Open ohci and asign handle to it
    *-----------------------------------------------------------------------*/
-#ifdef LIBRAW1394_OLD
-  if (!(my_handle= raw1394_get_handle()))
-#else
   if (!(my_handle= raw1394_new_handle()))
-#endif
   {
   	throw Exceptions::DVBuffer::Raw1394Setup("Couldn't get raw1394 handle (check for raw1394 and ohci1394 modules, and permissions on /dev/raw1394)");
   }

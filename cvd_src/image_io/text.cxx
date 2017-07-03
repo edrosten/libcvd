@@ -1,5 +1,4 @@
 #include "cvd/image_io.h"
-#include "cvd/config.h"
 #include <iterator>
 #include <vector>
 #include <sstream>

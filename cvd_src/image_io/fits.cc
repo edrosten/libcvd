@@ -1,4 +1,4 @@
-#include "cvd/config.h"
+#include "cvd_src/config_internal.h"
 #include "cvd/internal/io/fits.h"
 #include "cvd/image_io.h"
 #include <algorithm>
@@ -343,9 +343,13 @@ ReadPimpl::ReadPimpl(istream& is)
 		
 
 	//Make the data follow the native byte ordering
-	#ifdef CVD_ARCH_LITTLE_ENDIAN
+	#ifdef CVD_INTERNAL_ARCH_LITTLE_ENDIAN
 		for(size_t i=0; i < nelems; i++)
 			reverse(&raw_data[i*bpp], &raw_data[i*bpp] + bpp);
+	#elif defined CVD_INTERNAL_ARCH_BIG_ENDIAN
+
+	#else
+			#error No endianness defined.
 	#endif
 	
 	//Convert planar to inline

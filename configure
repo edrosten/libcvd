@@ -5291,10 +5291,10 @@ $as_echo "#define AC_APPLE_UNIVERSAL_BUILD 1" >>confdefs.h
 
 if test x$ac_cv_c_bigendian = xno
 then
-	$as_echo "#define CVD_ARCH_LITTLE_ENDIAN 1" >>confdefs.h
+	$as_echo "#define CVD_INTERNAL_ARCH_LITTLE_ENDIAN 1" >>confdefs.h
 
 else
-	$as_echo "#define CVD_ARCH_BIG_ENDIAN 1" >>confdefs.h
+	$as_echo "#define CVD_INTERNAL_ARCH_BIG_ENDIAN 1" >>confdefs.h
 
 fi
 
@@ -8825,7 +8825,7 @@ echo $CXXFLAGS
 echo $LIBS
 
 
-ac_config_headers="$ac_config_headers cvd/config.h"
+ac_config_headers="$ac_config_headers cvd/config.h cvd_src/config_internal.h"
 
 ac_config_files="$ac_config_files Makefile"
 
@@ -9522,6 +9522,7 @@ for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
     "cvd/config.h") CONFIG_HEADERS="$CONFIG_HEADERS cvd/config.h" ;;
+    "cvd_src/config_internal.h") CONFIG_HEADERS="$CONFIG_HEADERS cvd_src/config_internal.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;

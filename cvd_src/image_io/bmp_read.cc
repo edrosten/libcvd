@@ -1,7 +1,6 @@
 #include "cvd/internal/io/bmp.h"
 
 #include "cvd/image_io.h"
-#include "cvd/config.h"
 using namespace std;
 #include <iostream>
 

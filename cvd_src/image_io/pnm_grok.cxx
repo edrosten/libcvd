@@ -30,7 +30,7 @@ from a logic error in the calling program.
 
 #include <cvd/internal/io/pnm_grok.h>
 #include <cvd/internal/load_and_save.h>
-#include <cvd/config.h>
+#include "cvd_src/config_internal.h"
 
 /* Compile time, arch specific parameters
 
@@ -44,15 +44,14 @@ they're longer than  byte PNMs and short since they fit in to the "short"
 data type).
 */
 
-//#ifdef FAST_SHORT_IO
-#define LONG_PNM_FAST_LOAD
 
-#ifdef CVD_ARCH_LITTLE_ENDIAN
+#if defined CVD_INTERNAL_ARCH_LITTLE_ENDIAN
 #define SWAP_BYTES
+#elif defined CVD_INTERNAL_ARCH_BIG_ENDIAN
+
 #else
-#define LONG_PNM_FAST_SAVE
+#error "No endianness specified!"
 #endif
-//#endif
 
 #define PBM 0
 #define PGM 1

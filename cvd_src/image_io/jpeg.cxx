@@ -6,7 +6,7 @@ extern "C"{
 #include "cvd/internal/io/jpeg.h"
 
 #include "cvd/image_io.h"
-#include "cvd/config.h"
+#include "cvd_src/config_internal.h"
 using namespace std;
 #include <iostream>
 #include <iomanip>

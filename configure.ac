@@ -311,9 +311,9 @@ AC_C_BIGENDIAN
 
 if test x$ac_cv_c_bigendian = xno
 then
-	AC_DEFINE(CVD_ARCH_LITTLE_ENDIAN)
+	AC_DEFINE(CVD_INTERNAL_ARCH_LITTLE_ENDIAN)
 else
-	AC_DEFINE(CVD_ARCH_BIG_ENDIAN)
+	AC_DEFINE(CVD_INTERNAL_ARCH_BIG_ENDIAN)
 fi
 
 
@@ -1028,5 +1028,5 @@ echo $CXXFLAGS
 echo $LIBS
 
 
-AC_CONFIG_HEADERS(cvd/config.h)
+AC_CONFIG_HEADERS([cvd/config.h cvd_src/config_internal.h])
 AC_OUTPUT(Makefile)

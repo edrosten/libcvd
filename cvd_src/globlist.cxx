@@ -1,5 +1,5 @@
 #include "cvd/diskbuffer2.h"
-#include "cvd/config.h"
+#include "cvd_src/config_internal.h"
 #include <glob.h>
 #include <string>
 #include <vector>

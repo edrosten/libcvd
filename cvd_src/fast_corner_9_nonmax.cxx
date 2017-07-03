@@ -1,7 +1,6 @@
 #include <cvd/fast_corner.h>
 #include <cvd/nonmax_suppression.h>
 #include "cvd_src/fast/prototypes.h"
-#include "cvd/config.h"
 
 using namespace CVD;
 using namespace std;

@@ -1,10 +1,8 @@
-
 #include <stdio.h>
 #include <string.h>
 #include "cvd/internal/io/cvdimage.h"
 
 #include "cvd/image_io.h"
-#include "cvd/config.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>

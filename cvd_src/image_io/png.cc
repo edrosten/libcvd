@@ -1,6 +1,6 @@
 #include "cvd/internal/io/png.h"
 #include "cvd/image_io.h"
-#include "cvd/config.h"
+#include "cvd_src/config_internal.h"
 
 #include <png.h>
 #include <cstdlib>
@@ -263,9 +263,12 @@ PNGPimpl::PNGPimpl(std::istream& in)
 	if(interlace != PNG_INTERLACE_NONE)
 		throw Exceptions::Image_IO::UnsupportedImageSubType("PNG", "Interlace not yet supported");
 
-	#ifdef CVD_ARCH_LITTLE_ENDIAN
+	#ifdef CVD_INTERNAL_ARCH_LITTLE_ENDIAN
 		if(depth == 16)
 			  png_set_swap(png_ptr);
+	#elif defined CVD_INTERNAL_ARCH_BIG_ENDIAN
+	#else 
+		#error No endianness specified
 	#endif
 }
 

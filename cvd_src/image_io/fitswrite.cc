@@ -1,6 +1,6 @@
 #include "cvd/internal/io/fits.h"
 #include "cvd/image_io.h"
-#include "cvd/config.h"
+#include "cvd_src/config_internal.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -204,11 +204,15 @@ WritePimpl::WritePimpl(ostream& os, ImageRef s, const string& t)
 WritePimpl::~WritePimpl()
 {	
 	//Make the data big endian
-	#ifdef CVD_ARCH_LITTLE_ENDIAN
+	#ifdef CVD_INTERNAL_ARCH_LITTLE_ENDIAN
 		size_t nelems = data.size() / bpp;
 		if(raw)
 			for(size_t i=0; i < nelems; i++)
 				reverse(&data[i*bpp], &data[i*bpp] + bpp);
+	#elif defined CVD_INTERNAL_ARCH_BIG_ENDIAN
+
+	#else 
+		#error No endianness specified
 	#endif
 
 	vector<unsigned char> raw_data(data.size());

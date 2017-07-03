@@ -1,4 +1,3 @@
-#include <cvd/config.h>
 #include <cvd/glwindow.h>
 #include <exception>
 
