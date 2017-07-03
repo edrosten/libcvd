@@ -685,24 +685,6 @@ CHECK_FOR_OPTION(tiff, [
 	APPEND(dodginess_options, tiff_needs_zlib)
 ])
 
-if test "$have_tiff" == yes
-then
-	a=
-	if test "$with_tiff" != forceold
-	then
-		AC_CHECK_LIB(tiff, TIFFReadRGBAImageOriented, a=1)
-	fi
-
-	if test x$a = x
-	then
-		APPEND(dodginess_options, oldtiff)
-	else
-		AC_DEFINE(CVD_INTERNAL_HAVE_TIFF_ORIENTED, 1)
-	fi
-fi
-
-
-
 
 CHECK_FOR_OPTION(ffmpeg, [
 	AC_MSG_CHECKING([for ffmpeg headers])

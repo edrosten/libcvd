@@ -12,6 +12,18 @@ using namespace CVD::Exceptions::Image_IO;
 using namespace PNG;
 using namespace std;
 
+
+static void png_set_swap_if_necessary(png_structp png_ptr, int depth)
+{
+	#ifdef CVD_INTERNAL_ARCH_LITTLE_ENDIAN
+		if(depth == 16)
+			  png_set_swap(png_ptr);
+	#elif defined CVD_INTERNAL_ARCH_BIG_ENDIAN
+	#else 
+		#error No endianness specified
+	#endif
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // C++ istreams based I/O functions
@@ -219,14 +231,7 @@ PNGPimpl::PNGPimpl(std::istream& in)
 	{
 		//Expand nonbool colour depths up to 8bpp
 		if(depth < 8)
-		{
-			#ifdef CVD_INTERNAL_HAVE_OLD_PNG
-				png_set_gray_1_2_4_to_8(png_ptr);
-			#else
-				png_set_expand_gray_1_2_4_to_8(png_ptr);
-			#endif
-
-		}
+			png_set_expand_gray_1_2_4_to_8(png_ptr);
 
 		type = PNM::type_name<unsigned char>::name();
 	}
@@ -263,13 +268,7 @@ PNGPimpl::PNGPimpl(std::istream& in)
 	if(interlace != PNG_INTERLACE_NONE)
 		throw Exceptions::Image_IO::UnsupportedImageSubType("PNG", "Interlace not yet supported");
 
-	#ifdef CVD_INTERNAL_ARCH_LITTLE_ENDIAN
-		if(depth == 16)
-			  png_set_swap(png_ptr);
-	#elif defined CVD_INTERNAL_ARCH_BIG_ENDIAN
-	#else 
-		#error No endianness specified
-	#endif
+	png_set_swap_if_necessary(png_ptr, depth);
 }
 
 PNGPimpl::~PNGPimpl()
@@ -432,10 +431,7 @@ WriterPimpl::WriterPimpl(ostream& out, ImageRef sz, const string& type_)
 	png_write_info(png_ptr, info_ptr);
 	
 	//Write the transformations
-	#ifdef CVD_ARCH_LITTLE_ENDIAN
-		if (depth == 16)
-			png_set_swap(png_ptr);
-	#endif
+	png_set_swap_if_necessary(png_ptr, depth);
 
 	//Pack from C++ bools to packed PNG bools
 	//This has to be done _after_ writing the info struct.

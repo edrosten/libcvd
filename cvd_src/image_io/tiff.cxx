@@ -344,31 +344,9 @@ TIFFPimpl::TIFFPimpl(istream& is)
 	{
 		raster_data.resize(my_size.x* my_size.y);
 
-		#ifdef CVD_INTERNAL_HAVE_TIFF_ORIENTED
-			//Read the whole image
-			if(TIFFReadRGBAImageOriented(tif, my_size.x, my_size.y, &raster_data[0], 0, ORIENTATION_TOPLEFT) == -1)
-				throw MalformedImage(error_msg);
-		#else
-			//Read the whole (upside-down) image
-			if(TIFFReadRGBAImage(tif, my_size.x, my_size.y, &raster_data[0], 0) == -1)
-				throw MalformedImage(error_msg);
-
-			int xs = my_size.x, ys = my_size.y;
-			
-			//Flip the image, a row pair at a time
-			vector<uint32> buffer(xs);
-			for(int top=0, bot = ys-1; top < ys/2 && top != bot; top++,bot--)
-			{
-				uint32* bp, *tp;
-
-				tp = &raster_data[0] + top * xs;
-				bp = &raster_data[0] + bot * xs;
-
-				memcpy(&buffer[0], tp, xs*sizeof(uint32));
-				memcpy(tp, bp,  xs*sizeof(uint32));
-				memcpy(bp, &buffer[0], xs*sizeof(uint32));
-			}
-		#endif
+		//Read the whole image
+		if(TIFFReadRGBAImageOriented(tif, my_size.x, my_size.y, &raster_data[0], 0, ORIENTATION_TOPLEFT) == -1)
+			throw MalformedImage(error_msg);
 	}
 }
 

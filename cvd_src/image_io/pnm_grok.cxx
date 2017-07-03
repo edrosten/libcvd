@@ -599,7 +599,7 @@ namespace CVD
 
 		void pnm_writer::write_shorts(const unsigned char* data, size_t n_shorts)
 		{
-			#ifdef CVD_ARCH_LITTLE_ENDIAN
+			#ifdef SWAP_BYTES
 					rowbuf.resize(n_shorts*sizeof(short));
 					copy(data, data + sizeof(short)*n_shorts, rowbuf.begin());
 
