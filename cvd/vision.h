@@ -55,39 +55,20 @@ template<class C> void twoThirdsSample(const BasicImage<C>& in, BasicImage<C>& o
 */
 void twoThirdsSample(const BasicImage<byte>& in, BasicImage<byte>& out);
 
-  #ifndef DOXYGEN_IGNORE_INTERNAL
-  namespace Internal
-  {
-  	template<class C> class twoThirdsSampler{};
-	template<class C>  struct ImagePromise<twoThirdsSampler<C> >
-	{
-		ImagePromise(const BasicImage<C>& im)
-		:i(im)
-		{}
+///Subsamples an image by averaging 3x3 blocks in to 2x2 ones.
+/// Note that this is performed using lazy evaluation, so subsampling
+/// happens on assignment, and memory allocation is not performed if
+/// unnecessary.
+/// @param from The image to convert from
+/// @return The converted image
+/// @ingroup gVision
+template<class C> Image<C> twoThirdsSample(const BasicImage<C>& from)
+{
+	Image<C> to(from.size()/3*2);
+	twoThirdsSample(from, to);
+	return to;
+}
 
-		const BasicImage<C>& i;
-		template<class D> void execute(Image<D>& j)
-		{
-			j.resize(i.size()/3*2);
-			twoThirdsSample(i, j);
-		}
-	};
-  };
-  template<class C> Internal::ImagePromise<Internal::twoThirdsSampler<C> > twoThirdsSample(const BasicImage<C>& c)
-  {
-    return Internal::ImagePromise<Internal::twoThirdsSampler<C> >(c);
-  }
-  #else
-  	///Subsamples an image by averaging 3x3 blocks in to 2x2 ones.
-	/// Note that this is performed using lazy evaluation, so subsampling
-	/// happens on assignment, and memory allocation is not performed if
-	/// unnecessary.
-    /// @param from The image to convert from
-	/// @return The converted image
-    /// @ingroup gVision
-  	template<class C> Image<C> twoThirdsSample(const BasicImage<C>& from);
-
-  #endif
 
     /// subsamples an image to half its size by averaging 2x2 pixel blocks
     /// @param in input image
