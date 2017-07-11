@@ -18,6 +18,133 @@
 #endif
 
 namespace CVD{
+
+
+
+///Downsample an image using linear interpolation. 
+///This will give horrendous aliasing /if scale is more than 2, but not if it's
+//substantially less, due to the low pass filter /nature of bilinear
+///interpretation. Don't use this function unless you know what youre doing!
+///
+///@ingroup gVision
+///@param in input image
+///@param scale fraction to downsample
+template<class C>
+Image<C> linearInterpolationDownsample(const BasicImage<C>& in, float scale)
+{
+	Image<C> out(ImageRef(std::floor(in.size().x*scale), std::floor(in.size().y*scale)));
+	
+	scale = 1./scale;
+
+	if(scale == 1)
+		out.copy_from(in);
+	else
+		for(int r=0; r < out.size().y; r++)
+		{
+			float r_in = r * scale;
+			int r_i = floor(r_in);
+			float r_delta = r_in - floor(r_in);
+
+
+			//4x unrolling makes it about 15% faster for some reason.
+			//Maybe because of aliasing?
+			int c=0;
+			for(;c < out.size().x-4; c+=4)
+			{
+				float c_in1 = c * scale;
+				int c_i1 = floor(c_in1);
+				float c_delta1 = c_in1 - floor(c_in1);
+				auto r11 = in[r_i  ][c_i1] * (1-c_delta1) + in[r_i  ][c_i1+1]*c_delta1;
+				auto r21 = in[r_i+1][c_i1] * (1-c_delta1) + in[r_i+1][c_i1+1]*c_delta1;
+				
+				float c_in2 = (c+1) * scale;
+				int c_i2 = floor(c_in2);
+				float c_delta2 = c_in2 - floor(c_in2);
+				auto r12 = in[r_i  ][c_i2] * (1-c_delta2) + in[r_i  ][c_i2+1]*c_delta2;
+				auto r22 = in[r_i+1][c_i2] * (1-c_delta2) + in[r_i+1][c_i2+1]*c_delta2;
+				
+				float c_in3 = (c+2) * scale;
+				int c_i3 = floor(c_in3);
+				float c_delta3 = c_in3 - floor(c_in3);
+				auto r13 = in[r_i  ][c_i3] * (1-c_delta3) + in[r_i  ][c_i3+1]*c_delta3;
+				auto r23 = in[r_i+1][c_i3] * (1-c_delta3) + in[r_i+1][c_i3+1]*c_delta3;
+				
+				float c_in4 = (c+3) * scale;
+				int c_i4 = floor(c_in4);
+				float c_delta4 = c_in4 - floor(c_in4);
+				auto r14 = in[r_i  ][c_i4] * (1-c_delta4) + in[r_i  ][c_i4+1]*c_delta4;
+				auto r24 = in[r_i+1][c_i4] * (1-c_delta4) + in[r_i+1][c_i4+1]*c_delta4;
+				
+
+
+				out[r][c  ] = r11*(1-r_delta) + r21 * r_delta;
+				out[r][c+1] = r12*(1-r_delta) + r22 * r_delta;
+				out[r][c+2] = r13*(1-r_delta) + r23 * r_delta;
+				out[r][c+3] = r14*(1-r_delta) + r24 * r_delta;
+			}
+
+			for(; c < out.size().x; c++)
+			{
+				float c_in1 = c * scale;
+				int c_i1 = floor(c_in1);
+				float c_delta1 = c_in1 - floor(c_in1);
+				auto r11 = in[r_i  ][c_i1] * (1-c_delta1) + in[r_i  ][c_i1+1]*c_delta1;
+				auto r21 = in[r_i+1][c_i1] * (1-c_delta1) + in[r_i+1][c_i1+1]*c_delta1;
+				
+				out[r][c  ] = r11*(1-r_delta) + r21 * r_delta;
+			}
+		}
+	
+	return out;
+}
+
+
+///Downsample an image using some fast hacks.
+///
+///The image is half-sampled as much as it can be, then 
+///twoThirdsSampled if possible and then finally resampled with 
+///linear interpolation. This ensures that the linear interpolation never goes
+///further than a factor af about 1.5. Repeated area sampling and linear interpolation
+///aren't perfect, so the resulting image won't be completely free from aliasing 
+///artefacts. However, it's pretty good, decently fast for small rescales and very fast 
+///for large ones.
+///
+///
+///@ingroup gVision
+///@param in input image
+///@param scale fraction to downsample
+template<class C>
+Image<C> fastApproximateDownSample(const BasicImage<C>& in, double scale)
+{
+	const BasicImage<C>* current_ptr = &in;
+	Image<C> reduced;
+
+	while(scale < 0.5)
+	{
+		reduced = halfSample(*current_ptr);	
+		current_ptr = & reduced;
+		scale *=2;
+	}
+
+	if(scale < 2./3)
+	{
+		reduced = twoThirdsSample(*current_ptr);
+		current_ptr = & reduced;
+		scale *=3./2.;
+	}
+	
+	return linearInterpolationDownsample(*current_ptr, scale);
+}
+
+
+
+
+
+
+
+
+
+
 /** Subsamples an image to 2/3 of its size by averaging 3x3 blocks into 2x2 blocks.
 @param in input image
 @param out output image (must be <code>out.size() == in.size()/3*2 </code>)
