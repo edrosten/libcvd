@@ -22,9 +22,19 @@ namespace CVD{
 
 
 ///Downsample an image using linear interpolation. 
-///This will give horrendous aliasing /if scale is more than 2, but not if it's
-//substantially less, due to the low pass filter /nature of bilinear
+///This will give horrendous aliasing if scale is more than 2, but not if it's
+///substantially less, due to the low pass filter nature of bilinear
 ///interpretation. Don't use this function unless you know what youre doing!
+///
+///Image resampling has more or less the following meaning. The image is represented
+///as a real valued signal of sample points, by one delta function per pixel. To linearly
+///interpolate this to fill up the real domain, it's convolved with a triangle kernel which is 0 
+///when it hits a neighbouring sample point, 1 at zero, and symmetric. Now we have a real valued
+///signal, we can then sample it which is effectively a multiplication with a delta comb.
+///
+///The triangle kernel isn't band limited (though it does fall off), so when you resample, you will
+///alias some high frequency information. But not all that much.
+///
 ///
 ///@ingroup gVision
 ///@param in input image
