@@ -108,36 +108,18 @@ namespace CVD{
 			mid_17_24 = _mm_mullo_epi16(mid_17_24, _mm_set_epi16(2, 1, 2, 2, 1, 2, 2, 1));
 		}
 
-		//Accessor classes for aligned or unaligned memory
-		template<bool is_aligned> struct Mem
+		static __m128i load(const byte* m)
 		{
-			static __m128i load(const byte* m)
-			{
-				return _mm_loadu_si128((__m128i*)m);
-			}
+			return _mm_loadu_si128((__m128i*)m);
+		}
 
-			static void store(const byte* m, const __m128i& v)
-			{
-				_mm_storeu_si128((__m128i*)m, v);
-			}
-		};
-
-		template<> struct Mem<1>
+		static void store(const byte* m, const __m128i& v)
 		{
-			static __m128i load(const byte* m)
-			{
-				return _mm_load_si128((__m128i*)m);
-			}
+			_mm_storeu_si128((__m128i*)m, v);
+		}
 
-			static void store(const byte* m, const __m128i& v)
-			{
-				_mm_store_si128((__m128i*)m, v);
-			}
-		};
-		
 		//Reduce a 48x3 pixel strip in to a 32x2 pixel strip
 		//Template on the alignedness of all 5 pointers.
-		template<bool d0a, bool d1a, bool d2a, bool o0a, bool o1a>
 		void reduce_48(const byte* data0, const byte* data1, const byte* data2, byte* out0, byte* out1)
 		{
 			//The first step is to extract the pixels from the image, and 
@@ -209,17 +191,17 @@ namespace CVD{
 			// 3 rows of 48 pixels are converted in to two rows of 32 pixels.
 			
 			//Load 48 consecutive bytes from memory	
-			__m128i t_1_16 =  Mem<d0a>::load(data0);
-			__m128i t_17_32 = Mem<d0a>::load(data0+16);
-			__m128i t_33_48 = Mem<d0a>::load(data0+32);
+			__m128i t_1_16 =  load(data0);
+			__m128i t_17_32 = load(data0+16);
+			__m128i t_33_48 = load(data0+32);
 
-			__m128i m_1_16 =  Mem<d1a>::load(data1);
-			__m128i m_17_32 = Mem<d1a>::load(data1+16);
-			__m128i m_33_48 = Mem<d1a>::load(data1+32);
+			__m128i m_1_16 =  load(data1);
+			__m128i m_17_32 = load(data1+16);
+			__m128i m_33_48 = load(data1+32);
 			
-			__m128i b_1_16 =  Mem<d2a>::load(data2);
-			__m128i b_17_32 = Mem<d2a>::load(data2+16);
-			__m128i b_33_48 = Mem<d2a>::load(data2+32);
+			__m128i b_1_16 =  load(data2);
+			__m128i b_17_32 = load(data2+16);
+			__m128i b_33_48 = load(data2+32);
 
 			//Unpack the first 24 bytes in to words
 			__m128i top_01_08 = _mm_unpacklo_epi8(t_1_16, _mm_setzero_si128());
@@ -243,7 +225,7 @@ namespace CVD{
 			top_17_24 = _mm_add_epi16(top_17_24, mid_17_24);
 			
 			//Steps 3, 4:
-			Mem<o0a>::store(out0, square_average(top_01_08, top_09_16, top_17_24));
+			store(out0, square_average(top_01_08, top_09_16, top_17_24));
 
 			/////////////////////////////////////////////
 			//
@@ -256,7 +238,7 @@ namespace CVD{
 			top_01_08 = _mm_add_epi16(top_01_08, mid_01_08);
 			top_09_16 = _mm_add_epi16(top_09_16, mid_09_16);
 			top_17_24 = _mm_add_epi16(top_17_24, mid_17_24);
-			Mem<o1a>::store(out1, square_average(top_01_08, top_09_16, top_17_24));
+			store(out1, square_average(top_01_08, top_09_16, top_17_24));
 
 			//////////////////////////////////////////////////////////////////////////////////////////
 			//
@@ -275,7 +257,7 @@ namespace CVD{
 			top_09_16 = _mm_add_epi16(top_09_16, mid_09_16);
 			top_17_24 = _mm_add_epi16(top_17_24, mid_17_24);
 
-			Mem<o0a>::store(out0 + 16, square_average(top_01_08, top_09_16, top_17_24));
+			store(out0 + 16, square_average(top_01_08, top_09_16, top_17_24));
 
 			top_01_08 = _mm_unpackhi_epi8(b_17_32, _mm_setzero_si128());
 			top_09_16 = _mm_unpacklo_epi8(b_33_48, _mm_setzero_si128());
@@ -284,7 +266,7 @@ namespace CVD{
 			top_01_08 = _mm_add_epi16(top_01_08, mid_01_08);
 			top_09_16 = _mm_add_epi16(top_09_16, mid_09_16);
 			top_17_24 = _mm_add_epi16(top_17_24, mid_17_24);
-			Mem<o1a>::store(out1 + 16, square_average(top_01_08, top_09_16, top_17_24));
+			store(out1 + 16, square_average(top_01_08, top_09_16, top_17_24));
 		}
 
 	}
@@ -299,17 +281,8 @@ namespace CVD{
 			int xx=0, x=0;
 			for(; x < in.size().x-47; x+=48, xx+=32)
 			{
-				//Figure out the alignment of the 5 pointers and 
-				//call the correct variant of reduce_48.
-				bool d0 = is_aligned<16>(in[y]);
-				bool d1 = is_aligned<16>(in[y+1]);
-				bool d2 = is_aligned<16>(in[y+2]);
-
-				bool o0 = is_aligned<16>(out[yy]);
-				bool o1 = is_aligned<16>(out[yy+1]);
-
 				//New CPUs are fast with unaligned loads.
-				reduce_48<0,0,0,0,0>(in[y]+x, in[y+1]+x, in[y+2]+x, out[yy]+xx, out[yy+1]+xx);
+				reduce_48(in[y]+x, in[y+1]+x, in[y+2]+x, out[yy]+xx, out[yy+1]+xx);
 			}
 
 			//Resample any remaining pixels.
