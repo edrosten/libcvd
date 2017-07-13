@@ -536,7 +536,7 @@ CHECK_FOR_OPTION(videodisplay,[
 
 		AC_MSG_CHECKING([for X11 using dubious methods...])
 
-		a=0
+		a=
 		AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <X11/Xlib.h>
 		int main()
 		{
@@ -547,7 +547,6 @@ CHECK_FOR_OPTION(videodisplay,[
 		then
 			LIBS="$save_LIBS"
 		fi
-
 	else
 
 		AC_PATH_X
@@ -566,7 +565,6 @@ CHECK_FOR_OPTION(videodisplay,[
 		AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
 		AC_CHECK_LIB(GLU,gluGetString, [], [a=1])
 	fi
-	
 ])
 
 CHECK_FOR_OPTION(toon, [
