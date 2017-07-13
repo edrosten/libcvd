@@ -704,20 +704,6 @@ CHECK_FOR_OPTION(ffmpeg, [
 		AC_CHECK_LIB(avformat, av_read_frame, [ffmpeg_recent=yes], [a=1]) #only in >= 0.4.9
 		AC_CHECK_LIB(avcodec, avcodec_open2, [], [a=1])
 		AC_CHECK_LIB(swscale, sws_getContext, [], [a=1])
-
-
-		if test "$with_oldffmpeg" == yes
-		then
-			AC_SUBST(have_oldffmpeg, yes)
-		fi
-
-		have_avcodec_decode_video2=0
-		AC_CHECK_LIB(avcodec, avcodec_decode_video2, [have_avcodec_decode_video2=1])
-		if test $have_avcodec_decode_video2==1
-		then
-			AC_DEFINE(CVD_INTERNAL_FFMPEG_USE_AVCODEC_DECODE_VIDEO2)
-		fi
-
 	else
 		a=1
 	fi
@@ -919,7 +905,6 @@ videodisplay,glwindow,gltext                         videodisplay END
 image_io/jpeg                                        jpeg END
 image_io/tiff,image_io/tiffwrite                     tiff END
 image_io/png                                         png END
-videofilebuffer,videosource_videofilebuffer,videofilebuffer_exceptions      oldffmpeg ffmpeg 
 videofilebuffer2,videosource_videofilebuffer,videofilebuffer_exceptions     ffmpeg 
 videosource_novideofilebuffer           END
 
