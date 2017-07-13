@@ -274,8 +274,6 @@ Huff* create_tree(const array<size_t,256>& h, vector<Huff*>& symbols)
 
 typedef uint16_t PackType;
 static const int PackBits = sizeof(PackType) * 8;
-static const int Bits_48 = 48 / PackBits == 0 ? 1 : 48/PackBits;
-static const int Bits_96 = 96 / PackBits == 0 ? 1 : 96/PackBits;
 
 enum cvd_predictors {
 	PRED_HORIZONTAL = 0,
@@ -457,7 +455,6 @@ class ReadPimpl
 		int bypp; // bytes per pixel
 		int pred_len;
 		enum cvd_predictors pred_mode;
-		std::istream&	i;
 		string type;
 		Image<byte> diff;
 		int row;
@@ -526,7 +523,6 @@ reader::reader(std::istream& i)
 
 
 ReadPimpl::ReadPimpl(istream& in)
-:i(in)
 {
 	pred_mode = PRED_HORIZONTAL;
 	row = 0;
