@@ -638,7 +638,6 @@ have_fast7
 have_glob
 docs
 have_ffmpeg
-have_oldffmpeg
 have_tiff
 have_jpeg
 have_png
@@ -762,7 +761,6 @@ with_png
 with_ffmpeg
 with_oldffmpeg
 with_toon
-with_shared_ptr
 with_lapack
 with_acml
 with_x
@@ -1460,7 +1458,6 @@ Optional Packages:
   --without-ffmpeg	  compile without FFMPEG support.
   --with-oldffmpeg	  compile with old FFMPEG support.
   --without-toon          Compile without TooN support
-  --without-shared_ptr          Compile without shared_ptr support
   --without-lapack        Disable BLAS and LAPACK.
   --with-acml[=directory] Use BLAS and LAPACK routines from the ACML library [located in the specified directory]
   --with-x                use the X Window System
@@ -4473,7 +4470,7 @@ minor=$cvd_minor
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm libuvc"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign assembler inline_asm libuvc"
 dodginess_options=
 options=
 simd_all_options=
@@ -6387,12 +6384,6 @@ if test "${with_toon+set}" = set; then :
 fi
 
 
-# Check whether --with-shared_ptr was given.
-if test "${with_shared_ptr+set}" = set; then :
-  withval=$with_shared_ptr;
-fi
-
-
 # Check whether --with-lapack was given.
 if test "${with_lapack+set}" = set; then :
   withval=$with_lapack;
@@ -8234,61 +8225,6 @@ else
   a=1
 fi
 
-
-
-		if test "$with_oldffmpeg" == yes
-		then
-			have_oldffmpeg=yes
-
-		fi
-
-		have_avcodec_decode_video2=0
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for avcodec_decode_video2 in -lavcodec" >&5
-$as_echo_n "checking for avcodec_decode_video2 in -lavcodec... " >&6; }
-if ${ac_cv_lib_avcodec_avcodec_decode_video2+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lavcodec  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char avcodec_decode_video2 ();
-int
-main ()
-{
-return avcodec_decode_video2 ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_avcodec_avcodec_decode_video2=yes
-else
-  ac_cv_lib_avcodec_avcodec_decode_video2=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_avcodec_avcodec_decode_video2" >&5
-$as_echo "$ac_cv_lib_avcodec_avcodec_decode_video2" >&6; }
-if test "x$ac_cv_lib_avcodec_avcodec_decode_video2" = xyes; then :
-  have_avcodec_decode_video2=1
-fi
-
-		if test $have_avcodec_decode_video2==1
-		then
-			$as_echo "#define CVD_INTERNAL_FFMPEG_USE_AVCODEC_DECODE_VIDEO2 1" >>confdefs.h
-
-		fi
-
 	else
 		a=1
 	fi
@@ -8668,7 +8604,6 @@ videodisplay,glwindow,gltext                         videodisplay END
 image_io/jpeg                                        jpeg END
 image_io/tiff,image_io/tiffwrite                     tiff END
 image_io/png                                         png END
-videofilebuffer,videosource_videofilebuffer,videofilebuffer_exceptions      oldffmpeg ffmpeg
 videofilebuffer2,videosource_videofilebuffer,videofilebuffer_exceptions     ffmpeg
 videosource_novideofilebuffer           END
 
