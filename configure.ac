@@ -28,7 +28,7 @@ AC_SUBST(minor, $cvd_minor)
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign shared_ptr assembler inline_asm libuvc"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign assembler inline_asm libuvc"
 dodginess_options=
 options=
 simd_all_options=
@@ -519,7 +519,6 @@ AC_ARG_WITH(png, [  --without-png           compile without PNG support])
 AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support.])
 AC_ARG_WITH(oldffmpeg, [  --with-oldffmpeg	  compile with old FFMPEG support.])
 AC_ARG_WITH(toon, [  --without-toon          Compile without TooN support])
-AC_ARG_WITH(shared_ptr, [  --without-shared_ptr          Compile without shared_ptr support])
 AC_ARG_WITH(lapack, [  --without-lapack        Disable BLAS and LAPACK.])
 AC_ARG_WITH(acml, [  --with-acml[[=directory]] Use BLAS and LAPACK routines from the ACML library [[located in the specified directory]] ], [opt_acml_dir=$withval])
 
