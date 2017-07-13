@@ -18,8 +18,7 @@ namespace CVD
 	const int w = I.size().x;
 	const int stride = 3*w;
  
-	// The compiler refuses to reserve a register for this
-	register const __m128i barriers = _mm_set1_epi8((byte)barrier);
+	const __m128i barriers = _mm_set1_epi8((byte)barrier);
 
 	int xend = I.size().x - 3;
 	xend -= (I.size().x-3) % 16;

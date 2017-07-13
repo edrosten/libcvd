@@ -53,10 +53,7 @@ namespace CVD
 	typedef std::list<const byte*> Passed;
 	Passed passed;
     
-	// The compiler refuses to reserve a register for this,
-	// even though xmm6 and xmm7 go unused.
-	// It loads it from memory each time.  I am stymied.
-	register const __m128i barriers = _mm_set1_epi8((byte)barrier);
+	const __m128i barriers = _mm_set1_epi8((byte)barrier);
 
 	for (int i=3; i<I.size().y-3; ++i) {
 	    const byte* p = I[i];
