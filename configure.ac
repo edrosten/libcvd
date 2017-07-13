@@ -28,7 +28,7 @@ AC_SUBST(minor, $cvd_minor)
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob memalign assembler inline_asm libuvc"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob assembler inline_asm libuvc"
 dodginess_options=
 options=
 simd_all_options=
