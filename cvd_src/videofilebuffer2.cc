@@ -351,14 +351,14 @@ class RawVideoFileBufferPIMPL
 				throw Exceptions::VideoFileBuffer::FileOpen(fname, err(r));
 			
 
-			raw_image = avcodec_alloc_frame();
+			raw_image = av_frame_alloc();
 
 			//Get hold of the mechanism to convert the video frame into
 			//a useful pixel format. The sws part is GPL, not LGPL.
 			//
 			//In principle, this could be done using libCVD's internal conversion
 			//code in order to break the GPL dependence.
-			converted_image= avcodec_alloc_frame();
+			converted_image= av_frame_alloc();
 			img_convert_context  = sws_getContext(size.x, size.y, video_codec_context->pix_fmt, //Input
 			                                      size.x, size.y, output_fmt,                   //Output
 			                                      SWS_POINT, //The nastiest scaler should be OK, since we're not scaling. Right? right?
