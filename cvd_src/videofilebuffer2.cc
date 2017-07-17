@@ -229,10 +229,21 @@ class RawVideoFileBufferPIMPL
 			if(formatname != "")
 				fmt = av_find_input_format(formatname.c_str());
 
+			VS("av_find_input_format(" << formatname << ") = " << fmt);	
+			if(fmt != nullptr)
+			{
+				Vv(fmt->name);
+				Vv(fmt->long_name);
+				Vv(fmt->flags & AVFMT_NOFILE);
+				Vv(fmt->flags & AVFMT_NEEDNUMBER);
+			}
+				
+
+
 			//avformat_open_input semes to be the latest non-depracated method for this task.
 			//It requires a pre-allocated context.
 			r = avformat_open_input(&input_format_context, fname.c_str(), fmt, NULL);
-			VR(av_open_input_file);
+			VR(avformat_open_input);
 
 			if(r < 0)
 				throw Exceptions::VideoFileBuffer::FileOpen(fname, err(r));
