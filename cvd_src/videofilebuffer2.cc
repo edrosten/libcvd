@@ -71,18 +71,18 @@ struct PixFmt
 template<>
 struct PixFmt<byte>
 {
-	static PixelFormat get()
+	static AVPixelFormat get()
 	{
-		return PIX_FMT_GRAY8;
+		return AV_PIX_FMT_GRAY8;
 	}
 };
 
 template<>
 struct PixFmt<Rgb<byte> >
 {
-	static PixelFormat get()
+	static AVPixelFormat get()
 	{
-		return PIX_FMT_RGB24;
+		return AV_PIX_FMT_RGB24;
 	}
 };
 
@@ -147,24 +147,18 @@ class VFHolder: public VFHolderBase
 class RawVideoFileBufferPIMPL
 {
 	bool rgb;
-	PixelFormat             output_fmt;
+	AVPixelFormat           output_fmt;
 	AVFormatContext *       input_format_context;
-	struct SwsContext *     image_converter_context;
-
+	
 	int                     video_stream_index;
 	AVCodecContext *        video_codec_context;
 
 	AVFrame *               raw_image;
 	AVFrame *               converted_image;
 
-	uint8_t *               video_buffer;
-	int                     video_buffer_size;
-
 	AVPacket                packet;
-
 	ImageRef                size;
-	unsigned int            frame_number;
-	bool                    eof;
+	
 	double                  frame_rate;
 	double                  stream_time_base;
 	double                  approx_next_timestamp;
@@ -208,15 +202,10 @@ class RawVideoFileBufferPIMPL
 	:rgb(rgb_),
 	 output_fmt(rgb?PixFmt<Rgb<byte> >::get():PixFmt<byte>::get()),
 	 input_format_context(0),
-	 image_converter_context(0),
 	 video_stream_index(-1),
 	 video_codec_context(0),
 	 raw_image(0),
 	 converted_image(0),
-	 video_buffer(0),
-	 video_buffer_size(-1),
-	 frame_number(0),
-	 eof(false),
 	 video_codec(0),
 	 img_convert_context(0),
 	 verbose(verbose_),
@@ -480,7 +469,7 @@ class RawVideoFileBufferPIMPL
 
 	void load_next_frame()
 	{
-		if(output_fmt == PIX_FMT_GRAY8)
+		if(output_fmt == AV_PIX_FMT_GRAY8)
 			next_frame= read_frame_from_video<byte>();
 		else// if(output_fmt == PIX_FMT_RGB24)
 			next_frame= read_frame_from_video<Rgb<byte> >();
@@ -488,7 +477,7 @@ class RawVideoFileBufferPIMPL
 	
 	void put_frame(void* f)
 	{
-		if(output_fmt == PIX_FMT_GRAY8)
+		if(output_fmt == AV_PIX_FMT_GRAY8)
 			delete static_cast<VideoFileFrame<byte>*>(f);
 		else
 			delete static_cast<VideoFileFrame<Rgb<byte> >*>(f);
