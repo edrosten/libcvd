@@ -377,7 +377,7 @@ namespace CVD {
 
 			return makeSkipBuffer<T>::make(do_seek, seek, drop, vs.identifier);
 		}
-		else if(vs.protocol == "colourspace")
+		else if(vs.protocol == "colourspace" || vs.protocol == "colorspace")
 		{
 			std::string from = "byte";
 			get_colourspace_options(vs, from);
@@ -417,7 +417,7 @@ namespace CVD {
 			get_dc1394_options(vs, size, fps, offset, verbose, bus_reset, format7_mode);
 			return makeDVBuffer2<T>(cam_no, size, fps, offset, verbose, bus_reset, format7_mode);
 		} 
-		else if (vs.protocol == "file") {
+		else if (vs.protocol == "file" || vs.protocol == "ffmpeg") {
 			int ra_frames = 0;
 			VideoBufferFlags::OnEndOfBuffer eob;
 			bool verbose=0;
