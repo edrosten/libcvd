@@ -82,7 +82,7 @@ namespace CVD
 			/// Construct a video buffer to play this file
 			/// @param file The path to the video file
 			/// @param is_rgb Is RGB data wanted?
-			RawVideoFileBuffer(const std::string& file, bool is_rgb, bool verbose);
+			RawVideoFileBuffer(const std::string& file, const std::string& formatname, bool is_rgb, bool verbose);
 			~RawVideoFileBuffer();
 		
 			/// The size of the VideoFrames returned by this buffer
@@ -139,10 +139,14 @@ namespace CVD
 			/// Construct a VideoFileBuffer to play this file
 			/// @param file The path to the video file
 			VideoFileBuffer(const std::string& file, bool verbose=false)
-			:LocalVideoBuffer<T>(VideoBufferType::NotLive),vf(file, VFB::rgb<T>::p, verbose)
+			:LocalVideoBuffer<T>(VideoBufferType::NotLive),vf(file, "", VFB::rgb<T>::p, verbose)
 			{
 			}
 
+			VideoFileBuffer(const std::string& file, const std::string& fmt, bool verbose=false)
+			:LocalVideoBuffer<T>(VideoBufferType::NotLive),vf(file, fmt, VFB::rgb<T>::p, verbose)
+			{
+			}
 			~VideoFileBuffer()
 			{
 			}

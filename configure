@@ -6422,7 +6422,7 @@ fi
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for X11 using dubious methods..." >&5
 $as_echo_n "checking for X11 using dubious methods...... " >&6; }
 
-		a=0
+		a=
 		cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <X11/Xlib.h>
@@ -6444,7 +6444,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 		then
 			LIBS="$save_LIBS"
 		fi
-
 	else
 
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for X" >&5
@@ -6760,7 +6759,6 @@ else
 fi
 
 	fi
-
 
 
 		if test x$a == x

@@ -1,12 +1,12 @@
 #include <cvd/videosource.h>
 namespace CVD{
 
-	template <> VideoBuffer<byte>* makeVideoFileBuffer(const std::string&, VideoBufferFlags::OnEndOfBuffer, bool)
+	template <> VideoBuffer<byte>* makeVideoFileBuffer(const std::string&, VideoBufferFlags::OnEndOfBuffer, bool, const std::string&)
 	{
 		throw VideoSourceException("VideoFileBuffer is not compiled in to libcvd.");
 	}
 
-	template <> VideoBuffer<Rgb<byte> >* makeVideoFileBuffer(const std::string&, VideoBufferFlags::OnEndOfBuffer, bool)
+	template <> VideoBuffer<Rgb<byte> >* makeVideoFileBuffer(const std::string&, VideoBufferFlags::OnEndOfBuffer, bool, const std::string&)
 	{
 		throw VideoSourceException("VideoFileBuffer is not compiled in to libcvd.");
 	}

@@ -198,7 +198,7 @@ class RawVideoFileBufferPIMPL
 
 	public:
 
-	RawVideoFileBufferPIMPL(const string& fname, bool rgb_, bool verbose_)
+	RawVideoFileBufferPIMPL(const string& fname, const string& formatname, bool rgb_, bool verbose_)
 	:rgb(rgb_),
 	 output_fmt(rgb?PixFmt<Rgb<byte> >::get():PixFmt<byte>::get()),
 	 input_format_context(0),
@@ -223,10 +223,15 @@ class RawVideoFileBufferPIMPL
 			input_format_context = avformat_alloc_context();
 			if(input_format_context == NULL)
 				throw Exceptions::VideoFileBuffer2("Out of memory.");
+			
+
+			AVInputFormat* fmt = nullptr;
+			if(formatname != "")
+				fmt = av_find_input_format(formatname.c_str());
 
 			//avformat_open_input semes to be the latest non-depracated method for this task.
 			//It requires a pre-allocated context.
-			r = avformat_open_input(&input_format_context, fname.c_str(), NULL, NULL);
+			r = avformat_open_input(&input_format_context, fname.c_str(), fmt, NULL);
 			VR(av_open_input_file);
 
 			if(r < 0)
@@ -575,8 +580,8 @@ unique_ptr<VFHolderBase> VFHolder<C>::duplicate()
 }
 
 ///Public implementation of RawVideoFileBuffer
-RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, bool is_rgb, bool verbose)
-:p(new RawVideoFileBufferPIMPL(file, is_rgb, verbose))
+RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, const std::string& fmt, bool is_rgb, bool verbose)
+:p(new RawVideoFileBufferPIMPL(file, fmt, is_rgb, verbose))
 {}
 
 RawVideoFileBuffer::~RawVideoFileBuffer()

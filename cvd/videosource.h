@@ -283,15 +283,15 @@ namespace CVD {
 	// video file buffer
 	//
 
-	template <class T> VideoBuffer<T>* makeVideoFileBuffer(const std::string& , VideoBufferFlags::OnEndOfBuffer, bool)
+	template <class T> VideoBuffer<T>* makeVideoFileBuffer(const std::string& , VideoBufferFlags::OnEndOfBuffer, bool, const std::string&)
 	{
 		throw VideoSourceException("VideoFileBuffer cannot handle types other than byte, Rgb<byte>");
 	}
 	
-	template <> VideoBuffer<byte>* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose);
-	template <> VideoBuffer<Rgb<byte> >* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose);
+	template <> VideoBuffer<byte>* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose, const std::string& formatname);
+	template <> VideoBuffer<Rgb<byte> >* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose, const std::string& formatname);
 
-	void get_file_options(const VideoSource& vs, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob, bool& verbose);
+	void get_file_options(const VideoSource& vs, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob, bool& verbose, std::string& formatname);
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
@@ -420,8 +420,9 @@ namespace CVD {
 			int ra_frames = 0;
 			VideoBufferFlags::OnEndOfBuffer eob;
 			bool verbose=0;
-			get_file_options(vs, ra_frames, eob, verbose);
-			VideoBuffer<T>* vb = makeVideoFileBuffer<T>(vs.identifier, eob, verbose);
+			std::string formatname ="";
+			get_file_options(vs, ra_frames, eob, verbose, formatname);
+			VideoBuffer<T>* vb = makeVideoFileBuffer<T>(vs.identifier, eob, verbose, formatname);
 			if (ra_frames)
 				vb = new ReadAheadVideoBuffer<T>(*vb, ra_frames);
 			return vb;
