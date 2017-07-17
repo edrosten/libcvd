@@ -16,6 +16,7 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
+#include <libavdevice/avdevice.h>
 }
 
 #include <string>
@@ -217,6 +218,7 @@ class RawVideoFileBufferPIMPL
 		{ 
 			av_register_all();
 			avcodec_register_all();
+			avdevice_register_all();
 			DS("starting");
 
 			int r;

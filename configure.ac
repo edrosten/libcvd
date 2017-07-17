@@ -690,6 +690,7 @@ CHECK_FOR_OPTION(ffmpeg, [
 		#include <libavcodec/avcodec.h>
 		#include <libavformat/avformat.h>
 		#include <libswscale/swscale.h>
+		#include <libavdevice/avdevice.h>
 		int main(){}
 	])], [ ffmpeg_new_headers=1], [])
 
@@ -701,6 +702,7 @@ CHECK_FOR_OPTION(ffmpeg, [
 		AC_CHECK_LIB(avformat, av_read_frame, [ffmpeg_recent=yes], [a=1]) #only in >= 0.4.9
 		AC_CHECK_LIB(avcodec, avcodec_open2, [], [a=1])
 		AC_CHECK_LIB(swscale, sws_getContext, [], [a=1])
+		AC_CHECK_LIB(avdevice, avdevice_register_all, [], [a=1])
 	else
 		a=1
 	fi
