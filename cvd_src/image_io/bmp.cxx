@@ -61,7 +61,7 @@ namespace CVD
 		if(i.eof())
 			throw(Exceptions::Image_IO::MalformedImage("EOF in header."));
 
-			return r;
+		return r;
 	}
 
 	inline	unsigned long  read_u2(istream& i)

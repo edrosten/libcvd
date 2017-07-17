@@ -65,7 +65,7 @@ namespace CVD {
     }
 
     template <bool Aligned_b> long long byte_sum_squared_differences(const __m128i* a, const __m128i* b, size_t count) {
-	unsigned long sums_store[4];	
+	unsigned long sums_store[4] = {0};	
 	const size_t BLOCK = 1<<15;
 	long long ssd = 0;
 	while (count) {
