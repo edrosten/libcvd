@@ -8,6 +8,7 @@
 #include <vector>
 #include <cstdlib>
 #include <memory>
+#include <map>
 
 #include <cvd/config.h>
 
@@ -283,15 +284,15 @@ namespace CVD {
 	// video file buffer
 	//
 
-	template <class T> VideoBuffer<T>* makeVideoFileBuffer(const std::string& , VideoBufferFlags::OnEndOfBuffer, bool, const std::string&)
+	template <class T> VideoBuffer<T>* makeVideoFileBuffer(const std::string& , VideoBufferFlags::OnEndOfBuffer, bool, const std::string&, const std::map<std::string,std::string>&)
 	{
 		throw VideoSourceException("VideoFileBuffer cannot handle types other than byte, Rgb<byte>");
 	}
 	
-	template <> VideoBuffer<byte>* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose, const std::string& formatname);
-	template <> VideoBuffer<Rgb<byte> >* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose, const std::string& formatname);
+	template <> VideoBuffer<byte>* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose, const std::string& formatname, const std::map<std::string,std::string>&);
+	template <> VideoBuffer<Rgb<byte> >* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose, const std::string& formatname, const std::map<std::string,std::string>&);
 
-	void get_file_options(const VideoSource& vs, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob, bool& verbose, std::string& formatname);
+	void get_file_options(const VideoSource& vs, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob, bool& verbose, std::string& formatname, std::map<std::string,std::string>&);
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
@@ -421,8 +422,9 @@ namespace CVD {
 			VideoBufferFlags::OnEndOfBuffer eob;
 			bool verbose=0;
 			std::string formatname ="";
-			get_file_options(vs, ra_frames, eob, verbose, formatname);
-			VideoBuffer<T>* vb = makeVideoFileBuffer<T>(vs.identifier, eob, verbose, formatname);
+			std::map<std::string,std::string> opts;
+			get_file_options(vs, ra_frames, eob, verbose, formatname, opts);
+			VideoBuffer<T>* vb = makeVideoFileBuffer<T>(vs.identifier, eob, verbose, formatname, opts);
 			if (ra_frames)
 				vb = new ReadAheadVideoBuffer<T>(*vb, ra_frames);
 			return vb;
@@ -551,9 +553,11 @@ Options supported by the various protocols are:
 		read_ahead [= <number>] (default is 50 if specified without value)
 		on_end = repeat_last | unset_pending | loop (default is repeat_last)
 
-'file' protocol (VideoFileBuffer): identifier is path to file
+'file' protocol (VideoFileBuffer): identifier is path to file, or device name
 	   read_ahead  [= <number>] (default is 50 if specified without value)
 	   on_end = repeat_last | unset_pending | loop (default is repeat_last)
+	   format = <ffmpeg format name>
+	   <ffmpeg option> = <value>
 
 'v4l2' protocol (V4LBuffer): identifier is device name
 	   size = <size> (default vga)

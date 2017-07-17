@@ -20,6 +20,8 @@ extern "C" {
 }
 
 #include <string>
+#include <map>
+#include <utility>
 #include <cvd/exceptions.h>
 #include <cvd/videofilebuffer.h>
 
@@ -199,7 +201,7 @@ class RawVideoFileBufferPIMPL
 
 	public:
 
-	RawVideoFileBufferPIMPL(const string& fname, const string& formatname, bool rgb_, bool verbose_)
+	RawVideoFileBufferPIMPL(const string& fname, const string& formatname, bool rgb_, bool verbose_, const map<string,string>& options)
 	:rgb(rgb_),
 	 output_fmt(rgb?PixFmt<Rgb<byte> >::get():PixFmt<byte>::get()),
 	 input_format_context(0),
@@ -242,11 +244,17 @@ class RawVideoFileBufferPIMPL
 			}
 				
 
+			AVDictionary* opts = nullptr;
+			for(const auto& o: options)
+				av_dict_set(&opts, o.first.c_str(), o.second.c_str(), 0);
+
 
 			//avformat_open_input semes to be the latest non-depracated method for this task.
 			//It requires a pre-allocated context.
-			r = avformat_open_input(&input_format_context, fname.c_str(), fmt, NULL);
+			r = avformat_open_input(&input_format_context, fname.c_str(), fmt, &opts);
 			VR(avformat_open_input);
+
+			av_dict_free(&opts);
 
 			if(r < 0)
 				throw Exceptions::VideoFileBuffer::FileOpen(fname, err(r));
@@ -594,8 +602,8 @@ unique_ptr<VFHolderBase> VFHolder<C>::duplicate()
 }
 
 ///Public implementation of RawVideoFileBuffer
-RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, const std::string& fmt, bool is_rgb, bool verbose)
-:p(new RawVideoFileBufferPIMPL(file, fmt, is_rgb, verbose))
+RawVideoFileBuffer::RawVideoFileBuffer(const std::string& file, const std::string& fmt, bool is_rgb, bool verbose, const map<string,string>& opts)
+:p(new RawVideoFileBufferPIMPL(file, fmt, is_rgb, verbose, opts))
 {}
 
 RawVideoFileBuffer::~RawVideoFileBuffer()

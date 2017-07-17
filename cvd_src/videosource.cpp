@@ -403,7 +403,7 @@ namespace CVD {
 
 
 
-	void get_file_options(const VideoSource& vs, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob, bool& verbose, string& fmtname)
+	void get_file_options(const VideoSource& vs, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob, bool& verbose, string& fmtname, map<string,string>&opts)
 	{
 		eob = VideoBufferFlags::RepeatLastFrame;
 		for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it) {
@@ -426,7 +426,7 @@ namespace CVD {
 			else if(it->first == "format" || it->first == "fmt" || it->first=="f")
 				fmtname = it->second;
 			else
-				throw VideoSourceException("invalid option for 'file' protocol: "+it->first+"\n\t valid options: read_ahead, on_end, fps");
+				opts[it->first]=it->second;
 		}
 	}
 

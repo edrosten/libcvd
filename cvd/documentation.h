@@ -45,6 +45,9 @@ It is released under the LGPL License.
          	 	- Firewire cameras
                 - Firewire over USB cameras produced by PointGrey - see http://www.ptgrey.com/products/fireflymv/index.asp \n
                   Use DVBuffer3 for that and make sure to set an image resolution
+				- Whichever devices FFMPEG supports
+		  - OSX
+		        - AVFoundation devices via FFMPEG
 		  - All UNIX platforms
 		        - Live capture from HTTP server push JPEG cameras.
 		  - All platforms
