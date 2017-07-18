@@ -6,7 +6,7 @@ dependencies:
   override:
     - ./configure CXX=g++-7
     - make -j 4
-
+    - sudo make install
 test:
     override:
         - make test
