@@ -4,7 +4,7 @@ dependencies:
     - sudo apt-get update 
     - sudo apt-get install g++-7
   override:
-    - ./configure
+    - ./configure CXX=g++-7
     - make -j 4
 
 test:
