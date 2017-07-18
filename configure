@@ -4719,9 +4719,17 @@ $as_echo_n "checking For C++1y support with flag $flag... " >&6; }
 /* end confdefs.h.  */
 
 	#include <array>
+	constexpr int foo(int a)
+	{
+		int i=0;
+		for(i=0; i < a ;i *=2)
+			i++;
+		return i;
+	}
 	int main()
 	{
-		auto a=1;
+		auto a=[](auto b){};
+		auto b=1;
 	}
 
 _ACEOF
@@ -4733,7 +4741,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cpp11" >&5
 $as_echo "$cpp11" >&6; }
 
-
 	if test x$cpp11 != xno
 	then
 		cpp11="$flag"
@@ -4741,6 +4748,7 @@ $as_echo "$cpp11" >&6; }
 	fi
 	CXXFLAGS="$save_CXXFLAGS"
 done
+
 
 if test x$cpp11 == xno
 then

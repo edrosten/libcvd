@@ -184,14 +184,21 @@ do
 
 	AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 	#include <array>
+	constexpr int foo(int a)
+	{
+		int i=0;
+		for(i=0; i < a ;i *=2)
+			i++;
+		return i;
+	}
 	int main()
 	{
-		auto a=1;
+		auto a=[[]](auto b){};
+		auto b=1;
 	}
 	])], [cpp11=yes])
 
 	AC_MSG_RESULT($cpp11)
-
 
 	if test x$cpp11 != xno
 	then
@@ -200,6 +207,7 @@ do
 	fi
 	CXXFLAGS="$save_CXXFLAGS"
 done
+
 
 if test x$cpp11 == xno
 then
