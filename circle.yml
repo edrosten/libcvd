@@ -10,5 +10,5 @@ dependencies:
     - /sbin/ldconfig
 test:
     override:
-        - make test
+        - LD_LIBRARY_PATH=$PWD make test
 
