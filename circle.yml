@@ -7,7 +7,7 @@ dependencies:
     - ./configure CXX=g++-7
     - make -j 4
     - sudo make install
-    - /sbin/ldconfig
+    - sudo /sbin/ldconfig
 test:
     override:
         - LD_LIBRARY_PATH=$PWD make test
