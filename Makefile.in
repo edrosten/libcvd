@@ -324,18 +324,27 @@ depend: .deps
 
 
 .PRECIOUS: %.o
-
-%.o : %.cc
-	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+#Let's say a header changed to include a new header.
+#That change would cause a rebuild of the .cc file
+#but not the .d file. 
+#
+# Arguments mean:
+# -MMD output #include dependencies, but ignore system headers, while
+#      the build continues
+# -MF output dependencies to a file, so other crud goes to the screen
+# -MP make a blank target for dependencies. That way if a dependency is
+#     deleted, make won't fail to build stuff 
+%.o: %.cc
+	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@ -MMD -MP -MF $*.d
 
 %.o: %.cpp
-	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@ -MMD -MP -MF $*.d
 
 %.o: %.cxx
-	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@ -MMD -MP -MF $*.d
 
 %.o: %.C
-	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@ -MMD -MP -MF $*.d
 
 %.o: %.s
 	as -g -o $@ $<
@@ -343,16 +352,16 @@ depend: .deps
 
 
 debug/%.o : %.cc debug
-	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@ -MMD -MP -MF debug/$*.d
 
 debug/%.o: %.cpp debug
-	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@ -MMD -MP -MF debug/$*.d
 
 debug/%.o: %.cxx debug
-	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@ -MMD -MP -MF debug/$*.d
 
 debug/%.o: %.C debug
-	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $(DEBUGEXTRA) -c $< -o $@ -MMD -MP -MF debug/$*.d
 
 debug/%.o: %.s debug
 	as -g -o $@ $<
@@ -394,7 +403,7 @@ $(EXAMPLE_PROGS): % : %.cc
 
 clean:
 	/bin/rm -f tmp libcvd.a $(sos) libcvd_debug.a $(dsos) $(dllname) $(ddllname) $(dllimportname) $(ddllimportname)
-	find . -name '*.o' | xargs rm -f
+	find . -name '*.o' -o -name '*.d' | xargs rm -f
 	find progs/ -perm +0100 -type f | xargs rm -f
 	rm -rf html man
 	rm -f regressions/*.out
@@ -403,5 +412,7 @@ clean:
 
 
 
-
-include .deps
+include $(wildcard cvd_src/*.d)
+include $(wildcard cvd_src/*/*.d)
+include $(wildcard debug/*.d)
+include $(wildcard debug/*/*.d)

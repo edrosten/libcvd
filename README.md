@@ -28,7 +28,10 @@ not.
 
 Latest documentation here: https://codedocs.xyz/edrosten/libcvd/ or just run Doxygen.
 
-
 ## Status of unit tests
 ![Build Status](https://circleci.com/gh/edrosten/libcvd.svg?style=shield&circle-token=db58907af52b26d11f2c4f5de2ff3b1a59543ddc)
 
+
+## News and main page
+
+https://www.edwardrosten.com/cvd/
