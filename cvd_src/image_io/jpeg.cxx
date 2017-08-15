@@ -137,7 +137,7 @@ struct jpeg_istream_src: public jpeg_source_mgr
 			me->buf[0] = 0xff;
 			me->buf[1] = JPEG_EOI;
 			me->bytes_in_buffer = 2;
-			return true;
+			return TRUE;
 		}
 
 		int c;
@@ -166,7 +166,7 @@ struct jpeg_istream_src: public jpeg_source_mgr
 		if(me->bytes_in_buffer == 0)
 			s_fill_input_buffer(p);
 
-		return true;
+		return TRUE;
 	}
 
 	static void s_skip_input_data(j_decompress_ptr p, long num)
@@ -230,7 +230,7 @@ ReadPimpl::ReadPimpl(istream& in)
 	jpeg_create_decompress(&cinfo);
 	jpeg_istream_src::create(&cinfo, &i);
 
-	jpeg_read_header(&cinfo, true);
+	jpeg_read_header(&cinfo, TRUE);
 	jpeg_start_decompress(&cinfo);
 
 	xs = cinfo.output_width;
@@ -316,7 +316,7 @@ struct jpeg_ostream_dest: public jpeg_destination_mgr
 		me->o->write((const char*)me->buf, bufsize);
 
 		s_init_destination(cinfo);
-		return 1;
+		return TRUE;
 	}
 
 	static void s_term_destination(j_compress_ptr cinfo)
