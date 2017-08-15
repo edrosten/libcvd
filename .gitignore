@@ -22,3 +22,6 @@ examples/colourmaps
 html/
 man/
 tests/*.out
+*.d
+*.dylib
+cvd_src/config_internal.h
