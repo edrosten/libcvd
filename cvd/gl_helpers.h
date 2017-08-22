@@ -549,6 +549,8 @@ namespace CVD
 	///@ingroup gGL
 	template<class C> inline void glReadPixels(BasicImage<C>& i, ImageRef origin=ImageRef(0,0))
 	{
+		::glPixelStorei(GL_PACK_ALIGNMENT, 1);
+		::glPixelStorei(GL_PACK_ROW_LENGTH, i.row_stride());
 		::glReadPixels(origin.x, origin.y, i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
 	}
 
@@ -559,7 +561,7 @@ namespace CVD
 	template<class C> inline Image<C> glReadPixels(ImageRef size, ImageRef origin=ImageRef(0,0))
 	{
 		Image<C> i(size);
-		::glReadPixels(origin.x, origin.y, i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
+		glReadPixels(i, origin);
 		return i;
 	}
 
