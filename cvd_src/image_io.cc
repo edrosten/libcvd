@@ -92,12 +92,18 @@ ImageType::ImageType string_to_image_type(const std::string& name)
 
 	if (suffix == "ps") 
 	        return  ImageType::PS;
- 	else if (suffix == "jpg" || suffix == "jpeg") 
+#ifdef CVD_HAVE_JPEG
+	else if (suffix == "jpg" || suffix == "jpeg")
 	         return  ImageType::JPEG;
- 	else if (suffix == "png") 
+#endif
+#ifdef CVD_HAVE_PNG
+	else if (suffix == "png")
 	         return  ImageType::PNG;
- 	else if (suffix == "tif" || suffix == "tiff")
+#endif
+#ifdef CVD_HAVE_TIFF
+	else if (suffix == "tif" || suffix == "tiff")
 	         return  ImageType::TIFF;
+#endif
 	else if (suffix == "eps")
 		return  ImageType::EPS;
 	else if (suffix == "bmp") 
