@@ -1,5 +1,7 @@
 #ifndef CVD_INTERNAL_IO_PNG_H
 #define CVD_INTERNAL_IO_PNG_H
+#include <cvd/config.h>
+#ifdef CVD_HAVE_PNG
 #include <iostream>
 #include <vector>
 #include <string>
@@ -132,4 +134,5 @@ class png_writer
 
 
 }}
+#endif
 #endif

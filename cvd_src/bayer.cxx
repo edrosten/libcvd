@@ -1,7 +1,12 @@
 #include <string.h>
 #include <cvd/colourspaces.h>
 #include <cvd/colourspace_convert.h>
+#if WIN32
+#include <Winsock2.h>
+#pragma comment(lib, "Ws2_32.lib")
+#else
 #include <arpa/inet.h>
+#endif
 //Written by Ethan
 //Modified by Olaf :)
 

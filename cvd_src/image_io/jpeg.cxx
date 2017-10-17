@@ -8,6 +8,7 @@ extern "C"{
 #include "cvd/image_io.h"
 #include "cvd_src/config_internal.h"
 using namespace std;
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 #include <setjmp.h>
