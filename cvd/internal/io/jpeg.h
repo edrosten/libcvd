@@ -1,7 +1,6 @@
 #ifndef PNM_JPEG_H
 #define PNM_JPEG_H
-#include <cvd/config.h>
-#ifdef CVD_HAVE_JPEG
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -86,5 +85,4 @@ namespace JPEG
 
 }
 }
-#endif
 #endif

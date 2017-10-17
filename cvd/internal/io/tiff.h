@@ -1,7 +1,6 @@
 #ifndef PNM_TIFF
 #define PNM_TIFF
-#include <cvd/config.h>
-#ifdef CVD_HAVE_TIFF
+
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -160,5 +159,4 @@ namespace TIFF
 
 }
 }
-#endif
 #endif
