@@ -12,6 +12,16 @@ To verify that a few things work, you can optioinally run
 
 make test
 
+### Dependencies
+
+There are no mandatory dependencies. For a reasonably complete installation you probably want:
+* TooN (header only, install from source)
+* libjpeg, libtiff, libpng, ffmpeg, X11, OpenGL. 
+
+On Ubuntu, run:
+~~~~
+sudo apt-get install libjpeg-dev libpng-dev libtiff-dev libx11-dev libavformat-dev libavdevice-dev libavcodec-dev libavutil-dev libswresample-dev libglu-dev
+~~~~
 
 ## System compatibility
 

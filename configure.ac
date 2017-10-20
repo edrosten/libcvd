@@ -522,10 +522,8 @@ AC_ARG_WITH(videodisplay, [  --without-videodisplay  compile without videodispla
 AC_ARG_WITH(jpeg,    [  --without-jpeg          compile without JPEG support])
 AC_ARG_WITH(jpegbuffer, [  --with-jpegbuffer=N     Set JPEG read buffer size. N>1 will not be able to read multiple JPEGS from a stream.])
 AC_ARG_WITH(tiff, [  --without-tiff          compile without TIFF support])
-AC_ARG_WITH(tiff, [  --with-tiff=forceold    Debug/wierd build environment only. Force use of older library facilities.])
 AC_ARG_WITH(png, [  --without-png           compile without PNG support])
 AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support.])
-AC_ARG_WITH(oldffmpeg, [  --with-oldffmpeg	  compile with old FFMPEG support.])
 AC_ARG_WITH(toon, [  --without-toon          Compile without TooN support])
 AC_ARG_WITH(lapack, [  --without-lapack        Disable BLAS and LAPACK.])
 AC_ARG_WITH(acml, [  --with-acml[[=directory]] Use BLAS and LAPACK routines from the ACML library [[located in the specified directory]] ], [opt_acml_dir=$withval])
@@ -693,27 +691,13 @@ CHECK_FOR_OPTION(tiff, [
 
 CHECK_FOR_OPTION(ffmpeg, [
 	AC_MSG_CHECKING([for ffmpeg headers])
-	AC_COMPILE_IFELSE([AC_LANG_SOURCE([
-		#define __STDC_CONSTANT_MACROS
-		#include <libavcodec/avcodec.h>
-		#include <libavformat/avformat.h>
-		#include <libswscale/swscale.h>
-		#include <libavdevice/avdevice.h>
-		int main(){}
-	])], [ ffmpeg_new_headers=1], [])
 
-	if test "$ffmpeg_new_headers" == 1
-	then
-
-		AC_CHECK_LIB(avutil, main, [], [a=1])
-		AC_CHECK_LIB(avformat, avformat_open_input, [], [a=1])
-		AC_CHECK_LIB(avformat, av_read_frame, [ffmpeg_recent=yes], [a=1]) #only in >= 0.4.9
-		AC_CHECK_LIB(avcodec, avcodec_open2, [], [a=1])
-		AC_CHECK_LIB(swscale, sws_getContext, [], [a=1])
-		AC_CHECK_LIB(avdevice, avdevice_register_all, [], [a=1])
-	else
-		a=1
-	fi
+	AC_CHECK_LIB(avutil, main, [], [a=1])
+	AC_CHECK_LIB(avformat, avformat_open_input, [], [a=1])
+	AC_CHECK_LIB(avformat, av_read_frame, [ffmpeg_recent=yes], [a=1]) #only in >= 0.4.9
+	AC_CHECK_LIB(avcodec, avcodec_open2, [], [a=1])
+	AC_CHECK_LIB(swscale, sws_getContext, [], [a=1])
+	AC_CHECK_LIB(avdevice, avdevice_register_all, [], [a=1])
 ])
 
 AC_CHECK_PROG(docs, doxygen, docs, no)
