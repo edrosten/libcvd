@@ -4,6 +4,7 @@
 #include <cvd/vision_exceptions.h>
 #include <cvd/vision.h>
 #include <cvd/image.h>
+#include <functional>
 #include <map>
 #include <vector>
 

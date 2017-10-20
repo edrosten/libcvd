@@ -1,5 +1,6 @@
 #include <cvd/gl_helpers.h>
 
+#include <algorithm>
 #include <cassert>
 #include <cmath> 
 #include <map>

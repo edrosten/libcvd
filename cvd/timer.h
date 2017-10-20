@@ -7,6 +7,7 @@
 
 #ifndef __CVD_TIMER_H
 #define __CVD_TIMER_H
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <cassert>
