@@ -14,6 +14,7 @@
 #include <cvd/rgba.h>
 #include <cvd/config.h>
 #ifdef WIN32
+#define NOMINMAX
 #include <windows.h>
 #endif
 

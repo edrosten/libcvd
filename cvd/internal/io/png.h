@@ -1,5 +1,6 @@
 #ifndef CVD_INTERNAL_IO_PNG_H
 #define CVD_INTERNAL_IO_PNG_H
+
 #include <iostream>
 #include <vector>
 #include <string>

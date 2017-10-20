@@ -181,12 +181,18 @@ namespace CVD
 
 	  if(c == 'P')
 	    CVD::Internal::readImage<I, PNM::Reader>(im, i);
+#ifdef CVD_HAVE_JPEG
 	  else if(c == 0xff)
 	    CVD::Internal::readImage<I, JPEG::reader>(im, i);
+#endif
+#ifdef CVD_HAVE_TIFF
 	  else if(c == 'I' || c == 'M') //Little or big endian TIFF
 	    CVD::Internal::readImage<I, TIFF::tiff_reader>(im, i);
+#endif
+#ifdef CVD_HAVE_PNG
 	  else if(c == 0x89)
 	    CVD::Internal::readImage<I, PNG::png_reader>(im, i);
+#endif
 	  else if(c == 'B')
 	    CVD::Internal::readImage<I, BMP::Reader>(im, i);
 	  else if(c == 'S')

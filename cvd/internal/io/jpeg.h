@@ -85,5 +85,4 @@ namespace JPEG
 
 }
 }
-
 #endif
