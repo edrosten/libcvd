@@ -429,13 +429,9 @@ echo -----------------------------------------------
 echo Checking for operating system specific features
 echo -----------------------------------------------
 
-AC_ARG_WITH(dc1394v1v2,[  --with-dc1394v1v2       Force libDC1394 v1 and v2 co-exist. This will break FORMAT_7.])
-AC_ARG_WITH(dc1394v1,  [  --without-dc1394v1      do not use libDC1394v1 (use try v2 instead) for dvbuffer3 (Linux/OSX). Disable dvbuffer (Linux).])
 AC_ARG_WITH(dc1394v2,  [  --without-dc1394v2      do not use libDC1394v2 (use try v1 instead) for dvbuffer3 (Linux/OSX). ])
 AC_ARG_WITH(v4l1buffer,[  --without-v4l1buffer	  compile without v4l1bffer (Video4Linux) support (Linux only)])
 AC_ARG_WITH(v4l2buffer,[  --without-v4l2buffer	  compile without v4l2buffer (Video4Linux2) support (Linux only)])
-AC_ARG_WITH(o2buffer,  [  --without-o2buffer	  compile without sgi video (IRIX only)])
-AC_ARG_WITH(qtbuffer,  [  --without-qtbuffer	  compile without quicktime buffer support (MacOSX only)])
 
 if test "$host_vendor" == apple
 then
@@ -460,17 +456,8 @@ CHECK_FOR_OPTION(dc1394v2, [
 
 case "$host" in
 	*linux*)
-		os_all_options="dc1394v2 dc1394v1 v4l2buffer"
+		os_all_options="dc1394v2 v4l2buffer"
 		
-		if test "$have_dc1394v2" != yes || test "$with_dc1394v1v2" == "yes"
-		then
-			CHECK_FOR_OPTION(dc1394v1, [
-				AC_CHECK_HEADERS(libraw1394/raw1394.h libdc1394/dc1394_control.h, [], [a=1])
-				AC_CHECK_LIB(raw1394, main,[],[a=1])
-				AC_CHECK_LIB(dc1394_control, main,[],[a=1])
-			])
-		fi
-
 		CHECK_FOR_OPTION(v4l2buffer,[
 			AC_MSG_CHECKING(for v4l2)
 			AC_COMPILE_IFELSE([AC_LANG_SOURCE([	#include <sys/types.h>
@@ -748,217 +735,215 @@ echo --------------------------------
 echo Checking for extra build options
 echo --------------------------------
 
-AC_ARG_ENABLE(ssefast9,  [  --disable-ssefast9      Disable the probably OK SSE FAST-9 detector (debgging only)])
-AC_ARG_ENABLE(ssefast10, [  --disable-ssefast10     Disable the probably OK SSE FAST-10 detector (debgging only)])
-AC_ARG_ENABLE(ssefast12, [  --disable-ssefast12     Disable the probably OK SSE FAST-12 detector (debgging only)])
-AC_ARG_ENABLE(fast7, [  --disable-fast7               compile without the FAST-7 detector (use on low memory systems).     ])
-AC_ARG_ENABLE(fast8, [  --disable-fast8               compile without the FAST-8 detector (use on low memory systems).     ])
-AC_ARG_ENABLE(fast9, [  --disable-fast9               compile without the FAST-9 detector (use on low memory systems).     ])
-AC_ARG_ENABLE(fast10, [  --disable-fast10              compile without the FAST-10 detector (use on low memory systems).     ])
-AC_ARG_ENABLE(fast11, [  --disable-fast11              compile without the FAST-11 detector (use on low memory systems).     ])
-AC_ARG_ENABLE(fast12, [  --disable-fast12              compile without the FAST-12 detector (use on low memory systems).     ])
+AC_ARG_ENABLE(fast, [  --disable-fast               compile without the FAST-9,10,12 detectors (use on low memory systems).     ])
+AC_ARG_ENABLE(fastobscure, [  --disable-obscure             compile without the FAST-7,8,11 detectors (use on low memory systems).     ])
 
 
-test "$enable_fast7" != no && AC_SUBST(have_fast7, yes)
-test "$enable_fast8" != no && AC_SUBST(have_fast8, yes)
-test "$enable_fast9" != no && AC_SUBST(have_fast9, yes)
-test "$enable_fast10" != no && AC_SUBST(have_fast10, yes)
-test "$enable_fast11" != no && AC_SUBST(have_fast11, yes)
-test "$enable_fast12" != no && AC_SUBST(have_fast12, yes)
-
-test "$enable_ssefast9" != no && AC_SUBST(have_ssefast9, yes)
-test "$enable_ssefast10" != no && AC_SUBST(have_ssefast10, yes)
-test "$enable_ssefast12" != no && AC_SUBST(have_ssefast12, yes)
+test "$enable_fast" != no && AC_SUBST(have_fast, yes)
+test "$enable_fastobscure" != no && test "$enable_fast" != no && AC_SUBST(have_fastobscure, yes)
 
 ################################################################################
 #
 # Compute dependencies
 #
 
-#First, extract all the have_* variables
-for i in `echo $ac_subst_vars | tr ' ' '\n' | grep have_`
-do
-	eval echo $i \$$i
-done > config.have_bits
+define(DEPOBJ, [APPEND(dep_objects, cvd_src/$1.o)])
 
+#Obviously this doesn't do Windows.
+#
+# For Windows, you want the stuff in the Win32 directory
+# and not videodisplay and globlist
 
 ################################################################################
 #
-#
-# I have no idea what was in my head here!
+# Architecture specific dependencies
 #
 
+DEPOBJ(noarch/convert_rgb_to_y)
 
-#The dependency list
-#The file format is as follows:
-#
-# have_feature1 [yes]
-#
-# dependee_list_1 dependency_list_1 
-# dependee_list_2 dependency_list_2 
-#  ...
-# dependee_list_N dependee_list_N END
-#
-#
-# dependee_list is comma separated. dependency_list is whitespace separated.
-# If all the dependencies in dependency list are present (have_* is yes), then
-# dependee list is buildable. The lowest numbered dependee list is selected.
-#
-# The dependee list has a comma separated list of object files (minus the .o)
-# to be build. If a `file' is all caps, it is treated as a define, instead.
-#
-# Blank lines, and those starting with # are ignored
-cat config.have_bits - <<ENDDEPS  | awk -f make/compile_deps.awk > config.dep_tmp
 
 #SIMD dependencies
 #i686/yuv411_to_stuff_MMX                             inline_asm mmxext 32bit x86
 #i686/yuv411_to_stuff_MMX_64                          inline_asm mmxext x86
 #yuv411_to_stuff                                      END
 
-SSE2/half_sample                                     sse2
-i686/halfsample,MMX/half_sample                      mmx 32bit x86 assembler
-noarch/half_sample                                   END
+if test "$have_sse2" == yes
+then 
+	DEPOBJ(SSE2/half_sample)
+	DEPOBJ(SSE2/gradient)
+	DEPOBJ(SSE2/median_3x3)
+	DEPOBJ(SSE2/two_thirds_sample)
+	DEPOBJ(SSE2/utility_double_int)
+else
+	DEPOBJ(noarch/half_sample)
+	DEPOBJ(noarch/gradient)
+	DEPOBJ(noarch/median_3x3)
+	DEPOBJ(noarch/two_thirds_sample)
+	DEPOBJ(noarch/utility_double_int)
+fi
 
-i686/rgb_to_gray,noarch/convert_rgb_to_y               32bit mmxext x86 assembler
-noarch/convert_rgb_to_y                              END
+if test "$have_sse" == yes
+then 
+	DEPOBJ(SSE/convolve_gaussian)
+	DEPOBJ(SSE/utility_float)
+else
+	DEPOBJ(noarch/convolve_gaussian)
+	DEPOBJ(noarch/utility_float)
+fi	
 
-
-i686/convolve_gaussian                               sse2
-noarch/convolve_gaussian                             END
-
-
-i686/gradient                                        sse2
-noarch/gradient                                      END
-
-
-#i686/yuv420p_to_rgb,i686/yuv420p_to_rgb_runner       mmx 32bit x86 assembler
-#noarch/yuv420p_to_rgb_runner                         END
-
-#i686/yuv422_to_rgb,i686/yuv422_to_grey,i686/yuv422_wrapper     mmxext 32bit x86 assembler
-#noarch/yuv422_wrapper                                          END
-
-i686/median_3x3                                      sse2
-noarch/median_3x3                                    END
-
-
-i686/utility_float                                   sse
-noarch/utility_float                                 END
-
-i686/utility_byte_differences                        mmx
-noarch/utility_byte_differences                      END
-
-i686/utility_double_int                              sse2
-noarch/utility_double_int                            END
-
-SSE2/two_thirds_sample                               sse2
-noarch/two_thirds_sample                             END
-
-#FAST corner detection specifics
-fast/fast_7_detect,fast/fast_7_score,slower_corner_7           fast7  END
-fast/fast_8_detect,fast/fast_8_score,slower_corner_8           fast8  END
-fast/fast_9_detect,fast/fast_9_score,fast_corner_9_nonmax      fast9  END
-fast/fast_10_detect,fast/fast_10_score                         fast10  END
-fast/fast_11_detect,fast/fast_11_score,slower_corner_11        fast11  END
-fast/fast_12_detect,fast/fast_12_score                         fast12  END
-
-SSE2/faster_corner_9                                 sse2 ssefast9 fast9
-noarch/slower_corner_9                               fast9 END    
-
-SSE2/faster_corner_10                                sse2 ssefast10 fast10
-noarch/slower_corner_10                              fast10 END
-
-SSE2/faster_corner_12                                sse2 ssefast12 fast12
-noarch/slower_corner_12                              fast12 END
-
-#General OS specific bits
-
-Linux/dvbuffer3_dc1394v2,Linux/dvbuffer,videosource_dvbuffer,DVBUFFER3   dc1394v2 dc1394v1 dc1394v1v2
-Linux/dvbuffer3_dc1394v2,videosource_dvbuffer,DVBUFFER3                  dc1394v2
-Linux/dvbuffer3_dc1394v1,Linux/dvbuffer,videosource_dvbuffer,DVBUFFER    dc1394v1
-videosource_nodvbuffer                                                   END
+if test "$have_sse" == yes
+then 
+	DEPOBJ(MMX/utility_byte_differences)
+else
+	DEPOBJ(noarch/utility_byte_differences)
+fi	
 
 
-Linux/v4lbuffer,V4LBUFFER,Linux/videosource_v4lbuffer                    v4l2buffer 
-Linux/videosource_nov4lbuffer                                            END
-Linux/v4lcontrol                                     v4l2buffer END
+if test "$have_fast" == yes
+then 
+
+	if test "$have_sse2" == yes
+	then 
+		DEPOBJ(SSE2/faster_corner_9)
+		DEPOBJ(SSE2/faster_corner_10)
+		DEPOBJ(SSE2/faster_corner_12)
+	else
+		DEPOBJ(noarch/slower_corner_9)
+		DEPOBJ(noarch/slower_corner_10)
+		DEPOBJ(noarch/slower_corner_12)
+	fi
+
+	DEPOBJ(fast/fast_9_detect)
+	DEPOBJ(fast/fast_9_score)
+	DEPOBJ(fast/fast_corner_9_nonmax)
+
+	DEPOBJ(fast/fast_10_detect)
+	DEPOBJ(fast/fast_10_score)
+
+	DEPOBJ(fast/fast_12_detect)
+	DEPOBJ(fast/fast_12_score)
+fi
+
+if test "$have_fastobscure" == yes
+then 
+	DEPOBJ(fast/fast_7_detect)
+	DEPOBJ(fast/fast_7_score)
+	DEPOBJ(fast/slower_corner_7)
+	DEPOBJ(fast/fast_8_detect)
+	DEPOBJ(fast/fast_8_score)
+	DEPOBJ(fast/slower_corner_8)
+	DEPOBJ(fast/fast_11_detect)
+	DEPOBJ(fast/fast_11_score)
+	DEPOBJ(fast/slower_corner_11)
+fi
+
+################################################################################
+#
+# Video grabber dependencies
+#
+
+if test "$have_dc1394v2" == yes
+then
+	DEPOBJ(Linux/dvbuffer3_dc1394v2)
+	DEPOBJ(videosource_dvbuffer)
+else
+	DEPOBJ(videosource_nodvbuffer)
+fi
+
+if test "$have_v4l2buffer" == yes
+then
+	DEPOBJ(Linux/v4lbuffer)
+	DEPOBJ(Linux/videosource_v4lbuffer)
+	DEPOBJ(Linux/v4lcontrol)
+else
+	DEPOBJ(videosource_nov4lbuffer)
+fi
+
+if test "$have_libuvc" == yes
+then 
+	DEPOBJ(uvcbuffer)
+	DEPOBJ(videosource_uvcbuffer)
+else
+	DEPOBJ(videosource_nouvcbuffer)
+fi
 
 
-OSX/qtbuffer,OSX/videosource_qtbuffer                qtbuffer
-OSX/videosource_noqtbuffer                           END 
+if test "$have_ffmpeg" == yes
+then 
+	DEPOBJ(videofilebuffer2)
+	DEPOBJ(videofilebuffer_exceptions)
+	DEPOBJ(videosource_videofilebuffer)
+else
+	DEPOBJ(videosource_videofilebuffer)
+fi
 
-uvcbuffer,videosource_uvcbuffer						libuvc 
-videosource_nouvcbuffer						END
-
-#Libraries
-
-Win32/glwindow,gltext                                windows
-videodisplay,glwindow,gltext                         videodisplay END
-image_io/jpeg                                        jpeg END
-image_io/tiff,image_io/tiffwrite                     tiff END
-image_io/png                                         png END
-videofilebuffer2,videosource_videofilebuffer,videofilebuffer_exceptions     ffmpeg 
-videosource_novideofilebuffer           END
-
-nothing                                              windows
-globlist                                             glob END
-
-Win32/win32                                          windows END
-
-#Numerics dependencies
-tensor_voting,brezenham                              toon END
-draw_toon                                            toon END
-quartic,threepointpose                              toon END
-
-ENDDEPS
-
-#Split in to object files and defines
-#@<:@ is a quadrigraph for [
-AC_SUBST(dep_objects, ["`awk -v ORS=' ' '/@<:@a-z@:>@/{print "cvd_src/"$0".o"}' config.dep_tmp`"])
-
-for i in `awk '!/@<:@a-z@:>@/{if(/^INTERNAL_/) print "CVD_INTERNAL_HAVE_" substr($0, 10); else print "CVD_HAVE_"$0}' config.dep_tmp`
-do
-	AC_DEFINE_UNQUOTED($i, 1)
-done
+################################################################################
+#
+# Other library dependencies
+#
 
 
+if test "$have_toon" == yes
+then 
+	DEPOBJ(tensor_voting)
+	DEPOBJ(brezenham)
+	DEPOBJ(draw_toon)
+	DEPOBJ(quartic)
+	DEPOBJ(threepointpose)
+fi
 
+if test "$have_jpeg" == yes
+then 
+	DEPOBJ(image_io/jpeg)
+fi
 
-cat config.have_bits - << ENDPROGS | awk -f make/compile_deps.awk > config.dep_progs
-progs/se3_exp              toon          lapack 	END
-progs/se3_ln               toon          lapack  	END
-progs/se3_pre_mul          toon          lapack    	END
-progs/se3_post_mul         toon          lapack     END
-progs/se3_inv              toon			 lapack 	END
-progs/calibrate	           toon          videodisplay lapack END
-progs/cvd_display_image    videodisplay          	END
-progs/video_play_source    videodisplay  END
-ENDPROGS
+if test "$have_tiff" == yes
+then 
+	DEPOBJ(image_io/tiff)
+fi
 
-AC_SUBST(progs, ["`cat config.dep_progs | tr '\n' ' ' `"])
+if test "$have_png" == yes
+then 
+	DEPOBJ(image_io/png)
+fi
 
+if test "$have_videodisplay"
+then 
+	DEPOBJ(videodisplay)
+	DEPOBJ(glwindow)
+	DEPOBJ(gltext)
+fi
 
-cat config.have_bits - << ENDPROGS | awk -f make/compile_deps.awk > config.dep_testprogs
-test/fast_test					videodisplay faster_test sse2   END
-test/diskbuffer2				videodisplay					END
-test/dvbuffer_mono  			videodisplay dc1394v1			END
-test/dvbuffer_yuvrgb  			videodisplay dc1394v1			END
-test/dvbuffer3_mono				videodisplay dvbuffer3			END
-test/dvbuffer3_bayerrgb				videodisplay dvbuffer3			END
-test/test_images       											END
-test/v4lbuffer_mono  			videodisplay v4l2buffer			END
-test/v4lbuffer_bayerrgb  			videodisplay v4l2buffer			END
-test/v4l2buffer					videodisplay v4l2buffer			END
-test/dvbuffer_controls 			videodisplay dc1394v1 			END
-test/dvbuffer_rgb   			videodisplay dc1394v1			END
-test/o2buffer        			videodisplay o2buffer			END
-test/v4l1buffer_bayer 			videodisplay v4l1buffer 		END
-test/v4l1buffer_rgb  			videodisplay v4l1buffer			END
-test/qtbuffer_yuvrgb            videodisplay qtbuffer 			END
-test/font                       videodisplay                    END
-test/bayer_test													END
-ENDPROGS
-AC_SUBST(testprogs, ["`cat config.dep_testprogs | tr '\n' ' ' `"])
+AC_SUBST(dep_objects, [$dep_objects])
 
+################################################################################
+#
+# Program dependencies
+#
+
+define(DEPPROG, [APPEND(progs, $1)])
+
+if test "$have_toon$have_lapack" == yesyes
+then
+	DEPPROG(progs/se3_exp)
+	DEPPROG(progs/se3_ln)
+	DEPPROG(progs/se3_pre_mul)
+	DEPPROG(progs/se3_post_mul)
+	DEPPROG(progs/se3_inv)
+fi
+
+if test "$have_videodisplay" == yes
+then 
+	DEPPROG(progs/cvd_display_image)
+	DEPPROG(progs/video_play_source)
+
+	if test "$have_toon" == yes
+	then
+		DEPPROG(progs/calibrate)
+	fi
+fi
+
+AC_SUBST(progs, [$progs])
 
 echo
 echo

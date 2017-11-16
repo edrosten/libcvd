@@ -319,21 +319,6 @@ namespace CVD {
 
 	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset, bool& verbose, bool& bus_reset, int& format7_mode);
 
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	// QuickTime buffer
-	//
-
-	template <class T> VideoBuffer<T> * makeQTBuffer( const ImageRef & , int , bool, bool )
-	{
-		throw VideoSourceException("QTBuffer cannot handle " + PNM::type_name<T>::name());
-	}
-	template <> VideoBuffer<vuy422> * makeQTBuffer( const ImageRef & size, int input, bool showsettings, bool verbose);
-	template <> VideoBuffer<yuv422> * makeQTBuffer( const ImageRef & size, int input, bool showsettings, bool verbose);
-	template <> VideoBuffer<Rgb<byte> > * makeQTBuffer( const ImageRef & size, int input, bool showsettings, bool verbose);
-	
-	void get_qt_options(const VideoSource & vs, ImageRef & size, bool & showsettings, bool & verbose);
-
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
@@ -429,21 +414,14 @@ namespace CVD {
 				vb = new ReadAheadVideoBuffer<T>(*vb, ra_frames);
 			return vb;
 		} 
-	else if (vs.protocol == "qt") {
-		ImageRef size;
-		bool showsettings, verbose;
-		int input = atoi(vs.identifier.c_str());
-		get_qt_options(vs, size, showsettings, verbose);
-		return makeQTBuffer<T>(size, input, showsettings, verbose);
-	}
 		else
 			throw VideoSourceException("undefined video source protocol: '" + vs.protocol + "'\n\t valid protocols: "
 									   "colourspace, jpegstream, "
 									   "file, "
 									   "v4l2, "
 									   "dc1394, "
-									   "qt, "
-									   "files"
+									   "files, "
+									   "uvc"
 									   );
 	}
 

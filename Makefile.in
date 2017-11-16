@@ -391,7 +391,7 @@ tests/%.out: tests/%.test
 
 
 .PHONY: examples
-EXAMPLES=colourmaps distance_transform
+EXAMPLES=colourmaps distance_transform tensor_voting
 
 EXAMPLE_PROGS=$(patsubst %,examples/%, $(EXAMPLES))
 
