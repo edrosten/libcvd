@@ -26,7 +26,7 @@ endif()
 
 # Basic source files and headers for all platforms and options.
 
-set(SRCS 
+set(SRCS
 	cvd_src/bayer.cxx
 	cvd_src/colourspace_convert.cxx
 	cvd_src/connected_components.cc
@@ -179,13 +179,10 @@ if(WIN32)
 	set(CVD_HAVE_GLOB OFF)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 else()
+    add_compile_options(--std=c++14)
+
 	list(APPEND SRCS
-		cvd_src/globlist.cxx
-		cvd_src/videodisplay.cc)
-	list(APPEND HEADERS cvd/videodisplay.h)
-	if(X11_FOUND)
-		list(APPEND SRCS cvd_src/glwindow.cc)
-	endif()
+		cvd_src/globlist.cxx)
 	set(CVD_HAVE_GLOB ON)
 	if(APPLE)
 		list(APPEND SRCS cvd_src/videosource_nodvbuffer.cc)
@@ -236,6 +233,12 @@ if(USE_AVCODEC)
 	list(APPEND SRCS cvd_src/videofilebuffer2.cc)
 endif()
 
+if(X11_FOUND)
+    list(APPEND SRCS
+        cvd_src/glwindow.cc
+        cvd_src/videodisplay.cc)
+    list(APPEND HEADERS cvd/videodisplay.h)
+endif()
 if(TooN_FOUND)
 	include_directories("${TooN_INCLUDE_DIRS}")
 	set(CVD_HAVE_TOON ON)
