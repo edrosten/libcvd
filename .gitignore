@@ -25,3 +25,5 @@ tests/*.out
 *.d
 *.dylib
 cvd_src/config_internal.h
+/build
+**/.vs
