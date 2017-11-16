@@ -1,12 +1,15 @@
 #include <cvd/fast_corner.h>
 #include <cvd/image_io.h>
 #include <cvd/gl_helpers.h>
+#if 0
 #include <cvd/videodisplay.h>
+#endif
 #include <utility>
 #include <algorithm>
 #include <iterator>
 #include <iostream>
 #include <cstdlib>
+#include <random>
 
 
 using namespace std;
@@ -166,15 +169,17 @@ template<class A, class B, class C> void test_images(const Image<byte>& im, A fu
 
 int main(int , char** )
 {
-
+	std::random_device device;
+	std::ranlux48 engine(device());
+	std::uniform_real_distribution<> distribution(0.0, 1.0);
 	for(int n=0; n < 100; n++)
 	{
-		Image<byte> im(ImageRef(drand48() * 256 + 16, drand48()*256 + 16));
+		Image<byte> im(ImageRef(distribution(engine) * 256 + 16, distribution(engine) *256 + 16));
 
 		for(Image<byte>::iterator i = im.begin(); i != im.end(); i++)
-			*i =  (drand48() * 256);
+			*i =  (distribution(engine) * 256);
 
-		int threshold = drand48() * 256;
+		int threshold = distribution(engine) * 256;
 		test_images(im, fast_corner_detect_9, fast_corner_detect_plain_9, segment_test<9>, threshold, "FAST9");
 		test_images(im, fast_corner_detect_10, fast_corner_detect_plain_10, segment_test<10>, threshold, "FAST10");
 		test_images(im, fast_corner_detect_12, fast_corner_detect_plain_12, segment_test<12>, threshold, "FAST12");

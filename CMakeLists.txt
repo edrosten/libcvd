@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.0)
 project(CVD)
+enable_testing()
 
 include(TestBigEndian)
 
@@ -55,6 +56,18 @@ set(SRCS
 	cvd_src/videosource_videofilebuffer.cc
 	cvd_src/yuv411_to_stuff.cxx
 	cvd_src/yuv420.cpp
+	cvd_src/fast/fast_10_detect.cxx
+	cvd_src/fast/fast_10_score.cxx
+	cvd_src/fast/fast_11_detect.cxx
+	cvd_src/fast/fast_11_score.cxx
+	cvd_src/fast/fast_12_detect.cxx
+	cvd_src/fast/fast_12_score.cxx
+	cvd_src/fast/fast_7_detect.cxx
+	cvd_src/fast/fast_7_score.cxx
+	cvd_src/fast/fast_8_detect.cxx
+	cvd_src/fast/fast_8_score.cxx
+	cvd_src/fast/fast_9_detect.cxx
+	cvd_src/fast/fast_9_score.cxx
 	cvd_src/image_io/bmp.cxx
 	cvd_src/image_io/bmp_read.cc
 	cvd_src/image_io/bmp_write.cc
@@ -240,6 +253,7 @@ else()
 endif()
 if(JPEG_INCLUDE_DIR)
 	include_directories("${JPEG_INCLUDE_DIR}")
+	link_libraries(${JPEG_LIBRARIES})
 	set(CVD_HAVE_JPEG ON)
 	set(CVD_INTERNAL_JPEG_BUFFER_SIZE 1)
     list(APPEND SRCS cvd_src/image_io/jpeg.cxx)
@@ -249,6 +263,7 @@ else()
 endif()
 if(TIFF_INCLUDE_DIRS)
 	include_directories("${TIFF_INCLUDE_DIRS}")
+	link_libraries(${TIFF_LIBRARIES})
 	set(CVD_HAVE_TIFF ON)
     list(APPEND SRCS
 		cvd_src/image_io/tiff.cxx
@@ -258,6 +273,7 @@ else()
 endif()
 if(PNG_INCLUDE_DIRS)
 	include_directories("${PNG_INCLUDE_DIRS}")
+	link_libraries(${PNG_LIBRARIES})
 	set(CVD_HAVE_PNG ON)
     list(APPEND SRCS cvd_src/image_io/png.cc)
 else()
@@ -278,3 +294,5 @@ foreach(file ${HEADERS})
 endforeach()
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/cvd DESTINATION include)
 install(FILES ${PROJECT_SOURCE_DIR}/cmake/CVDConfig.cmake DESTINATION cmake)
+
+add_subdirectory(tests)
