@@ -406,7 +406,7 @@ clean:
 	find . -name '*.o' -o -name '*.d' | xargs rm -f
 	find progs/ -perm +0100 -type f | xargs rm -f
 	rm -rf html man
-	rm -f regressions/*.out
+	rm -f tests/*.out
 	rm -rf $(EXAMPLE_PROGS)
 
 
