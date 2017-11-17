@@ -3,8 +3,8 @@ project(tests)
 
 link_libraries(CVD)
 
-add_executable(distance_transform distance_transform.cc)
-add_test(NAME distance_transform COMMAND distance_transform)
+add_executable(distance_transform_test distance_transform_test.cc)
+add_test(NAME distance_transform_test COMMAND distance_transform_test)
 
 add_executable(fast_corner_test fast_corner_test.cc)
 add_test(NAME fast_corner_test COMMAND fast_corner_test)

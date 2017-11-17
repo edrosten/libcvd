@@ -316,4 +316,5 @@ install(FILES ${PROJECT_SOURCE_DIR}/cmake/CVDConfig.cmake DESTINATION cmake)
 
 add_subdirectory(tests)
 add_subdirectory(progs)
+add_subdirectory(examples)
 
