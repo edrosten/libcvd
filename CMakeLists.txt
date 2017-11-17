@@ -14,6 +14,7 @@ find_package(QuickTime)
 find_package(TIFF)
 find_package(TooN)
 find_package(X11)
+find_package(dc1394v2)
 
 # Detect endianness
 
@@ -286,7 +287,7 @@ endif()
 configure_file(cmake/config.h.in include/cvd/config.h)
 configure_file(cmake/config_internal.h.in include/cvd_src/config_internal.h)
 
-set(CMAKE_DEBUG_POSTFIX d)
+set(CMAKE_DEBUG_POSTFIX _debug)
 include_directories("${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/include")
 add_library(${PROJECT_NAME} ${SRCS} ${HEADERS})
 

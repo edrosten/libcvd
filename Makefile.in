@@ -111,6 +111,8 @@ CVD_OBJS=   \
 			cvd_src/videosource.o                           \
 			cvd_src/connected_components.o                  \
 			cvd_src/cvd_timer.o                             \
+			cvd_src/thread.o                                \
+			cvd_src/globlist.o                              \
 			@dep_objects@
 
 ################################################################################
@@ -390,7 +392,7 @@ tests/%.out: tests/%.test
 
 
 .PHONY: examples
-EXAMPLES=colourmaps distance_transform
+EXAMPLES=colourmaps distance_transform tensor_voting
 
 EXAMPLE_PROGS=$(patsubst %,examples/%, $(EXAMPLES))
 
