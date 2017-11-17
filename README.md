@@ -4,13 +4,20 @@ Note, the master branch is now libCVD-2.0 which is in beta and requires C++14.
 
 ## Compiling and installing
 
-To install on a unix system:
+To install on a UNIX system:
 
-./configure && make && sudo make install
+    ./configure && make && sudo make install
 
-To verify that a few things work, you can optioinally run
+To verify that a few things work, you can optionally run
 
-make test
+    make test
+
+To build on Windows, use [CMake](https://cmake.org/):
+
+    mkdir build
+    cd build
+    cmake -DCMAKE_INSTALL_PREFIX=<directory> ..
+    cmake --build . --target INSTALL --config Release
 
 ### Dependencies
 
