@@ -8289,7 +8289,7 @@ then
 	dep_objects="$dep_objects cvd_src/videofilebuffer_exceptions.o"
 	dep_objects="$dep_objects cvd_src/videosource_videofilebuffer.o"
 else
-	dep_objects="$dep_objects cvd_src/videosource_videofilebuffer.o"
+	dep_objects="$dep_objects cvd_src/videosource_novideofilebuffer.o"
 fi
 
 ################################################################################

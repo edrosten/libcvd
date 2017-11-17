@@ -852,7 +852,7 @@ then
 	DEPOBJ(videofilebuffer_exceptions)
 	DEPOBJ(videosource_videofilebuffer)
 else
-	DEPOBJ(videosource_videofilebuffer)
+	DEPOBJ(videosource_novideofilebuffer)
 fi
 
 ################################################################################
