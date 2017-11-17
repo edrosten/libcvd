@@ -377,7 +377,7 @@ printlibs:
 
 .PHONY: test
 
-REGRESSIONS=distance_transform fast_corner load_and_save
+REGRESSIONS=distance_transform fast_corner_test load_and_save
 REGRESSION_OUT=$(patsubst %,tests/%.out, $(REGRESSIONS))
 
 test:$(REGRESSION_OUT)
