@@ -10,11 +10,11 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 find_package(JPEG)
 find_package(PNG)
-find_package(QuickTime)
 find_package(TIFF)
 find_package(TooN)
 find_package(X11)
 find_package(dc1394v2)
+find_package(OpenGL)
 
 # Detect endianness
 
@@ -37,26 +37,18 @@ set(SRCS
 	cvd_src/diskbuffer2.cc
 	cvd_src/draw.cc
 	cvd_src/exceptions.cc
-	cvd_src/faster_corner_10.cxx
-	cvd_src/faster_corner_12.cxx
-	cvd_src/faster_corner_9.cxx
 	cvd_src/faster_corner_utilities.h
-	cvd_src/fast_corner.cxx
-	cvd_src/fast_corner_9_nonmax.cxx
-	cvd_src/gltext.cpp
 	cvd_src/image_io.cc
 	cvd_src/morphology.cc
 	cvd_src/nonmax_suppression.cxx
 	cvd_src/quartic.cpp
-	cvd_src/slower_corner_11.cxx
-	cvd_src/slower_corner_7.cxx
-	cvd_src/slower_corner_8.cxx
 	cvd_src/timeddiskbuffer.cc
 	cvd_src/videofilebuffer_exceptions.cc
 	cvd_src/videosource.cpp
-	cvd_src/videosource_videofilebuffer.cc
 	cvd_src/yuv411_to_stuff.cxx
 	cvd_src/yuv420.cpp
+	cvd_src/fast_corner.cxx
+	cvd_src/fast/fast_corner_9_nonmax.cxx
 	cvd_src/fast/fast_10_detect.cxx
 	cvd_src/fast/fast_10_score.cxx
 	cvd_src/fast/fast_11_detect.cxx
@@ -88,7 +80,10 @@ set(SRCS
 	cvd_src/noarch/utility_byte_differences.cc
 	cvd_src/noarch/utility_double_int.cc
 	cvd_src/noarch/utility_float.cc
-	cvd_src/noarch/yuv422.cpp)
+	cvd_src/noarch/yuv422.cpp
+	cvd_src/noarch/slower_corner_10.cxx
+	cvd_src/noarch/slower_corner_12.cxx
+	cvd_src/noarch/slower_corner_9.cxx)
 set(HEADERS
 	cvd/argb.h
 	cvd/bgrx.h
@@ -170,55 +165,73 @@ set(HEADERS
 	cvd/internal/scalar_convert.h
 	cvd/internal/win.h)
 
-# Platform-specific source files, headers and definitions.
 
+# Library-specific source files, headers and definitions.
+#if(dc1394_FOUND)
+#	list(APPEND SRCS
+#		cvd_src/videosource_dvbuffer.cc
+#		cvd_src/Linux/dvbuffer.cc
+#		cvd_src/Linux/dvbuffer3_dc1394v2.cc)
+#	list(APPEND HEADERS
+#		cvd/Linux/dvbuffer.h
+#		cvd/Linux/dvbuffer3.h
+#		cvd/Linux/dvframe.h)
+#	link_libraries(${dc1394_LIBRARIES})
+#else()
+	list(APPEND SRCS
+		cvd_src/videosource_nodvbuffer.cc)
+#endif()
+
+if(OpenGL_FOUND)
+	list(APPEND SRCS
+		cvd_src/gltext.cpp)
+
+	if(X11_FOUND)
+		list(APPEND SRCS
+			cvd_src/glwindow.cc
+			cvd_src/videodisplay.cc)
+		list(APPEND HEADERS cvd/videodisplay.h)
+
+		set(CVD_HAVE_GLWINDOW ON)
+		link_libraries(${X11_LIBRARIES})
+	endif()
+	link_libraries(${OPENGL_LIBRARIES})
+endif()
+
+# Platform-specific source files, headers and definitions.
 if(WIN32)
 	list(APPEND SRCS
 		cvd_src/Win32/win32.cpp
 		cvd_src/Win32/glwindow.cpp
-		cvd_src/videosource_nodvbuffer.cc)
+		cvd_src/videosource_nov4lbuffer.cc
+		cvd_src/videosource_nouvcbuffer.cc)
 	set(CVD_HAVE_GLOB OFF)
+	set(CVD_HAVE_GLWINDOW ON)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 else()
-    add_compile_options(--std=c++14)
+    #I'm not really sure this is the correct solution?
+	#This will always force the compiler into c++14 mode
+	#even if it's in C++17 mode, I think.
+	add_compile_options(--std=c++14)
 
 	list(APPEND SRCS
 		cvd_src/globlist.cxx)
+		
 	set(CVD_HAVE_GLOB ON)
-	if(APPLE)
-		list(APPEND SRCS cvd_src/videosource_nodvbuffer.cc)
-		if(QuickTime_FOUND)
-			list(APPEND SRCS
-				cvd_src/OSX/qtbuffer.cpp
-				cvd_src/OSX/videosource_qtbuffer.cc)
-			list(APPEND HEADERS
-				cvd/OSX/qtbuffer.h
-				cvd/OSX/qtframe.h)
-		else()
-			list(APPEND SRCS
-				cvd_src/OSX/videosource_noqtbuffer.cc)
-		endif()
-	else()
-		list(APPEND SRCS
-			cvd_src/videosource_dvbuffer.cc
-			cvd_src/Linux/dvbuffer.cc
-			cvd_src/Linux/dvbuffer3_dc1394v2.cc)
-		list(APPEND HEADERS
-			cvd/Linux/dvbuffer.h
-			cvd/Linux/dvbuffer3.h
-			cvd/Linux/dvframe.h)
-		if(USE_V4L)
-			list(APPEND SRCS
-				cvd_src/Linux/v4lbuffer.cc
-				cvd_src/Linux/v4lcontrol.cc
-				cvd_src/Linux/videosource_v4lbuffer.cc)
-			list(APPEND HEADERS
-				cvd/Linux/v4lbuffer.h
-				cvd/Linux/v4lcontrol.h)
-		else()
-			list(APPEND SRCS cvd_src/Linux/videosource_nov4lbuffer.cc)
-		endif()
-	endif()
+	link_libraries(pthread)
+		
+endif()
+
+if(USE_V4L)
+	list(APPEND SRCS
+		cvd_src/Linux/v4lbuffer.cc
+		cvd_src/Linux/v4lcontrol.cc
+		cvd_src/Linux/videosource_v4lbuffer.cc)
+	list(APPEND HEADERS
+		cvd/Linux/v4lbuffer.h
+		cvd/Linux/v4lcontrol.h)
+else()
+	list(APPEND SRCS cvd_src/Linux/videosource_nov4lbuffer.cc)
 endif()
 
 if(USE_UVC)
@@ -230,16 +243,16 @@ else()
 	list(APPEND SRCS
 		cvd_src/videosource_nouvcbuffer.cc)
 endif()
+
 if(USE_AVCODEC)
-	list(APPEND SRCS cvd_src/videofilebuffer2.cc)
+	list(APPEND SRCS cvd_src/videofilebuffer2.cc
+		cvd_src/videosource_videofilebuffer.cc)
+else()
+	list(APPEND SRCS
+		cvd_src/videosource_novideofilebuffer.cc)
 endif()
 
-if(X11_FOUND)
-    list(APPEND SRCS
-        cvd_src/glwindow.cc
-        cvd_src/videodisplay.cc)
-    list(APPEND HEADERS cvd/videodisplay.h)
-endif()
+
 if(TooN_FOUND)
 	include_directories("${TooN_INCLUDE_DIRS}")
 	set(CVD_HAVE_TOON ON)
@@ -255,6 +268,7 @@ if(TooN_FOUND)
 else()
 	set(CVD_HAVE_TOON OFF)
 endif()
+
 if(JPEG_INCLUDE_DIR)
 	include_directories("${JPEG_INCLUDE_DIR}")
 	link_libraries(${JPEG_LIBRARIES})
@@ -265,6 +279,7 @@ else()
 	set(CVD_HAVE_JPEG OFF)
 	set(CVD_INTERNAL_JPEG_BUFFER_SIZE OFF)
 endif()
+
 if(TIFF_INCLUDE_DIRS)
 	include_directories("${TIFF_INCLUDE_DIRS}")
 	link_libraries(${TIFF_LIBRARIES})
@@ -275,6 +290,7 @@ if(TIFF_INCLUDE_DIRS)
 else()
 	set(CVD_HAVE_TIFF OFF)
 endif()
+
 if(PNG_INCLUDE_DIRS)
 	include_directories("${PNG_INCLUDE_DIRS}")
 	link_libraries(${PNG_LIBRARIES})
@@ -300,3 +316,5 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/cvd DESTINATION include)
 install(FILES ${PROJECT_SOURCE_DIR}/cmake/CVDConfig.cmake DESTINATION cmake)
 
 add_subdirectory(tests)
+add_subdirectory(progs)
+
