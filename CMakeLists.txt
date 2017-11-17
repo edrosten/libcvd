@@ -193,6 +193,7 @@ if(OpenGL_FOUND)
 		list(APPEND HEADERS cvd/videodisplay.h)
 
 		set(CVD_HAVE_GLWINDOW ON)
+		set(CVD_HAVE_VIDEODISPLAY ON)
 		link_libraries(${X11_LIBRARIES})
 	endif()
 	link_libraries(${OPENGL_LIBRARIES})
