@@ -112,6 +112,7 @@ CVD_OBJS=   \
 			cvd_src/connected_components.o                  \
 			cvd_src/cvd_timer.o                             \
 			cvd_src/thread.o                                \
+			cvd_src/globlist.o                              \
 			@dep_objects@
 
 ################################################################################

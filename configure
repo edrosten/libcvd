@@ -627,7 +627,6 @@ progs
 dep_objects
 have_fastobscure
 have_fast
-have_glob
 docs
 have_ffmpeg
 have_tiff
@@ -738,7 +737,6 @@ with_sse2
 with_assembler
 with_inline_asm
 with_dc1394v2
-with_v4l1buffer
 with_v4l2buffer
 with_videodisplay
 with_jpeg
@@ -750,7 +748,6 @@ with_toon
 with_lapack
 with_acml
 with_x
-with_glob
 enable_fast
 enable_fastobscure
 '
@@ -1414,8 +1411,7 @@ Optional Packages:
     --with-sse2           force presence or absence of SSE2  (x86 only)
     --with-assembler     force presence or absence of asm
     --with-inline_asm     force presence or absence of inline asm
-  --without-dc1394v2      do not use libDC1394v2 (use try v1 instead) for dvbuffer3 (Linux/OSX).
-  --without-v4l1buffer	  compile without v4l1bffer (Video4Linux) support (Linux only)
+  --without-dc1394v2      do not use libDC1394v2 (required for dvbuffer3) (Linux/OSX).
   --without-v4l2buffer	  compile without v4l2buffer (Video4Linux2) support (Linux only)
   --without-videodisplay  compile without videodisplay support
   --without-jpeg          compile without JPEG support
@@ -1427,7 +1423,6 @@ Optional Packages:
   --without-lapack        Disable BLAS and LAPACK.
   --with-acml[=directory] Use BLAS and LAPACK routines from the ACML library [located in the specified directory]
   --with-x                use the X Window System
-  --without-glob          Compile without diskbuffer glob matching (for debugging only)
 
 Some influential environment variables:
   CC          C compiler command
@@ -4436,7 +4431,7 @@ minor=$cvd_minor
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob assembler inline_asm libuvc"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack assembler inline_asm libuvc"
 dodginess_options=
 options=
 simd_all_options=
@@ -5853,12 +5848,6 @@ if test "${with_dc1394v2+set}" = set; then :
 fi
 
 
-# Check whether --with-v4l1buffer was given.
-if test "${with_v4l1buffer+set}" = set; then :
-  withval=$with_v4l1buffer;
-fi
-
-
 # Check whether --with-v4l2buffer was given.
 if test "${with_v4l2buffer+set}" = set; then :
   withval=$with_v4l2buffer;
@@ -5914,7 +5903,7 @@ fi
 $as_echo "$as_me: Adding /usr/X11R6/include to the build path." >&6;}
 	osx_hacks=yes
 
-	os_all_options="qtbuffer dc1394v2"
+	os_all_options="dc1394v2"
 fi
 
 
@@ -8126,94 +8115,6 @@ echo -----------------------------------
 echo Checking for platform compatibility
 echo -----------------------------------
 
-
-# Check whether --with-glob was given.
-if test "${with_glob+set}" = set; then :
-  withval=$with_glob;
-fi
-
-
-
-
-	if test "$with_glob" != no && test "$have_glob" != yes
-	then
-		if test "$with_glob" == ""
-		then
-			with_glob=yes
-		fi
-
-		save_LIBS="$LIBS"
-		save_CXXFLAGS="$CXXFLAGS"
-		a=
-
-	for ac_header in glob.h
-do :
-  ac_fn_cxx_check_header_mongrel "$LINENO" "glob.h" "ac_cv_header_glob_h" "$ac_includes_default"
-if test "x$ac_cv_header_glob_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_GLOB_H 1
-_ACEOF
-
-else
-  a=1
-fi
-
-done
-
-	ac_fn_cxx_check_func "$LINENO" "glob" "ac_cv_func_glob"
-if test "x$ac_cv_func_glob" = xyes; then :
-
-else
-  a=1
-fi
-
-
-
-		if test x$a == x
-		then
-			$as_echo "#define CVD_HAVE_GLOB 1" >>confdefs.h
-
-			have_glob=yes
-
-			options="$options glob"
-
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for GLOB_BRACE and GLOB_TILDE in glob.h" >&5
-$as_echo_n "checking for GLOB_BRACE and GLOB_TILDE in glob.h... " >&6; }
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <glob.h>
-	int main(){glob(0, GLOB_BRACE|GLOB_TILDE,0,0);}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-
-						  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-						  $as_echo "#define CVD_INTERNAL_GLOB_IS_BAD 1" >>confdefs.h
-
-						  dodginess_options="$dodginess_options broken_glob"
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-		else
-			LIBS="$save_LIBS"
-			CXXFLAGS="$save_CXXFLAGS"
-		fi
-	fi
-
-	if test "$have_glob" != yes
-	then
-		:
-
-	dodginess_options="$dodginess_options no_glob"
-
-	fi
-
-
-
 a=
 ac_fn_cxx_check_decl "$LINENO" "feenableexcept" "ac_cv_have_decl_feenableexcept" "#include <fenv.h>
 "
@@ -8414,6 +8315,7 @@ fi
 if test "$have_tiff" == yes
 then
 	dep_objects="$dep_objects cvd_src/image_io/tiff.o"
+	dep_objects="$dep_objects cvd_src/image_io/tiffwrite.o"
 fi
 
 if test "$have_png" == yes

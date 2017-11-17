@@ -28,7 +28,7 @@ AC_SUBST(minor, $cvd_minor)
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack glob assembler inline_asm libuvc"
+all_options="videodisplay jpeg tiff png ffmpeg toon lapack assembler inline_asm libuvc"
 dodginess_options=
 options=
 simd_all_options=
@@ -429,8 +429,7 @@ echo -----------------------------------------------
 echo Checking for operating system specific features
 echo -----------------------------------------------
 
-AC_ARG_WITH(dc1394v2,  [  --without-dc1394v2      do not use libDC1394v2 (use try v1 instead) for dvbuffer3 (Linux/OSX). ])
-AC_ARG_WITH(v4l1buffer,[  --without-v4l1buffer	  compile without v4l1bffer (Video4Linux) support (Linux only)])
+AC_ARG_WITH(dc1394v2,  [  --without-dc1394v2      do not use libDC1394v2 (required for dvbuffer3) (Linux/OSX). ])
 AC_ARG_WITH(v4l2buffer,[  --without-v4l2buffer	  compile without v4l2buffer (Video4Linux2) support (Linux only)])
 
 if test "$host_vendor" == apple
@@ -446,7 +445,7 @@ then
 	APPEND(CPPFLAGS, [-I/usr/X11R6/include])
 	AC_MSG_NOTICE([Adding /usr/X11R6/include to the build path.])
 	AC_SUBST(osx_hacks,yes)
-	os_all_options="qtbuffer dc1394v2"
+	os_all_options="dc1394v2"
 fi
 
 CHECK_FOR_OPTION(dc1394v2, [
@@ -697,27 +696,6 @@ echo -----------------------------------
 echo Checking for platform compatibility 
 echo -----------------------------------
 
-AC_ARG_WITH(glob, [  --without-glob          Compile without diskbuffer glob matching (for debugging only)  ])
-
-
-CHECK_FOR_OPTION(glob, [
-	AC_CHECK_HEADERS(glob.h,[], [a=1])
-	AC_CHECK_FUNC(glob,[], [a=1])
-],[
-	AC_MSG_CHECKING([for GLOB_BRACE and GLOB_TILDE in glob.h])
-	AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <glob.h>
-	int main(){glob(0, GLOB_BRACE|GLOB_TILDE,0,0);}])], 
-						[AC_MSG_RESULT(yes)],
-						[
-						  AC_MSG_RESULT(no)
-						  AC_DEFINE(CVD_INTERNAL_GLOB_IS_BAD)
-						  APPEND(dodginess_options, broken_glob)
-						])
-], [
-	APPEND(dodginess_options, no_glob)
-])
-
-
 a=
 AC_CHECK_DECL(feenableexcept, [a=1], [a= ], [#include <fenv.h>])
 if test x$a = x1
@@ -900,6 +878,7 @@ fi
 if test "$have_tiff" == yes
 then 
 	DEPOBJ(image_io/tiff)
+	DEPOBJ(image_io/tiffwrite)
 fi
 
 if test "$have_png" == yes
