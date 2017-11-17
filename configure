@@ -8271,7 +8271,7 @@ then
 	dep_objects="$dep_objects cvd_src/Linux/videosource_v4lbuffer.o"
 	dep_objects="$dep_objects cvd_src/Linux/v4lcontrol.o"
 else
-	dep_objects="$dep_objects cvd_src/videosource_nov4lbuffer.o"
+	dep_objects="$dep_objects cvd_src/Linux/videosource_nov4lbuffer.o"
 fi
 
 if test "$have_libuvc" == yes

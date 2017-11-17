@@ -834,7 +834,7 @@ then
 	DEPOBJ(Linux/videosource_v4lbuffer)
 	DEPOBJ(Linux/v4lcontrol)
 else
-	DEPOBJ(videosource_nov4lbuffer)
+	DEPOBJ(Linux/videosource_nov4lbuffer)
 fi
 
 if test "$have_libuvc" == yes
