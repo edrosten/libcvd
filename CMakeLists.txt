@@ -202,9 +202,7 @@ endif()
 if(WIN32)
 	list(APPEND SRCS
 		cvd_src/Win32/win32.cpp
-		cvd_src/Win32/glwindow.cpp
-		cvd_src/videosource_nov4lbuffer.cc
-		cvd_src/videosource_nouvcbuffer.cc)
+		cvd_src/Win32/glwindow.cpp)
 	set(CVD_HAVE_GLOB OFF)
 	set(CVD_HAVE_GLWINDOW ON)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
