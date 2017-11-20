@@ -7,7 +7,7 @@ dependencies:
     - sudo apt-get install cmake --only-upgrade -y
   override:
     - mkdir build
-    - cd build && CXX=g++-7 && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make test && cd ..
+    - cd build && CXX=g++-7 cmake -DCMAKE_BUILD_TYPE=Release .. && make && make test && cd ..
     - rm -r build
     - ./configure CXX=g++-7
     - make -j 4
