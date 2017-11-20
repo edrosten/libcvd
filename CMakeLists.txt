@@ -167,20 +167,19 @@ set(HEADERS
 
 
 # Library-specific source files, headers and definitions.
-#if(dc1394_FOUND)
-#	list(APPEND SRCS
-#		cvd_src/videosource_dvbuffer.cc
-#		cvd_src/Linux/dvbuffer.cc
-#		cvd_src/Linux/dvbuffer3_dc1394v2.cc)
-#	list(APPEND HEADERS
-#		cvd/Linux/dvbuffer.h
-#		cvd/Linux/dvbuffer3.h
-#		cvd/Linux/dvframe.h)
-#	link_libraries(${dc1394_LIBRARIES})
-#else()
+if(dc1394_FOUND)
+	list(APPEND SRCS
+		cvd_src/videosource_dvbuffer.cc
+		cvd_src/Linux/dvbuffer3_dc1394v2.cc)
+	list(APPEND HEADERS
+		cvd/Linux/dvbuffer.h
+		cvd/Linux/dvbuffer3.h
+		cvd/Linux/dvframe.h)
+	link_libraries(${dc1394_LIBRARIES})
+else()
 	list(APPEND SRCS
 		cvd_src/videosource_nodvbuffer.cc)
-#endif()
+endif()
 
 if(OpenGL_FOUND)
 	list(APPEND SRCS
