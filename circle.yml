@@ -5,8 +5,8 @@ dependencies:
     - sudo apt-get install g++-7
   override:
     - mkdir build
-	- cd build && CXX=g++-7 && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make test && cd ..
-	- rm -r build
+    - cd build && CXX=g++-7 && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make test && cd ..
+    - rm -r build
     - ./configure CXX=g++-7
     - make -j 4
     - sudo make install
