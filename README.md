@@ -40,11 +40,16 @@ To build on Windows, use [CMake](https://cmake.org/):
 There are no mandatory dependencies. For a reasonably complete installation you probably want:
 * TooN (header only, install from source)
 * libjpeg, libtiff, libpng, ffmpeg, X11, OpenGL. 
+You might also want:
+* libdc1394
+* (libuvc)[https://github.com/ktossell/libuvc]
 
-On Ubuntu, run:
-~~~~
-sudo apt-get install libjpeg-dev libpng-dev libtiff-dev libx11-dev libavformat-dev libavdevice-dev libavcodec-dev libavutil-dev libswresample-dev libglu-dev
-~~~~
+
+
+On Ubuntu 16.04, run:
+```
+sudo apt-get install libjpeg-dev libpng-dev libtiff-dev libx11-dev libavformat-dev libavdevice-dev libavcodec-dev libavutil-dev libswresample-dev libglu-dev libdc1394-22
+```
 
 ## System compatibility
 
@@ -53,6 +58,28 @@ You need a C++14 compiler.
 All libraries are optional but you will be missing features if the libraries
 aren't present. The configure script will tell you what's present and what's
 not.
+
+### Ubuntu 16.04 / gcc 5
+
+The default C++ compiler on Ubuntu 16.04 will not compile libCVD because of
+a [bug in the standards compliance of the compiler.](https://stackoverflow.com/questions/34280729/throw-in-constexpr-function). If you want to use libcvd,
+you will need to install a newer compiler. The easiest eay is to add the
+[toolchain test PPA](https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test):
+
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+sudo apt-get update
+sudo apt-get install g++-7
+
+Now you can build libcvd with either:
+
+    CXX=g++-7 ./configure
+	make
+or
+
+    mkdir build 
+	cd build
+    CXX=g++-7 cmake -DCMAKE_BUILD_TYPE=Release .. 
+	make 
 
 
 ## Documentation
