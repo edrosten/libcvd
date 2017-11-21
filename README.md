@@ -42,7 +42,7 @@ There are no mandatory dependencies. For a reasonably complete installation you 
 * libjpeg, libtiff, libpng, ffmpeg, X11, OpenGL. 
 You might also want:
 * libdc1394
-* (libuvc)[https://github.com/ktossell/libuvc]
+* [libuvc](https://github.com/ktossell/libuvc)
 
 
 
