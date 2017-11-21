@@ -66,9 +66,9 @@ a [bug in the standards compliance of the compiler.](https://stackoverflow.com/q
 you will need to install a newer compiler. The easiest eay is to add the
 [toolchain test PPA](https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test):
 
-sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-sudo apt-get update
-sudo apt-get install g++-7
+    sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+    sudo apt-get update
+    sudo apt-get install g++-7
 
 Now you can build libcvd with either:
 
