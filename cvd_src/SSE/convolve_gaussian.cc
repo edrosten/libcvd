@@ -164,10 +164,10 @@ void convolveGaussian_simd(const BasicImage<float>& I, BasicImage<float>& out, d
 	float* next_row = rows[swin];
 	const float* input = I[i];
 	// beginning of row
-	for (int j=0; j<ksize; j++) {
+	for (int j=0; j<min(ksize,w); j++) {
 	    double hsum = input[j] * factor;
 	    for (int k=0; k<ksize; k++)
-		hsum += (input[std::max(j-k-1,0)] + input[j+k+1]) * kernel[k];
+		hsum += (input[std::max(j-k-1,0)] + input[std::min(j+k+1,w-1)]) * kernel[k];
 	    next_row[j] = hsum;
 	}
 	// middle of row
@@ -175,14 +175,15 @@ void convolveGaussian_simd(const BasicImage<float>& I, BasicImage<float>& out, d
 	convolveMiddle(input, factor, kernel, w-swin, next_row+ksize);
 	input += w-swin;
 	// end of row
-	for (int j=w-ksize; j<w; j++, input++) {
-	    double hsum = *input * factor;
-	    const int room = w-j;
-	    for (int k=0; k<ksize; k++) {
-		hsum += (input[-k-1] + input[std::min(k+1,room-1)]) * kernel[k];
+	if(w > ksize)
+	    for (int j=w-ksize; j<w; j++, input++) {
+		double hsum = *input * factor;
+		const int room = w-j;
+		for (int k=0; k<ksize; k++) {
+		    hsum += (input[-k-1] + input[std::min(k+1,room-1)]) * kernel[k];
+		}
+		next_row[j] = hsum;
 	    }
-	    next_row[j] = hsum;
-	}
 	// vertical
 	if (i >= swin) {
 	    conv_vert(rows, factor, kernel, w, output);
