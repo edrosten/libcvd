@@ -377,13 +377,13 @@ printlibs:
 
 .PHONY: test
 
-REGRESSIONS=distance_transform_test fast_corner_test load_and_save
+REGRESSIONS=distance_transform_test fast_corner_test load_and_save image_ref
 REGRESSION_OUT=$(patsubst %,tests/%.out, $(REGRESSIONS))
 
 test:$(REGRESSION_OUT)
 
 tests/%.test: tests/%.cc
-	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O3 -L. -lcvd
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O3 -L. -lcvd  -MMD -MP -MF tests/$*.d
 
 tests/%.out: tests/%.test
 	./$<  && touch $@
@@ -416,3 +416,4 @@ include $(wildcard cvd_src/*.d)
 include $(wildcard cvd_src/*/*.d)
 include $(wildcard debug/*.d)
 include $(wildcard debug/*/*.d)
+include $(wildcard tests/*.d)
