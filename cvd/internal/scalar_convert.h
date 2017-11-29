@@ -116,18 +116,18 @@ namespace Pixel
 		
 		inline float byte_to_float(int b) { return Internal::float_for_byte[b+255]; }
 		inline double byte_to_double(int b) { return Internal::double_for_byte[b+255]; }
-		
+	
 		//Convert a "D" to "To" scaled as if we are converting "From" type to a "To" type.
 		//Special code is invoked if both D and To are integral.
 		//FIXME: why is the test on "From", not "D"??
 		template <class From, class To, class D=From, bool int1 = traits<To>::integral && traits<From>::integral, bool int2 =traits<D>::integral> struct ScalarConvert {
 		    static inline To from(const D& from) {
 			static const double factor = double(traits<To>::max_intensity)/traits<From>::max_intensity; 
-			return static_cast<To>(from*factor);
+			auto s = from * factor;
+			return static_cast<To>(s);
 		    }
 		};
 	    
-
 		//If the input and output are integral, then use integer only scaling code.	
 		template <class From, class To, class D> struct ScalarConvert<From,To,D,true, true> {
 		    static inline To from(const D& f) {
