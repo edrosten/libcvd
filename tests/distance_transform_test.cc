@@ -12,7 +12,7 @@ int main()
     mt19937 engine;
 	uniform_int_distribution<int> rand_size(50, 1050);
 	//Generate some random point sets.
-	for(int i=0; i < 1000; i++)
+	for(int i=0; i < 100; i++)
 	{
 		ImageRef s(rand_size(engine), rand_size(engine));
 

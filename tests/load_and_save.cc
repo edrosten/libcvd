@@ -223,7 +223,7 @@ template<class T> struct randtest
 		{
 				try{
 				//Make a random image
-				Image<Type> in(ImageRef(1000+i,1000+i)), out;
+				Image<Type> in(ImageRef(256+i,256+i)), out;
 
 				cerr << "Testing " << in.size() << " " << fmt << " " << CVD::PNM::type_name<Type>::name() << " ";
 

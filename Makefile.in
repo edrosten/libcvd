@@ -62,7 +62,7 @@ MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
-DEBUGEXTRA=@STLDEBUG@ -DCVD_IMAGE_DEBUG -DTOON_CHECK_BOUNDS -DTOON_INITIALIZE_NAN
+DEBUGEXTRA=@STLDEBUG@ -fsanitize=address,undefined -DCVD_IMAGE_DEBUG -DTOON_CHECK_BOUNDS -DTOON_INITIALIZE_NAN
 
 SUBDIRS =
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -377,16 +377,17 @@ printlibs:
 
 .PHONY: test
 
-REGRESSIONS=distance_transform_test fast_corner_test load_and_save image_ref
+REGRESSIONS=distance_transform_test fast_corner_test load_and_save image_ref convolution
 REGRESSION_OUT=$(patsubst %,tests/%.out, $(REGRESSIONS))
 
 test:$(REGRESSION_OUT)
+.PRECIOUS:tests/%.test
+tests/%.test: tests/%.cc libcvd_debug.so
+	$(CXX) $(DEBUGEXTRA) -I. $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O0 -L. -lcvd_debug  -MMD -MP -MF tests/$*.d
 
-tests/%.test: tests/%.cc
-	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O3 -L. -lcvd  -MMD -MP -MF tests/$*.d
-
+.PRECIOUS:tests/%.out
 tests/%.out: tests/%.test
-	./$<  && touch $@
+	LD_LIBRARY_PATH=. ./$<  && touch $@
 
 
 
@@ -407,6 +408,7 @@ clean:
 	find progs/ -perm +0100 -type f | xargs rm -f
 	rm -rf html man
 	rm -f tests/*.out
+	rm -f tests/*.test
 	rm -rf $(EXAMPLE_PROGS)
 
 

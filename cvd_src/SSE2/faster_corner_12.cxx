@@ -56,8 +56,13 @@ namespace CVD
 	const __m128i barriers = _mm_set1_epi8((byte)barrier);
 
 	for (int i=3; i<I.size().y-3; ++i) {
-	    const byte* p = I[i];
-	    for (int j=0; j<w/16; ++j, p+=16) {
+	    const byte* p = I[i]+3;
+	    //Do the edge of the row, using the old-fasioned 4 point test
+	    for(int j=3; j < 16; j++, p++)
+		if(is_corner_12<Greater>(p, w, barrier) || is_corner_12<Less>(p, w, barrier))
+		    passed.push_back(p);
+
+	    for (int j=1; j<(w-3)/16; ++j, p+=16) {
 		__m128i lo, hi;
 		{
 		    const __m128i here = load_si128<Aligned>((const __m128i*)(p));
@@ -92,7 +97,7 @@ namespace CVD
 	    }
 	    
 	    //Do the edge of the row, using the old-fasioned 4 point test
-	    for(int j=(w/16) * 16; j < w-3; j++, p++)
+	    for(int j=((w-3)/16) * 16; j < w-3; j++, p++)
 	    {
 	    	int cb = *p + barrier;
 	    	int c_b = *p - barrier;

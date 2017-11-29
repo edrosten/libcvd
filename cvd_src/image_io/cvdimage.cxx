@@ -232,16 +232,22 @@ void create_normalized_hist(const Image<byte>& im, array<size_t,256>& h)
 
 // Given a histogram of for the symbols to encode, create a tree for a
 // corresponding Huffman code
-Huff* create_tree(const array<size_t,256>& h, vector<Huff*>& symbols)
+auto create_tree(const array<size_t,256>& h, vector<Huff*>& symbols)
 {
 	set<Huff*,Huff> table;
+	vector<Huff> all;
+	//We're going to be using pointers so reserve enough
+	//to avoid a resize.
+	all.reserve(h.size() * 2 -1);
+
 
 	for(int i=0; i < 256; i++)
 	{
 		if(h[i])
 		{
 			Huff s = {0,0,0,i,h[i]};
-			Huff* ss = new Huff(s);
+			all.emplace_back(s);
+			Huff* ss = &all.back();
 			table.insert(ss);
 			symbols.push_back(ss);
 		}
@@ -261,14 +267,14 @@ Huff* create_tree(const array<size_t,256>& h, vector<Huff*>& symbols)
 		table.erase(table.begin());
 
 		Huff s = {smallest, next_smallest, 0, junk_symbol++, smallest->count + next_smallest->count};
-		Huff*ss = new Huff(s);
+		all.emplace_back(s);
+		Huff* ss = &all.back();
 		
 		smallest->parent = ss;
 		next_smallest->parent=ss;
 		table.insert(ss);
 	}
-	
-	return *table.begin();
+	return make_pair(*table.begin(), move(all));
 }
 
 
@@ -303,7 +309,10 @@ vector<PackType> huff_compress(const Image<byte>& im, const array<size_t,256>& h
 {
 	//Create a Huffman compression tree
 	vector<Huff*> terminals;
-	Huff* table = create_tree(h, terminals);
+
+	vector<Huff> all;
+	Huff* table;
+	tie(table, all) = create_tree(h, terminals);
 
 	//Create the symbols for the tree and store them
 	//rather inefficiently in an array, one bit per entry.
@@ -400,7 +409,10 @@ vector<PackType> huff_compress(const Image<byte>& im, const array<size_t,256>& h
 template<class P> void huff_decompress(const vector<P>& b, const array<size_t,256>& h, Image<byte>& ret)
 {
 	vector<Huff*> terminals;
-	Huff* table = create_tree(h, terminals);
+
+	vector<Huff> all;
+	Huff* table;
+	tie(table, all) = create_tree(h, terminals);
 
 	int i=0;	
 	for(Image<byte>::iterator r=ret.begin(); r != ret.end(); r++)
@@ -458,7 +470,7 @@ class ReadPimpl
 		string type;
 		Image<byte> diff;
 		int row;
-		byte *buffer, *buffer2; //size unknown at compile time
+		vector<byte> buffer, buffer2;
 };
 
 ImageRef reader::size()
@@ -530,11 +542,9 @@ ReadPimpl::ReadPimpl(istream& in)
 	array<size_t,256> h = read_hist(in);
 
 	diff.resize(ImageRef(xs*bypp,ys));
-	buffer = new byte[xs*bypp];
+	buffer.resize(xs*bypp);
 	if ((pred_mode==PRED_2D_BAYER_1)||(pred_mode==PRED_2D_BAYER_2))
-		buffer2 = new byte[xs*bypp];
-	else
-		buffer2 = NULL;
+		buffer2.resize(xs*bypp);
 
 	vector<PackType> d = read_data(in);
 	huff_decompress(d, h, diff);
@@ -622,13 +632,13 @@ void ReadPimpl::get_raw_pixel_lines(unsigned char*data, unsigned long nlines)
 	case PRED_2D_OPTIMAL:
 		if (row==0) {		
 			pred_horizontal_undiff(diff[row], xs*bypp, data, pred_len);
-			memcpy(buffer, data, xs*bypp);
+			memcpy(buffer.data(), data, xs*bypp);
 			data += xs*bypp;
 			row++;
 			nlines--;
 		}
 		for(unsigned int i=0; i < nlines; i++)	{
-			pred_2doptimal_undiff(diff[row], xs*bypp, buffer, data, pred_len);
+			pred_2doptimal_undiff(diff[row], xs*bypp, buffer.data(), data, pred_len);
 			data += xs*bypp;
 			row++;
 		}
@@ -638,7 +648,7 @@ void ReadPimpl::get_raw_pixel_lines(unsigned char*data, unsigned long nlines)
 		//first two rows use horizontal prediction
 		while (row<=1) {
 			pred_horizontal_undiff(diff[row], xs*bypp, data, pred_len);
-			memcpy(buffer, data, xs*bypp);
+			memcpy(buffer.data(), data, xs*bypp);
 			bayer_swap_rows();
                         data += xs*bypp;
                         row++;
@@ -648,7 +658,7 @@ void ReadPimpl::get_raw_pixel_lines(unsigned char*data, unsigned long nlines)
 
 		// regular lines
 		while (nlines>0) {
-			pred_2dbayer_undiff(diff[row], xs*bypp, buffer, buffer2, data, (pred_mode==PRED_2D_BAYER_1));
+			pred_2dbayer_undiff(diff[row], xs*bypp, buffer.data(), buffer2.data(), data, (pred_mode==PRED_2D_BAYER_1));
 			bayer_swap_rows();
 			data += xs*bypp;
 			row++;
@@ -659,17 +669,13 @@ void ReadPimpl::get_raw_pixel_lines(unsigned char*data, unsigned long nlines)
 
 void ReadPimpl::bayer_swap_rows(void)
 {
-	byte *tmp = buffer;
-	buffer = buffer2;
-	buffer2 = tmp;
+	swap(buffer, buffer2);
 	if (pred_mode==PRED_2D_BAYER_1) pred_mode=PRED_2D_BAYER_2;
 	else if (pred_mode==PRED_2D_BAYER_2) pred_mode=PRED_2D_BAYER_1;
 }
 
 ReadPimpl::~ReadPimpl()
 {
-	delete[] buffer;
-	if (buffer2!=NULL) delete[] buffer2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
