@@ -9,7 +9,7 @@ dependencies:
     - mkdir build
     - cd build && CXX=g++-7 cmake -DCMAKE_BUILD_TYPE=Release .. && make && make test && cd ..
     - rm -r build
-    - ./configure CXX=g++-7
+    - ./configure CXX="g++-7 -fuse-ld=gold"
     - make -j 4
     - sudo make install
     - sudo /sbin/ldconfig
