@@ -156,6 +156,16 @@ set(HEADERS
 	cvd/internal/gles1_types.h
 	cvd/internal/gl_types.h
 	cvd/internal/image_ref_implementation.hh
+	cvd/internal/io/bmp.h
+	cvd/internal/io/cvdimage.h
+	cvd/internal/io/fits.h
+	cvd/internal/io/jpeg.h
+	cvd/internal/io/parameter.h
+	cvd/internal/io/png.h
+	cvd/internal/io/pnm_grok.h
+	cvd/internal/io/save_postscript.h
+	cvd/internal/io/text.h
+	cvd/internal/io/tiff.h
 	cvd/internal/load_and_save.h
 	cvd/internal/name_builtin_types.h
 	cvd/internal/name_CVD_rgb_types.h

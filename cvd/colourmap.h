@@ -6,7 +6,7 @@
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/internal/rgb_components.h>
 
-#include <utility>
+#include <algorithm>
 
 namespace CVD
 {
