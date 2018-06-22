@@ -15,6 +15,7 @@ find_package(TooN)
 find_package(X11)
 find_package(dc1394v2)
 find_package(OpenGL)
+find_package(Threads REQUIRED)
 
 # Detect endianness
 
@@ -89,8 +90,6 @@ set(HEADERS
 	cvd/bgrx.h
 	cvd/bresenham.h
 	cvd/byte.h
-	cvd/camera.h
-	cvd/canny.h
 	cvd/colourmap.h
 	cvd/colourspace.h
 	cvd/colourspacebuffer.h
@@ -106,7 +105,6 @@ set(HEADERS
 	cvd/distance_transform.h
 	cvd/documentation.h
 	cvd/draw.h
-	cvd/esm.h
 	cvd/exceptions.h
 	cvd/fast_corner.h
 	cvd/gles1_helpers.h
@@ -118,7 +116,6 @@ set(HEADERS
 	cvd/image.h
 	cvd/image_convert.h
 	cvd/image_convert_fwd.h
-	cvd/image_interpolate.h
 	cvd/image_io.h
 	cvd/image_ref.h
 	cvd/integral_image.h
@@ -138,7 +135,6 @@ set(HEADERS
 	cvd/timeddiskbuffer.h
 	cvd/timer.h
 	cvd/utility.h
-	cvd/vector_image_ref.h
 	cvd/videobuffer.h
 	cvd/videobufferflags.h
 	cvd/videobufferwithdata.h
@@ -185,7 +181,6 @@ if(dc1394_FOUND)
 		cvd/Linux/dvbuffer.h
 		cvd/Linux/dvbuffer3.h
 		cvd/Linux/dvframe.h)
-	link_libraries(${dc1394_LIBRARIES})
 else()
 	list(APPEND SRCS
 		cvd_src/videosource_nodvbuffer.cc)
@@ -203,9 +198,7 @@ if(OpenGL_FOUND)
 
 		set(CVD_HAVE_GLWINDOW ON)
 		set(CVD_HAVE_VIDEODISPLAY ON)
-		link_libraries(${X11_LIBRARIES})
 	endif()
-	link_libraries(${OPENGL_LIBRARIES})
 endif()
 
 # Platform-specific source files, headers and definitions.
@@ -215,19 +208,11 @@ if(WIN32)
 		cvd_src/Win32/glwindow.cpp)
 	set(CVD_HAVE_GLOB OFF)
 	set(CVD_HAVE_GLWINDOW ON)
-	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 else()
-    #I'm not really sure this is the correct solution?
-	#This will always force the compiler into c++14 mode
-	#even if it's in C++17 mode, I think.
-	add_compile_options(--std=c++14)
-
 	list(APPEND SRCS
 		cvd_src/globlist.cxx)
 		
 	set(CVD_HAVE_GLOB ON)
-	link_libraries(pthread)
-		
 endif()
 
 if(USE_V4L)
@@ -262,7 +247,6 @@ endif()
 
 
 if(TooN_FOUND)
-	include_directories("${TooN_INCLUDE_DIRS}")
 	set(CVD_HAVE_TOON ON)
 	list(APPEND SRCS
 		cvd_src/brezenham.cc
@@ -271,15 +255,18 @@ if(TooN_FOUND)
 		cvd_src/threepointpose.cpp)
 	list(APPEND HEADERS
 		cvd/brezenham.h
+		cvd/camera.h
+		cvd/canny.h
+		cvd/esm.h
+		cvd/image_interpolate.h
 		cvd/tensor_voting.h
+		cvd/vector_image_ref.h
 		cvd/geometry/threepointpose.h)
 else()
 	set(CVD_HAVE_TOON OFF)
 endif()
 
-if(JPEG_INCLUDE_DIR)
-	include_directories("${JPEG_INCLUDE_DIR}")
-	link_libraries(${JPEG_LIBRARIES})
+if(JPEG_FOUND)
 	set(CVD_HAVE_JPEG ON)
 	set(CVD_INTERNAL_JPEG_BUFFER_SIZE 1)
     list(APPEND SRCS cvd_src/image_io/jpeg.cxx)
@@ -288,9 +275,7 @@ else()
 	set(CVD_INTERNAL_JPEG_BUFFER_SIZE OFF)
 endif()
 
-if(TIFF_INCLUDE_DIRS)
-	include_directories("${TIFF_INCLUDE_DIRS}")
-	link_libraries(${TIFF_LIBRARIES})
+if(TIFF_FOUND)
 	set(CVD_HAVE_TIFF ON)
     list(APPEND SRCS
 		cvd_src/image_io/tiff.cxx
@@ -299,9 +284,7 @@ else()
 	set(CVD_HAVE_TIFF OFF)
 endif()
 
-if(PNG_INCLUDE_DIRS)
-	include_directories("${PNG_INCLUDE_DIRS}")
-	link_libraries(${PNG_LIBRARIES})
+if(PNG_FOUND)
 	set(CVD_HAVE_PNG ON)
     list(APPEND SRCS cvd_src/image_io/png.cc)
 else()
@@ -312,8 +295,39 @@ configure_file(cmake/config.h.in include/cvd/config.h)
 configure_file(cmake/config_internal.h.in include/cvd_src/config_internal.h)
 
 set(CMAKE_DEBUG_POSTFIX _debug)
-include_directories("${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/include")
 add_library(${PROJECT_NAME} ${SRCS} ${HEADERS})
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/include")
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+if(JPEG_FOUND)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${JPEG_INCLUDE_DIRS})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${JPEG_LIBRARIES})
+endif()
+if(PNG_FOUND)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${PNG_INCLUDE_DIRS})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${PNG_LIBRARIES})
+endif()
+if(TIFF_FOUND)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${TIFF_INCLUDE_DIRS})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${TIFF_LIBRARIES})
+endif()
+if(OPENGL_FOUND)
+	target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
+endif()
+if(X11_FOUND)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${X11_INCLUDE_DIR})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${X11_LIBRARIES})
+endif()
+if(dc1394v2_FOUND)
+	target_include_directories(${PROJECT_NAME} PUBLIC ${dc1394v2_INCLUDE_DIRS})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${dc1394v2_LIBRARIES})
+endif()
+if(TooN_FOUND)
+	target_include_directories(${PROJECT_NAME} PUBLIC ${TooN_INCLUDE_DIRS})
+endif()
+if(WIN32)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE _CRT_SECURE_NO_WARNINGS)
+endif()
 
 install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
 foreach(file ${HEADERS})
