@@ -22,7 +22,18 @@
 #include <cvd/colourspacebuffer.h>
 #include <cvd/videosource.h>
 
-using namespace std;
+using std::cerr;
+using std::clog;
+using std::cout;
+using std::endl;
+using std::istringstream;
+using std::make_pair;
+using std::mt19937;
+using std::normal_distribution;
+using std::ofstream;
+using std::pair;
+using std::string;
+using std::vector;
 using namespace TooN;
 using namespace CVD;
 

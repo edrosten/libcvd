@@ -48,8 +48,22 @@
 	#include <cvd/Linux/v4lbuffer.h>
 #endif
 
-using namespace std;
 using namespace CVD;
+using std::cerr;
+using std::clog;
+using std::cout;
+using std::endl;
+using std::istringstream;
+using std::lock_guard;
+using std::make_pair;
+using std::make_unique;
+using std::mutex;
+using std::pair;
+using std::string;
+using std::thread;
+using std::unique_lock;
+using std::unique_ptr;
+using std::vector;
 
 
 class Actions: public GLWindow::EventHandler

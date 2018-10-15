@@ -26,13 +26,12 @@
 #include <iostream>
 
 using namespace CVD;
-using namespace std;
 
 int main()
 {
 	try
 	{	
-		Image<Rgb<byte> > i = img_load(cin);
+		Image<Rgb<byte> > i = img_load(std::cin);
 
 
 		VideoDisplay d(i.size());
@@ -53,6 +52,6 @@ int main()
 	}
 	catch(Exceptions::All a)
 	{
-		cerr << "Error: " << a.what << endl;
+		std::cerr << "Error: " << a.what << std::endl;
 	}
 }
