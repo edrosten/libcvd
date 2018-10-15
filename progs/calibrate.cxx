@@ -434,7 +434,6 @@ void improveLM(vector<MeasurementSet>& ms, vector<SE3<> >& pose, CM& cm, double 
       
 	for (size_t j=0; j<ms[i].im.size(); j++)
 	{
-	    Vector<3> camFrame = pose[i] * ms[i].world[j];
 	    Matrix<2,3> J_x;
 	    Matrix<2,6> J_pose;
 	    Vector<2> v = ms[i].im[j] - cm.project(transform_and_project(pose[i], ms[i].world[j], J_x, J_pose));
@@ -468,7 +467,7 @@ void improveLM(vector<MeasurementSet>& ms, vector<SE3<> >& pose, CM& cm, double 
 }
 
 template <class CM>
-void getUncertainty(const vector<MeasurementSet>& ms, const vector<SE3<> >& pose, CM& cm, Matrix<CM::num_parameters>& C)
+void getUncertainty(const vector<MeasurementSet>& ms, const vector<SE3<> >&, CM& cm, Matrix<CM::num_parameters>& C)
 {
     Matrix<> JTJ(CM::num_parameters+ms.size()*6,CM::num_parameters+ms.size()*6);
     JTJ = Zeros;
@@ -481,7 +480,6 @@ void getUncertainty(const vector<MeasurementSet>& ms, const vector<SE3<> >& pose
         {
 	    Matrix<2,3> J_x;
 	    Matrix<2,6> J_pose;
-	    Vector<2> v = ms[i].im[j] - cm.project(transform_and_project(pose[i], ms[i].world[j], J_x, J_pose));
 
 	    J_pose = cm.get_derivative() * J_pose;
 	    Matrix<2,CM::num_parameters> J_param = cm.get_parameter_derivs().T();
@@ -753,7 +751,6 @@ int main(int argc, char* argv[])
 
     disp.set_title(titlePrefix);
 
-    double curr = timer.get_time();
     imageSize = videoBuffer->size();
 
     cameraModel.get_parameters() = cameraParameters;
@@ -912,7 +909,6 @@ int main(int argc, char* argv[])
 		    bool okEst = findInitialIntersectionEstimate(imgInter, inPoint, guessPose, cameraModel,
 								 factor, boundsCheck, likelySquare, cellSize);
 
-		    bool pass = false;
 		    bool fail = true;
 
 		    if(okEst)
@@ -933,7 +929,6 @@ int main(int argc, char* argv[])
 				    //Sensible difference between the black and white squares?
 				    if(sanityCheck(inPoint, imgInter, guessPose, cameraModel, factor, blWhite, cellSize))
 				    {
-					pass = true;
 					fail = false;
 					rowPass[yNo]++;
 					colPass[xNo]++;
