@@ -31,7 +31,7 @@ AC_SUBST(minor, $cvd_minor)
 #Lists of  optional components
 #
 
-all_options="videodisplay jpeg tiff png ffmpeg toon lapack assembler inline_asm libuvc"
+all_options="videodisplay jpeg tiff png ffmpeg toon assembler inline_asm libuvc"
 dodginess_options=
 options=
 simd_all_options=
@@ -405,8 +405,6 @@ AC_ARG_WITH(tiff, [  --without-tiff          compile without TIFF support])
 AC_ARG_WITH(png, [  --without-png           compile without PNG support])
 AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support.])
 AC_ARG_WITH(toon, [  --without-toon          Compile without TooN support])
-AC_ARG_WITH(lapack, [  --without-lapack        Disable BLAS and LAPACK.])
-AC_ARG_WITH(acml, [  --with-acml[[=directory]] Use BLAS and LAPACK routines from the ACML library [[located in the specified directory]] ], [opt_acml_dir=$withval])
 
 CHECK_FOR_OPTION(videodisplay,[
 
@@ -458,65 +456,6 @@ CHECK_FOR_OPTION(toon, [
 	AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <TooN/TooN.h>
 	int main(){TooN::Vector<2, double> v=TooN::Zeros;return 0;}])], [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
 ])
-
-CHECK_FOR_OPTION(lapack, [
-	if test "$with_acml" != no
-	then
-		if test "$with_acml" != yes & test "$with_acml" != ""
-		then
-			APPEND(LIBS, -L $with_acml)
-		else
-			APPEND(LIBS, -L/opt/acml/gnu64/lib)
-		fi
-		APPEND(LIBS, -lacml_mv)
-
-		AC_CHECK_LIB(acml, dgesvd_, [], [a=1])
-	else
-		a=1
-	fi
-])
-
-CHECK_FOR_OPTION(lapack, [
-	AC_MSG_CHECKING(if Accelerate framework is needed for LAPACK)
-	AC_MSG_RESULT()
-	APPEND(LIBS, -framework Accelerate)
-	AC_CHECK_FUNC(dgesvd_, [], [a=1])
-])
-
-
-
-CHECK_FOR_OPTION(lapack, [
-	AC_CHECK_LIB(lapack, dgesvd_, [], [a=1])
-])
-
-CHECK_FOR_OPTION(lapack, [
-	AC_MSG_CHECKING(if blas is needed for LAPACK)
-	AC_MSG_RESULT()
-	APPEND(LIBS, -lblas)
-	AC_CHECK_LIB(lapack, zupmtr_, [], [a=1])
-])
-
-CHECK_FOR_OPTION(lapack, [
-	AC_MSG_CHECKING(if f2c is needed for LAPACK)
-	AC_MSG_RESULT()
-	APPEND(LIBS, -lf2c)
-	AC_CHECK_LIB(lapack, dpotrf_, [], [a=1])
-])
-
-CHECK_FOR_OPTION(lapack, [
-	AC_MSG_CHECKING(if g2c is needed for LAPACK)
-	AC_MSG_RESULT()
-	APPEND(LIBS, -lg2c)
-	AC_CHECK_LIB(lapack, dpotrs_, [], [a=1])
-])
-
-CHECK_FOR_OPTION(lapack, [
-	AC_MSG_CHECKING(if gfortran is needed for LAPACK)
-	AC_MSG_RESULT()
-	APPEND(LIBS, -lgfortran)
-	AC_CHECK_LIB(lapack, dpotri_, [], [a=1])
-])
-
 
 
 CHECK_FOR_OPTION(libuvc, [
