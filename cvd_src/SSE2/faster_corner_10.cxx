@@ -15,8 +15,8 @@ namespace CVD
 
     template <bool Aligned> void faster_corner_detect_10(const BasicImage<byte>& I, std::vector<ImageRef>& corners, const int barrier)
     {
-	const int w = I.size().x;
-	const int stride = 3*w;
+	const int row_stride = I.row_stride();
+	const int stride = 3*row_stride;
  
 	const __m128i barriers = _mm_set1_epi8((byte)barrier);
 
@@ -51,8 +51,8 @@ namespace CVD
 
 		unsigned int ans_m, ans_p, possible;
 		{
-		    __m128i ul = _mm_loadu_si128((const __m128i*)(p-2-2*w));
-		    __m128i lr = _mm_loadu_si128((const __m128i*)(p+2+2*w));
+		    __m128i ul = _mm_loadu_si128((const __m128i*)(p-2-2*row_stride));
+		    __m128i lr = _mm_loadu_si128((const __m128i*)(p+2+2*row_stride));
 		    CHECK_BARRIER(lo, hi, ul, ans_m);
 		    CHECK_BARRIER(lo, hi, lr, ans_p);
 		    possible = (ans_m & ans_b) | (ans_e & ans_p);
@@ -62,8 +62,8 @@ namespace CVD
 
 		unsigned int ans_o, ans_n;
 		{
-		    __m128i ll = _mm_loadu_si128((const __m128i*)(p-2+2*w));
-		    __m128i ur = _mm_loadu_si128((const __m128i*)(p+2-2*w));
+		    __m128i ll = _mm_loadu_si128((const __m128i*)(p-2+2*row_stride));
+		    __m128i ur = _mm_loadu_si128((const __m128i*)(p+2-2*row_stride));
 		    CHECK_BARRIER(lo, hi, ll, ans_o);
 		    CHECK_BARRIER(lo, hi, ur, ans_n);
 		    possible &= ans_o | (ans_b & ans_n);
@@ -113,8 +113,8 @@ namespace CVD
 
 		unsigned int ans_g, ans_i;
 		{
-		    __m128i g = _mm_loadu_si128((const __m128i*)(p-3-w));
-		    __m128i ii = _mm_loadu_si128((const __m128i*)(p-3+w));
+		    __m128i g = _mm_loadu_si128((const __m128i*)(p-3-row_stride));
+		    __m128i ii = _mm_loadu_si128((const __m128i*)(p-3+row_stride));
 		    CHECK_BARRIER(lo, hi, g, ans_g);
 		    CHECK_BARRIER(lo, hi, ii, ans_i);
 		    possible &= ans_g | (ans_f & ans_p & ans_k);
@@ -125,8 +125,8 @@ namespace CVD
 
 		unsigned int ans_j, ans_l;
 		{
-		    __m128i jj = _mm_loadu_si128((const __m128i*)(p+3-w));
-		    __m128i l = _mm_loadu_si128((const __m128i*)(p+3+w));
+		    __m128i jj = _mm_loadu_si128((const __m128i*)(p+3-row_stride));
+		    __m128i l = _mm_loadu_si128((const __m128i*)(p+3+row_stride));
 		    CHECK_BARRIER(lo, hi, jj, ans_j);
 		    CHECK_BARRIER(lo, hi, l, ans_l);
 		    const unsigned int ans_ghi = ans_g & ans_h & ans_i;
