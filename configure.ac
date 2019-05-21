@@ -495,19 +495,6 @@ CHECK_FOR_OPTION(tiff, [
 ])
 
 
-
-CHECK_FOR_OPTION(tiff, [
-	AC_MSG_CHECKING([if perhaps libtiff requires zlib])
-	AC_MSG_RESULT([])
-	unset ac_cv_lib_tiff_TIFFReadRGBAImage
-	AC_CHECK_HEADERS(tiffio.h,[],[a=1])
-	AC_CHECK_LIB(z, deflate,[],[a=1])
-	AC_CHECK_LIB(tiff, TIFFReadRGBAImage,[],[a=1])
-],[
-	APPEND(dodginess_options, tiff_needs_zlib)
-])
-
-
 CHECK_FOR_OPTION(ffmpeg, [
 	AC_MSG_CHECKING([for ffmpeg headers])
 
