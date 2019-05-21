@@ -5016,9 +5016,6 @@ fi
 
 
 
-CPPFLAGS="$CPPFLAGS -I"$(eval echo $includedir)""
-
-
 ########################################
 #
 # Always use ggdb if possible
@@ -8563,6 +8560,7 @@ OFLAGS=$OFLAGS
 
 
 echo $CXXFLAGS
+echo $CPPFLAGS
 echo $LIBS
 
 

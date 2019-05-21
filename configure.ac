@@ -172,9 +172,6 @@ TEST_AND_SET_CXXFLAG(-pipe)
 AC_CHECK_LIB(pthread, main,[],[a=1])
 
 
-APPEND(CPPFLAGS, [-I"$(eval echo $includedir)"])
-
-
 ########################################
 #
 # Always use ggdb if possible
@@ -873,6 +870,7 @@ AC_SUBST(CXXFLAGS, $CXXFLAGS)
 AC_SUBST(OFLAGS, $OFLAGS)
 	
 echo $CXXFLAGS
+echo $CPPFLAGS
 echo $LIBS
 
 
