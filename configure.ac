@@ -49,7 +49,7 @@ define(APPEND, [$1="$$1 $2"])
 
 
 
-dnl TEST_AND_SET_CXXFLAG(flag, [program], [run])
+dnl TEST_AND_SET_CXXFLAG(flag, [program])
 dnl
 dnl This attempts to compile a and run program with a certain compiler flag.
 dnl If no program is given, then the minimal C++ program is compiled, and 
@@ -67,10 +67,7 @@ define([TEST_AND_SET_CXXFLAG],[
 
 	m4_if([$2],[],[pushdef(prog, [int main(){}])], [pushdef(prog, [$2])])
 
-	m4_if([$4],[run],
-		[AC_RUN_IFELSE([AC_LANG_SOURCE([prog])], [cvd_conf_test=1],[cvd_conf_test=0], [cvd_conf_test=0])],
-		[AC_COMPILE_IFELSE([AC_LANG_SOURCE([prog])], [cvd_conf_test=1],[cvd_conf_test=0])]
-	)
+	AC_COMPILE_IFELSE([AC_LANG_SOURCE([prog])], [cvd_conf_test=1],[cvd_conf_test=0])
 	
 	
 	popdef([prog])
@@ -144,7 +141,7 @@ define(SIMD_TEST, [
 			have_[]m4_tolower($1)=yes
 		elif test "$with_[]m4_tolower($1)" != "no"
 		then
-			TEST_AND_SET_CXXFLAG([$2], [$3], [for $1 support],run)
+			TEST_AND_SET_CXXFLAG([$2], [$3], [for $1 support])
 			have_[]m4_tolower($1)="$ts_success"
 		fi
 
