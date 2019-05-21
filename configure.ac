@@ -1,18 +1,21 @@
 AC_INIT(CVD,0.8)
 AC_COPYRIGHT(Copyright foo)
 
+m4_include([m4/ax_cxx_compile_stdcxx_14.m4])
+
 AC_CONFIG_HEADERS
 AC_HEADER_STDC
-#Use builtin autoconf checks for all the programs we need.
+
 AC_PROG_AWK
 AC_PROG_CXX
+AX_CXX_COMPILE_STDCXX_14
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_RANLIB
-#Switch testing language to C++
+
 AC_LANG(C++)
 AC_REQUIRE_CPP
-#Start the compiler
+
 
 cvd_major=`echo $PACKAGE_VERSION | $AWK -F'\\\\.' '{print $1}'`
 cvd_minor=`echo $PACKAGE_VERSION | $AWK -F'\\\\.' '{print $2}'`
@@ -164,56 +167,6 @@ AC_CANONICAL_HOST
 TEST_AND_SET_CXXFLAG(-Wall)
 TEST_AND_SET_CXXFLAG(-Wextra)
 TEST_AND_SET_CXXFLAG(-pipe)
-
-
-cpp11=no
-for i in "" -std=c++14 -std=c++1y
-do
-	
-	flag="$i"
-
-	if test x$i == x
-	then
-		AC_MSG_CHECKING(For C++1y support)
-	else
-		AC_MSG_CHECKING(For C++1y support with flag $flag)
-	fi
-
-	save_CXXFLAGS="$CXXFLAGS"
-	APPEND(CXXFLAGS, $flag)
-
-	AC_COMPILE_IFELSE([AC_LANG_SOURCE([
-	#include <array>
-	constexpr int foo(int a)
-	{
-		int i=0;
-		for(i=0; i < a ;i *=2)
-			i++;
-		return i;
-	}
-	int main()
-	{
-		auto a=[[]](auto b){};
-		auto b=1;
-	}
-	])], [cpp11=yes])
-
-	AC_MSG_RESULT($cpp11)
-
-	if test x$cpp11 != xno
-	then
-		cpp11="$flag"
-		break
-	fi
-	CXXFLAGS="$save_CXXFLAGS"
-done
-
-
-if test x$cpp11 == xno
-then
-	AC_MSG_ERROR("No C++14 support. Please add to CXXFLAGS")
-fi
-
 
 #Hack: do this properly
 AC_CHECK_LIB(pthread, main,[],[a=1])

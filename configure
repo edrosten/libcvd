@@ -670,6 +670,7 @@ LN_S
 INSTALL_DATA
 INSTALL_SCRIPT
 INSTALL_PROGRAM
+HAVE_CXX14
 ac_ct_CXX
 CXXFLAGS
 CXX
@@ -2564,6 +2565,51 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+# ============================================================================
+#  http://www.gnu.org/software/autoconf-archive/ax_cxx_compile_stdcxx_14.html
+# ============================================================================
+#
+# SYNOPSIS
+#
+#   AX_CXX_COMPILE_STDCXX_14([ext|noext],[mandatory|optional])
+#
+# DESCRIPTION
+#
+#   Check for baseline language coverage in the compiler for the C++14
+#   standard; if necessary, add switches to CXXFLAGS to enable support.
+#
+#   The first argument, if specified, indicates whether you insist on an
+#   extended mode (e.g. -std=gnu++14) or a strict conformance mode (e.g.
+#   -std=c++14).  If neither is specified, you get whatever works, with
+#   preference for an extended mode.
+#
+#   The second argument, if specified 'mandatory' or if left unspecified,
+#   indicates that baseline C++14 support is required and that the macro
+#   should error out if no mode with that support is found.  If specified
+#   'optional', then configuration proceeds regardless, after defining
+#   HAVE_CXX14 if and only if a supporting mode is found.
+#
+# LICENSE
+#
+#   Copyright (c) 2008 Benjamin Kosnik <bkoz@redhat.com>
+#   Copyright (c) 2012 Zack Weinberg <zackw@panix.com>
+#   Copyright (c) 2013 Roy Stogner <roystgnr@ices.utexas.edu>
+#   Copyright (c) 2014, 2015 Google Inc.; contributed by Alexey Sokolov <sokolov@google.com>
+#   Copyright (c) 2015 Paul Norman <penorman@mac.com>
+#   Copyright (c) 2016 Edward Rosten <ed@edwardrosten.com>
+#
+#   Copying and distribution of this file, with or without modification, are
+#   permitted in any medium without royalty provided the copyright notice
+#   and this notice are preserved. This file is offered as-is, without any
+#   warranty.
+
+#serial 13
+
+
+
+
+
+
 ac_config_headers="$ac_config_headers "
 
 ac_ext=c
@@ -3736,7 +3782,7 @@ $as_echo "#define STDC_HEADERS 1" >>confdefs.h
 
 fi
 
-#Use builtin autoconf checks for all the programs we need.
+
 for ac_prog in gawk mawk nawk awk
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -4036,6 +4082,279 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+
+    ax_cxx_compile_cxx14_required=true
+  ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+  ac_success=no
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CXX supports C++14 features by default" >&5
+$as_echo_n "checking whether $CXX supports C++14 features by default... " >&6; }
+if ${ax_cv_cxx_compile_cxx14+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+  template <typename T>
+    struct check
+    {
+      static_assert(sizeof(int) <= sizeof(T), "not big enough");
+    };
+
+    struct Base {
+    virtual void f() {}
+    };
+    struct Child : public Base {
+    virtual void f() override {}
+    };
+
+    typedef check<check<bool>> right_angle_brackets;
+
+    int a;
+    decltype(a) b;
+
+    typedef check<int> check_type;
+    check_type c;
+    check_type&& cr = static_cast<check_type&&>(c);
+
+    auto d = a;
+    auto l = [](){};
+    // Prevent Clang error: unused variable 'l' [-Werror,-Wunused-variable]
+    struct use_l { use_l() { l(); } };
+
+    // http://stackoverflow.com/questions/13728184/template-aliases-and-sfinae
+    // Clang 3.1 fails with headers of libstd++ 4.8.3 when using std::function because of this
+    namespace test_template_alias_sfinae {
+        struct foo {};
+
+        template<typename T>
+        using member = typename T::member_type;
+
+        template<typename T>
+        void func(...) {}
+
+        template<typename T>
+        void func(member<T>*) {}
+
+        void test();
+
+        void test() {
+            func<foo>(0);
+        }
+    }
+
+    // Check for C++14 attribute support
+    void noret [[noreturn]] () { throw 0; }
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  ax_cv_cxx_compile_cxx14=yes
+else
+  ax_cv_cxx_compile_cxx14=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_cv_cxx_compile_cxx14" >&5
+$as_echo "$ax_cv_cxx_compile_cxx14" >&6; }
+  if test x$ax_cv_cxx_compile_cxx14 = xyes; then
+    ac_success=yes
+  fi
+
+    if test x$ac_success = xno; then
+    for switch in -std=gnu++14 -std=gnu++1y; do
+      cachevar=`$as_echo "ax_cv_cxx_compile_cxx14_$switch" | $as_tr_sh`
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CXX supports C++14 features with $switch" >&5
+$as_echo_n "checking whether $CXX supports C++14 features with $switch... " >&6; }
+if eval \${$cachevar+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_save_CXXFLAGS="$CXXFLAGS"
+         CXXFLAGS="$CXXFLAGS $switch"
+         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+  template <typename T>
+    struct check
+    {
+      static_assert(sizeof(int) <= sizeof(T), "not big enough");
+    };
+
+    struct Base {
+    virtual void f() {}
+    };
+    struct Child : public Base {
+    virtual void f() override {}
+    };
+
+    typedef check<check<bool>> right_angle_brackets;
+
+    int a;
+    decltype(a) b;
+
+    typedef check<int> check_type;
+    check_type c;
+    check_type&& cr = static_cast<check_type&&>(c);
+
+    auto d = a;
+    auto l = [](){};
+    // Prevent Clang error: unused variable 'l' [-Werror,-Wunused-variable]
+    struct use_l { use_l() { l(); } };
+
+    // http://stackoverflow.com/questions/13728184/template-aliases-and-sfinae
+    // Clang 3.1 fails with headers of libstd++ 4.8.3 when using std::function because of this
+    namespace test_template_alias_sfinae {
+        struct foo {};
+
+        template<typename T>
+        using member = typename T::member_type;
+
+        template<typename T>
+        void func(...) {}
+
+        template<typename T>
+        void func(member<T>*) {}
+
+        void test();
+
+        void test() {
+            func<foo>(0);
+        }
+    }
+
+    // Check for C++14 attribute support
+    void noret [[noreturn]] () { throw 0; }
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  eval $cachevar=yes
+else
+  eval $cachevar=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+         CXXFLAGS="$ac_save_CXXFLAGS"
+fi
+eval ac_res=\$$cachevar
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+      if eval test x\$$cachevar = xyes; then
+        CXXFLAGS="$CXXFLAGS $switch"
+        ac_success=yes
+        break
+      fi
+    done
+  fi
+
+    if test x$ac_success = xno; then
+                for switch in -std=c++14 -std=c++1y +std=c++14 "-h std=c++14"; do
+      cachevar=`$as_echo "ax_cv_cxx_compile_cxx14_$switch" | $as_tr_sh`
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CXX supports C++14 features with $switch" >&5
+$as_echo_n "checking whether $CXX supports C++14 features with $switch... " >&6; }
+if eval \${$cachevar+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_save_CXXFLAGS="$CXXFLAGS"
+         CXXFLAGS="$CXXFLAGS $switch"
+         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+  template <typename T>
+    struct check
+    {
+      static_assert(sizeof(int) <= sizeof(T), "not big enough");
+    };
+
+    struct Base {
+    virtual void f() {}
+    };
+    struct Child : public Base {
+    virtual void f() override {}
+    };
+
+    typedef check<check<bool>> right_angle_brackets;
+
+    int a;
+    decltype(a) b;
+
+    typedef check<int> check_type;
+    check_type c;
+    check_type&& cr = static_cast<check_type&&>(c);
+
+    auto d = a;
+    auto l = [](){};
+    // Prevent Clang error: unused variable 'l' [-Werror,-Wunused-variable]
+    struct use_l { use_l() { l(); } };
+
+    // http://stackoverflow.com/questions/13728184/template-aliases-and-sfinae
+    // Clang 3.1 fails with headers of libstd++ 4.8.3 when using std::function because of this
+    namespace test_template_alias_sfinae {
+        struct foo {};
+
+        template<typename T>
+        using member = typename T::member_type;
+
+        template<typename T>
+        void func(...) {}
+
+        template<typename T>
+        void func(member<T>*) {}
+
+        void test();
+
+        void test() {
+            func<foo>(0);
+        }
+    }
+
+    // Check for C++14 attribute support
+    void noret [[noreturn]] () { throw 0; }
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  eval $cachevar=yes
+else
+  eval $cachevar=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+         CXXFLAGS="$ac_save_CXXFLAGS"
+fi
+eval ac_res=\$$cachevar
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+      if eval test x\$$cachevar = xyes; then
+        CXXFLAGS="$CXXFLAGS $switch"
+        ac_success=yes
+        break
+      fi
+    done
+  fi
+  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+  if test x$ax_cxx_compile_cxx14_required = xtrue; then
+    if test x$ac_success = xno; then
+      as_fn_error $? "*** A compiler with support for C++14 language features is required." "$LINENO" 5
+    fi
+  else
+    if test x$ac_success = xno; then
+      HAVE_CXX14=0
+      { $as_echo "$as_me:${as_lineno-$LINENO}: No compiler with C++14 support was found" >&5
+$as_echo "$as_me: No compiler with C++14 support was found" >&6;}
+    else
+      HAVE_CXX14=1
+
+$as_echo "#define HAVE_CXX14 1" >>confdefs.h
+
+    fi
+
+
+  fi
+
 ac_aux_dir=
 for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do
   if test -f "$ac_dir/install-sh"; then
@@ -4261,13 +4580,12 @@ else
   RANLIB="$ac_cv_prog_RANLIB"
 fi
 
-#Switch testing language to C++
+
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
 
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
@@ -4404,7 +4722,7 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
-#Start the compiler
+
 
 cvd_major=`echo $PACKAGE_VERSION | $AWK -F'\\\\.' '{print $1}'`
 cvd_minor=`echo $PACKAGE_VERSION | $AWK -F'\\\\.' '{print $2}'`
@@ -4652,66 +4970,6 @@ $as_echo "no" >&6; }
 		CXXFLAGS="$save_CXXFLAGS"
 		ts_success=no
 	fi
-
-
-
-cpp11=no
-for i in "" -std=c++14 -std=c++1y
-do
-
-	flag="$i"
-
-	if test x$i == x
-	then
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking For C++1y support" >&5
-$as_echo_n "checking For C++1y support... " >&6; }
-	else
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking For C++1y support with flag $flag" >&5
-$as_echo_n "checking For C++1y support with flag $flag... " >&6; }
-	fi
-
-	save_CXXFLAGS="$CXXFLAGS"
-	CXXFLAGS="$CXXFLAGS $flag"
-
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-	#include <array>
-	constexpr int foo(int a)
-	{
-		int i=0;
-		for(i=0; i < a ;i *=2)
-			i++;
-		return i;
-	}
-	int main()
-	{
-		auto a=[](auto b){};
-		auto b=1;
-	}
-
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  cpp11=yes
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cpp11" >&5
-$as_echo "$cpp11" >&6; }
-
-	if test x$cpp11 != xno
-	then
-		cpp11="$flag"
-		break
-	fi
-	CXXFLAGS="$save_CXXFLAGS"
-done
-
-
-if test x$cpp11 == xno
-then
-	as_fn_error $? "\"No C++14 support. Please add to CXXFLAGS\"" "$LINENO" 5
-fi
 
 
 #Hack: do this properly
