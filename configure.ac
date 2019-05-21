@@ -283,27 +283,6 @@ then
 fi
 
 
-########################################
-#
-# CPU type detection and optimization
-#
-noopt_CXXFLAGS="$CXXFLAGS"
-CXXFLAGS=
-
-AC_ARG_WITH(optimize,   [  --without-optimize      compile without optimizations ],[optimize=no],[])
-AC_ARG_WITH(optimize,   [  --with-optimize=flags   compile with optimization flags],[optimize="$withval"], [optimize=-O3])
-
-if test "$optimize" != no
-then
-	TEST_AND_SET_CXXFLAG(-O3)
-	if test $ts_success == no
-	then
-		AC_MSG_WARN([I do not know how to switch on optimizing for this compiler])
-	fi
-fi
-OFLAGS="$CXXFLAGS"
-CXXFLAGS="$noopt_CXXFLAGS"
-
 ################################################################################
 #
 # Processor/Platform specific parts

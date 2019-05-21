@@ -728,7 +728,6 @@ ac_user_opts='
 enable_option_checking
 enable_ggdb
 enable_debug
-with_optimize
 with_simd
 with_mmx
 with_mmxext
@@ -1401,8 +1400,6 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --without-optimize      compile without optimizations
-  --with-optimize=flags   compile with optimization flags
   --without-simd          disable SIMD code. Use --without- or --with-
                              to force presence/absence and disable autodetection.
     --with-mmx            force presence or absence of MMX  (x86 only)
@@ -4927,80 +4924,6 @@ $as_echo "$as_me: WARNING: \"I don't know how to compile position independent co
 	fi
 fi
 
-
-########################################
-#
-# CPU type detection and optimization
-#
-noopt_CXXFLAGS="$CXXFLAGS"
-CXXFLAGS=
-
-
-# Check whether --with-optimize was given.
-if test "${with_optimize+set}" = set; then :
-  withval=$with_optimize; optimize=no
-fi
-
-
-# Check whether --with-optimize was given.
-if test "${with_optimize+set}" = set; then :
-  withval=$with_optimize; optimize="$withval"
-else
-  optimize=-O3
-fi
-
-
-if test "$optimize" != no
-then
-
-	if test "" == ""
-	then
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if compiler flag -O3 works" >&5
-$as_echo_n "checking if compiler flag -O3 works... " >&6; }
-	else
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking " >&5
-$as_echo_n "checking ... " >&6; }
-	fi
-	save_CXXFLAGS="$CXXFLAGS"
-	CXXFLAGS="$CXXFLAGS -O3"
-
-
-
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-int main(){}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  cvd_conf_test=1
-else
-  cvd_conf_test=0
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-
-
-
-
-	if test $cvd_conf_test = 1
-	then
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-		ts_success=yes
-	else
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-		CXXFLAGS="$save_CXXFLAGS"
-		ts_success=no
-	fi
-
-	if test $ts_success == no
-	then
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: I do not know how to switch on optimizing for this compiler" >&5
-$as_echo "$as_me: WARNING: I do not know how to switch on optimizing for this compiler" >&2;}
-	fi
-fi
-OFLAGS="$CXXFLAGS"
-CXXFLAGS="$noopt_CXXFLAGS"
 
 ################################################################################
 #
