@@ -185,35 +185,6 @@ fi
 
 ########################################
 #
-# Debug build
-#
-AC_ARG_ENABLE(debug,   [  --disable-debug            disable debug build])
-if test "$enable_debug" != no
-then
-	AC_MSG_CHECKING([if -D_GLIBCXX_DEBUG can works...])
-	AC_COMPILE_IFELSE([AC_LANG_SOURCE([
-	#define _GLIBCXX_DEBUG
-	#include <iostream>
-	#include <vector>
-	int main()
-	{}
-	])], [debug=yes],[debug=no])]
-
-	AC_MSG_RESULT([$debug])
-
-	if test "$debug" == yes
-	then
-		AC_SUBST(STLDEBUG, [-D_GLIBCXX_DEBUG])
-	fi
-
-	AC_SUBST(debug_build, yes)
-else
-	AC_SUBST(debug_build, no)
-fi
-
-
-########################################
-#
 # Position independent code
 #
 # MinGW is always PIC

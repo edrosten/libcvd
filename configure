@@ -652,8 +652,6 @@ have_sse
 have_mmxext
 have_mmx
 have_x86
-debug_build
-STLDEBUG
 host_os
 host_vendor
 host_cpu
@@ -728,7 +726,6 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_ggdb
-enable_debug
 with_simd
 with_mmx
 with_mmxext
@@ -1394,7 +1391,6 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
    --disable-ggdb           do not use ggdb flag
-  --disable-debug            disable debug build
   --disable-fast               compile without the FAST-9,10,12 detectors (use on low memory systems).
   --disable-obscure             compile without the FAST-7,8,11 detectors (use on low memory systems).
 
@@ -5067,53 +5063,6 @@ $as_echo "no" >&6; }
 		CXXFLAGS="$save_CXXFLAGS"
 		ts_success=no
 	fi
-
-fi
-
-
-########################################
-#
-# Debug build
-#
-# Check whether --enable-debug was given.
-if test "${enable_debug+set}" = set; then :
-  enableval=$enable_debug;
-fi
-
-if test "$enable_debug" != no
-then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if -D_GLIBCXX_DEBUG can works..." >&5
-$as_echo_n "checking if -D_GLIBCXX_DEBUG can works...... " >&6; }
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-	#define _GLIBCXX_DEBUG
-	#include <iostream>
-	#include <vector>
-	int main()
-	{}
-
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  debug=yes
-else
-  debug=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext]
-
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $debug" >&5
-$as_echo "$debug" >&6; }
-
-	if test "$debug" == yes
-	then
-		STLDEBUG=-D_GLIBCXX_DEBUG
-
-	fi
-
-	debug_build=yes
-
-else
-	debug_build=no
 
 fi
 
