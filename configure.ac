@@ -174,12 +174,6 @@ AC_CHECK_LIB(pthread, main,[],[a=1])
 
 APPEND(CPPFLAGS, [-I"$(eval echo $includedir)"])
 
-########################################
-#
-# Remove -O2 from CXXFLAGS
-# 
-CXXFLAGS="$(echo "$CXXFLAGS" | sed -e's/-O2//')"
-
 
 ########################################
 #
