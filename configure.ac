@@ -1,4 +1,4 @@
-AC_INIT(CVD,0.8)
+AC_INIT(CVD,2.1)
 AC_COPYRIGHT(Copyright foo)
 
 m4_include([m4/ax_cxx_compile_stdcxx_14.m4])
