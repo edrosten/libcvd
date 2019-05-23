@@ -636,7 +636,6 @@ have_libuvc
 have_toon
 have_videodisplay
 XMKMF
-have_qtbuffer
 cygwin_hacks
 have_windows
 have_v4l2buffer
@@ -5870,48 +5869,6 @@ fi
 
 if test "$host_vendor" == apple
 then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for /opt/local" >&5
-$as_echo_n "checking for /opt/local... " >&6; }
-if ${ac_cv_file__opt_local+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  test "$cross_compiling" = yes &&
-  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-if test -r "/opt/local"; then
-  ac_cv_file__opt_local=yes
-else
-  ac_cv_file__opt_local=no
-fi
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__opt_local" >&5
-$as_echo "$ac_cv_file__opt_local" >&6; }
-if test "x$ac_cv_file__opt_local" = xyes; then :
-
-		CPPFLAGS="$CPPFLAGS -I/opt/local/include"
-		LIBS="$LIBS -L/opt/local/lib"
-fi
-
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for /sw" >&5
-$as_echo_n "checking for /sw... " >&6; }
-if ${ac_cv_file__sw+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  test "$cross_compiling" = yes &&
-  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-if test -r "/sw"; then
-  ac_cv_file__sw=yes
-else
-  ac_cv_file__sw=no
-fi
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__sw" >&5
-$as_echo "$ac_cv_file__sw" >&6; }
-if test "x$ac_cv_file__sw" = xyes; then :
-
-		CPPFLAGS="$CPPFLAGS -I/sw/include"
-		LIBS="$LIBS -L/sw/lib"
-fi
-
 	CPPFLAGS="$CPPFLAGS -I/usr/X11R6/include"
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: Adding /usr/X11R6/include to the build path." >&5
 $as_echo "$as_me: Adding /usr/X11R6/include to the build path." >&6;}
@@ -6080,63 +6037,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 esac
 
-
-if test "$host_vendor" == apple
-then
-
-	if test "$with_qtbuffer" != no && test "$have_qtbuffer" != yes
-	then
-		if test "$with_qtbuffer" == ""
-		then
-			with_qtbuffer=yes
-		fi
-
-		save_LIBS="$LIBS"
-		save_CXXFLAGS="$CXXFLAGS"
-		a=
-
-		LIBS="$LIBS -framework Carbon -framework QuickTime"
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Carbon and QuickTime framework" >&5
-$as_echo_n "checking Carbon and QuickTime framework... " >&6; }
-		cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
- #include <Carbon/Carbon.h>
-							#include <QuickTime/QuickTime.h>
-							int main(){InitCursor();EnterMovies();return 0;}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }; a=1
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-
-		if test x$a == x
-		then
-			$as_echo "#define CVD_HAVE_QTBUFFER 1" >>confdefs.h
-
-			have_qtbuffer=yes
-
-			options="$options qtbuffer"
-
-		else
-			LIBS="$save_LIBS"
-			CXXFLAGS="$save_CXXFLAGS"
-		fi
-	fi
-
-	if test "$have_qtbuffer" != yes
-	then
-		:
-
-	fi
-
-fi
-
-
 ################################################################################
 #
 #Check for optional libraries
@@ -6202,45 +6102,12 @@ fi
 		save_CXXFLAGS="$CXXFLAGS"
 		a=
 
-
 	if test "$host_vendor" == apple
 	then
-		save_LIBS="$LIBS"
+		LIBS="$LIBS  -framework OpenGL "
+	fi
 
-		LIBS="$LIBS  -framework OpenGL /usr/X11R6/lib/libX11.dylib /usr/X11R6/lib/libGLU.dylib /usr/X11R6/lib/libGL.dylib"
-		# all of the following is already covered in the framework
-		# AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
-		# AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
-		# AC_CHECK_LIB(GLU,gluGetString, [], [a=1])
-
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for X11 using dubious methods..." >&5
-$as_echo_n "checking for X11 using dubious methods...... " >&6; }
-
-		a=
-		cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <X11/Xlib.h>
-		int main()
-		{
-			XOpenDisplay(NULL);
-		}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }; a=1
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-		if test x$a == x1
-		then
-			LIBS="$save_LIBS"
-		fi
-	else
-
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for X" >&5
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for X" >&5
 $as_echo_n "checking for X... " >&6; }
 
 
@@ -6433,18 +6300,18 @@ else
 $as_echo "libraries $x_libraries, headers $x_includes" >&6; }
 fi
 
-		if test x"$x_includes" != x
-		then
-			CXXFLAGS="$CXXFLAGS -I$x_includes"
-		fi
+	if test x"$x_includes" != x
+	then
+		CXXFLAGS="$CXXFLAGS -I$x_includes"
+	fi
 
-		if test "$x_libraries" != ""
-		then
-			LIBS="$LIBS -L$x_libraries"
-		fi
+	if test "$x_libraries" != ""
+	then
+		LIBS="$LIBS -L$x_libraries"
+	fi
 
-		LIBS="$LIBS -lX11 -lXext"
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for glDrawPixels in -lGL" >&5
+	LIBS="$LIBS -lX11 -lXext"
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for glDrawPixels in -lGL" >&5
 $as_echo_n "checking for glDrawPixels in -lGL... " >&6; }
 if ${ac_cv_lib_GL_glDrawPixels+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -6491,7 +6358,7 @@ else
   a=1
 fi
 
-		for ac_header in GL/glu.h
+	for ac_header in GL/glu.h
 do :
   ac_fn_cxx_check_header_mongrel "$LINENO" "GL/glu.h" "ac_cv_header_GL_glu_h" "$ac_includes_default"
 if test "x$ac_cv_header_GL_glu_h" = xyes; then :
@@ -6505,7 +6372,7 @@ fi
 
 done
 
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for gluGetString in -lGLU" >&5
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for gluGetString in -lGLU" >&5
 $as_echo_n "checking for gluGetString in -lGLU... " >&6; }
 if ${ac_cv_lib_GLU_gluGetString+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -6552,7 +6419,6 @@ else
   a=1
 fi
 
-	fi
 
 
 		if test x$a == x

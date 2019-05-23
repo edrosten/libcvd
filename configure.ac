@@ -325,14 +325,6 @@ AC_ARG_WITH(v4l2buffer,[  --without-v4l2buffer	  compile without v4l2buffer (Vid
 
 if test "$host_vendor" == apple
 then
-	AC_CHECK_FILE(/opt/local, [
-		APPEND(CPPFLAGS, [-I/opt/local/include])
-		APPEND(LIBS, [-L/opt/local/lib])], 
-		[])
-	AC_CHECK_FILE(/sw, [
-		APPEND(CPPFLAGS, [-I/sw/include])
-		APPEND(LIBS, [-L/sw/lib])], 
-		[])
 	APPEND(CPPFLAGS, [-I/usr/X11R6/include])
 	AC_MSG_NOTICE([Adding /usr/X11R6/include to the build path.])
 	AC_SUBST(osx_hacks,yes)
@@ -370,21 +362,6 @@ case "$host" in
 		
 esac
 
-
-if test "$host_vendor" == apple
-then
-	CHECK_FOR_OPTION(qtbuffer,[
-		APPEND(LIBS, [-framework Carbon -framework QuickTime])
-		AC_MSG_CHECKING(Carbon and QuickTime framework)
-		AC_COMPILE_IFELSE([AC_LANG_SOURCE([ #include <Carbon/Carbon.h>
-							#include <QuickTime/QuickTime.h>
-							int main(){InitCursor();EnterMovies();return 0;}])],
-							[AC_MSG_RESULT(yes)], 
-							[AC_MSG_RESULT(no); a=1]) 
-	])
-fi
-
-
 ################################################################################
 #
 #Check for optional libraries
@@ -404,48 +381,26 @@ AC_ARG_WITH(ffmpeg, [  --without-ffmpeg	  compile without FFMPEG support.])
 AC_ARG_WITH(toon, [  --without-toon          Compile without TooN support])
 
 CHECK_FOR_OPTION(videodisplay,[
-
 	if test "$host_vendor" == apple
 	then
-		save_LIBS="$LIBS"
-
-		APPEND(LIBS, [ -framework OpenGL /usr/X11R6/lib/libX11.dylib /usr/X11R6/lib/libGLU.dylib /usr/X11R6/lib/libGL.dylib])
-		# all of the following is already covered in the framework
-		# AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
-		# AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
-		# AC_CHECK_LIB(GLU,gluGetString, [], [a=1])
-
-		AC_MSG_CHECKING([for X11 using dubious methods...])
-
-		a=
-		AC_COMPILE_IFELSE([AC_LANG_SOURCE([#include <X11/Xlib.h>
-		int main()
-		{
-			XOpenDisplay(NULL);
-		}])],  [AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no); a=1]) 
-		
-		if test x$a == x1
-		then
-			LIBS="$save_LIBS"
-		fi
-	else
-
-		AC_PATH_X
-		if test x"$x_includes" != x
-		then
-			APPEND(CXXFLAGS, -I$x_includes)
-		fi
-
-		if test "$x_libraries" != ""
-		then
-			APPEND(LIBS, [-L$x_libraries])
-		fi
-
-		APPEND(LIBS, [-lX11 -lXext])
-		AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
-		AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
-		AC_CHECK_LIB(GLU,gluGetString, [], [a=1])
+		APPEND(LIBS, [ -framework OpenGL ])
 	fi
+
+	AC_PATH_X
+	if test x"$x_includes" != x
+	then
+		APPEND(CXXFLAGS, -I$x_includes)
+	fi
+
+	if test "$x_libraries" != ""
+	then
+		APPEND(LIBS, [-L$x_libraries])
+	fi
+
+	APPEND(LIBS, [-lX11 -lXext])
+	AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
+	AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
+	AC_CHECK_LIB(GLU,gluGetString, [], [a=1])
 ])
 
 CHECK_FOR_OPTION(toon, [
