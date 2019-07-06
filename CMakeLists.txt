@@ -25,6 +25,28 @@ else()
 	set(CVD_INTERNAL_ARCH_LITTLE_ENDIAN ON)
 endif()
 
+option(CVD_SSE2 "Enable SSE2" OFF)
+option(CVD_SSE "Enable SSE" OFF)
+option(CVD_FAST "Enable FAST" ON)
+option(CVD_TESTS "Enable tests" ON)
+option(CVD_PROGS "Enable programs" ON)
+option(CVD_EXAMPLES "Enable examples" ON)
+option(CVD_FAST_OBSCURE "Enable obscure fast algorithms" ON)
+
+if(CVD_SSE2)
+	set(CVD_SSE ON)
+endif()
+
+if(NOT MSVC)
+	if(CVD_SSE2)
+		add_compile_options(-msse2)
+	endif()
+
+	if(CVD_SSE)
+		add_compile_options(-mfpmath=sse)
+	endif()
+endif()
+
 # Basic source files and headers for all platforms and options.
 
 set(SRCS
@@ -48,19 +70,6 @@ set(SRCS
 	cvd_src/yuv411_to_stuff.cxx
 	cvd_src/yuv420.cpp
 	cvd_src/fast_corner.cxx
-	cvd_src/fast/fast_corner_9_nonmax.cxx
-	cvd_src/fast/fast_10_detect.cxx
-	cvd_src/fast/fast_10_score.cxx
-	cvd_src/fast/fast_11_detect.cxx
-	cvd_src/fast/fast_11_score.cxx
-	cvd_src/fast/fast_12_detect.cxx
-	cvd_src/fast/fast_12_score.cxx
-	cvd_src/fast/fast_7_detect.cxx
-	cvd_src/fast/fast_7_score.cxx
-	cvd_src/fast/fast_8_detect.cxx
-	cvd_src/fast/fast_8_score.cxx
-	cvd_src/fast/fast_9_detect.cxx
-	cvd_src/fast/fast_9_score.cxx
 	cvd_src/image_io/bmp.cxx
 	cvd_src/image_io/bmp_read.cc
 	cvd_src/image_io/bmp_write.cc
@@ -72,18 +81,86 @@ set(SRCS
 	cvd_src/image_io/text.cxx
 	cvd_src/image_io/text_write.cc
 	cvd_src/noarch/convert_rgb_to_y.cc
-	cvd_src/noarch/convolve_gaussian.cc
-	cvd_src/noarch/gradient.cc
-	cvd_src/noarch/half_sample.cc
-	cvd_src/noarch/median_3x3.cc
-	cvd_src/noarch/two_thirds_sample.cc
-	cvd_src/noarch/utility_byte_differences.cc
-	cvd_src/noarch/utility_double_int.cc
-	cvd_src/noarch/utility_float.cc
 	cvd_src/noarch/yuv422.cpp
-	cvd_src/noarch/slower_corner_10.cxx
-	cvd_src/noarch/slower_corner_12.cxx
-	cvd_src/noarch/slower_corner_9.cxx)
+	)
+
+
+if(CVD_FAST)
+	if(CVD_SSE2)
+		list(APPEND SRCS
+			cvd_src/SSE2/faster_corner_9.cxx
+			cvd_src/SSE2/faster_corner_10.cxx
+			cvd_src/SSE2/faster_corner_12.cxx
+			)
+	else()
+		list(APPEND SRCS
+			cvd_src/noarch/slower_corner_9.cxx
+			cvd_src/noarch/slower_corner_10.cxx
+			cvd_src/noarch/slower_corner_12.cxx
+			)
+	endif()
+
+	list(APPEND SRCS
+		cvd_src/fast/fast_9_detect.cxx
+		cvd_src/fast/fast_9_score.cxx
+		cvd_src/fast/fast_corner_9_nonmax.cxx
+
+		cvd_src/fast/fast_10_detect.cxx
+		cvd_src/fast/fast_10_score.cxx
+
+		cvd_src/fast/fast_12_detect.cxx
+		cvd_src/fast/fast_12_score.cxx
+		)
+endif()
+
+if(CVD_FAST_OBSCURE)
+	list(APPEND SRCS
+		cvd_src/fast/fast_7_detect.cxx
+		cvd_src/fast/fast_7_score.cxx
+		cvd_src/fast/slower_corner_7.cxx
+		cvd_src/fast/fast_8_detect.cxx
+		cvd_src/fast/fast_8_score.cxx
+		cvd_src/fast/slower_corner_8.cxx
+		cvd_src/fast/fast_11_detect.cxx
+		cvd_src/fast/fast_11_score.cxx
+		cvd_src/fast/slower_corner_11.cxx
+		)
+endif()
+
+if(CVD_SSE2)
+	list(APPEND SRCS
+		cvd_src/SSE2/faster_corner_utilities.h
+		cvd_src/SSE2/gradient.cc
+		cvd_src/SSE2/half_sample.cc
+		cvd_src/SSE2/median_3x3.cc
+		cvd_src/SSE2/two_thirds_sample.cc
+		cvd_src/SSE2/utility_double_int.cc
+		)
+else()
+	list(APPEND SRCS
+		cvd_src/noarch/gradient.cc
+		cvd_src/noarch/half_sample.cc
+		cvd_src/noarch/median_3x3.cc
+		cvd_src/noarch/two_thirds_sample.cc
+		cvd_src/noarch/utility_double_int.cc
+	)
+endif()
+
+if(CVD_SSE)
+	list(APPEND SRCS
+		cvd_src/SSE/convolve_gaussian.cc
+		cvd_src/SSE/utility_float.cc
+		cvd_src/MMX/utility_byte_differences.cc
+		)
+else()
+	list(APPEND SRCS
+		cvd_src/noarch/convolve_gaussian.cc
+		cvd_src/noarch/utility_float.cc
+		cvd_src/noarch/utility_byte_differences.cc
+	)
+endif()
+
+
 set(HEADERS
 	cvd/argb.h
 	cvd/bgrx.h
@@ -224,10 +301,10 @@ else()
 
 	list(APPEND SRCS
 		cvd_src/globlist.cxx)
-		
+
 	set(CVD_HAVE_GLOB ON)
 	link_libraries(pthread)
-		
+
 endif()
 
 if(USE_V4L)
@@ -323,7 +400,12 @@ endforeach()
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/cvd DESTINATION include)
 install(FILES ${PROJECT_SOURCE_DIR}/cmake/CVDConfig.cmake DESTINATION cmake)
 
+if(CVD_TESTS)
 add_subdirectory(tests)
+endif()
+if(CVD_PROGS)
 add_subdirectory(progs)
+endif()
+if(CVD_EXAMPLES)
 add_subdirectory(examples)
-
+endif()
