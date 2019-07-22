@@ -192,7 +192,7 @@ else()
 		cvd_src/videosource_nodvbuffer.cc)
 endif()
 
-if(OpenGL_FOUND)
+if(OpenGL_OpenGL_FOUND)
 	list(APPEND SRCS
 		cvd_src/gltext.cpp)
 
@@ -221,11 +221,11 @@ else()
 	#This will always force the compiler into c++14 mode
 	#even if it's in C++17 mode, I think.
 	add_compile_options(--std=c++14)
-
-		
-	link_libraries(pthread)
-		
 endif()
+
+find_package(Threads)
+link_libraries(Threads::Threads)
+
 
 check_symbol_exists(glob glob.h CVD_HAVE_GLOB)
 
