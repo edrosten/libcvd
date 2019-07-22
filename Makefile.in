@@ -62,8 +62,6 @@ MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
-DEBUGEXTRA=@STLDEBUG@ -fsanitize=address,undefined -DCVD_IMAGE_DEBUG -DTOON_CHECK_BOUNDS -DTOON_INITIALIZE_NAN
-
 SUBDIRS =
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -162,21 +160,10 @@ $(soname): $(OBJS)
 	ln -s $(soname2) $(soname1)
 	ln -s $(soname1) $(soname)
 
-$(dsoname): $(DEBUG_OBJS)
-	rm -f $(dsos)
-	$(LD) $(shared) -o $(dsoname2) $(DEBUG_OBJS) $(LDFLAGS) $(LOADLIBES) $(set_dsoname)
-	ln -s $(dsoname2) $(dsoname1)
-	ln -s $(dsoname1) $(dsoname)
-
 libcvd.a: $(OBJS)
 	$(AR) crvs libcvd.a $(OBJS)
 	$(RANLIB) libcvd.a
 
-
-#Multiple targets are allowed on the left, so all directories can be created in batch
-#with a single rule
-$(DEBUG_DIRS):
-	mkdir -p $(DEBUG_DIRS)
 
 # Before we compile the test programs we need to augment the
 # search paths with the path to libcvd, and also add libcvd to the
@@ -300,7 +287,7 @@ REGRESSION_OUT=$(patsubst %,tests/%.out, $(REGRESSIONS))
 test:$(REGRESSION_OUT)
 .PRECIOUS:tests/%.test
 tests/%.test: tests/%.cc 
-	$(CXX) $(DEBUGEXTRA) -I. $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O0 -L. -lcvd -MMD -MP -MF tests/$*.d
+	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O0 -L. -lcvd -MMD -MP -MF tests/$*.d
 
 .PRECIOUS:tests/%.out
 tests/%.out: tests/%.test
