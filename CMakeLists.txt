@@ -3,6 +3,7 @@ project(CVD)
 enable_testing()
 
 include(TestBigEndian)
+include(CheckSymbolExists)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -213,7 +214,6 @@ if(WIN32)
 	list(APPEND SRCS
 		cvd_src/Win32/win32.cpp
 		cvd_src/Win32/glwindow.cpp)
-	set(CVD_HAVE_GLOB OFF)
 	set(CVD_HAVE_GLWINDOW ON)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 else()
@@ -222,13 +222,17 @@ else()
 	#even if it's in C++17 mode, I think.
 	add_compile_options(--std=c++14)
 
-	list(APPEND SRCS
-		cvd_src/globlist.cxx)
 		
-	set(CVD_HAVE_GLOB ON)
 	link_libraries(pthread)
 		
 endif()
+
+check_symbol_exists(glob glob.h CVD_HAVE_GLOB)
+
+if(CVD_HAVE_GLOB)
+	list(APPEND SRCS cvd_src/globlist.cxx)
+endif()
+
 
 if(USE_V4L)
 	list(APPEND SRCS
