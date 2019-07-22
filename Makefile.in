@@ -145,8 +145,6 @@ endif
 OBJS=$(CVD_OBJS)
 
 sos= $(soname) $(soname1) $(soname2) 
-dsos= $(dsoname) $(dsoname1) $(dsoname2) 
-
 
 all: libcvd.a $(soname) $(dllname) progs $(DTARGETS)
 
@@ -307,7 +305,7 @@ $(EXAMPLE_PROGS): % : %.cc
 
 
 clean:
-	/bin/rm -f tmp libcvd.a $(sos) $(dsos) $(dllname) $(ddllname) $(dllimportname) $(ddllimportname)
+	/bin/rm -f tmp libcvd.a $(sos) $(dllname) $(ddllname) $(dllimportname) $(ddllimportname)
 	find . -name '*.o' -o -name '*.d' | xargs rm -f
 	find progs/ -perm +0100 -type f | xargs rm -f
 	rm -rf html man
