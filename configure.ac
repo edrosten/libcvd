@@ -179,6 +179,12 @@ then
 	TEST_AND_SET_CXXFLAG(-ggdb)
 fi
 
+AC_ARG_ENABLE(shared, [   --disable-ggdb           disable shared library support])
+if test "$enable_shared" != no
+then 
+	AC_SUBST(have_shared,yes)
+fi
+
 
 ########################################
 #

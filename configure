@@ -650,6 +650,7 @@ have_sse
 have_mmxext
 have_mmx
 have_x86
+have_shared
 host_os
 host_vendor
 host_cpu
@@ -724,6 +725,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_ggdb
+enable_shared
 with_simd
 with_mmx
 with_mmxext
@@ -1387,6 +1389,7 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
    --disable-ggdb           do not use ggdb flag
+   --disable-ggdb           disable shared library support
   --disable-fast               compile without the FAST-9,10,12 detectors (use on low memory systems).
   --disable-obscure             compile without the FAST-7,8,11 detectors (use on low memory systems).
 
@@ -4986,6 +4989,17 @@ $as_echo "no" >&6; }
 		CXXFLAGS="$save_CXXFLAGS"
 		ts_success=no
 	fi
+
+fi
+
+# Check whether --enable-shared was given.
+if test "${enable_shared+set}" = set; then :
+  enableval=$enable_shared;
+fi
+
+if test "$enable_shared" != no
+then
+	have_shared=yes
 
 fi
 

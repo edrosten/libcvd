@@ -123,13 +123,13 @@ ifeq (@osx_hacks@,yes)
 	soname2=libcvd-@major@.@minor@.dylib
 
 	shared=-dynamiclib
-	install_so=install-libs-so
+	install_so_target=install-libs-so
 else 
 ifeq (@cygwin_hacks@,yes)
 	dllname=cygcvd.dll
 	dllimportname=libcvd.dll.a
 
-	install_so=install-libs-dll
+	install_so_target=install-libs-dll
 else
 	soname=libcvd.so
 	soname1=libcvd.so.@major@
@@ -138,15 +138,20 @@ else
 	set_soname=-Wl,-soname,libcvd.so.@major@
 
 	shared=-shared
-	install_so=install-libs-so
+	install_so_target=install-libs-so
 endif
 endif
 
 OBJS=$(CVD_OBJS)
 
-sos= $(soname) $(soname1) $(soname2) 
+ifeq (@have_shared@,yes)
+	install_so=$(install_so_target)
+else
+	install_so=
+	soname:=
+endif
 
-all: libcvd.a $(soname) $(dllname) progs $(DTARGETS)
+all: libcvd.a $(soname) $(dllname) progs 
 
 
 cyg%.dll lib%.dll.a: lib%.a
