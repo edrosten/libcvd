@@ -1,9 +1,5 @@
 #include <cvd/fast_corner.h>
 #include <cvd/image_io.h>
-#include <cvd/gl_helpers.h>
-#if 0
-#include <cvd/videodisplay.h>
-#endif
 #include <utility>
 #include <algorithm>
 #include <iterator>
@@ -110,43 +106,6 @@ template<class A, class B, class C> void test(const SubImage<byte>& i, A funcf, 
 	cout << "fail." << endl;
 	
 	exit(1);
-		
-
-	#if 0
-		VideoDisplay d(i.size(), 2);
-
-		glDrawPixels(i);
-		glPointSize(3);
-		glBegin(GL_POINTS);
-
-		for(unsigned int i=0; i < all.size(); i++)
-		{
-			Rgb<byte> colour(0,0,0);
-
-			if(!binary_search(normal.begin(), normal.end(), all[i]))
-				colour.red = 255;
-
-			if(!binary_search(faster.begin(), faster.end(), all[i]))
-				colour.green = 255;
-
-			if(!binary_search(simple.begin(),simple.end(), all[i]))
-				colour.blue = 255;
-
-			//Colour can never be white. Black means OK.
-
-			if(colour != Rgb<byte>(0,0,0))
-			{
-				glColor(colour);
-				glVertex(all[i]);
-			}
-		}
-		glEnd();
-
-		cout << "\x1b[31m BROKEN!\x1b[0m\n";
-
-		cin.get();
-
-	#endif
 }
 
 template<class A, class B, class C> void test_images(const SubImage<byte>& im, A funcf, B funcp, C funcs, int threshold, string type)
