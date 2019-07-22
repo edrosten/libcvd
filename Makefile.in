@@ -310,9 +310,9 @@ $(EXAMPLE_PROGS): % : %.cc
 
 
 clean:
-	/bin/rm -f tmp libcvd.a $(sos) $(dllname) $(ddllname) $(dllimportname) $(ddllimportname)
+	rm -f tmp libcvd.a $(sos) $(dllname) $(ddllname) $(dllimportname) $(ddllimportname)
 	find . -name '*.o' -o -name '*.d' | xargs rm -f
-	find progs/ -perm +0100 -type f | xargs rm -f
+	find progs/ -perm /u+x -type f | xargs rm -f
 	rm -rf html man
 	rm -f tests/*.out
 	rm -f tests/*.test
