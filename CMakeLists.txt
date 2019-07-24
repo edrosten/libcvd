@@ -21,7 +21,7 @@ find_package(TooN)
 find_package(X11)
 find_package(dc1394v2)
 find_package(OpenGL)
-find_package(Threads)
+find_package(Threads REQUIRED)
 
 # Detect endianness
 
@@ -96,8 +96,6 @@ set(HEADERS
 	cvd/bgrx.h
 	cvd/bresenham.h
 	cvd/byte.h
-	cvd/camera.h
-	cvd/canny.h
 	cvd/colourmap.h
 	cvd/colourspace.h
 	cvd/colourspacebuffer.h
@@ -113,7 +111,6 @@ set(HEADERS
 	cvd/distance_transform.h
 	cvd/documentation.h
 	cvd/draw.h
-	cvd/esm.h
 	cvd/exceptions.h
 	cvd/fast_corner.h
 	cvd/gles1_helpers.h
@@ -125,7 +122,6 @@ set(HEADERS
 	cvd/image.h
 	cvd/image_convert.h
 	cvd/image_convert_fwd.h
-	cvd/image_interpolate.h
 	cvd/image_io.h
 	cvd/image_ref.h
 	cvd/integral_image.h
@@ -145,7 +141,6 @@ set(HEADERS
 	cvd/timeddiskbuffer.h
 	cvd/timer.h
 	cvd/utility.h
-	cvd/vector_image_ref.h
 	cvd/videobuffer.h
 	cvd/videobufferflags.h
 	cvd/videobufferwithdata.h
@@ -287,13 +282,18 @@ if(TooN_FOUND)
 		cvd_src/threepointpose.cpp)
 	list(APPEND HEADERS
 		cvd/brezenham.h
+		cvd/camera.h
+		cvd/canny.h
+		cvd/esm.h
+		cvd/image_interpolate.h
 		cvd/tensor_voting.h
+		cvd/vector_image_ref.h
 		cvd/geometry/threepointpose.h)
 else()
 	set(CVD_HAVE_TOON OFF)
 endif()
 
-if(JPEG_INCLUDE_DIR)
+if(JPEG_FOUND)
 	set(CVD_HAVE_JPEG ON)
 	set(CVD_INTERNAL_JPEG_BUFFER_SIZE 1)
     list(APPEND SRCS cvd_src/image_io/jpeg.cxx)
@@ -302,7 +302,7 @@ else()
 	set(CVD_INTERNAL_JPEG_BUFFER_SIZE OFF)
 endif()
 
-if(TIFF_INCLUDE_DIRS)
+if(TIFF_FOUND)
 	set(CVD_HAVE_TIFF ON)
     list(APPEND SRCS
 		cvd_src/image_io/tiff.cxx
@@ -311,7 +311,7 @@ else()
 	set(CVD_HAVE_TIFF OFF)
 endif()
 
-if(PNG_INCLUDE_DIRS)
+if(PNG_FOUND)
 	set(CVD_HAVE_PNG ON)
     list(APPEND SRCS cvd_src/image_io/png.cc)
 else()
@@ -325,30 +325,31 @@ add_library(${PROJECT_NAME} ${SRCS} ${HEADERS})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/include")
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
-if(JPEG_INCLUDE_DIR)
-	target_include_directories(${PROJECT_NAME} PRIVATE ${JPEG_INCLUDE_DIR})
+if(JPEG_FOUND)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${JPEG_INCLUDE_DIRS})
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${JPEG_LIBRARIES})
 endif()
-if(TIFF_INCLUDE_DIRS)
+if(TIFF_FOUND)
 	target_include_directories(${PROJECT_NAME} PRIVATE ${TIFF_INCLUDE_DIRS})
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${TIFF_LIBRARIES})
 endif()
-if(PNG_INCLUDE_DIRS)
+if(PNG_FOUND)
 	target_include_directories(${PROJECT_NAME} PRIVATE ${PNG_INCLUDE_DIRS})
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${PNG_LIBRARIES})
 endif()
 if(TooN_FOUND)
 	target_include_directories(${PROJECT_NAME} PUBLIC ${TooN_INCLUDE_DIRS})
 endif()
-if(dc1394_FOUND)
-	target_include_directories(${PROJECT_NAME} PRIVATE ${dc1394_INCLUDE_DIRS})
-	target_link_libraries(${PROJECT_NAME} PRIVATE ${dc1394_LIBRARIES})
+if(dc1394v2_FOUND)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${dc1394v2_INCLUDE_DIRS})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${dc1394v2_LIBRARIES})
 endif()
 if(OpenGL_OpenGL_FOUND)
 	if(X11_FOUND)
+		target_link_libraries(${PROJECT_NAME} PUBLIC ${X11_INCLUDE_DIR})
 		target_link_libraries(${PROJECT_NAME} PUBLIC ${X11_LIBRARIES})
 	endif()
-	target_link_libraries(${PROJECT_NAME} PUBLIC ${OPENGL_LIBRARIES})
+	target_link_libraries(${PROJECT_NAME} PUBLIC OpenGL::GL)
 endif()
 if(CVD_HAVE_FFMPEG)
 	target_include_directories(${PROJECT_NAME} PRIVATE ${AVCODEC_INCLUDE_DIR} ${AVDEVICE_INCLUDE_DIR} ${AVFORMAT_INCLUDE_DIR} ${SWSCALE_INCLUDE_DIR})
