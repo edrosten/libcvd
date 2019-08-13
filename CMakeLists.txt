@@ -13,6 +13,8 @@ find_package(JPEG)
 find_package(PNG)
 find_package(TIFF)
 find_package(TooN)
+find_package(AVCodec)
+find_package(V4L2)
 find_package(X11)
 find_package(dc1394v2)
 find_package(OpenGL)
@@ -234,7 +236,7 @@ if(CVD_HAVE_GLOB)
 endif()
 
 
-if(USE_V4L)
+if(V4L2_FOUND)
 	list(APPEND SRCS
 		cvd_src/Linux/v4lbuffer.cc
 		cvd_src/Linux/v4lcontrol.cc
@@ -256,7 +258,7 @@ else()
 		cvd_src/videosource_nouvcbuffer.cc)
 endif()
 
-if(USE_AVCODEC)
+if(AVCodec_found)
 	list(APPEND SRCS cvd_src/videofilebuffer2.cc
 		cvd_src/videosource_videofilebuffer.cc)
 else()
