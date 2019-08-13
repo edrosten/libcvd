@@ -22,6 +22,7 @@ extern "C" {
 #include <string>
 #include <map>
 #include <utility>
+#include <algorithm>
 #include <cvd/exceptions.h>
 #include <cvd/videofilebuffer.h>
 
