@@ -28,14 +28,15 @@
 //                                                                         //
 /////////////////////////////////////////////////////////////////////////////
 
-#include <unistd.h>
 #include <cvd/image.h>
 #include <typeinfo>
 #include <cstdlib>
+#include <cstring>
 #include <thread>
 #include <condition_variable>
 #include <atomic>
 #include <mutex>
+#include <thread>
 #include <cvd/rgb.h>
 #include <cvd/byte.h>
 #include <cvd/glwindow.h>
@@ -46,6 +47,63 @@
 
 #ifdef CVD_HAVE_V4LBUFFER
 	#include <cvd/Linux/v4lbuffer.h>
+#endif
+
+
+#if unix
+#include <unistd.h>
+#else
+// From here: https://github.com/iotivity/iotivity/blob/master/resource/c_common/windows/src/getopt.c
+// with bug fixes
+/* *****************************************************************
+*
+* Copyright 2016 Microsoft
+*
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+******************************************************************/
+char* optarg = NULL;
+int optind = 1;
+char optopt = 0;
+int opterr=0;
+
+int getopt(int argc, char *const argv[], const char *optstring)
+{
+    if ((optind >= argc) || (argv[optind][0] != '-') || (argv[optind][0] == 0))
+    {
+        return -1;
+    }
+
+    int opt = optopt = argv[optind][1];
+    const char *p = strchr(optstring, opt);
+
+    if (p == NULL)
+    {
+        return '?';
+    }
+	optind++;
+    if (p[1] == ':')
+    {
+        if (optind >= argc)
+        {
+            return '?';
+        }
+        optarg = argv[optind];
+        optind++;
+    }
+    return opt;
+}
 #endif
 
 using namespace CVD;
@@ -64,6 +122,7 @@ using std::thread;
 using std::unique_lock;
 using std::unique_ptr;
 using std::vector;
+using std::chrono::operator""ms;
 
 
 class Actions: public GLWindow::EventHandler
@@ -366,7 +425,7 @@ template<class C> void play(string s, string fmt, unsigned int decimate)
 		}
 
 		if(a.paused)
-			usleep(100000);
+			std::this_thread::sleep_for(100ms);
 	}
 
 	if(frame)
