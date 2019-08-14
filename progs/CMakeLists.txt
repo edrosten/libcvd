@@ -1,14 +1,17 @@
 project(progs)
 
-if(CVD_HAVE_VIDEODISPLAY)
+if(CVD_HAVE_GLWINDOW)
 	add_executable(video_play_source video_play_source.cc)
 	target_link_libraries(video_play_source PRIVATE CVD)
+	install(TARGETS video_play_source RUNTIME DESTINATION bin)
+endif()
+
+if(CVD_HAVE_VIDEODISPLAY)
 	add_executable(cvd_display_image cvd_display_image.cxx)
 	target_link_libraries(cvd_display_image PRIVATE CVD)
 	add_executable(cvd_image_viewer cvd_image_viewer.cxx)
 	target_link_libraries(cvd_image_viewer PRIVATE CVD)
-
-	install(TARGETS video_play_source cvd_display_image cvd_image_viewer RUNTIME DESTINATION bin)
+	install(TARGETS cvd_display_image cvd_image_viewer RUNTIME DESTINATION bin)
 endif()
 
 if(CVD_HAVE_VIDEODISPLAY AND CVD_HAVE_TOON)
