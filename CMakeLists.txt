@@ -1,11 +1,16 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10)
 project(CVD)
 enable_testing()
+
+option(CVD_ENABLE_TESTS "Build libCVD tests" ON)
+option(CVD_ENABLE_PROGS "Build libCVD programs" ON)
+option(CVD_ENABLE_EXAMPLES "Build libCVD examples" ON)
 
 include(TestBigEndian)
 include(CheckSymbolExists)
 
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+set(CMAKE_DEBUG_POSTFIX _debug)
 
 # Dependencies that can be automatically found by CMake.
 
@@ -16,6 +21,7 @@ find_package(TooN)
 find_package(X11)
 find_package(dc1394v2)
 find_package(OpenGL)
+find_package(Threads REQUIRED)
 
 # Detect endianness
 
@@ -90,8 +96,6 @@ set(HEADERS
 	cvd/bgrx.h
 	cvd/bresenham.h
 	cvd/byte.h
-	cvd/camera.h
-	cvd/canny.h
 	cvd/colourmap.h
 	cvd/colourspace.h
 	cvd/colourspacebuffer.h
@@ -107,7 +111,6 @@ set(HEADERS
 	cvd/distance_transform.h
 	cvd/documentation.h
 	cvd/draw.h
-	cvd/esm.h
 	cvd/exceptions.h
 	cvd/fast_corner.h
 	cvd/gles1_helpers.h
@@ -119,7 +122,6 @@ set(HEADERS
 	cvd/image.h
 	cvd/image_convert.h
 	cvd/image_convert_fwd.h
-	cvd/image_interpolate.h
 	cvd/image_io.h
 	cvd/image_ref.h
 	cvd/integral_image.h
@@ -139,7 +141,6 @@ set(HEADERS
 	cvd/timeddiskbuffer.h
 	cvd/timer.h
 	cvd/utility.h
-	cvd/vector_image_ref.h
 	cvd/videobuffer.h
 	cvd/videobufferflags.h
 	cvd/videobufferwithdata.h
@@ -186,7 +187,6 @@ if(dc1394_FOUND)
 		cvd/Linux/dvbuffer.h
 		cvd/Linux/dvbuffer3.h
 		cvd/Linux/dvframe.h)
-	link_libraries(${dc1394_LIBRARIES})
 else()
 	list(APPEND SRCS
 		cvd_src/videosource_nodvbuffer.cc)
@@ -204,9 +204,7 @@ if(OpenGL_OpenGL_FOUND)
 
 		set(CVD_HAVE_GLWINDOW ON)
 		set(CVD_HAVE_VIDEODISPLAY ON)
-		link_libraries(${X11_LIBRARIES})
 	endif()
-	link_libraries(${OPENGL_LIBRARIES})
 endif()
 
 # Platform-specific source files, headers and definitions.
@@ -215,17 +213,7 @@ if(WIN32)
 		cvd_src/Win32/win32.cpp
 		cvd_src/Win32/glwindow.cpp)
 	set(CVD_HAVE_GLWINDOW ON)
-	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-else()
-    #I'm not really sure this is the correct solution?
-	#This will always force the compiler into c++14 mode
-	#even if it's in C++17 mode, I think.
-	add_compile_options(--std=c++14)
 endif()
-
-find_package(Threads)
-link_libraries(Threads::Threads)
-
 
 check_symbol_exists(glob glob.h CVD_HAVE_GLOB)
 
@@ -233,8 +221,8 @@ if(CVD_HAVE_GLOB)
 	list(APPEND SRCS cvd_src/globlist.cxx)
 endif()
 
-
-if(USE_V4L)
+check_symbol_exists(V4L2_PIX_FMT_GREY linux/videodev2.h CVD_HAVE_V4L)
+if(CVD_HAVE_V4L)
 	list(APPEND SRCS
 		cvd_src/Linux/v4lbuffer.cc
 		cvd_src/Linux/v4lcontrol.cc
@@ -246,7 +234,8 @@ else()
 	list(APPEND SRCS cvd_src/Linux/videosource_nov4lbuffer.cc)
 endif()
 
-if(USE_UVC)
+check_symbol_exists(uvc_stream_get_frame libuvc/libuvc.h CVD_HAVE_UVC)
+if(CVD_HAVE_UVC)
 	list(APPEND SRCS
 		cvd_src/uvcbuffer.cc
 		cvd_src/videosource_uvcbuffer.cc)
@@ -256,17 +245,40 @@ else()
 		cvd_src/videosource_nouvcbuffer.cc)
 endif()
 
-if(USE_AVCODEC)
-	list(APPEND SRCS cvd_src/videofilebuffer2.cc
-		cvd_src/videosource_videofilebuffer.cc)
-else()
+
+find_path(AVCODEC_INCLUDE_DIR libavcodec/avcodec.h)
+find_library(AVCODEC_LIBRARY NAMES avcodec)
+find_path(AVDEVICE_INCLUDE_DIR libavdevice/avdevice.h)
+find_library(AVDEVICE_LIBRARY NAMES avdevice)
+find_path(AVFORMAT_INCLUDE_DIR libavformat/avformat.h)
+find_library(AVFORMAT_LIBRARY NAMES avformat)
+find_library(AVUTIL_LIBRARY NAMES avutil)
+find_path(SWSCALE_INCLUDE_DIR libswscale/swscale.h)
+find_library(SWSCALE_LIBRARY NAMES swscale)
+find_library(SWRESAMPLE_LIBRARY NAMES swresample)
+find_library(AVFILTER_LIBRARY NAMES avfilter)
+if((AVCODEC_LIBRARY STREQUAL "AVCODEC_LIBRARY-NOTFOUND") OR
+	(AVDEVICE_LIBRARY STREQUAL "AVDEVICE_LIBRARY-NOTFOUND") OR
+	(AVFORMAT_LIBRARY STREQUAL "AVFORMAT_LIBRARY-NOTFOUND") OR
+	(AVUTIL_LIBRARY STREQUAL "AVUTIL_LIBRARY-NOTFOUND") OR
+	(SWSCALE_LIBRARY STREQUAL "SWSCALE_LIBRARY-NOTFOUND") OR
+	(AVCODEC_INCLUDE_DIR STREQUAL "AVCODEC_INCLUDE_DIR-NOTFOUND") OR
+	(AVDEVICE_INCLUDE_DIR STREQUAL "AVDEVICE_INCLUDE_DIR-NOTFOUND") OR
+	(AVFORMAT_INCLUDE_DIR STREQUAL "AVFORMAT_INCLUDE_DIR-NOTFOUND") OR
+	(SWSCALE_INCLUDE_DIR STREQUAL "SWSCALE_INCLUDE_DIR-NOTFOUND"))
+	set(CVD_HAVE_FFMPEG OFF)
+	message(STATUS "FFMPEG - not found")
 	list(APPEND SRCS
 		cvd_src/videosource_novideofilebuffer.cc)
+else()
+	message(STATUS "FFMPEG - found")
+	set(CVD_HAVE_FFMPEG ON)
+	list(APPEND SRCS
+		cvd_src/videofilebuffer2.cc
+		cvd_src/videosource_videofilebuffer.cc)
 endif()
 
-
 if(TooN_FOUND)
-	include_directories("${TooN_INCLUDE_DIRS}")
 	set(CVD_HAVE_TOON ON)
 	list(APPEND SRCS
 		cvd_src/brezenham.cc
@@ -275,15 +287,18 @@ if(TooN_FOUND)
 		cvd_src/threepointpose.cpp)
 	list(APPEND HEADERS
 		cvd/brezenham.h
+		cvd/camera.h
+		cvd/canny.h
+		cvd/esm.h
+		cvd/image_interpolate.h
 		cvd/tensor_voting.h
+		cvd/vector_image_ref.h
 		cvd/geometry/threepointpose.h)
 else()
 	set(CVD_HAVE_TOON OFF)
 endif()
 
-if(JPEG_INCLUDE_DIR)
-	include_directories("${JPEG_INCLUDE_DIR}")
-	link_libraries(${JPEG_LIBRARIES})
+if(JPEG_FOUND)
 	set(CVD_HAVE_JPEG ON)
 	set(CVD_INTERNAL_JPEG_BUFFER_SIZE 1)
     list(APPEND SRCS cvd_src/image_io/jpeg.cxx)
@@ -292,9 +307,7 @@ else()
 	set(CVD_INTERNAL_JPEG_BUFFER_SIZE OFF)
 endif()
 
-if(TIFF_INCLUDE_DIRS)
-	include_directories("${TIFF_INCLUDE_DIRS}")
-	link_libraries(${TIFF_LIBRARIES})
+if(TIFF_FOUND)
 	set(CVD_HAVE_TIFF ON)
     list(APPEND SRCS
 		cvd_src/image_io/tiff.cxx
@@ -303,9 +316,7 @@ else()
 	set(CVD_HAVE_TIFF OFF)
 endif()
 
-if(PNG_INCLUDE_DIRS)
-	include_directories("${PNG_INCLUDE_DIRS}")
-	link_libraries(${PNG_LIBRARIES})
+if(PNG_FOUND)
 	set(CVD_HAVE_PNG ON)
     list(APPEND SRCS cvd_src/image_io/png.cc)
 else()
@@ -315,9 +326,54 @@ endif()
 configure_file(cmake/config.h.in include/cvd/config.h)
 configure_file(cmake/config_internal.h.in include/cvd_src/config_internal.h)
 
-set(CMAKE_DEBUG_POSTFIX _debug)
-include_directories("${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/include")
 add_library(${PROJECT_NAME} ${SRCS} ${HEADERS})
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/include")
+
+if(CVD_HAVE_FFMPEG)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${AVCODEC_INCLUDE_DIR} ${AVDEVICE_INCLUDE_DIR} ${AVFORMAT_INCLUDE_DIR} ${SWSCALE_INCLUDE_DIR})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${AVDEVICE_LIBRARY} ${AVFILTER_LIBRARY} ${AVFORMAT_LIBRARY}  ${AVCODEC_LIBRARY} ${AVUTIL_LIBRARY} ${SWSCALE_LIBRARY} ${SWRESAMPLE_LIBRARY})
+
+	set(CVD_FFMPEG_LIKELY_X_LIBS Xv Xext Xau Xdmcp xcb-xfixes xcb-shape xcb-shm xcb dl)
+	foreach(l IN LISTS CVD_FFMPEG_LIKELY_X_LIBS)
+		find_library(CVD_TMP_${l} NAMES ${l})
+		if(NOT (CVD_TMP_${l} STREQUAL "CVD_TMP_${l}-NOTFOUND"))
+			message(STATUS "Found ${l}: ${CVD_TMP_${l}}")
+			target_link_libraries(${PROJECT_NAME} PRIVATE ${CVD_TMP_${l}})
+		endif()
+	endforeach()
+endif()
+
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+if(JPEG_FOUND)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${JPEG_INCLUDE_DIRS})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${JPEG_LIBRARIES})
+endif()
+if(TIFF_FOUND)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${TIFF_INCLUDE_DIRS})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${TIFF_LIBRARIES})
+endif()
+if(PNG_FOUND)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${PNG_INCLUDE_DIRS})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${PNG_LIBRARIES})
+endif()
+if(TooN_FOUND)
+	target_include_directories(${PROJECT_NAME} PUBLIC ${TooN_INCLUDE_DIRS})
+endif()
+if(dc1394v2_FOUND)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${dc1394v2_INCLUDE_DIRS})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${dc1394v2_LIBRARIES})
+endif()
+if(X11_FOUND)
+	target_include_directories(${PROJECT_NAME} PUBLIC ${X11_INCLUDE_DIR})
+	target_link_libraries(${PROJECT_NAME} PUBLIC ${X11_LIBRARIES})
+endif()
+if(OpenGL_OpenGL_FOUND)
+	target_link_libraries(${PROJECT_NAME} PUBLIC OpenGL::GL)
+endif()
+if(WIN32)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE _CRT_SECURE_NO_WARNINGS)
+endif()
 
 install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
 foreach(file ${HEADERS})
@@ -327,7 +383,12 @@ endforeach()
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/cvd DESTINATION include)
 install(FILES ${PROJECT_SOURCE_DIR}/cmake/CVDConfig.cmake DESTINATION cmake)
 
-add_subdirectory(tests)
-add_subdirectory(progs)
-add_subdirectory(examples)
-
+if(CVD_ENABLE_TESTS)
+	add_subdirectory(tests)
+endif()
+if(CVD_ENABLE_PROGS)
+	add_subdirectory(progs)
+endif()
+if(CVD_ENABLE_EXAMPLES)
+	add_subdirectory(examples)
+endif()

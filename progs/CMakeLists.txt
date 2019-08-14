@@ -1,20 +1,35 @@
-link_libraries(CVD)
 project(progs)
 
-if(CVD_HAVE_VIDEODISPLAY)
+if(CVD_HAVE_GLWINDOW)
 	add_executable(video_play_source video_play_source.cc)
+	target_link_libraries(video_play_source PRIVATE CVD)
+	install(TARGETS video_play_source RUNTIME DESTINATION bin)
+endif()
+
+if(CVD_HAVE_VIDEODISPLAY)
 	add_executable(cvd_display_image cvd_display_image.cxx)
+	target_link_libraries(cvd_display_image PRIVATE CVD)
 	add_executable(cvd_image_viewer cvd_image_viewer.cxx)
+	target_link_libraries(cvd_image_viewer PRIVATE CVD)
+	install(TARGETS cvd_display_image cvd_image_viewer RUNTIME DESTINATION bin)
 endif()
 
 if(CVD_HAVE_VIDEODISPLAY AND CVD_HAVE_TOON)
 	add_executable(calibrate calibrate.cxx)
+	target_link_libraries(calibrate PRIVATE CVD)
 endif()
 
 if(CVD_HAVE_TOON)
 	add_executable(se3_exp se3_exp.cxx)
+	target_link_libraries(se3_exp PRIVATE CVD)
 	add_executable(se3_inv se3_inv.cxx)
+	target_link_libraries(se3_inv PRIVATE CVD)
 	add_executable(se3_ln se3_ln.cxx)
+	target_link_libraries(se3_ln PRIVATE CVD)
 	add_executable(se3_post_mul se3_post_mul.cxx)
+	target_link_libraries(se3_post_mul PRIVATE CVD)
 	add_executable(se3_pre_mul se3_pre_mul.cxx)
+	target_link_libraries(se3_pre_mul PRIVATE CVD)
 endif()
+
+
