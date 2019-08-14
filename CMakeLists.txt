@@ -267,9 +267,11 @@ if((AVCODEC_LIBRARY STREQUAL "AVCODEC_LIBRARY-NOTFOUND") OR
 	(AVFORMAT_INCLUDE_DIR STREQUAL "AVFORMAT_INCLUDE_DIR-NOTFOUND") OR
 	(SWSCALE_INCLUDE_DIR STREQUAL "SWSCALE_INCLUDE_DIR-NOTFOUND"))
 	set(CVD_HAVE_FFMPEG OFF)
+	message(STATUS "FFMPEG - not found")
 	list(APPEND SRCS
 		cvd_src/videosource_novideofilebuffer.cc)
 else()
+	message(STATUS "FFMPEG - found")
 	set(CVD_HAVE_FFMPEG ON)
 	list(APPEND SRCS
 		cvd_src/videofilebuffer2.cc
@@ -335,7 +337,8 @@ if(CVD_HAVE_FFMPEG)
 	set(CVD_FFMPEG_LIKELY_X_LIBS Xv Xext Xau Xdmcp xcb-xfixes xcb-shape xcb-shm xcb dl)
 	foreach(l IN LISTS CVD_FFMPEG_LIKELY_X_LIBS)
 		find_library(CVD_TMP_${l} NAMES ${l})
-		if(NOT (CVD_TMP_${l} STREQUAL "CVD_TMP-NOTFOUND"))
+		if(NOT (CVD_TMP_${l} STREQUAL "CVD_TMP_${l}-NOTFOUND"))
+			message(STATUS "Found ${l}: ${CVD_TMP_${l}}")
 			target_link_libraries(${PROJECT_NAME} PRIVATE ${CVD_TMP_${l}})
 		endif()
 	endforeach()
