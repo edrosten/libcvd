@@ -9,19 +9,10 @@ option(CVD_ENABLE_EXAMPLES "Build libCVD examples" ON)
 include(TestBigEndian)
 include(CheckSymbolExists)
 
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_DEBUG_POSTFIX _debug)
 
 # Dependencies that can be automatically found by CMake.
-
-find_package(JPEG)
-find_package(PNG)
-find_package(TIFF)
-find_package(TooN)
-find_package(X11)
-find_package(dc1394v2)
-find_package(OpenGL)
-find_package(Threads REQUIRED)
+include(CVDFindDepsAll)
 
 # Detect endianness
 
@@ -179,7 +170,7 @@ set(HEADERS
 
 
 # Library-specific source files, headers and definitions.
-if(dc1394_FOUND)
+if(CVD_dc1394v2_FOUND)
 	list(APPEND SRCS
 		cvd_src/videosource_dvbuffer.cc
 		cvd_src/Linux/dvbuffer3_dc1394v2.cc)
@@ -246,39 +237,18 @@ else()
 endif()
 
 
-find_path(AVCODEC_INCLUDE_DIR libavcodec/avcodec.h)
-find_library(AVCODEC_LIBRARY NAMES avcodec)
-find_path(AVDEVICE_INCLUDE_DIR libavdevice/avdevice.h)
-find_library(AVDEVICE_LIBRARY NAMES avdevice)
-find_path(AVFORMAT_INCLUDE_DIR libavformat/avformat.h)
-find_library(AVFORMAT_LIBRARY NAMES avformat)
-find_library(AVUTIL_LIBRARY NAMES avutil)
-find_path(SWSCALE_INCLUDE_DIR libswscale/swscale.h)
-find_library(SWSCALE_LIBRARY NAMES swscale)
-find_library(SWRESAMPLE_LIBRARY NAMES swresample)
-find_library(AVFILTER_LIBRARY NAMES avfilter)
-if((AVCODEC_LIBRARY STREQUAL "AVCODEC_LIBRARY-NOTFOUND") OR
-	(AVDEVICE_LIBRARY STREQUAL "AVDEVICE_LIBRARY-NOTFOUND") OR
-	(AVFORMAT_LIBRARY STREQUAL "AVFORMAT_LIBRARY-NOTFOUND") OR
-	(AVUTIL_LIBRARY STREQUAL "AVUTIL_LIBRARY-NOTFOUND") OR
-	(SWSCALE_LIBRARY STREQUAL "SWSCALE_LIBRARY-NOTFOUND") OR
-	(AVCODEC_INCLUDE_DIR STREQUAL "AVCODEC_INCLUDE_DIR-NOTFOUND") OR
-	(AVDEVICE_INCLUDE_DIR STREQUAL "AVDEVICE_INCLUDE_DIR-NOTFOUND") OR
-	(AVFORMAT_INCLUDE_DIR STREQUAL "AVFORMAT_INCLUDE_DIR-NOTFOUND") OR
-	(SWSCALE_INCLUDE_DIR STREQUAL "SWSCALE_INCLUDE_DIR-NOTFOUND"))
-	set(CVD_HAVE_FFMPEG OFF)
-	message(STATUS "FFMPEG - not found")
-	list(APPEND SRCS
-		cvd_src/videosource_novideofilebuffer.cc)
-else()
-	message(STATUS "FFMPEG - found")
+if(CVD_FFMPEG_FOUND)
 	set(CVD_HAVE_FFMPEG ON)
 	list(APPEND SRCS
 		cvd_src/videofilebuffer2.cc
 		cvd_src/videosource_videofilebuffer.cc)
+else()
+	set(CVD_HAVE_FFMPEG OFF)
+	list(APPEND SRCS
+		cvd_src/videosource_novideofilebuffer.cc)
 endif()
 
-if(TooN_FOUND)
+if(CVD_TooN_FOUND)
 	set(CVD_HAVE_TOON ON)
 	list(APPEND SRCS
 		cvd_src/brezenham.cc
@@ -328,49 +298,10 @@ configure_file(cmake/config_internal.h.in include/cvd_src/config_internal.h)
 
 add_library(${PROJECT_NAME} ${SRCS} ${HEADERS})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
-target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/include")
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/include" ${CVD_DEP_INCLUDES_PUBLIC} PRIVATE ${CVD_DEP_INCLUDES_PRIVATE})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CVD_DEP_LIBS})
 
-if(CVD_HAVE_FFMPEG)
-	target_include_directories(${PROJECT_NAME} PRIVATE ${AVCODEC_INCLUDE_DIR} ${AVDEVICE_INCLUDE_DIR} ${AVFORMAT_INCLUDE_DIR} ${SWSCALE_INCLUDE_DIR})
-	target_link_libraries(${PROJECT_NAME} PRIVATE ${AVDEVICE_LIBRARY} ${AVFILTER_LIBRARY} ${AVFORMAT_LIBRARY}  ${AVCODEC_LIBRARY} ${AVUTIL_LIBRARY} ${SWSCALE_LIBRARY} ${SWRESAMPLE_LIBRARY})
 
-	set(CVD_FFMPEG_LIKELY_X_LIBS Xv Xext Xau Xdmcp xcb-xfixes xcb-shape xcb-shm xcb dl)
-	foreach(l IN LISTS CVD_FFMPEG_LIKELY_X_LIBS)
-		find_library(CVD_TMP_${l} NAMES ${l})
-		if(NOT (CVD_TMP_${l} STREQUAL "CVD_TMP_${l}-NOTFOUND"))
-			message(STATUS "Found ${l}: ${CVD_TMP_${l}}")
-			target_link_libraries(${PROJECT_NAME} PRIVATE ${CVD_TMP_${l}})
-		endif()
-	endforeach()
-endif()
-
-target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
-if(JPEG_FOUND)
-	target_include_directories(${PROJECT_NAME} PRIVATE ${JPEG_INCLUDE_DIRS})
-	target_link_libraries(${PROJECT_NAME} PRIVATE ${JPEG_LIBRARIES})
-endif()
-if(TIFF_FOUND)
-	target_include_directories(${PROJECT_NAME} PRIVATE ${TIFF_INCLUDE_DIRS})
-	target_link_libraries(${PROJECT_NAME} PRIVATE ${TIFF_LIBRARIES})
-endif()
-if(PNG_FOUND)
-	target_include_directories(${PROJECT_NAME} PRIVATE ${PNG_INCLUDE_DIRS})
-	target_link_libraries(${PROJECT_NAME} PRIVATE ${PNG_LIBRARIES})
-endif()
-if(TooN_FOUND)
-	target_include_directories(${PROJECT_NAME} PUBLIC ${TooN_INCLUDE_DIRS})
-endif()
-if(dc1394v2_FOUND)
-	target_include_directories(${PROJECT_NAME} PRIVATE ${dc1394v2_INCLUDE_DIRS})
-	target_link_libraries(${PROJECT_NAME} PRIVATE ${dc1394v2_LIBRARIES})
-endif()
-if(X11_FOUND)
-	target_include_directories(${PROJECT_NAME} PUBLIC ${X11_INCLUDE_DIR})
-	target_link_libraries(${PROJECT_NAME} PUBLIC ${X11_LIBRARIES})
-endif()
-if(OpenGL_OpenGL_FOUND)
-	target_link_libraries(${PROJECT_NAME} PUBLIC OpenGL::GL)
-endif()
 if(WIN32)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE _CRT_SECURE_NO_WARNINGS)
 endif()
