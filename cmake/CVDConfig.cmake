@@ -16,7 +16,7 @@
 #   CVD_FOUND          - True if CVD found.
 
 
-include(CVDFindDepsAll)
+include(CVDFindAllDeps.cmake)
 
 
 find_path(CVD_INCLUDE_DIR NAMES cvd/config.h PATH_SUFFIXES include)

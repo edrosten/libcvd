@@ -12,7 +12,7 @@ include(CheckSymbolExists)
 set(CMAKE_DEBUG_POSTFIX _debug)
 
 # Dependencies that can be automatically found by CMake.
-include(CVDFindDepsAll)
+include(cmake/CVDFindAllDeps.cmake)
 
 # Detect endianness
 

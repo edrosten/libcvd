@@ -5,9 +5,9 @@ find_package(X11)
 find_package(OpenGL)
 find_package(Threads REQUIRED)
 
-include(CVDFindFFMPEG)
-include(CVDFindTooN)
-include(CVDFinddc1394v2)
+include(${CMAKE_CURRENT_LIST_DIR}/CVDFindFFMPEG.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/CVDFindTooN.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/CVDFinddc1394v2.cmake)
 
 SET(CVD_DEP_INCLUDES_PUBLIC)
 SET(CVD_DEP_INCLUDES_PRIVATE)
