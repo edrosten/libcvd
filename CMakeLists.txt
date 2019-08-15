@@ -312,7 +312,7 @@ foreach(file ${HEADERS})
 	install(FILES ${file} DESTINATION include/${dir})
 endforeach()
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/cvd DESTINATION include)
-install(FILES ${PROJECT_SOURCE_DIR}/cmake/CVDConfig.cmake DESTINATION cmake)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/cmake DESTINATION . FILES MATCHING PATTERN *.cmake)
 
 if(CVD_ENABLE_TESTS)
 	add_subdirectory(tests)
