@@ -327,7 +327,6 @@ namespace CVD {
 
 	template <class T> VideoBuffer<T>* open_video_source(const VideoSource& vs)
 	{
-		using std::auto_ptr;
 		if(vs.protocol == "jpegstream")
 		{
 			int ra_frames=0;
