@@ -9,6 +9,7 @@
 #include <cvd/vector_image_ref.h>
 #include <cvd/vision.h>
 
+#include <algorithm>
 #include <vector>
 #include <sstream>
 #include <iomanip>

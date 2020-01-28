@@ -1,6 +1,7 @@
 #ifndef CVD_HAAR_H
 #define CVD_HAAR_H
 
+#include <algorithm>
 #include <vector>
 #include <cmath>
 #include <cvd/image.h>

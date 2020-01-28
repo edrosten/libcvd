@@ -1,7 +1,7 @@
 #ifndef CVD_EXCEPTIONS_H
 #define CVD_EXCEPTIONS_H
 
-#include <string>
+#include <stdexcept>
 
 
 namespace CVD
@@ -13,9 +13,10 @@ namespace CVD
 	{
 		/// Base class for all CVD exceptions 
 		/// @ingroup gException
-		struct All
+		struct All : public std::runtime_error
 		{
-			std::string what; ///< The error message
+			using std::runtime_error::runtime_error;
+			All() : std::runtime_error("No exception message provided") {}
 		};
 
 		/// Out of memory exception

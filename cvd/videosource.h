@@ -25,12 +25,12 @@
 namespace CVD {
 	struct ParseException : public Exceptions::All
 	{
-		ParseException(const std::string& what_) { what = what_; }
+		ParseException(const std::string& what_) : Exceptions::All(what_) {}
 	};
 	
 	struct VideoSourceException : public Exceptions::All
 	{
-		VideoSourceException(const std::string& what_) { what = what_; }
+		VideoSourceException(const std::string& what_) : Exceptions::All(what_) {}
 	};
 
 	struct VideoSource 
@@ -327,7 +327,6 @@ namespace CVD {
 
 	template <class T> VideoBuffer<T>* open_video_source(const VideoSource& vs)
 	{
-		using std::auto_ptr;
 		if(vs.protocol == "jpegstream")
 		{
 			int ra_frames=0;

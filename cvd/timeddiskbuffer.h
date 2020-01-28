@@ -13,7 +13,7 @@ namespace CVD {
 		{
 			/// Base class for all DiskBuffer2 exceptions
 			/// @ingroup gException
-			struct All: public CVD::Exceptions::VideoBuffer::All { };
+			struct All: public CVD::Exceptions::VideoBuffer::All { using CVD::Exceptions::VideoBuffer::All::All; };
 			/// list lengths for name and time lists do not agree
 			/// @ingroup gException
 			struct IncompatibleListLengths: public All { IncompatibleListLengths(); };

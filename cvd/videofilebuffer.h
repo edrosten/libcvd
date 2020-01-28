@@ -27,7 +27,7 @@ namespace CVD
 		{
 			/// Base class for all VideoFileBuffer exceptions
 			/// @ingroup gException
-			struct All: public CVD::Exceptions::VideoBuffer::All { };
+			struct All: public CVD::Exceptions::VideoBuffer::All { using CVD::Exceptions::VideoBuffer::All::All; };
 			/// Unable to open the file as a video stream, for various reasons
 			/// @ingroup gException
 			struct FileOpen: public All { FileOpen(const std::string& file, const std::string& error); ///< Construt from filename and error message

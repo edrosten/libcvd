@@ -58,12 +58,9 @@ namespace CVD{
 
 namespace Exceptions
 {
-	struct VideoFileBuffer2
+	struct VideoFileBuffer2 : CVD::Exceptions::VideoBuffer::All
 	{
-		string what;
-		VideoFileBuffer2(string s_)
-		:what(s_)
-		{}
+		using CVD::Exceptions::VideoBuffer::All::All;
 	};
 }
 

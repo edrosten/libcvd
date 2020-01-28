@@ -14,28 +14,28 @@ using namespace std;
 namespace CVD { // CVD
 
 Exceptions::V4LBuffer::DeviceOpen::DeviceOpen(string device)
+	: All("V4LBuffer: failed to open \""+device+ "\": " + strerror(errno))
 {
-	what = "V4LBuffer: failed to open \""+device+ "\": " + strerror(errno);
 }
 
 Exceptions::V4LBuffer::DeviceSetup::DeviceSetup(string device, string action)
+	: All("V4LBuffer: \""+action + "\" ioctl failed on " + device + ": " +strerror(errno))
 {
-	what = "V4LBuffer: \""+action + "\" ioctl failed on " + device + ": " +strerror(errno);
 }
 
 Exceptions::V4LBuffer::PutFrame::PutFrame(string device, string msg)
+	: All("V4LBuffer: PutFrame on " + device + " failed: " + msg)
 {
-	what = "V4LBuffer: PutFrame on " + device + " failed: " + msg;
 }
 
 Exceptions::V4LBuffer::GetFrame::GetFrame(string device, string msg)
+	: All("V4LBuffer: GetFrame on " + device + " failed: " + msg)
 {
-	what = "V4LBuffer: GetFrame on " + device + " failed: " + msg;
 }
 
 Exceptions::V4LBuffer::NoColourspace::NoColourspace(std::string dev, std::string space)
+	: All("V4LBuffer: No colourspace  on " + dev + " matching " + space)
 {
-	what = "V4LBuffer: No colourspace  on " + dev + " matching " + space;
 }
 
 

@@ -203,7 +203,7 @@ template<class T> void loadsave_safe(const char*n)
 	}
 	catch(CVD::Exceptions::All b0rk3d)
 	{
-		cerr << "Image " << n << " error: " << b0rk3d.what << endl;
+		cerr << "Image " << n << " error: " << b0rk3d.what() << endl;
 	}
 }
 
@@ -277,7 +277,7 @@ template<class T> struct randtest
 			}
 			catch(Exceptions::All w)
 			{
-				cerr << w.what << endl;
+				cerr << w.what() << endl;
 			}
 		}
 
