@@ -110,31 +110,32 @@ using namespace std;
 namespace CVD
 {
 Exceptions::DVBuffer::DeviceOpen::DeviceOpen(string name)
+  : All("DVBuffer2 couldn't open " + name + ": "+ strerror(errno))
 {
-	what = "DVBuffer2 couldn't open " + name + ": "+ strerror(errno);
 }
 
 Exceptions::DVBuffer::Raw1394Setup::Raw1394Setup(string action)
+  : All("DVBuffer2 (in Raw1394 setup): " + action + ": " + strerror(errno))
 {
-	what = "DVBuffer2 (in Raw1394 setup): " + action + ": " + strerror(errno);
 }
 
 Exceptions::DVBuffer::DC1394Setup::DC1394Setup(string action)
+  : All("DVBuffer2 (in camera setup): " + action)
 {
-	what = "DVBuffer2 (in camera setup): " + action;// + ": " + strerror(errno);
 }
 
 Exceptions::DVBuffer::BadCameraSelection::BadCameraSelection(int nc, int cn)
+  : All([=]()
+  {
+    ostringstream o;
+    o << "DVBuffer2: Camera number " << cn << " requested, but there are only " << nc << " cameras plugged in.";
+    return o.str();
+  })
 {
-	ostringstream o;
-	o << "DVBuffer2: Camera number " << cn << " requested, but there are only " << nc << " cameras plugged in.";
-	what = o.str();
 }
 
 Exceptions::DVBuffer::BusReset::BusReset()
-{
-
-  what =     "Sorry, your RawDCVideo is the highest numbered node\n"
+  : All(     "Sorry, your RawDCVideo is the highest numbered node\n"
              "of the bus, and has therefore become the root node.\n"
              "The root node is responsible for maintaining \n"
              "the timing of isochronous transactions on the IEEE \n"
@@ -151,12 +152,14 @@ Exceptions::DVBuffer::BusReset::BusReset()
              "   insmod ohci1394 attempt_root=1\n"
              "\n"
 			 "A quicker solution is to unplug the camera and plug it back in again.\n"
-             "\n";
+             "\n"
+  )
+{
 }
 
 Exceptions::DVBuffer::DeviceSetup::DeviceSetup(string action)
+  : All("DVBuffer2 (in setup): Failed on " + action + ": " + strerror(errno))
 {
-  what = "DVBuffer2 (in setup): Failed on " + action + ": " + strerror(errno);
 }
 
 namespace DC

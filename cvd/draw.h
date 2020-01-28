@@ -28,14 +28,14 @@ namespace Exceptions {
     namespace Draw {
         /// Base class for all Image_IO exceptions
         /// @ingroup gException
-        struct All: public CVD::Exceptions::All {};
+        struct All: public CVD::Exceptions::All { using CVD::Exceptions::All::All; };
 
         /// Input ImageRef not within image dimensions
         /// @ingroup gException
         struct ImageRefNotInImage : public All {
             ImageRefNotInImage(const std::string & function)
+                : All("Input ImageRefs not in image in " + function)
             {
-                what = "Input ImageRefs not in image in " + function;
             };
         };
 
@@ -43,8 +43,8 @@ namespace Exceptions {
         /// @ingroup gException
         struct IncompatibleImageSizes : public All {
             IncompatibleImageSizes(const std::string & function)
+                : All("Incompatible image sizes in " + function)
             {
-                what = "Incompatible image sizes in " + function;
             };
         };
     };
