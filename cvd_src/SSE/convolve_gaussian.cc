@@ -1,4 +1,5 @@
 #include <cvd/convolution.h>
+#include <algorithm>
 #include <xmmintrin.h>
 
 using namespace std;
