@@ -88,26 +88,84 @@ namespace CVD
 	/// Specify the (x,y) co-ordinates of a vertex
 	/// @param v The vertex location
 	///@ingroup gGL
-	inline void glVertex(const TooN::Vector<2>& v)
+	template<class B>
+	inline void glVertex(const TooN::Vector<2, double, B>& v)
 	{
 		glVertex2d(v[0], v[1]);
+	}
+
+	/// Specify the (x,y) co-ordinates of a vertex
+	/// @param v The vertex location
+	///@ingroup gGL
+	template<class B>
+	inline void glVertex(const TooN::Vector<2, float, B>& v)
+	{
+		glVertex2f(v[0], v[1]);
+	}
+
+	/// Specify the (x,y) co-ordinates of a vertex
+	/// @param v The vertex location
+	///@ingroup gGL
+	template<class B>
+	inline void glVertex(const TooN::Vector<2, int, B>& v)
+	{
+		glVertexi(v[0], v[1]);
 	}
 
 	/// Specify the (x,y,z) co-ordinates of a vertex
 	/// @param v The vertex location
 	///@ingroup gGL
-	inline void glVertex(const TooN::Vector<3>& v)
+	template<class B>
+	inline void glVertex(const TooN::Vector<3, double, B>& v)
 	{
 		glVertex3d(v[0], v[1], v[2]);
+	}
+
+	/// Specify the (x,y,z) co-ordinates of a vertex
+	/// @param v The vertex location
+	///@ingroup gGL
+	template<class B>
+	inline void glVertex(const TooN::Vector<3, float, B>& v)
+	{
+		glVertex3f(v[0], v[1], v[2]);
+	}
+
+	/// Specify the (x,y,z) co-ordinates of a vertex
+	/// @param v The vertex location
+	///@ingroup gGL
+	template<class B>
+	inline void glVertex(const TooN::Vector<3, int, B>& v)
+	{
+		glVertex3i(v[0], v[1], v[2]);
 	}
 
 	/// Specify the (x,y,z,w) co-ordinates of a vertex
 	/// @param v The vertex location
 	///@ingroup gGL
-	inline void glVertex(const TooN::Vector<4>& v)
+	template<class B>
+	inline void glVertex(const TooN::Vector<4, double, B>& v)
 	{
 		glVertex4d(v[0], v[1], v[2], v[3]);
 	}
+
+	/// Specify the (x,y,z,w) co-ordinates of a vertex
+	/// @param v The vertex location
+	///@ingroup gGL
+	template<class B>
+	inline void glVertex(const TooN::Vector<4, float, B>& v)
+	{
+		glVertex4f(v[0], v[1], v[2], v[3]);
+	}
+
+	/// Specify the (x,y,z,w) co-ordinates of a vertex
+	/// @param v The vertex location
+	///@ingroup gGL
+	template<class B>
+	inline void glVertex(const TooN::Vector<4, int, B>& v)
+	{
+		glVertex4i(v[0], v[1], v[2], v[3]);
+	}
+
 
 	/// Specify the (s,t) texture coordinates
 	/// @param v The texture coordinates
