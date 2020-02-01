@@ -10,73 +10,76 @@ using namespace std;
 namespace CVD{
 
 Exceptions::Image_IO::ImageSizeMismatch::ImageSizeMismatch(const ImageRef& src, const ImageRef& dest)
-{
-	ostringstream o;
-	o <<
-"Image load: Size mismatch when loading an image (size " << src << ") in to a non\
-resizable image (size " << dest << ").";
+	: All([=]() {
+		ostringstream o;
+		o <<
+	"Image load: Size mismatch when loading an image (size " << src << ") in to a non\
+	resizable image (size " << dest << ").";
 
-	what = o.str();
+		return o.str();
+	}())
+{
 }
 
 Exceptions::Image_IO::OpenError::OpenError(const string& name, const string& why, int error)
+	: All("Opening file: " + name+ " (" + why + "): " + strerror(error))
 {
-	what = "Opening file: " + name+ " (" + why + "): " + strerror(error);
 }
 
 Exceptions::Image_IO::MalformedImage::MalformedImage(const string& why)
+	: All("Image input: " + why)
 {
-	what = "Image input: " + why;
 }
 
 Exceptions::Image_IO::UnsupportedImageType::UnsupportedImageType()
+	: All("Image input: Unsuppported image type.")
 {
-	what = "Image input: Unsuppported image type.";
 }
 
 Exceptions::Image_IO::IfstreamNotOpen::IfstreamNotOpen()
+	: All("Image input: File stream has not been opened succesfully.")
 {
-	what = "Image input: File stream has not been opened succesfully.";
 }
 
 Exceptions::Image_IO::EofBeforeImage::EofBeforeImage()
+	: All("Image input: End of file occured before image.")
 {
-	what = "Image input: End of file occured before image.";
 }
 
 Exceptions::Image_IO::WriteError::WriteError(const string& s)
+	: All("Error writing " + s)
 {
-	what = "Error writing " + s;
 }
 
 Exceptions::Image_IO::WriteTypeMismatch::WriteTypeMismatch(const string& avail, const string& req)
+	: All("Image output (CVD internal error): Attempting to write " + req + " data to a file containing " + avail)
 {
-	what = "Image output (CVD internal error): Attempting to write " + req + " data to a file containing " + avail;
 }
 
 Exceptions::Image_IO::ReadTypeMismatch::ReadTypeMismatch(const string& avail, const string& req)
+	: All("Image input (CVD internal error): Attempting to read " + req + " data from a file containing " + avail)
 {
-	what = "Image input (CVD internal error): Attempting to read " + req + " data from a file containing " + avail;
 }
 
 Exceptions::Image_IO::ReadTypeMismatch::ReadTypeMismatch(const bool read8)
+	: All(string("Image input (CVD internal error): Attempting to read ") +
+		  (read8?"8":"16") + "bit data from " + (read8?"16":"8")  + "bit file (probably an internal error).")
 {
-	what = string("Image input (CVD internal error): Attempting to read ") + (read8?"8":"16") + "bit data from " + (read8?"16":"8")  + "bit file (probably an internal error).";
 }
 
 Exceptions::Image_IO::UnseekableIstream::UnseekableIstream(const string& s)
+	: All("Image input: Loading " + s + " images requires seekable istream.")
 {
-	what = "Image input: Loading " + s + " images requires seekable istream.";
 }
 
 Exceptions::Image_IO::UnsupportedImageSubType::UnsupportedImageSubType(const string& i, const string& why)
+	: All("Image input: Unsupported subtype of " + i+ " image: " + why)
 {
-	what = "Image input: Unsupported subtype of " + i+ " image: " + why;
 }
 
 Exceptions::Image_IO::InternalLibraryError::InternalLibraryError(const std::string& l, const std::string e)
+	: All("Internal error in " + l + " library: " + e)
 {
-	what = "Internal error in " + l + " library: " + e;
 }
 
 ImageType::ImageType string_to_image_type(const std::string& name)

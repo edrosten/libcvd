@@ -153,6 +153,7 @@ namespace Exceptions
 		/// @ingroup gException
 		struct All: public CVD::Exceptions::All
 		{
+			using CVD::Exceptions::All::All;
 		};
 
 		/// The VideoBuffer was unable to successfully complete a VideoBuffer::put_frame() operation

@@ -6,43 +6,43 @@ namespace CVD{
 
 namespace Exceptions{ namespace UVCBuffer{
 	Init::Init(string, string err)
+		: All("UVCBuffer: failed to initialize: " + err)
 	{
-		what = "UVCBuffer: failed to initialize: " + err;
 	}
 
 
 	DeviceOpen::DeviceOpen(string dev, string err)
+		: All("UVCBuffer: failed to open \"" + dev + "\": "  + err)
 	{
-		what = "UVCBuffer: failed to open \"" + dev + "\": "  + err;
 	}
 
 	FindDevice::FindDevice(string dev, string err)
+		: All("UVCBuffer: failed to find device \"" + dev + "\": "  + err)
 	{
-		what = "UVCBuffer: failed to find device \"" + dev + "\": "  + err;
 	}
 
 	DeviceSetup::DeviceSetup(string dev, string err)
+		: All("UVCBuffer: failed to setup device \"" + dev + "\": "  + err)
 	{
-		what = "UVCBuffer: failed to setup device \"" + dev + "\": "  + err;
 	}
 
 	GetFrame::GetFrame(string dev, string err)
+		: All("UVCBuffer: failed to get frame on \"" + dev + "\": "  + err)
 	{
-		what = "UVCBuffer: failed to get frame on \"" + dev + "\": "  + err;
 	}
 
 	PutFrame::PutFrame(string dev, string err)
+		: All("UVCBuffer: failed to put frame on \"" + dev + "\": "  + err)
 	{
-		what = "UVCBuffer: failed to put frame on \"" + dev + "\": "  + err;
 	}
 
 	StreamOpen::StreamOpen(string dev, string err)
+		: All("UVCBuffer: failed open stream on \"" + dev + "\": "  + err)
 	{
-		what = "UVCBuffer: failed open stream on \"" + dev + "\": "  + err;
 	}
 	StreamStart::StreamStart(string dev, string err)
+		: All("UVCBuffer: failed start stream on \"" + dev + "\": "  + err)
 	{
-		what = "UVCBuffer: failed start stream on \"" + dev + "\": "  + err;
 	}
 }}
 

@@ -18,10 +18,9 @@ namespace CVD
       /// @ingroup gException
       struct All : public CVD::Exceptions::VideoBuffer::All 
       {
-	All(std::string sWhat)
-	  {
-	    what = "DVBuffer3: " + sWhat;
-	  }
+        All(std::string sWhat) : CVD::Exceptions::VideoBuffer::All("DVBuffer3: " + sWhat)
+        {
+        }
       };
     }
   }

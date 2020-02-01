@@ -27,35 +27,38 @@ static inline T fromUnit( double val, T min, T max){
 namespace CVD {
 
 Exceptions::V4LControl::DeviceOpen::DeviceOpen(string device)
+    : All("V4LControl: failed to open \""+device+ "\": " + strerror(errno))
 {
-    what = "V4LControl: failed to open \""+device+ "\": " + strerror(errno);
 }
 
 Exceptions::V4LControl::ParameterNotSupported::ParameterNotSupported(string parameter)
+    : All("V4LControl: parameter \"" + parameter + "\" is not supported.")
 {
-    what = "V4LControl: parameter \"" + parameter + "\" is not supported.";
 }
 
 Exceptions::V4LControl::ParameterNotSupported::ParameterNotSupported(unsigned int id)
+    : All([=]()
+    {
+        ostringstream os;
+        os << "V4LControl: parameter " << id << " is not supported.";
+        return os.str();
+    })
 {
-    ostringstream os;
-    os << "V4LControl: parameter " << id << " is not supported.";
-    what = os.str();
 }
 
 Exceptions::V4LControl::GetValue::GetValue(string parameter)
+    : All("V4LControl: query value \""+parameter+ "\" failed: " + strerror(errno))
 {
-    what = "V4LControl: query value \""+parameter+ "\" failed: " + strerror(errno);
 }
 
 Exceptions::V4LControl::SetValue::SetValue(string parameter)
+    : All("V4LControl: setting value \""+parameter+ "\" failed: " + strerror(errno))
 {
-    what = "V4LControl: setting value \""+parameter+ "\" failed: " + strerror(errno);
 }
 
 Exceptions::V4LControl::QueryParameters::QueryParameters(string msg)
+    : All("V4LControl: Querying parameters failed: \""+msg+ "\": " + strerror(errno))
 {
-    what = "V4LControl: Querying parameters failed: \""+msg+ "\": " + strerror(errno);
 }
 
 V4LControl::V4LControl( int fd, bool report ) : device(fd), deviceName(""), reportErrors(report) {

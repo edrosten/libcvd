@@ -31,7 +31,7 @@ namespace CVD
 		{
 			/// Base class for all DiskBuffer2 exceptions
 			/// @ingroup gException
-			struct All: public CVD::Exceptions::VideoBuffer::All { };
+			struct All: public CVD::Exceptions::VideoBuffer::All { using CVD::Exceptions::VideoBuffer::All::All; };
 			/// An empty list of filename strings was passed to the buffer
 			/// @ingroup gException
 			struct NoFiles: public All { NoFiles(); };
@@ -139,7 +139,7 @@ namespace CVD
 		}
 		catch(Exceptions::Image_IO::All err)
 		{
-			throw Exceptions::DiskBuffer2::BadImage(names[0], err.what);
+			throw Exceptions::DiskBuffer2::BadImage(names[0], err.what());
 		}
 
 		my_size = foo.size();

@@ -99,15 +99,15 @@ namespace Exceptions {
     namespace Convolution {
         /// Base class for all Image_IO exceptions
         /// @ingroup gException
-        struct All: public CVD::Exceptions::All {};
+        struct All: public CVD::Exceptions::All { using CVD::Exceptions::All::All; };
 
         /// Input images have incompatible dimensions
         /// @ingroup gException
         struct IncompatibleImageSizes : public All {
             IncompatibleImageSizes(const std::string & function)
+              : All("Incompatible image sizes in " + function)
             {
-                what = "Incompatible image sizes in " + function;
-	    }
+	          }
 	};
 
 				
@@ -115,8 +115,8 @@ namespace Exceptions {
         /// @ingroup gException
         struct OddSizedKernelRequired : public All {
             OddSizedKernelRequired(const std::string & function)
+              : All("Odd sized kernel required in " + function)
             {
-                what = "Odd sized kernel required in " + function;
             };
         };
     }

@@ -24,7 +24,9 @@ namespace CVD {
 			/// Base class for all Image_IO exceptions
 			/// @ingroup gException
 			struct All: public CVD::Exceptions::All
-			{};
+			{
+				using CVD::Exceptions::All::All;
+			};
 
 			/// This image type is not supported
 			/// @ingroup gException

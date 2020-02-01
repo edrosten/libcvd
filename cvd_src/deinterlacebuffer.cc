@@ -8,6 +8,6 @@ using namespace CVD:: Exceptions:: DeinterlaceBuffer;
 
 
 OddNumberOfLines::OddNumberOfLines()
+	: CVD::Exceptions::DeinterlaceBuffer::All("VideoFrame passed to DeinterlaceBuffer has an odd number of lines!")
 {
-	what = "VideoFrame passed to DeinterlaceBuffer has an odd number of lines!";
 }
