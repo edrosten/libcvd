@@ -1,6 +1,7 @@
 #ifndef CVD_VECTOR_IMAGE_REF_H
 #define CVD_VECTOR_IMAGE_REF_H
 
+#include <cmath>
 #include <TooN/TooN.h>
 #include <cvd/image_ref.h>
 
@@ -23,6 +24,14 @@ namespace CVD
 	inline ImageRef ir(const TooN::Vector<2>& v)
 	{
 		return ImageRef((int)v[0], (int)v[1]);
+	}
+
+	/// Convert a Vector into an image co-ordinate.
+	/// @param v The Vector to convert
+	/// @ingroup gImage
+	inline ImageRef ir_floor(const TooN::Vector<2>& v)
+	{
+		return ImageRef((int)std::floor(v[0]), (int)std::floor(v[1]));
 	}
 
 	/// Convert a Vector into an image co-ordinate. Numbers are rounded
