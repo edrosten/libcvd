@@ -377,10 +377,10 @@ namespace V4L { // V4L
 		if (state == 0)
 			return;
 		if(0 != ioctl(state->fd, VIDIOC_STREAMOFF, &state->refbuf.type))
-			cerr << "Error closing RawV4LBuffer: "  << Exceptions::V4LBuffer::DeviceSetup(dev, "V4L2: VIDIOC_STREAMOFF").what << endl; 
+			cerr << "Error closing RawV4LBuffer: "  << Exceptions::V4LBuffer::DeviceSetup(dev, "V4L2: VIDIOC_STREAMOFF").what() << endl; 
 		for (size_t i=0; i<state->frames.size(); i++) {
 			if (0 != munmap(state->frames[i].data, state->frames[i].length))
-				cerr << "Error closing RawV4LBuffer: " << Exceptions::V4LBuffer::DeviceSetup(dev, "V4L2: munmap failed").what << endl;
+				cerr << "Error closing RawV4LBuffer: " << Exceptions::V4LBuffer::DeviceSetup(dev, "V4L2: munmap failed").what() << endl;
 		}
 		close(state->fd);
 		delete state;

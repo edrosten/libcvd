@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <string>
 
 using namespace std;
 
@@ -37,12 +38,7 @@ Exceptions::V4LControl::ParameterNotSupported::ParameterNotSupported(string para
 }
 
 Exceptions::V4LControl::ParameterNotSupported::ParameterNotSupported(unsigned int id)
-    : All([=]()
-    {
-        ostringstream os;
-        os << "V4LControl: parameter " << id << " is not supported.";
-        return os.str();
-    })
+    : All("V4LControl: parameter " + std::to_string(id) + " is not supported.")
 {
 }
 

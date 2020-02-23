@@ -19,6 +19,7 @@ namespace Exceptions
     /// @ingroup gException
     struct All: public CVD::Exceptions::All
     {
+		using CVD::Exceptions::All::All;
     };
     /// Error opening the device
     /// @ingroup gException

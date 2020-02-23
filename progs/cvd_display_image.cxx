@@ -52,6 +52,6 @@ int main()
 	}
 	catch(Exceptions::All a)
 	{
-		std::cerr << "Error: " << a.what << std::endl;
+		std::cerr << "Error: " << a.what() << std::endl;
 	}
 }

@@ -17,6 +17,8 @@ namespace CVD
 		{
 			using std::runtime_error::runtime_error;
 			All() : std::runtime_error("No exception message provided") {}
+			All(const std::string& whatarg)
+			: std::runtime_error(whatarg){}
 		};
 
 		/// Out of memory exception

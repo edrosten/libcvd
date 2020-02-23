@@ -122,8 +122,7 @@ using std::thread;
 using std::unique_lock;
 using std::unique_ptr;
 using std::vector;
-using std::chrono::operator""ms;
-
+using namespace std::literals;
 
 class Actions: public GLWindow::EventHandler
 {	
@@ -325,7 +324,7 @@ template<class C> void play(string s, string fmt, unsigned int decimate)
 				}
 				catch(CVD::Exceptions::All e)
 				{
-					cerr << "Error saving: " << fmt << ": " << e.what << endl;
+					cerr << "Error saving: " << fmt << ": " << e.what() << endl;
 				}
 			}
 		}));
@@ -518,6 +517,6 @@ int main(int argc, char* argv[])
 	}
 	catch(CVD::Exceptions::All& e)
 	{
-		cout << "Error: " << e.what << endl;
+		cout << "Error: " << e.what() << endl;
 	}
 }

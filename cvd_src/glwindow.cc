@@ -8,13 +8,12 @@
 using namespace CVD;
 
 CVD::Exceptions::GLWindow::CreationError::CreationError(std::string w)
-{
-    what="GLWindow creation error: " + w;
+:CVD::Exceptions::GLWindow::All {"GLWindow creation error: " + w}{
 }
 
 CVD::Exceptions::GLWindow::RuntimeError::RuntimeError(std::string w)
+:CVD::Exceptions::GLWindow::All {"GLWindow error: " + w}
 {
-    what="GLWindow error: " + w;
 }
 
 struct GLWindow::State {

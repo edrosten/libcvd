@@ -23,13 +23,13 @@ using namespace std;
 using namespace CVD;
 
 CVD::Exceptions::VideoDisplay::InitialisationError::InitialisationError(string w)
+:CVD::Exceptions::VideoDisplay::All("VideoDisplay inintialisation error: " + w)
 {
-	what="VideoDisplay inintialisation error: " + w;
 }
 
 CVD::Exceptions::VideoDisplay::RuntimeError::RuntimeError(string w)
+:CVD::Exceptions::VideoDisplay::All("VideoDisplay error: " + w)
 {
-	what="VideoDisplay error: " + w;
 }
 
 //namespace CVD {

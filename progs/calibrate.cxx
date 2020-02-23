@@ -322,7 +322,7 @@ void getOptions(int argc, char* argv[])
         videoBuffer = open_video_source<CAMERA_PIXEL>(videoDevice);
     }
     catch (CVD::Exceptions::All& e) {
-	cerr << e.what << endl;
+	cerr << e.what() << endl;
 	exit(1);
     }
 }

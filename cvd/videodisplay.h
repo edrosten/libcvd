@@ -32,7 +32,9 @@ namespace CVD {
 		{
 			/// Base class for all CVD::VideoDisplay exceptions
 			/// @ingroup gException
-			struct All: public CVD::Exceptions::All{};
+			struct All: public CVD::Exceptions::All{
+				using CVD::Exceptions::All::All;	
+			};
 
 			/// An exception occurred during initialisation
 			/// @ingroup gException

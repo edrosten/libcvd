@@ -25,6 +25,7 @@ namespace Exceptions
 		/// @ingroup gException
 		struct All: public CVD::Exceptions::VideoBuffer::All
 		{
+			using Exceptions::VideoBuffer::All::All;
 		};
 		/// Error opening the device
 		/// @ingroup gException
