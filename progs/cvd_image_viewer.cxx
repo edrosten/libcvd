@@ -66,7 +66,7 @@ int main(int argc, char** argv)
 	}
 	catch(Exceptions::All b0rk)
 	{
-		cerr << "Error: " << b0rk.what << endl;
+		cerr << "Error: " << b0rk.what() << endl;
 		return 1;
 	}
 
