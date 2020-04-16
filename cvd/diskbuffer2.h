@@ -170,7 +170,7 @@ namespace CVD
 		}
 		catch(CVD::Exceptions::Image_IO::All err)
 		{
-			throw Exceptions::DiskBuffer2::BadImage(file_names[next_frame], err.what);
+			throw Exceptions::DiskBuffer2::BadImage(file_names[next_frame], err.what());
 		}
 
 		DiskBuffer2Frame<T>* vf = new DiskBuffer2Frame<T>(next_frame * time_per_frame + start_time, std::move(foo), file_names[next_frame]);
