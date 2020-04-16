@@ -17,8 +17,9 @@ template <typename T>
 class Rgba
 {
 public:
-	/// Default constructor. Sets everything to 0.
-	explicit Rgba() : red(0), green(0), blue(0), alpha(0) {}
+	Rgba() = default;
+	Rgba(const Rgba&) = default;
+	Rgba& operator=(const Rgba&) = default;
 
 	/// Constructs a colour as specified
 	/// @param r The red component
