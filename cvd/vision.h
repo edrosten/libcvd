@@ -174,16 +174,20 @@ template<class C> void twoThirdsSample(const BasicImage<C>& in, BasicImage<C>& o
 			// d e f
 			// g h i
 
-			sum_type b = in[y][x+1]*2;
-			sum_type d = in[y+1][x]*2;
-			sum_type f = in[y+1][x+2]*2;
-			sum_type h = in[y+2][x+1]*2;
-			sum_type e = in[y+1][x+1];
+			sum_type a(in[y][x]);
+			sum_type b(in[y][x+1]);
+			sum_type c(in[y][x+2]);
+			sum_type d(in[y+1][x]);
+			sum_type e(in[y+1][x+1]);
+			sum_type f(in[y+1][x+2]);
+			sum_type g(in[y+2][x]);
+			sum_type h(in[y+2][x+1]);
+			sum_type i(in[y+2][x+2]);
 
-			out[yy][xx]     = static_cast<C>((in[  y][  x]*4+b+d+e)/9);
-			out[yy][xx+1]   = static_cast<C>((in[  y][x+2]*4+b+f+e)/9);
-			out[yy+1][xx]   = static_cast<C>((in[y+2][  x]*4+h+d+e)/9);
-			out[yy+1][xx+1] = static_cast<C>((in[y+2][x+2]*4+h+f+e)/9);
+			out[yy][xx]     = static_cast<C>((a*4 + b*2 + d*2 + e)/9);
+			out[yy][xx+1]   = static_cast<C>((c*4 + b*2 + f*2 + e)/9);
+			out[yy+1][xx]   = static_cast<C>((g*4 + h*2 + d*2 + e)/9);
+			out[yy+1][xx+1] = static_cast<C>((i*4 + h*2 + f*2 + e)/9);
 		}
 }
 
