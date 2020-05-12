@@ -621,8 +621,11 @@ class Image: public SubImage<T>
 
 		Image& operator=(Image&& move_from)
 		{
-			static_cast<Internal::ImageData<T>&>(*this) = move_from;
-			move_from.erase_fields();
+			if(this != &move_from){
+				delete_old();
+				static_cast<Internal::ImageData<T>&>(*this) = move_from;
+				move_from.erase_fields();
+			}
 
 			return *this;
 		}
