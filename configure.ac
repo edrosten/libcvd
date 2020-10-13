@@ -163,6 +163,7 @@ AC_CANONICAL_HOST
 #
 TEST_AND_SET_CXXFLAG(-Wall)
 TEST_AND_SET_CXXFLAG(-Wextra)
+TEST_AND_SET_CXXFLAG(-Wconversion)
 TEST_AND_SET_CXXFLAG(-pipe)
 
 #Hack: do this properly

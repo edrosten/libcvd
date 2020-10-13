@@ -90,7 +90,7 @@ ImageType::ImageType string_to_image_type(const std::string& name)
 	
 	std::string suffix = name.substr(dot+1,name.length()-dot-1);
 	for (size_t i=0; i<suffix.length(); i++)
-		suffix[i] = tolower(suffix[i]);
+		suffix[i] = static_cast<char>(tolower(suffix[i]));
 
 
 	if (suffix == "ps") 

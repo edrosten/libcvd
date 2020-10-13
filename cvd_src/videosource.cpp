@@ -432,7 +432,7 @@ namespace CVD {
 	}
 
 
-	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset, bool& verbose, bool& bus_reset, int& format7_mode)
+	void get_dc1394_options(const VideoSource& vs, ImageRef& size, int& fps, ImageRef& offset, bool& verbose, bool& bus_reset, int& format7_mode)
 	{ 
 		size = offset = ImageRef(-1, -1);
 		fps = -1;

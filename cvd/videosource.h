@@ -317,7 +317,7 @@ namespace CVD {
 	template <> VideoBuffer<bayer_grbg16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
 	template <> VideoBuffer<bayer_rggb16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
 
-	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset, bool& verbose, bool& bus_reset, int& format7_mode);
+	void get_dc1394_options(const VideoSource& vs, ImageRef& size, int& fps, ImageRef& offset, bool& verbose, bool& bus_reset, int& format7_mode);
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -394,7 +394,7 @@ namespace CVD {
 		else if (vs.protocol == "dc1394") {
 			int cam_no = atoi(vs.identifier.c_str());
 			ImageRef size, offset;
-			float fps;
+			int fps;
 			bool verbose;
 			bool bus_reset;
 			int  format7_mode;

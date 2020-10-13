@@ -123,7 +123,7 @@ namespace Internal
 
 		//Class to give us a size 2 return value or fail on 
 		//substituting S
-		template<int S> 
+		template<unsigned long S> 
 		struct SFINAE_dummy
 		{
 			typedef Two Type;

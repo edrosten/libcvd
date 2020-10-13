@@ -22,7 +22,7 @@ std::vector<ImageRef> getCircle(int radius) {
     return points;
 }
 
-std::vector<ImageRef> getDisc(float radius)
+std::vector<ImageRef> getDisc(double radius)
 {
     std::vector<ImageRef> points;
 

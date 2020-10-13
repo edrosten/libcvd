@@ -144,7 +144,7 @@ namespace CVD
 			{
 				//Find the rows which overlap with the image. Only work with these rows.
 				int startrow = max(0, - y_lo - y);
-				int endrow =   split_selem.size() - max(0, y + y_hi - in.size().y+1);
+				int endrow =   static_cast<int>(split_selem.size()) - max(0, y + y_hi - in.size().y+1);
 				
 				//Figure out the range of the "easy" bit.
 				int x_first_full = max(0, -x_lo);                               //This is the first position at which we have a full kernel in the image
@@ -182,13 +182,13 @@ namespace CVD
 				int add_start=0, add_end=0, remove_start=0, remove_end=0;
 				for(int i=0; i < startrow; i++)
 				{
-					add_start+=split_add[i].size();
-					remove_start+=split_remove[i].size();
+					add_start+=static_cast<int>(split_add[i].size());
+					remove_start+=static_cast<int>(split_remove[i].size());
 				}
 				for(int i=0; i < endrow; i++)
 				{
-					add_end+=split_add[i].size();
-					remove_end+=split_remove[i].size();
+					add_end+=static_cast<int>(split_add[i].size());
+					remove_end+=static_cast<int>(split_remove[i].size());
 				}
 
 				//Shift the kernel in the area which requires no tests.
@@ -225,7 +225,7 @@ namespace CVD
 			{
 				//Find the rows which overlap with the image. Only work with these rows.
 				int startrow = max(0, - y_lo - y);
-				int endrow =   split_selem.size() - max(0, y + y_hi - in.size().y+1);
+				int endrow =   static_cast<int>(split_selem.size()) - max(0, y + y_hi - in.size().y+1);
 				
 				//Clear the accumulator
 				acc.clear();
@@ -430,7 +430,7 @@ namespace CVD
 				{
 					for(int j=0; j < 256; j++)
 						if(histogram[j])
-							return j;
+							return static_cast<byte>(j);
 					
 					assert(0);
 					return 0;
@@ -446,7 +446,7 @@ namespace CVD
 				{
 					for(int j=255; j >=0 ; j--)
 						if(histogram[j])
-							return j;
+							return static_cast<byte>(j);
 					
 					assert(0);
 					return 0;
@@ -483,7 +483,7 @@ namespace CVD
 							sum += histogram[j];
 
 							if(sum > threshold)
-								return j;
+								return static_cast<byte>(j);
 						}
 						
 						return 255;
@@ -499,7 +499,7 @@ namespace CVD
 							sum += histogram[j];
 
 							if(sum > threshold)
-								return j;
+								return static_cast<byte>(j);
 						}
 						
 						return 0;
@@ -590,7 +590,7 @@ namespace CVD
 		//Some helper classes for median
 		template<class T> T median4(T a, T b, T c, T d)
 		{
-			int v[4] = {a, b, c, d};
+			T v[4] = {a, b, c, d};
 			std::nth_element(v, v+2, v+4);
 			return v[2];
 		}
@@ -602,7 +602,7 @@ namespace CVD
 
 		template<class T> T median6(T a, T b, T c, T d, T e, T f)
 		{
-			int v[6] = {a, b, c, d, e, f};
+			T v[6] = {a, b, c, d, e, f};
 			std::nth_element(v, v+3, v+6);
 			return v[3];
 		}

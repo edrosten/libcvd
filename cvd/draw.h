@@ -228,7 +228,7 @@ std::vector<ImageRef> getCircle(int radius);
 /// @param radius radius of the circle in pixels
 /// @return vector containig ImageRef for the circle
 /// @ingroup gGraphics
-std::vector<ImageRef> getDisc(float radius);
+std::vector<ImageRef> getDisc(double radius);
 
 
 #if defined CVD_HAVE_TOON || defined DOXYGEN_IGNORE_INTERNAL
