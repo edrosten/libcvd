@@ -148,7 +148,13 @@ template<class P> void PNGPimpl::read_pixels(P* data)
 	png_read_rows(png_ptr, row_ptr, NULL, 1);
 }
 
-
+template<class T> int safe_cast(const T&)=delete;
+int safe_cast(png_uint_32 t){
+	if(t > numeric_limits<int>::max())
+		throw Exceptions::Image_IO::UnsupportedImageSubType("PNG", "dimension over INT_MAX");
+	
+	return static_cast<int>(t);
+}
 
 PNGPimpl::PNGPimpl(std::istream& in)
 :i(in),type(""),row(0),png_ptr(0),info_ptr(0),end_info(0)
@@ -217,8 +223,8 @@ PNGPimpl::PNGPimpl(std::istream& in)
 
 	LOG("tRNS?     = " << png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) << endl);
 	
-	my_size.x = w;
-	my_size.y = h;
+	my_size.x = safe_cast(w);
+	my_size.y = safe_cast(h);
 
 	//Figure out the type name, and what processing to to.
 	if(depth == 1)

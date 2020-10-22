@@ -49,19 +49,19 @@ namespace CVD {
 	public:
 	    virtual ~EventHandler() {}
 	    /// Called for key press events
-	    virtual void on_key_down(GLWindow&, int /*key*/) {}
+	    virtual void on_key_down(GLWindow&, unsigned int /*key*/) {}
 	    /// Called for key release events
-	    virtual void on_key_up(GLWindow& /*win*/, int /*key*/) {}
+	    virtual void on_key_up(GLWindow& /*win*/, unsigned int /*key*/) {}
 	    /// Called for mouse movement events
-	    virtual void on_mouse_move(GLWindow& /*win*/, ImageRef /*where*/, int /*state*/) {}
+	    virtual void on_mouse_move(GLWindow& /*win*/, ImageRef /*where*/, unsigned int /*state*/) {}
 	    /// Called for mouse button press events
-	    virtual void on_mouse_down(GLWindow& /*win*/, ImageRef /*where*/, int /*state*/, int /*button*/) {}
+	    virtual void on_mouse_down(GLWindow& /*win*/, ImageRef /*where*/, unsigned int /*state*/, unsigned int /*button*/) {}
 	    /// Called for mouse button release events
-	    virtual void on_mouse_up(GLWindow& /*win*/, ImageRef /*where*/, int /*state*/, int /*button*/) {}
+	    virtual void on_mouse_up(GLWindow& /*win*/, ImageRef /*where*/, unsigned int /*state*/, unsigned int /*button*/) {}
 	    /// Called for window resize events
 	    virtual void on_resize(GLWindow& /*win*/, ImageRef /*size*/) {}
 	    /// Called for general window events (such as EVENT_CLOSE)
-	    virtual void on_event(GLWindow& /*win*/, int /*event*/) {}
+	    virtual void on_event(GLWindow& /*win*/, unsigned int /*event*/) {}
 	};
 
 	struct Event {

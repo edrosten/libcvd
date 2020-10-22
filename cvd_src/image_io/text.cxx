@@ -80,7 +80,7 @@ ReadPimpl::ReadPimpl(istream& is)
 			break;
 		
 		if(my_size.y == 0)
-			my_size.x = raster_data[0].size();
+			my_size.x = static_cast<int>(raster_data[0].size());
 		else if(my_size.x != (int)raster_data.back().size())
 		{
 			ostringstream err;

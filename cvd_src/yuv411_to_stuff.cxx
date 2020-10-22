@@ -30,12 +30,12 @@ void yuv411_to_rgb_y(const unsigned char* ip, int npix, unsigned char* op, unsig
 	{
 		//Format is uYYvYY
 		//Y, 8 but uchar, (u,v) 8 bit uchar-127
-		u = *ip - 128;
-		v = *(ip+3) - 128;
+		u = static_cast<float>(*ip - 128);
+		v = static_cast<float>(*(ip+3) - 128);
 
-		rv = 1.140*v;
-		guv = -0.394*u -0.581*v;
-		bu = 2.028*u;
+		rv = 1.140f*v;
+		guv = -0.394f*u -0.581f*v;
+		bu = 2.028f*u;
 
 		y1 = ip[1];
 		y2 = ip[2];
@@ -81,12 +81,12 @@ void yuv411_to_rgb(const unsigned char* ip, int npix, unsigned char* op)
 	{
 		//Format is uYYvYY
 		//Y, 8 but uchar, (u,v) 8 bit uchar-127
-		u = *ip - 128;
-		v = *(ip+3) - 128;
+		u = static_cast<float>(*ip - 128);
+		v = static_cast<float>(*(ip+3) - 128);
 
-		rv = 1.140*v;
-		guv = -0.394*u -0.581*v;
-		bu = 2.028*u;
+		rv = 1.140f*v;
+		guv = -0.394f*u -0.581f*v;
+		bu = 2.028f*u;
 
 		y1 = ip[1];
 		y2 = ip[2];

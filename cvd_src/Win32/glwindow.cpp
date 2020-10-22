@@ -50,30 +50,30 @@ namespace CVD {
 
 	void GLWindow::init(const ImageRef& size, int bpp, const std::string& title, const std::string&)
 	{
-		GLuint		PixelFormat;			// Holds The Results After Searching For A Match
-		WNDCLASS	wc;						// Windows Class Structure
-		DWORD		dwExStyle;				// Window Extended Style
-		DWORD		dwStyle;				// Window Style
-		RECT		WindowRect;				// Grabs Rectangle Upper Left / Lower Right Values
-		WindowRect.left=(long)0;			// Set Left Value To 0
-		WindowRect.right=(long)size.x;		// Set Right Value To Requested Width
-		WindowRect.top=(long)0;				// Set Top Value To 0
-		WindowRect.bottom=(long)size.y;		// Set Bottom Value To Requested Height
+		GLuint      PixelFormat;            // Holds The Results After Searching For A Match
+		WNDCLASS    wc;                     // Windows Class Structure
+		DWORD       dwExStyle;              // Window Extended Style
+		DWORD       dwStyle;                // Window Style
+		RECT        WindowRect;             // Grabs Rectangle Upper Left / Lower Right Values
+		WindowRect.left=(long)0;            // Set Left Value To 0
+		WindowRect.right=(long)size.x;      // Set Right Value To Requested Width
+		WindowRect.top=(long)0;             // Set Top Value To 0
+		WindowRect.bottom=(long)size.y;     // Set Bottom Value To Requested Height
 
-		//fullscreen=fullscreenflag;			// Set The Global Fullscreen Flag
+		//fullscreen=fullscreenflag;            // Set The Global Fullscreen Flag
 		// Grab An Instance For Our Window   
-		HINSTANCE hInstance	= GetModuleHandle(NULL);
+		HINSTANCE hInstance = GetModuleHandle(NULL);
 		if(!windowClassRegistered){
-			wc.style			= CS_HREDRAW | CS_VREDRAW | CS_OWNDC;	// Redraw On Size, And Own DC For Window.
-			wc.lpfnWndProc		= (WNDPROC) WndProc;					// WndProc Handles Messages
-			wc.cbClsExtra		= 0;									// No Extra Window Data
-			wc.cbWndExtra		= 0;									// No Extra Window Data
-			wc.hInstance		= hInstance;							// Set The Instance
-			wc.hIcon			= LoadIcon(NULL, IDI_WINLOGO);			// Load The Default Icon
-			wc.hCursor			= LoadCursor(NULL, IDC_ARROW);			// Load The Arrow Pointer
-			wc.hbrBackground	= NULL;									// No Background Required For GL
-			wc.lpszMenuName		= NULL;									// We Don't Want A Menu
-			wc.lpszClassName	= "glwindow";								// Set The Class Name
+			wc.style            = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;   // Redraw On Size, And Own DC For Window.
+			wc.lpfnWndProc      = (WNDPROC) WndProc;                    // WndProc Handles Messages
+			wc.cbClsExtra       = 0;                                    // No Extra Window Data
+			wc.cbWndExtra       = 0;                                    // No Extra Window Data
+			wc.hInstance        = hInstance;                            // Set The Instance
+			wc.hIcon            = LoadIcon(NULL, IDI_WINLOGO);          // Load The Default Icon
+			wc.hCursor          = LoadCursor(NULL, IDC_ARROW);          // Load The Arrow Pointer
+			wc.hbrBackground    = NULL;                                 // No Background Required For GL
+			wc.lpszMenuName     = NULL;                                 // We Don't Want A Menu
+			wc.lpszClassName    = "glwindow";                               // Set The Class Name
 
 			if (!RegisterClass(&wc))
 				throw Exceptions::GLWindow::CreationError("Failed to register the Window Class.");
@@ -81,14 +81,14 @@ namespace CVD {
 		}
 
 #if 0
-		if (fullscreen)												// Attempt Fullscreen Mode?
+		if (fullscreen)                                             // Attempt Fullscreen Mode?
 		{
-			DEVMODE dmScreenSettings;								// Device Mode
-			memset(&dmScreenSettings,0,sizeof(dmScreenSettings));	// Makes Sure Memory's Cleared
-			dmScreenSettings.dmSize=sizeof(dmScreenSettings);		// Size Of The Devmode Structure
-			dmScreenSettings.dmPelsWidth	= width;				// Selected Screen Width
-			dmScreenSettings.dmPelsHeight	= height;				// Selected Screen Height
-			dmScreenSettings.dmBitsPerPel	= bits;					// Selected Bits Per Pixel
+			DEVMODE dmScreenSettings;                               // Device Mode
+			memset(&dmScreenSettings,0,sizeof(dmScreenSettings));   // Makes Sure Memory's Cleared
+			dmScreenSettings.dmSize=sizeof(dmScreenSettings);       // Size Of The Devmode Structure
+			dmScreenSettings.dmPelsWidth    = width;                // Selected Screen Width
+			dmScreenSettings.dmPelsHeight   = height;               // Selected Screen Height
+			dmScreenSettings.dmBitsPerPel   = bits;                 // Selected Bits Per Pixel
 			dmScreenSettings.dmFields=DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT;
 
 			// Try To Set Selected Mode And Get Results.  NOTE: CDS_FULLSCREEN Gets Rid Of Start Bar.
@@ -97,72 +97,72 @@ namespace CVD {
 				// If The Mode Fails, Offer Two Options.  Quit Or Use Windowed Mode.
 				if (MessageBox(NULL,"The Requested Fullscreen Mode Is Not Supported By\nYour Video Card. Use Windowed Mode Instead?","NeHe GL",MB_YESNO|MB_ICONEXCLAMATION)==IDYES)
 				{
-					fullscreen=FALSE;		// Windowed Mode Selected.  Fullscreen = FALSE
+					fullscreen=FALSE;       // Windowed Mode Selected.  Fullscreen = FALSE
 				}
 				else
 				{
 					// Pop Up A Message Box Letting User Know The Program Is Closing.
 					MessageBox(NULL,"Program Will Now Close.","ERROR",MB_OK|MB_ICONSTOP);
-					return FALSE;									// Return FALSE
+					return FALSE;                                   // Return FALSE
 				}
 			}
 		}
 
-		if (fullscreen)												// Are We Still In Fullscreen Mode?
+		if (fullscreen)                                             // Are We Still In Fullscreen Mode?
 		{
-			dwExStyle=WS_EX_APPWINDOW;								// Window Extended Style
-			dwStyle=WS_POPUP;										// Windows Style
-			ShowCursor(FALSE);										// Hide Mouse Pointer
+			dwExStyle=WS_EX_APPWINDOW;                              // Window Extended Style
+			dwStyle=WS_POPUP;                                       // Windows Style
+			ShowCursor(FALSE);                                      // Hide Mouse Pointer
 		}
 		else
 #endif
 		{
-			dwExStyle=WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;			// Window Extended Style
-			dwStyle=WS_OVERLAPPEDWINDOW;							// Windows Style
+			dwExStyle=WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;           // Window Extended Style
+			dwStyle=WS_OVERLAPPEDWINDOW;                            // Windows Style
 		}
 
 		RECT oldRect = WindowRect;
-		AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);		// Adjust Window To True Requested Size
+		AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);     // Adjust Window To True Requested Size
 
 		// Create The Window
 		HWND hWnd;
-		if (!(hWnd=CreateWindowEx(	dwExStyle,							// Extended Style For The Window
-			"glwindow",							// Class Name
-			NULL, //title.c_str(),								// Window Title
-			dwStyle |							// Defined Window Style
-			WS_CLIPSIBLINGS |					// Required Window Style
-			WS_CLIPCHILDREN,					// Required Window Style
-			0, 0,								// Window Position
-			WindowRect.right-WindowRect.left,	// Calculate Window Width
-			WindowRect.bottom-WindowRect.top,	// Calculate Window Height
-			NULL,								// No Parent Window
-			NULL,								// No Menu
-			hInstance,							// Instance
-			NULL)))								// Dont Pass Anything To WM_CREATE
+		if (!(hWnd=CreateWindowEx(  dwExStyle,                          // Extended Style For The Window
+			"glwindow",                         // Class Name
+			NULL, //title.c_str(),                              // Window Title
+			dwStyle |                           // Defined Window Style
+			WS_CLIPSIBLINGS |                   // Required Window Style
+			WS_CLIPCHILDREN,                    // Required Window Style
+			0, 0,                               // Window Position
+			WindowRect.right-WindowRect.left,   // Calculate Window Width
+			WindowRect.bottom-WindowRect.top,   // Calculate Window Height
+			NULL,                               // No Parent Window
+			NULL,                               // No Menu
+			hInstance,                          // Instance
+			NULL)))                             // Dont Pass Anything To WM_CREATE
 		{
 			throw Exceptions::GLWindow::CreationError("Window Creation Error.");
 		}
 
-		static	PIXELFORMATDESCRIPTOR pfd=				// pfd Tells Windows How We Want Things To Be
+		static  PIXELFORMATDESCRIPTOR pfd=              // pfd Tells Windows How We Want Things To Be
 		{
-			sizeof(PIXELFORMATDESCRIPTOR),				// Size Of This Pixel Format Descriptor
-			1,											// Version Number
-			PFD_DRAW_TO_WINDOW |						// Format Must Support Window
-			PFD_SUPPORT_OPENGL |						// Format Must Support OpenGL
-			PFD_DOUBLEBUFFER,							// Must Support Double Buffering
-			PFD_TYPE_RGBA,								// Request An RGBA Format
-			bpp,										// Select Our Color Depth
-			0, 0, 0, 0, 0, 0,							// Color Bits Ignored
-			0,											// No Alpha Buffer
-			0,											// Shift Bit Ignored
-			0,											// No Accumulation Buffer
-			0, 0, 0, 0,									// Accumulation Bits Ignored
-			32,											// 32Bit Z-Buffer (Depth Buffer)  
-			8,											// 8bit Stencil Buffer
-			0,											// No Auxiliary Buffer
-			PFD_MAIN_PLANE,								// Main Drawing Layer
-			0,											// Reserved
-			0, 0, 0										// Layer Masks Ignored
+			sizeof(PIXELFORMATDESCRIPTOR),              // Size Of This Pixel Format Descriptor
+			1,                                          // Version Number
+			PFD_DRAW_TO_WINDOW |                        // Format Must Support Window
+			PFD_SUPPORT_OPENGL |                        // Format Must Support OpenGL
+			PFD_DOUBLEBUFFER,                           // Must Support Double Buffering
+			PFD_TYPE_RGBA,                              // Request An RGBA Format
+			static_cast<unsigned char>(bpp),            // Select Our Color Depth
+			0, 0, 0, 0, 0, 0,                           // Color Bits Ignored
+			0,                                          // No Alpha Buffer
+			0,                                          // Shift Bit Ignored
+			0,                                          // No Accumulation Buffer
+			0, 0, 0, 0,                                 // Accumulation Bits Ignored
+			32,                                         // 32Bit Z-Buffer (Depth Buffer)  
+			8,                                          // 8bit Stencil Buffer
+			0,                                          // No Auxiliary Buffer
+			PFD_MAIN_PLANE,                             // Main Drawing Layer
+			0,                                          // Reserved
+			0, 0, 0                                     // Layer Masks Ignored
 		};
 
 		HDC hDC;
@@ -182,9 +182,9 @@ namespace CVD {
 		if(!wglMakeCurrent(hDC,hRC))
 			throw Exceptions::GLWindow::CreationError("Can't Activate The GL Rendering Context.");
 
-		ShowWindow(hWnd,SW_SHOW);						// Show The Window
-		SetForegroundWindow(hWnd);						// Slightly Higher Priority
-		SetFocus(hWnd);									// Sets Keyboard Focus To The Window
+		ShowWindow(hWnd,SW_SHOW);                       // Show The Window
+		SetForegroundWindow(hWnd);                      // Slightly Higher Priority
+		SetFocus(hWnd);                                 // Sets Keyboard Focus To The Window
 
 		glLoadIdentity();
 		glViewport(0, 0, size.x, size.y);
@@ -240,7 +240,7 @@ namespace CVD {
 
 		if(state->hRC){
 			if (wglGetCurrentContext() == state->hRC)
-				if (!wglMakeCurrent(NULL,NULL))	
+				if (!wglMakeCurrent(NULL,NULL)) 
 					throw Exceptions::GLWindow::RuntimeError("Release of DC and RC failed.");
 			if (!wglDeleteContext(state->hRC))
 				throw Exceptions::GLWindow::RuntimeError("Release Rendering Context failed.");
@@ -402,7 +402,7 @@ namespace CVD {
 			handler.on_event(*this, EVENT_EXPOSE);
 		}
 
-		MSG	msg;
+		MSG msg;
 
 		currentHandler = &handler; // for events only received in Window Procedure
 
@@ -547,7 +547,7 @@ namespace CVD {
 	public:
 		MakeSummary(GLWindow::EventSummary& summary_) : summary(summary_) {}
 
-		void on_key_down(GLWindow&, int key) {	++summary.key_down[key]; }
+		void on_key_down(GLWindow&, int key) {  ++summary.key_down[key]; }
 		void on_key_up(GLWindow&, int key) { ++summary.key_up[key]; }
 		void on_mouse_move(GLWindow&, ImageRef where, int) { summary.cursor = where; summary.cursor_moved = true; }
 		void on_mouse_down(GLWindow&, ImageRef where, int state, int button) { summary.mouse_down[button] = std::make_pair(where,state); }
@@ -571,7 +571,7 @@ namespace CVD {
 			throw Exceptions::GLWindow::RuntimeError("Window is not open.");
 		}
 
-		MSG	msg;
+		MSG msg;
 		return PeekMessage(&msg, state->hWnd, 0, 0, PM_NOREMOVE) != 0;
 	}
 
@@ -585,10 +585,10 @@ namespace CVD {
 			throw Exceptions::GLWindow::RuntimeError("wglMakeCurrent failed");
 	}
 
-	LRESULT CALLBACK WndProc(	HWND	hWnd,			// Handle For This Window
-		UINT	uMsg,			// Message For This Window
-		WPARAM	wParam,			// Additional Message Information
-		LPARAM	lParam)			// Additional Message Information
+	LRESULT CALLBACK WndProc(   HWND    hWnd,           // Handle For This Window
+		UINT    uMsg,           // Message For This Window
+		WPARAM  wParam,         // Additional Message Information
+		LPARAM  lParam)         // Additional Message Information
 	{
 		switch(uMsg){
 		case WM_WINDOWPOSCHANGED:

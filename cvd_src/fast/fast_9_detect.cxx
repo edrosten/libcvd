@@ -4660,7 +4660,7 @@ void fast_corner_detect_plain_9(const BasicImage<byte>& i, vector<ImageRef>& cor
 			  continue;
 
 			success:
-				corners.push_back(ImageRef(cache_0-line_min, y));
+				corners.push_back(ImageRef(static_cast<int>(cache_0-line_min), y));
 		}
 	}
 }

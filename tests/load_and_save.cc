@@ -25,16 +25,30 @@
 #include <cstdlib>
 #include <limits>
 #include <algorithm>
-#include <cstdlib>
+#include <random>
 
 
 #include <cvd/image_io.h>
 
-using namespace std;
 using namespace CVD;
+using std::cerr;
+using std::clog;
+using std::equal;
+using std::endl;
+using std::ifstream;
+using std::ios;
+using std::ios_base;
+using std::map;
+using std::max;
+using std::min;
+using std::ofstream;
+using std::string;
+using std::stringstream;
 
 using CVD::Internal::TypeList;
 using CVD::Internal::Head;
+
+std::mt19937 rng;
 
 template<class C> struct randpix
 {
@@ -53,40 +67,40 @@ template<class C> struct randpix
 
 template<> struct randpix<bool>
 {
-	static double r()
+	static bool r()
 	{
-		return rand() % 2;
+		return std::uniform_int_distribution<>(0,1)(rng);
 	}
 };
 
 template<> struct randpix<bayer_bggr>
 {
-	static double r()
+	static byte r()
 	{
-		return rand() % 256;
+		return static_cast<byte>(std::uniform_int_distribution<>(0,255)(rng));
 	}
 };
 template<> struct randpix<bayer_rggb>
 {
-	static double r()
+	static byte r()
 	{
-		return rand() % 256;
+		return static_cast<byte>(std::uniform_int_distribution<>(0,255)(rng));
 	}
 };
 
 template<> struct randpix<bayer_grbg>
 {
-	static double r()
+	static byte r()
 	{
-		return rand() % 256;
+		return static_cast<byte>(std::uniform_int_distribution<>(0,255)(rng));
 	}
 };
 
 template<> struct randpix<bayer_gbrg>
 {
-	static double r()
+	static byte r()
 	{
-		return rand() % 256;
+		return static_cast<byte>(std::uniform_int_distribution<>(0,255)(rng));
 	}
 };
 
@@ -106,7 +120,7 @@ template<> struct randpix<float>
 {
 	static float r()
 	{
-		return rand() * 10./RAND_MAX - 5;
+		return std::uniform_real_distribution<float>(-5,5)(rng);
 	}
 };
 
@@ -133,7 +147,7 @@ template<class T> string make_output_file_name(string fin, string type)
 	//T tmp;
 
 	//Remove the path from the filename
-	for(int i=fin.size()-1; i >= 0; i--)
+	for(int i=static_cast<int>(fin.size()-1); i >= 0; i--)
 	{
 		if(fin[i] != '/')
 			fn = fin[i] + fn;
@@ -201,7 +215,7 @@ template<class T> void loadsave_safe(const char*n)
 	{
 		loadsave<T>(n);
 	}
-	catch(CVD::Exceptions::All b0rk3d)
+	catch(const CVD::Exceptions::All& b0rk3d)
 	{
 		cerr << "Image " << n << " error: " << b0rk3d.what() << endl;
 	}
@@ -275,7 +289,7 @@ template<class T> struct randtest
 				else
 					cerr << "OK.\n";
 			}
-			catch(Exceptions::All w)
+			catch(const Exceptions::All& w)
 			{
 				cerr << w.what() << endl;
 			}

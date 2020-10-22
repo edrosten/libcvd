@@ -30,7 +30,7 @@ class CVD::FITS::WritePimpl
 		void write_raw_pixel_line_(const Rgba<unsigned short>* dat);
 		void axes(const string& s, int x, int y);
 		void write(const string& s);
-		void write_short(short s);
+		void write_ushort(uint16_t s);
 	private:
 		ostream& o;
 		ImageRef my_size;
@@ -111,37 +111,36 @@ template<class C> void WritePimpl::write_raw_pixel_line_(const C* dat)
 		data.push_back(d[i]);
 }
 
-void WritePimpl::write_short(short s)
+void WritePimpl::write_ushort(uint16_t s)
 {
-	int num = (int)s - 32768;
-	short ns = num;
-	data.push_back((ns&0xff00)>>8);
-	data.push_back(ns&0xff);
+	int num = s - 32768;
+	data.push_back(static_cast<uint8_t>((num&0xff00)>>8));
+	data.push_back(static_cast<uint8_t>(num&0xff));
 }
 
 void WritePimpl::write_raw_pixel_line_(const unsigned short* dat)
 {
 	for(int i=0; i < my_size.x; i++)
-		write_short(dat[i]);
+		write_ushort(dat[i]);
 }
 
 void WritePimpl::write_raw_pixel_line_(const Rgb<unsigned short>* dat)
 {
 	for(int i=0; i < my_size.x; i++)
 	{
-		write_short(dat[i].red);
-		write_short(dat[i].green);
-		write_short(dat[i].blue);
+		write_ushort(dat[i].red);
+		write_ushort(dat[i].green);
+		write_ushort(dat[i].blue);
 	}
 }
 void WritePimpl::write_raw_pixel_line_(const Rgba<unsigned short>* dat)
 {
 	for(int i=0; i < my_size.x; i++)
 	{
-		write_short(dat[i].red);
-		write_short(dat[i].green);
-		write_short(dat[i].blue);
-		write_short(dat[i].alpha);
+		write_ushort(dat[i].red);
+		write_ushort(dat[i].green);
+		write_ushort(dat[i].blue);
+		write_ushort(dat[i].alpha);
 	}
 }
 

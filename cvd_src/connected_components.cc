@@ -106,7 +106,7 @@ void connected_components(const vector<ImageRef>& v, vector<vector<ImageRef> >& 
 		if(above_label == -1 && prev_x != pos.x-1)
 		{
 				parents.resize(parents.size()+1);
-				current_label = parents.size()-1;
+				current_label = static_cast<int>(parents.size())-1;
 				parents[current_label] = current_label;
 
 				segments.resize(segments.size() + 1);

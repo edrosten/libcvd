@@ -43,7 +43,15 @@
 #include <cvd/gl_helpers.h>
 #include <cvd/videosource.h>
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#endif
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 #include "progs/tinyformat.h"
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 #ifdef CVD_HAVE_V4LBUFFER
 	#include <cvd/Linux/v4lbuffer.h>
@@ -201,7 +209,7 @@ class MessageQueue
 	private:
 		std::deque<C> data;
 		std::mutex queue_mutex;
-		std::atomic<int> length;
+		std::atomic<size_t> length;
 		std::condition_variable empty;
 
 
@@ -239,7 +247,7 @@ class MessageQueue
 			return a;
 		}
 
-		int get_length() const
+		size_t get_length() const
 		{
 			return length;
 		}
@@ -322,7 +330,7 @@ template<class C> void play(string s, string fmt, unsigned int decimate)
 				try{
 					img_save(*(s.first), s.second);
 				}
-				catch(CVD::Exceptions::All e)
+				catch(const CVD::Exceptions::All& e)
 				{
 					cerr << "Error saving: " << fmt << ": " << e.what() << endl;
 				}

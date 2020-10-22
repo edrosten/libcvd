@@ -30,7 +30,7 @@ class CVD::TIFF::TIFFWritePimpl
 		ostream& o;
 		ImageRef my_size;
 		string   type;
-		unsigned long row;
+		uint32_t row;
 		::TIFF* tif;
 		streamoff length;
 		long    strip_size;
@@ -184,7 +184,7 @@ void TIFFWritePimpl::write_raw_pixel_line(const bool* data)
 
 	//Pack bools
 	for(int i=0; i < my_size.x  ;i++)
-		bool_rowbuf[i/8] |=  (data[i] & 1) << (7-i%8);
+		bool_rowbuf[i/8] |=  static_cast<unsigned char>((data[i] & 1) << (7-i%8));
 
 	if(TIFFWriteScanline(tif, &bool_rowbuf[0], row) == -1)
 		throw WriteError(error_msg);

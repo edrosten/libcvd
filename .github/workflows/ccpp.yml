@@ -10,9 +10,15 @@ jobs:
   build-test-ubuntu:
     runs-on: ubuntu-18.04
     steps:
+    - run: |
+           sudo apt-get update
+           sudo apt install g++-10 gcc-10
     - uses: actions/checkout@v2
     - name: configure
       run: ./configure
+      env: 
+        CC: gcc-10
+        CXX: g++-10 -Werror -Wno-stringop-overflow
     - name: make
       run: make
     - name: make test

@@ -32,6 +32,8 @@ public:
 	//Construction
 	/// Construct an ImageRef initialised at (0,0)
 	constexpr ImageRef();
+	constexpr ImageRef(const ImageRef&)=default;
+
 	/// Construct an ImageRef
 	/// @param xp The x co-ordinate
 	/// @param yp The y co-ordinate
@@ -203,9 +205,9 @@ inline std::istream& operator>>(std::istream& is, ImageRef& ref)
 	//output produced above, as well as the older (x,y) format
 	is >> std::ws;
 
-	unsigned char c = is.get();
+	int c = is.get();
 
-	if(is.eof())
+	if(c == -1)
 		return is;
 
 	if(c == '(' )

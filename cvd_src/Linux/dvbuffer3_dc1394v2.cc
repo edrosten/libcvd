@@ -122,7 +122,7 @@ namespace CVD
     struct DV3Frame : public VideoFrame<byte>
     {
       DV3Frame(dc1394video_frame_t *pDC1394Frame)
-	: VideoFrame<byte>(const_cast<const cvd_timer & >(timer).conv_ntime(pDC1394Frame->timestamp / 1000000.0),
+	: VideoFrame<byte>(const_cast<const cvd_timer & >(timer).conv_ntime(static_cast<double>(pDC1394Frame->timestamp) / 1000000.0),
 			   pDC1394Frame->image,
 			   ImageRef(pDC1394Frame->size[0], pDC1394Frame->size[1]))
       {	mpDC1394Frame = pDC1394Frame; }

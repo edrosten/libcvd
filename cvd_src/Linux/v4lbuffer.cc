@@ -78,10 +78,10 @@ string unfourcc(unsigned long c)
 		string ret;
 		ret.resize(4);
 
-		ret[0] = c & 0xff;
-		ret[1] = (c>>8) & 0xff;
-		ret[2] = (c>>16) & 0xff;
-		ret[3] = (c>>24) & 0xff;
+		ret[0] = static_cast<char>(c & 0xff);
+		ret[1] = static_cast<char>((c>>8) & 0xff);
+		ret[2] = static_cast<char>((c>>16) & 0xff);
+		ret[3] = static_cast<char>((c>>24) & 0xff);
 		return ret;
 }
 
@@ -329,7 +329,7 @@ namespace V4L { // V4L
 			struct v4l2_buffer buffer;
 			buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 			buffer.memory = V4L2_MEMORY_MMAP;
-			buffer.index = i;
+			buffer.index = static_cast<uint32_t>(i);
 			if (0 != ioctl(fd, VIDIOC_QUERYBUF, &buffer))
 				throw Exceptions::V4LBuffer::DeviceSetup(dev, "V4L2: VIDIOC_QUERYBUF");
 			if (i == 0)
@@ -407,7 +407,7 @@ namespace V4L { // V4L
 		Buffer ret;
 		ret.id = buffer.index;
 		ret.data = static_cast<unsigned char*>(state->frames[buffer.index].data);
-		ret.when = buffer.timestamp.tv_usec * 1e-6 + buffer.timestamp.tv_sec;
+		ret.when = static_cast<double>(buffer.timestamp.tv_usec) * 1e-6 + static_cast<double>(buffer.timestamp.tv_sec);
 		return ret;
 	}
 	

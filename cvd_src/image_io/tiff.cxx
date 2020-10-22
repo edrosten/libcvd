@@ -25,10 +25,14 @@ class CVD::TIFF::TIFFPimpl
 		string datatype();
 		template<class C> void get_raw_pixel_line(C* data);
 		void get_raw_pixel_line(bool* data);
+		void get_raw_pixel_line(Rgba<unsigned char>* data);
 
 	private:
+
+		template<class C> void checkRead(const C*);
+
 		istream& i;
-		unsigned long row;
+		uint32_t row;
 		ImageRef my_size;
 		string   type;
 		streamoff length;
@@ -124,32 +128,46 @@ void attempt_invert(float* data, long num) { invert(data, num);}
 void attempt_invert(double* data, long num) { invert(data, num);}
 
 
-
-template<class T> void TIFFPimpl::get_raw_pixel_line(T* d)
-{
+template<class T>
+void TIFFPimpl::checkRead(const T*){
 	if(datatype() != PNM::type_name<T>::name())
 		throw ReadTypeMismatch(datatype(), PNM::type_name<T>::name());
 
 	if(row  > (unsigned long)my_size.y)
 		throw InternalLibraryError("CVD", "Read past end of image.");
-	
+}
+
+void TIFFPimpl::get_raw_pixel_line(Rgba<unsigned char>* data){
+	checkRead(data);	
+
 	if(use_cooked_rgba_interface)
 	{
 		uint32* raster = &raster_data[row*my_size.x];
 		uint32* end = raster + my_size.x;
 
-		//We will only ever get here if the type is Rgba
-		Rgba<unsigned char>* data = reinterpret_cast<Rgba<unsigned char>* >(d);
-	
 		for(;raster < end; raster++, data++)
 		{
 			data->red   = TIFFGetR(*raster);
 			data->green = TIFFGetG(*raster);
 			data->blue  = TIFFGetB(*raster);
-			data->alpha = TIFFGetA(*raster);
+			data->alpha = static_cast<unsigned char>(TIFFGetA(*raster));
 		}
 
 		row ++;
+	}
+	else
+	{	
+		get_raw_pixel_line<Rgba<unsigned char>>(data);
+	}
+
+}
+
+template<class T> void TIFFPimpl::get_raw_pixel_line(T* d)
+{
+	checkRead(d);
+	if(use_cooked_rgba_interface)
+	{
+		throw InternalLibraryError("CVD", "Reading non-RGBA tiff data as RGBA");
 	}
 	else
 	{	

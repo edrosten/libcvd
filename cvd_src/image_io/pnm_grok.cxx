@@ -155,10 +155,10 @@ namespace CVD
 			  std::istream&		i;
 			  bool		is_text;
 			  int   type, maxval;
-			  int   lines_so_far;
+			  long   lines_so_far;
 			  void		read_header();
 			  bool  can_proc_lines(unsigned long);
-			  long		xs, ys;
+			  int		xs, ys;
 		};
 
 		bool clean(istream& i)
@@ -362,7 +362,7 @@ namespace CVD
 		{
 			int j=0;
 			i >> j;  //Ignore EOF: be leniant
-			*c = j & 0xff;
+			*c = static_cast<byte>(j & 0xff);
 		}
 
 		void get_num(istream& i, bool* c)
@@ -377,7 +377,7 @@ namespace CVD
 		{
 			int j=0;
 			i >> j;  //Ignore EOF: be leniant
-			*c = j & 0xffff;
+			*c = static_cast<unsigned short>(j & 0xffff);
 		}
 
 		template<class C> void get_num(istream& i, Rgb<C>* c)

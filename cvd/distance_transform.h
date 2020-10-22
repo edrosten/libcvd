@@ -24,7 +24,7 @@ namespace CVD {
 		public:
 			DistanceTransformEuclidean() 
 			:sz(ImageRef(-1,-1)),
-			 big_number(1e9) //Hmm, why doesn't HUGE_VAL work?
+			 big_number(1'000'000'000) //Hmm, why doesn't HUGE_VAL work?
 							 //Anyway, hilariously small number here so it works with int, too.
 			 {}
 
@@ -109,11 +109,11 @@ namespace CVD {
 						}
 						const double dx = pos[x];
 						const double dy = sqrt(hyp - dx * dx);
-						const int ddy = dy;
-						const ImageRef candA(x - dx, y - ddy);
-						const ImageRef candB(x - dx, y + ddy);
-						const ImageRef candC(x + dx, y - ddy);
-						const ImageRef candD(x + dx, y + ddy);
+						const int ddy = static_cast<int>(dy);
+						const ImageRef candA(static_cast<int>(x - dx), static_cast<int>(y - ddy));
+						const ImageRef candB(static_cast<int>(x - dx), static_cast<int>(y + ddy));
+						const ImageRef candC(static_cast<int>(x + dx), static_cast<int>(y - ddy));
+						const ImageRef candD(static_cast<int>(x + dx), static_cast<int>(y + ddy));
 						/** cerr << "hyp=" << hyp << " dx="<< dx << " dy=" << dy << " ddy=" << ddy
 						  << " A=" << candA << " B=" << candB << " C=" << candC << " D=" << candD << endl;*/
 						if (DT.in_image(candA) && func(candA)) {
@@ -199,7 +199,7 @@ namespace CVD {
 
 		private:
 			ImageRef sz;
-			double big_number;
+			int big_number;
 			std::vector <Precision> d;
 			std::vector <int> v;
 			std::vector <Precision> z;

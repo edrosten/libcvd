@@ -4,7 +4,12 @@
 #include <cvd/image_convert.h>
 #include <utility>
 using namespace CVD;
-using namespace std;
+
+using std::mt19937;
+using std::uniform_int_distribution;
+using std::cout;
+using std::cerr;
+using std::endl;
 
 int main()
 {
@@ -46,7 +51,7 @@ int main()
 		{
 			if(adt[p] != ImageRef(-1, -1))
 			{
-				float d = ((p - adt[p]).mag_squared());
+				double d = ((p - adt[p]).mag_squared());
 
 				if(abs(d - out[p]) != 0)
 				{

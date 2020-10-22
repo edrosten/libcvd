@@ -53,7 +53,7 @@ void convolveGaussian5_1(Image<byte>& I)
             int sum= (3571*(src[0]+src[4*w])
                     + 16004*(src[w]+src[3*w])
                     + 26386*src[2*w]);
-            *(src) = sum >> 16;
+            *(src) = static_cast<uint8_t>(sum >> 16);
             src += w;
         }
     }
@@ -64,7 +64,7 @@ void convolveGaussian5_1(Image<byte>& I)
             int sum= (3571*(src[0]+src[4])
                     + 16004*(src[1]+src[3])
                     + 26386*src[2]);
-            *(src+2*w+2) = sum >> 16;
+            *(src+2*w+2) = static_cast<uint8_t>(sum >> 16);
             ++src;
         }
     }

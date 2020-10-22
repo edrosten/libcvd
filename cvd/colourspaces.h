@@ -206,127 +206,55 @@ namespace CVD
 		template<> struct type_name<MJPEG> { static std::string name(){return "MJPEG" ;}};
 	}
 
-  namespace Pixel {
-        template<int LIFT> struct traits<bayer_bggr, LIFT>
-        {
-            typedef int wider_type;
-            typedef float float_type;
-            static const bool integral = true;
-            static const bool is_signed = false;
-            static const int bits_used = 8;
-            static const unsigned char max_intensity=(1 << bits_used) - 1;
-        };
+	namespace Pixel {
+		template<int LIFT> struct traits<bayer_bggr, LIFT> : public traits<unsigned char, LIFT>
+		{
+		};
 
-	template<int LIFT> struct traits<bayer_rggb, LIFT>
-        {
-            typedef int wider_type;
-            typedef float float_type;
-            static const bool integral = true;
-            static const bool is_signed = false;
-            static const int bits_used = 8;
-            static const unsigned char max_intensity=(1 << bits_used) - 1;
-        };
+		template<int LIFT> struct traits<bayer_rggb, LIFT> : public traits<unsigned char, LIFT>
+		{
+		};
 
-	template<int LIFT> struct traits<bayer_gbrg, LIFT>
-        {
-            typedef int wider_type;
-            typedef float float_type;
-            static const bool integral = true;
-            static const bool is_signed = false;
-            static const int bits_used = 8;
-            static const unsigned char max_intensity=(1 << bits_used) - 1;
-        };
-	
-	template<int LIFT> struct traits<bayer_grbg, LIFT>
-        {
-            typedef int wider_type;
-            typedef float float_type;
-            static const bool integral = true;
-            static const bool is_signed = false;
-            static const int bits_used = 8;
-            static const unsigned char max_intensity=(1 << bits_used) - 1;
-        };
+		template<int LIFT> struct traits<bayer_gbrg, LIFT>: public traits<unsigned char, LIFT>
+		{
+		};
 
-        template<int LIFT> struct traits<bayer_bggr16, LIFT>
-        {
-            typedef int wider_type;
-            typedef float float_type;
-            static const bool integral = true;
-            static const bool is_signed = false;
-            static const int bits_used = 16;
-            static const unsigned short max_intensity=(1 << bits_used) - 1;
-        };
+		template<int LIFT> struct traits<bayer_grbg, LIFT>: public traits<unsigned char, LIFT>
+		{
+		};
 
-	template<int LIFT> struct traits<bayer_rggb16, LIFT>
-        {
-            typedef int wider_type;
-            typedef float float_type;
-            static const bool integral = true;
-            static const bool is_signed = false;
-            static const int bits_used = 16;
-            static const unsigned short max_intensity=(1 << bits_used) - 1;
-        };
+		template<int LIFT> struct traits<bayer_bggr16, LIFT>: public traits<unsigned short, LIFT>
+		{
+		};
 
-	template<int LIFT> struct traits<bayer_gbrg16, LIFT>
-        {
-            typedef int wider_type;
-            typedef float float_type;
-            static const bool integral = true;
-            static const bool is_signed = false;
-            static const int bits_used = 16;
-            static const unsigned short max_intensity=(1 << bits_used) - 1;
-        };
-	
-	template<int LIFT> struct traits<bayer_grbg16, LIFT>
-        {
-            typedef int wider_type;
-            typedef float float_type;
-            static const bool integral = true;
-            static const bool is_signed = false;
-            static const int bits_used = 16;
-            static const unsigned short max_intensity=(1 << bits_used) - 1;
-        };
+		template<int LIFT> struct traits<bayer_rggb16, LIFT>: public traits<unsigned short, LIFT>
+		{
+		};
 
-        template<int LIFT> struct traits<bayer_bggr16be, LIFT>
-        {
-            typedef int wider_type;
-            typedef float float_type;
-            static const bool integral = true;
-            static const bool is_signed = false;
-            static const int bits_used = 16;
-            static const unsigned short max_intensity=(1 << bits_used) - 1;
-        };
+		template<int LIFT> struct traits<bayer_gbrg16, LIFT>: public traits<unsigned short, LIFT>
+		{
+		};
 
-	template<int LIFT> struct traits<bayer_rggb16be, LIFT>
-        {
-            typedef int wider_type;
-            typedef float float_type;
-            static const bool integral = true;
-            static const bool is_signed = false;
-            static const int bits_used = 16;
-            static const unsigned short max_intensity=(1 << bits_used) - 1;
-        };
+		template<int LIFT> struct traits<bayer_grbg16, LIFT>: public traits<unsigned short, LIFT>
+		{
+		};
 
-	template<int LIFT> struct traits<bayer_gbrg16be, LIFT>
-        {
-            typedef int wider_type;
-            typedef float float_type;
-            static const bool integral = true;
-            static const bool is_signed = false;
-            static const int bits_used = 16;
-            static const unsigned short max_intensity=(1 << bits_used) - 1;
-        };
-	
-	template<int LIFT> struct traits<bayer_grbg16be, LIFT>
-        {
-            typedef int wider_type;
-            typedef float float_type;
-            static const bool integral = true;
-            static const bool is_signed = false;
-            static const int bits_used = 16;
-            static const unsigned short max_intensity=(1 << bits_used) - 1;
-        };
-    }
+		template<int LIFT> struct traits<bayer_bggr16be, LIFT>: public traits<unsigned short, LIFT>
+		{
+		};
+
+		template<int LIFT> struct traits<bayer_rggb16be, LIFT>: public traits<unsigned short, LIFT>
+		{
+		};
+
+		template<int LIFT> struct traits<bayer_gbrg16be, LIFT>: public traits<unsigned short, LIFT>
+		{
+		};
+
+		template<int LIFT> struct traits<bayer_grbg16be, LIFT>: public traits<unsigned short, LIFT>
+		{
+		};
+	}
 
 }
 

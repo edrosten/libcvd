@@ -46,7 +46,7 @@ double cvd_timer::get_time()
 
 double get_time_of_day() 
 {
-  return get_time_of_day_ns()/1e9;
+  return static_cast<double>(get_time_of_day_ns())/1e9;
 }
 
 

@@ -197,7 +197,7 @@ template<class T> void ReadPimpl::convert_raw_pixel_line(unsigned char* rowp, T*
 template<template<class> class T> void ReadPimpl::convert_raw_pixel_line(unsigned char* rowp, T<unsigned short>* d)
 {	
 	unsigned short* ds = (unsigned short*)d;
-	int elements=my_size.x * sizeof(T<unsigned short>)/sizeof(unsigned short);
+	int elements=my_size.x * static_cast<int>(sizeof(T<unsigned short>)/sizeof(unsigned short));
 	for(int i=0; i < elements; i++)
 		ds[i] = (unsigned short)(static_cast<int>( ((short*)(rowp))[i]) + 32768);
 }

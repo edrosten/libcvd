@@ -24,8 +24,8 @@ class ReadPimpl
 	public:
 		ReadPimpl(std::istream&);
 		int channels(){return m_channels;}
-		long  x_size() const {return xs;}
-		long  y_size() const {return ys;}
+		int  x_size() const {return xs;}
+		int  y_size() const {return ys;}
 		long  elements_per_line() const {return xs * m_channels;}
 		void get_raw_pixel_lines(unsigned char*, unsigned long nlines);
 		~ReadPimpl();
@@ -44,7 +44,7 @@ class ReadPimpl
 		}
 
 	private:
-		long	xs, ys;
+		int	xs, ys;
 		int	m_channels;
 		struct jpeg_decompress_struct cinfo;
 		struct jpeg_error_mgr jerr;
@@ -156,7 +156,7 @@ struct jpeg_istream_src: public jpeg_source_mgr
 			}
 			
 			//Store the byte...
-			me->buf[n] = c;
+			me->buf[n] = static_cast<uint8_t>(c);
 		}
 
 		me->bytes_in_buffer = n;
@@ -338,15 +338,15 @@ class WritePimpl
 	public:
   WritePimpl(std::ostream&, int  xsize, int ysize, const string& type, const std::map<std::string, Parameter<> >& p, const std::string& comm="");
 		int channels(){return m_channels;}
-		long  x_size() const {return xs;}
-		long  y_size() const {return ys;}
+		int  x_size() const {return xs;}
+		int  y_size() const {return ys;}
 		long  elements_per_line() const {return xs * m_channels;}
 		void 	write_raw_pixel_lines(const unsigned char*, unsigned long);
 		template<class C> 	void write_raw_pixel_line(const C*);
 		~WritePimpl();
 		
 	private:
-		long	xs, ys, row;
+		int	xs, ys, row;
 		int	m_channels;
 		struct jpeg_compress_struct cinfo;
 		struct jpeg_error_mgr jerr;
@@ -415,17 +415,13 @@ WritePimpl::WritePimpl(std::ostream& out, int xsize, int ysize, const string& t,
 
 	jpeg_start_compress(&cinfo, TRUE);
 
-	unsigned int commlen = comm.length();
-	
+	string comment = comm;
 	//NB: not 65536 Marker looks like:
 	// marker_byte length_high length_low length*bytes
 	// length includes the block header (3 bytes)	
-
-	if(commlen > 65533)
-		commlen = 65533;
-
+	comment.resize(std::min(comment.length(), size_t(65533)));
 	//Written without zero termination, since the length is also written
-	jpeg_write_marker(&cinfo, JPEG_COM, (JOCTET*)comm.c_str(), comm.length());
+	jpeg_write_marker(&cinfo, JPEG_COM, (JOCTET*)comm.c_str(), static_cast<unsigned int>(comment.size()));
 }
 
 void WritePimpl::write_raw_pixel_lines(const unsigned char* data, unsigned long nlines)

@@ -33,7 +33,7 @@ void pred_horizontal_diff(const byte* in, int width, byte* out, int pred_len = 1
 		out[i] = in[i];
 
 	for (int i = pred_len; i < width; i++)
-		out[i] = (256 + in[i] - in[i-pred_len])&255;
+		out[i] = static_cast<byte>((256 + in[i] - in[i-pred_len])&255);
 }
 
 void pred_horizontal_undiff(const byte* in, int width, byte* out, int pred_len = 1)
@@ -54,14 +54,14 @@ void pred_2doptimal_diff(const byte* in, int width, byte* buffer, byte* out, int
 {
 	// simple vertical prediction for first column(s)
 	for (int i = 0; i < pred_len; i++) {
-		out[i] = (256 + in[i] - buffer[i]) & 255;
+		out[i] = static_cast<byte>((256 + in[i] - buffer[i]) & 255);
 	}
 
 	// 0.75 i[x-1][y] + 0.75 i[x][y-1] - 0.5 i[x-1][y-1]
 	// buffer is used to store the previous row
 	for (int i = pred_len; i < width; i++) {
 		int pred = (3*in[i-pred_len] - 2*buffer[i-pred_len] + 3*buffer[i]) / 4;
-		out[i] = (256 + in[i] - pred)&255;
+		out[i] = static_cast<byte>((256 + in[i] - pred)&255);
 		buffer[i-pred_len] = in[i-pred_len];
 	}
 
@@ -81,7 +81,7 @@ void pred_2doptimal_undiff(const byte* in, int width, byte* buffer, byte* out, i
 	// see above
 	for (int i = pred_len; i < width; i++) {
 		int pred = (3*out[i-pred_len] - 2*buffer[i-pred_len] + 3*buffer[i]) / 4;
-		out[i] = (in[i] + pred)&255;
+		out[i] = static_cast<byte>((in[i] + pred)&255);
 		buffer[i-pred_len] = out[i-pred_len];
 	}
 
@@ -119,8 +119,8 @@ static const int pred_coeff_bluered[]={4, 0, 4}; //=> 24.1666
 void pred_2dbayer_diff(const byte* in, int width, byte* buffer1, byte* buffer2, byte* out, bool greenfirst)
 {
 	// simple vertical prediction for first two columns
-	out[0] = (256 + in[0] - buffer1[0]) & 255;
-	out[1] = (256 + in[1] - buffer1[1]) & 255;
+	out[0] = static_cast<byte>((256 + in[0] - buffer1[0]) & 255);
+	out[1] = static_cast<byte>((256 + in[1] - buffer1[1]) & 255);
 
 	// for red and blue: 0.75 i[x-2][y] + 0.75 i[x][y-2] - 0.5 i[x-2][y-2]
 	// for green: 0.25 i[x-2][y] + 0.5 i[x-1][y-1] - 0.25 i[x+1][y-1]
@@ -131,7 +131,7 @@ void pred_2dbayer_diff(const byte* in, int width, byte* buffer1, byte* buffer2, 
 		int pred = (pred_coeff_green[0]*in[i-2] +
 			pred_coeff_green[1]*buffer2[i-1] +
 			pred_coeff_green[2]*buffer1[i]) / 8;
-		out[i] = (256 + in[i] - pred)&255;
+		out[i] = static_cast<byte>((256 + in[i] - pred)&255);
 		buffer1[i-2] = in[i-2];
 		i++;
 	}
@@ -140,14 +140,14 @@ void pred_2dbayer_diff(const byte* in, int width, byte* buffer1, byte* buffer2, 
 		int pred = (pred_coeff_bluered[0]*in[i-2] +
 			pred_coeff_bluered[1]*buffer1[i-2] +
 			pred_coeff_bluered[2]*buffer1[i]) / 8;
-		out[i] = (256 + in[i] - pred)&255;
+		out[i] = static_cast<byte>((256 + in[i] - pred)&255);
 		buffer1[i-2] = in[i-2];
 		i++;
 		if (!(i<width)) break;
 		pred = (pred_coeff_green[0]*in[i-2] +
 			pred_coeff_green[1]*buffer2[i-1] +
 			pred_coeff_green[2]*buffer1[i]) / 8;
-		out[i] = (256 + in[i] - pred)&255;
+		out[i] = static_cast<byte>((256 + in[i] - pred)&255);
 		buffer1[i-2] = in[i-2];
 	}
 
@@ -167,7 +167,7 @@ void pred_2dbayer_undiff(const byte* in, int width, byte* buffer1, byte* buffer2
 		int pred = (pred_coeff_green[0]*out[i-2] +
 			pred_coeff_green[1]*buffer2[i-1] +
 			pred_coeff_green[2]*buffer1[i]) / 8;
-		out[i] = (in[i] + pred)&255;
+		out[i] = static_cast<byte>((in[i] + pred)&255);
 		buffer1[i-2] = out[i-2];
 		i++;
 	}
@@ -176,14 +176,14 @@ void pred_2dbayer_undiff(const byte* in, int width, byte* buffer1, byte* buffer2
 		int pred = (pred_coeff_bluered[0]*out[i-2] +
 			pred_coeff_bluered[1]*buffer1[i-2] +
 			pred_coeff_bluered[2]*buffer1[i]) / 8;
-		out[i] = (in[i] + pred)&255;
+		out[i] = static_cast<byte>((in[i] + pred)&255);
 		buffer1[i-2] = out[i-2];
 		i++;
 		if (!(i<width)) break;
 		pred = (pred_coeff_green[0]*out[i-2] +
 			pred_coeff_green[1]*buffer2[i-1] +
 			pred_coeff_green[2]*buffer1[i]) / 8;
-		out[i] = (in[i] + pred)&255;
+		out[i] = static_cast<byte>((in[i] + pred)&255);
 		buffer1[i-2] = out[i-2];
 	}
 
@@ -195,7 +195,11 @@ void pred_2dbayer_undiff(const byte* in, int width, byte* buffer1, byte* buffer2
 
 struct Huff{
 	Huff* zero, *one, *parent;
-	int symbol;
+	//All intermediate nodes have a negative symbol to ensure uniqieness with the 
+	//strict weak ordering defined below. The pointer could be used, but then the
+	//ordering would not be repeateable.
+	int symbol; 
+	  
 	size_t count;
 
 	bool operator()(const Huff* l, const Huff* r) const
@@ -221,7 +225,7 @@ void create_normalized_hist(const Image<byte>& im, array<size_t,256>& h)
 	for(Image<byte>::const_iterator i = im.begin(); i!=im.end(); i++)
 		h[*i]++;
 
-	int hi = *max_element(h.begin(), h.end());
+	size_t hi = *max_element(h.begin(), h.end());
 	for(unsigned int i=0; i < h.size(); i++)
 		if(h[i])
 			h[i]  = (((uint64_t)h[i])* 65534 / hi)+1;
@@ -362,7 +366,7 @@ vector<PackType> huff_compress(const Image<byte>& im, const array<size_t,256>& h
 				PackType chunk = 0;
 				for(unsigned int j=0; j < symbols[i].size(); j++)
 				{
-					chunk |= ((PackType)symbols[i][j]) << (o%PackBits);
+					chunk |= static_cast<PackType>(((PackType)symbols[i][j]) << (o%PackBits));
 					o++;
 					if(o % PackBits == 0)
 					{
@@ -395,7 +399,7 @@ vector<PackType> huff_compress(const Image<byte>& im, const array<size_t,256>& h
 		for(int j=1; j < fast_symbols_num_chunks[*i][off]; j++)
 			r2.push_back(fast_symbols[*i][off][j]);
 
-		bit += symbols[*i].size();
+		bit += static_cast<int>(symbols[*i].size());
 	}
 
 
@@ -428,8 +432,9 @@ template<class P> void huff_decompress(const vector<P>& b, const array<size_t,25
 			else
 				h = h->zero;
 		}
-		
-		*r = h->symbol;	
+
+		assert(h->symbol >= 0);
+		*r = static_cast<uint8_t>(h->symbol);	
 	}
 }
 
@@ -463,7 +468,7 @@ class ReadPimpl
 		vector<PackType> read_data(std::istream& is);
 		void bayer_swap_rows(void);
 
-		long xs, ys;
+		int xs, ys;
 		int bypp; // bytes per pixel
 		int pred_len;
 		enum cvd_predictors pred_mode;
@@ -475,7 +480,7 @@ class ReadPimpl
 
 ImageRef reader::size()
 {
-	return ImageRef(t->x_size(), t->y_size());
+	return ImageRef(static_cast<int>(t->x_size()), static_cast<int>(t->y_size()));
 }
 
 void reader::get_raw_pixel_line(unsigned char* d)
@@ -541,7 +546,7 @@ ReadPimpl::ReadPimpl(istream& in)
 	read_header(in);
 	array<size_t,256> h = read_hist(in);
 
-	diff.resize(ImageRef(xs*bypp,ys));
+	diff.resize(ImageRef(static_cast<int>(xs*bypp),static_cast<int>(ys)));
 	buffer.resize(xs*bypp);
 	if ((pred_mode==PRED_2D_BAYER_1)||(pred_mode==PRED_2D_BAYER_2))
 		buffer2.resize(xs*bypp);
@@ -611,7 +616,7 @@ vector<PackType> ReadPimpl::read_data(std::istream& is)
 		PackType tmp = 0;
 		while (bits>0) {
 			tmp <<= 8;
-			tmp |= is.get()&255;
+			tmp |= static_cast<PackType>(is.get()&255);
 			bits-=8;
 		}
 		data.push_back(tmp);
@@ -704,7 +709,7 @@ class WritePimpl
 		void write_data(std::ostream& os, vector<PackType>& data);
 		void bayer_swap_rows(void);
 
-		long	xs, ys, row;
+		int	xs, ys, row;
 		int	bypp; // bytes per pixel :)
 		int	pred_len;
 		enum cvd_predictors pred_mode;
@@ -833,8 +838,8 @@ void WritePimpl::write_hist(std::ostream& os, const array<size_t, 256>& h)
 	// two least significant bytes out of each int, store them in a new
 	// array, and dump that in just one call to ostream::write()
 	for (unsigned int i = 0; i < h.size(); i++) {
-		os.put((h[i]>>8)&255);
-		os.put(h[i]&255);
+		os.put(static_cast<byte>((h[i]>>8)&255));
+		os.put(static_cast<byte>((h[i]&255)));
 	}
 }
 
@@ -845,7 +850,7 @@ void WritePimpl::write_data(std::ostream& os, vector<PackType>& data)
 	for (vector<PackType>::const_iterator it = data.begin(); it!=data.end(); ++it) {
 		int bits = PackBits;
 		while (bits>0) {
-			os.put(((*it)>>(bits-8))&255);
+			os.put(static_cast<byte>(((*it)>>(bits-8))&255));
 			bits-=8;
 		}
 	}

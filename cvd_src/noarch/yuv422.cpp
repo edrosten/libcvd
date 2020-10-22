@@ -16,7 +16,7 @@ namespace CVD {
 			else if(i>255)
 				return 255;
 			else 
-				return i;
+				return static_cast<unsigned char>(i);
 		}
 
 		struct yuv422_ind{
