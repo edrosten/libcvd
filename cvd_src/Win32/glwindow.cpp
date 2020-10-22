@@ -13,13 +13,13 @@ using namespace std;
 namespace CVD {
 
 	Exceptions::GLWindow::CreationError::CreationError(std::string w)
+	:CVD::Exceptions::GLWindow::All {"GLWindow creation error: " + w}
 	{
-		what="GLWindow creation error: " + w;
 	}
 
 	Exceptions::GLWindow::RuntimeError::RuntimeError(std::string w)
+	:CVD::Exceptions::GLWindow::All {"GLWindow error: " + w}
 	{
-		what="GLWindow error: " + w;
 	}
 
 	struct GLWindow::State {

@@ -1,0 +1,36 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-test-ubuntu:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: configure
+      run: ./configure
+    - name: make
+      run: make
+    - name: make test
+      run: make test
+  build-windows:
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v2
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.1
+    - name: setup
+      run: md build 
+    - name: configure
+      working-directory: ./build
+      run: cmake -DCVD_ENABLE_PROGS=OFF -DCVD_ENABLE_TESTS=OFF -DCVD_ENABLE_EXAMPLES=OFF ..
+    - name: compile
+      working-directory: ./build
+      run: msbuild CVD.sln
+
+
+
