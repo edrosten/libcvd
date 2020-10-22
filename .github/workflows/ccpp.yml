@@ -27,7 +27,7 @@ jobs:
       run: md build 
     - name: configure
       working-directory: ./build
-      run: cmake ..
+      run: cmake -DCVD_ENABLE_PROGS=OFF -DCVD_ENABLE_TESTS=OFF -DCVD_ENABLE_EXAMPLES=OFF ..
     - name: compile
       working-directory: ./build
       run: msbuild CVD.sln
