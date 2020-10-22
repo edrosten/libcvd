@@ -18,7 +18,7 @@ jobs:
       run: ./configure
       env: 
         CC: gcc-10
-        CXX: g++-10 -Werror
+        CXX: g++-10 -Werror -Wno-stringop-overflow
     - name: make
       run: make
     - name: make test
