@@ -12,13 +12,13 @@ namespace Pixel {
 	
 	template<class T, int LIFT=0> struct traits
 	{
-		static_assert(std::numeric_limits<T>::is_specialized == true);
+		static_assert(std::numeric_limits<T>::is_specialized == true, "Traits not defined for this type");
 		using element_type = T;
 		using wider_type = decltype(T{}*T{});
 		typedef float float_type;
 		static const bool integral = true;
 		static const bool is_signed = std::numeric_limits<T>::is_signed;
-		static_assert(std::numeric_limits<T>::is_integer == true);
+		static_assert(std::numeric_limits<T>::is_integer == true, "Library bug, we shouldn't be here");
 		static const int bits_used = std::numeric_limits<T>::digits;
 		static const T max_intensity = std::numeric_limits<T>::max();
 	};
