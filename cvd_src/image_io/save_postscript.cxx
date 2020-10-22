@@ -54,7 +54,7 @@ namespace PS
 		public:
 			WritePimpl(std::ostream&, ImageRef size, const string& type, const string& extra_header="");
 
-			void 	write_raw_pixel_lines(const unsigned char*, unsigned long);
+			void 	write_raw_pixel_lines(const unsigned char*, int);
 			~WritePimpl();
 			int channels(){return m_channels;}
 			long  x_size() const {return xs;}
@@ -63,7 +63,7 @@ namespace PS
 			std::ostream& 	o;
 
 		private:
-			long	xs, ys;
+			int	xs, ys;
 			int	m_channels;
 			std::string bytes_to_base85(int n);
 			void output_header();
@@ -170,9 +170,9 @@ WritePimpl::~WritePimpl()
 		o << "~>\n";
 }
 
-void WritePimpl::write_raw_pixel_lines(const unsigned char* data, unsigned long nlines)
+void WritePimpl::write_raw_pixel_lines(const unsigned char* data, int nlines)
 {
-	if((long)nlines + lines > ys)
+	if(nlines + lines > ys)
 		throw CVD::Exceptions::Image_IO::InternalLibraryError("CVD", "Write past end of image.");
 
 	const unsigned char* end = data + (nlines * xs)*m_channels;	

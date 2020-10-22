@@ -50,7 +50,7 @@ int main()
 				return 0;
 		}
 	}
-	catch(Exceptions::All a)
+	catch(const Exceptions::All& a)
 	{
 		std::cerr << "Error: " << a.what() << std::endl;
 	}

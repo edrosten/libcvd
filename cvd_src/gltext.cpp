@@ -149,14 +149,14 @@ std::pair<double,double> glDrawText(const std::string& text, enum TEXT_STYLE sty
             continue;
         }
         if(c == '\t'){
-            const float advance = tab_width - std::fmod(total, tab_width);
+            const double advance = tab_width - std::fmod(total, tab_width);
             total += advance;
             glTranslated(advance, 0, 0);
             continue;
         }
         const Internal::Font::Char * ch = font->findChar(c);
         if(!ch){
-            c = toupper(c);
+            c = static_cast<char>(toupper(c));
             ch = font->findChar(c);
             if(!ch) {
                 c = '?';
@@ -198,7 +198,7 @@ std::pair<double, double> glGetExtends(const std::string & text, double spacing,
         }
         const Internal::Font::Char * ch = font->findChar(c);
         if(!ch){
-            c = toupper(c);
+            c = static_cast<char>(toupper(c));
             ch = font->findChar(c);
             if(!ch) {
                 c = '?';

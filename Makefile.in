@@ -157,10 +157,16 @@ all: libcvd.a $(soname) $(dllname) progs
 cyg%.dll lib%.dll.a: lib%.a
 	$(LD) -shared -o cyg$*.dll -Wl,--out-implib=lib$*.dll.a -Wl,--export-all-symbols  -Wl,--enable-auto-import -Wl,--whole-archive lib$*.a -Wl,--no-whole-archive $(LDFLAGS) $(LOADLIBES)
 
-$(soname): $(OBJS)
-	rm -f $(sos)
+$(soname2): $(OBJS)
+	rm -f $(soname2)
 	$(LD) $(shared) -o $(soname2) $(OBJS) $(LDFLAGS) $(LOADLIBES) $(set_soname)
+
+$(soname1): $(soname2)
+	rm -f $(soname1)
 	ln -s $(soname2) $(soname1)
+
+$(soname): $(soname1)
+	rm -f $(soname)
 	ln -s $(soname1) $(soname)
 
 libcvd.a: $(OBJS)
@@ -310,7 +316,7 @@ $(EXAMPLE_PROGS): % : %.cc
 
 
 clean:
-	rm -f tmp libcvd.a $(sos) $(dllname) $(ddllname) $(dllimportname) $(ddllimportname)
+	rm -f tmp libcvd.a *.so* $(dllname) $(ddllname) $(dllimportname) $(ddllimportname)
 	find . -name '*.o' -o -name '*.d' | xargs rm -f
 	find progs/ -perm /u+x -type f | xargs rm -f
 	rm -rf html man

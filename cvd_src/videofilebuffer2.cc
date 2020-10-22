@@ -406,7 +406,7 @@ class RawVideoFileBufferPIMPL
 	{
 		t = max(0., t);
 
-		uint64_t stamp = floor(t / stream_time_base + 0.5);
+		uint64_t stamp = static_cast<uint64_t>(floor(t / stream_time_base + 0.5));
 		
 		DE(endl);
 		DS("seeking");
@@ -450,7 +450,7 @@ class RawVideoFileBufferPIMPL
 
 			Dv(packet.pts); //Presentation time stamp (pts) is sometimes junk in keyframes.
 			Dv(packet.dts); //decode time stamp
-			double timestamp = packet.dts * stream_time_base;
+			double timestamp = static_cast<double>(packet.dts) * stream_time_base;
 			approx_next_timestamp = timestamp + 1./ frame_rate;
 			Dv(timestamp);
 

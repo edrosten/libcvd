@@ -147,7 +147,7 @@ class SimpleTimer
             cumulative_time=0;
             for(int i=0; i<(int)time_buffer.size(); ++i)
                 cumulative_time+=time_buffer[i];
-            average=cumulative_time/time_buffer.size();
+            average=cumulative_time/static_cast<double>(time_buffer.size());
             }
             return average;
         }

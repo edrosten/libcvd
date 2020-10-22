@@ -7,8 +7,11 @@
 #include <cstdlib>
 #include <random>
 
+using std::vector;
+using std::cout;
+using std::endl;
+using std::string;
 
-using namespace std;
 namespace CVD
 {
 	void fast_corner_detect_plain_9(const BasicImage<byte>& i, vector<ImageRef>& corners, int b);
@@ -139,28 +142,29 @@ int main(int , char** )
 	std::random_device device;
 	std::ranlux48 engine(device());
 	std::uniform_real_distribution<> distribution(0.0, 1.0);
+
 	for(int n=16; n < 100; n+=1)
 	{
 		Image<byte> im(ImageRef(n, n));
 
 		for(Image<byte>::iterator i = im.begin(); i != im.end(); i++)
-			*i =  (distribution(engine) * 256);
+			*i =  static_cast<byte>((distribution(engine) * 256));
 
 		
 		for(int k=0; k < 2; k++)
 		{
 			ImageRef start;
-			start.x = distribution(engine)*(n/2);
-			start.y = distribution(engine)*(n/2);
+			start.x = static_cast<byte>(distribution(engine)*(n/2));
+			start.y = static_cast<byte>(distribution(engine)*(n/2));
 
 			ImageRef size = im.size() - start;
-			size.x = distribution(engine)*(size.x-1) + 1;
-			size.y = distribution(engine)*(size.y-1) + 1;
+			size.x = static_cast<byte>(distribution(engine)*(size.x-1) + 1);
+			size.y = static_cast<byte>(distribution(engine)*(size.y-1) + 1);
 
 			SubImage<byte> ims = im.sub_image(start, size);
 
 
-			int threshold = distribution(engine) * 256;
+			int threshold = static_cast<byte>(distribution(engine) * 256);
 			test_images(ims, fast_corner_detect_9, fast_corner_detect_plain_9, segment_test<9>, threshold, "FAST9");
 			test_images(ims, fast_corner_detect_10, fast_corner_detect_plain_10, segment_test<10>, threshold, "FAST10");
 			test_images(ims, fast_corner_detect_12, fast_corner_detect_plain_12, segment_test<12>, threshold, "FAST12");

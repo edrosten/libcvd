@@ -13,20 +13,20 @@ namespace CVD
 
     struct BMPHeader
     {
-      unsigned long size;            //!< header size
-      unsigned short reserved[2];        //!< reserved
-      unsigned long dataOffset;      //!< offset to beginning of data
-      unsigned long infoSize;        //!< size of info
-      unsigned long width;           //!< width of image
-      unsigned long height;          //!< height of image
-      unsigned short planes;         //!< planes
-      unsigned short bpp;            //!< colour depth
-      unsigned long compression;     //!< compression type
-      unsigned long dataSize;        //!< size of data
-      unsigned long xPelsPerMeter;   //!< x resolution in pixels/meter
-      unsigned long yPelsPerMeter;   //!< y resolution in pixels/meter
-      unsigned long colors;          //!< number of specified colors in the map
-      unsigned long importantColors; //!< number of important colors
+      uint32_t size;            //!< header size
+      uint16_t reserved[2];        //!< reserved
+      uint32_t dataOffset;      //!< offset to beginning of data
+      uint32_t infoSize;        //!< size of info
+      uint32_t width;           //!< width of image
+      uint32_t height;          //!< height of image
+      uint16_t planes;         //!< planes
+      uint16_t bpp;            //!< colour depth
+      uint32_t compression;     //!< compression type
+      uint32_t dataSize;        //!< size of data
+      uint32_t xPelsPerMeter;   //!< x resolution in pixels/meter
+      uint32_t yPelsPerMeter;   //!< y resolution in pixels/meter
+      uint32_t colors;          //!< number of specified colors in the map
+      uint32_t importantColors; //!< number of important colors
     };
 
 
@@ -49,7 +49,7 @@ namespace CVD
 		  << (unsigned char)(0xff & (l >> 8));
 	}
 
-	inline	unsigned long  read_u4(istream& i)
+	inline	uint32_t read_u4(istream& i)
 	{
 		//Data is little endian:
 		//unsigned long r =  i.get() | (i.get() << 8) | (i.get() << 16) | (i.get() << 24 );
@@ -57,24 +57,23 @@ namespace CVD
 		int b = i.get();
 		int c = i.get();
 		int d = i.get();
-		unsigned long r = a | (b << 8) | (c<<16) | (d << 24);
+		uint32_t r = a | (b << 8) | (c<<16) | (d << 24);
 		if(i.eof())
 			throw(Exceptions::Image_IO::MalformedImage("EOF in header."));
 
 		return r;
 	}
 
-	inline	unsigned long  read_u2(istream& i)
+	inline	uint16_t read_u2(istream& i)
 	{
 		//Data is little endian:
 		//unsigned long r =  i.get() | (i.get() << 8);
 		int a = i.get();
 		int b = i.get();
-		unsigned long r = a | (b << 8);
 		if(i.eof())
 			throw(Exceptions::Image_IO::MalformedImage("EOF in header."));
 
-		return r;
+		return static_cast<uint16_t>(a|(b<<8));
 	}
 
 	BMPHeader read_header(istream& i)

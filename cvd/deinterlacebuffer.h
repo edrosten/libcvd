@@ -113,7 +113,7 @@ class DeinterlaceBuffer : public VideoBuffer<T>
 		Fields::Fields m_fields;
 		bool m_loadnewframe;
 		ImageRef m_size;
-		unsigned int m_linebytes;
+		long m_linebytes;
 		bool line_double;
 };
 
@@ -180,8 +180,8 @@ VideoFrame<T>* DeinterlaceBuffer<T>::get_frame()
 			for(int y=2; y < m_size.y-1; y+=2)
 				for(int x=0; x < m_size.x; x++)
 					for(unsigned int i=0; i < Pixel::Component<T>::count; i++)
-						Pixel::Component<T>::get((*frame)[y][x],i) = (Pixel::Component<T>::get((*my_realframe)[y-1][x],i) + 
-						                                              Pixel::Component<T>::get((*my_realframe)[y+1][x],i))/2;
+						Pixel::Component<T>::get((*frame)[y][x],i) = static_cast<typename Pixel::Component<T>::type>((Pixel::Component<T>::get((*my_realframe)[y-1][x],i) + 
+						                                              Pixel::Component<T>::get((*my_realframe)[y+1][x],i))/2);
 
 /*
 			//Copy line 0 from line 1, and copy over line 1 to line 1
@@ -221,8 +221,8 @@ VideoFrame<T>* DeinterlaceBuffer<T>::get_frame()
 			for(int y=1; y < m_size.y-1; y+=2)
 				for(int x=0; x < m_size.x; x++)
 					for(unsigned int i=0; i < Pixel::Component<T>::count; i++)
-						Pixel::Component<T>::get((*frame)[y][x],i) = (Pixel::Component<T>::get((*my_realframe)[y-1][x],i) + 
-						                                              Pixel::Component<T>::get((*my_realframe)[y+1][x],i))/2;
+						Pixel::Component<T>::get((*frame)[y][x],i) = static_cast<typename Pixel::Component<T>::type>((Pixel::Component<T>::get((*my_realframe)[y-1][x],i) + 
+						                                              Pixel::Component<T>::get((*my_realframe)[y+1][x],i))/2);
 /*
 			//Copy over and double the first set of lines
 			for(int y=0; y < m_size.y-2; y+=2)

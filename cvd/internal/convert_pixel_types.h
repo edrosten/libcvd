@@ -75,7 +75,7 @@ namespace CVD{namespace Pixel
 	  Fortunately, we have forseen this eventuality, and scalar_convert can convert from
 	  type A, to type B when pixel type B is held in a variable of type C
 	  */
-	  to = scalar_convert<Scalar,typename Pixel::Component<Rgbish>::type,double>(wr*from.red + wg*from.green + wb*from.blue);
+	  to = scalar_convert<Scalar,typename Pixel::Component<Rgbish>::type,double>(wr*static_cast<double>(from.red) + wg*static_cast<double>(from.green) + wb*static_cast<double>(from.blue));
 
 	  /* The following method could be used (for speed):
 	  

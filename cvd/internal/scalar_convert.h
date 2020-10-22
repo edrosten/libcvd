@@ -26,7 +26,7 @@ namespace Pixel
 		// truncate( 1011 * 1000100010.00100010001000100010001000...
 		// 
 		// Which is equal to multiplying by (high_precision_max + 1)/(low_precision_max)
-		// Where strict rruncation occurs, ie 1.1111111... trucates to 1
+		// Where strict truncation occurs, ie 1.1111111... trucates to 1
 		//
 		template<class To, class From> struct int_info {
 		  //Difference in number of bits used
@@ -48,7 +48,7 @@ namespace Pixel
 		{
 			static To aggregate(To i)
 			{
-				return i << shift | upshift<To,num-1,shift-bits,bits, r_shift>::aggregate(i);
+				return static_cast<typename traits<To>::element_type>(i << shift | upshift<To,num-1,shift-bits,bits, r_shift>::aggregate(i));
 			}
 		};
 		template<class To, int shift, int bits, int r_shift> struct upshift<To,0,shift,bits,r_shift>
@@ -76,7 +76,7 @@ namespace Pixel
 		
 		template<class To, class From> struct shift_convert<To, From,-1> {	
 		  template <class D> static To from(D f)  {
-		    return static_cast<To>(f >> -int_info<To,From>::diff);
+		    return static_cast<typename traits<To>::element_type>(f >> -int_info<To,From>::diff);
 		  }
 		};
 		
@@ -122,9 +122,14 @@ namespace Pixel
 		//FIXME: why is the test on "From", not "D"??
 		template <class From, class To, class D=From, bool int1 = traits<To>::integral && traits<From>::integral, bool int2 =traits<D>::integral> struct ScalarConvert {
 		    static inline To from(const D& from) {
-			static const double factor = double(traits<To>::max_intensity)/traits<From>::max_intensity; 
-			auto s = from * factor;
-			return static_cast<To>(s);
+
+			//Casts here to avoid conversion warnings since double can't represent uint64_t
+			static const double factor = static_cast<double>(traits<To>::max_intensity)/static_cast<double>(traits<From>::max_intensity); 
+			//Cast to suppress conversion warning, since double can't represent uint64_t completely
+			auto s = static_cast<decltype(from*factor)>(from) * factor;
+			//Cast to suppress conversion warning for special scalar types, like bayer whose underling
+			//type is char, but casting to bayer hits the constructor without the cast
+			return static_cast<typename traits<To>::element_type>(s);
 		    }
 		};
 	    

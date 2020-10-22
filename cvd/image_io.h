@@ -174,7 +174,7 @@ namespace CVD
 	    else
 	      throw Exceptions::Image_IO::EofBeforeImage();
 	  }
-	  unsigned char c = i.peek();
+	  int c = i.peek();
 	  
 	  if(!i.good())
 	    throw Exceptions::Image_IO::EofBeforeImage();

@@ -212,13 +212,13 @@ void CVD::VideoDisplay::set_zoom(double left, double top, double right, double b
    glMatrixMode(GL_PROJECTION);
 
    glLoadIdentity();
-  glOrtho(left, right, bottom, top, -1 , 1);    // If the origin is the top left 
+   glOrtho(left, right, bottom, top, -1 , 1);    // If the origin is the top left 
 
-  glRasterPos2f(left, top);
-  
-  // video is now the same way as upside down to graphics!
-  glPixelZoom(scale, -scale);
-  //glPixelZoom(1,-1);
+   glRasterPos2d(left, top);
+
+   // video is now the same way as upside down to graphics!
+   glPixelZoom(static_cast<float>(scale), static_cast<float>(-scale));
+   //glPixelZoom(1,-1);
 
 }
 

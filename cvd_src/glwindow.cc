@@ -229,12 +229,12 @@ void CVD::GLWindow::handle_events(EventHandler& handler)
 	case KeyPress:
 		{
 		XLookupString(&event.xkey, 0, 0, &k, 0);
-	    handler.on_key_down(*this, k);
+	    handler.on_key_down(*this, static_cast<unsigned int>(k)); //KeySyms are 29 bits only
 	    break;
 		}
 	case KeyRelease:
 		XLookupString(&event.xkey, 0, 0, &k, 0);
-	    handler.on_key_up(*this, k);
+	    handler.on_key_up(*this, static_cast<unsigned int>(k));
 	    break;
 	    //case UnmapNotify: active = 0; break;
 	    //case MapNotify: active = 1; break;
@@ -255,7 +255,7 @@ void CVD::GLWindow::handle_events(EventHandler& handler)
 	    if (event.xclient.data.l[0] == (int)state->delete_atom)
 		handler.on_event(*this, EVENT_CLOSE);
 	    else
-		handler.on_event(*this, event.xclient.message_type);
+		handler.on_event(*this, static_cast<unsigned int>(event.xclient.message_type));
 	    break;
 	default:
 	    handler.on_event(*this, event.type);

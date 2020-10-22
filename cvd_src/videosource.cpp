@@ -8,13 +8,13 @@ namespace CVD {
 	void tolower(std::string& s)
 	{
 		for (size_t i=0; i<s.length(); ++i)
-			s[i] = ::tolower(s[i]);
+			s[i] = static_cast<char>(::tolower(s[i]));
 	}
 
-		void tolower(char* s)
+	void tolower(char* s)
 	{
 		for (size_t i=0; s[i]; ++i)
-			s[i] = ::tolower(s[i]);
+			s[i] = static_cast<char>(::tolower(s[i]));
 	}
 
 	using std::tolower;
@@ -149,7 +149,14 @@ namespace CVD {
 	void match(std::istream& in, char c) {
 		if (in.peek() != c) {
 			std::ostringstream oss;
-			oss << "expected '" << c <<"', got '" << escape(in.peek()) << "'";
+			std::string x;
+
+			if(in.peek() == -1)
+				x = "<EOF>";
+			else
+				x = escape(static_cast<char>(in.peek()));
+
+			oss << "expected '" << c <<"', got '" << x << "'";
 			throw ParseException(oss.str());
 		}
 		in.ignore();
@@ -165,10 +172,17 @@ namespace CVD {
 		std::string value;
 		match(in, '"');
 		while (in.peek() != '"') {
-			char c = in.get();
+			int cc = in.get();
+			if(cc == -1)
+				throw ParseException("unmatched open quote");
+			char c = static_cast<char>(cc);
 			value += c;
-			if (c == '\\')
-				value += in.get();
+			if (c == '\\'){
+				int c2 = in.get();
+				if(c2 == -1)
+					throw ParseException("unmatched open quote");
+				value += static_cast<char>(c2);
+			}
 		}
 		match(in,'"');
 		return value;
@@ -178,7 +192,7 @@ namespace CVD {
 	{
 		std::string word;
 		while (isalnum(in.peek()) || in.peek()=='_')
-			word += in.get();			
+			word += static_cast<char>(in.get());			
 		return word;
 	}
 
@@ -198,7 +212,7 @@ namespace CVD {
 		std::string prot;
 		skip_ws(in);
 		while (isalnum(in.peek()))
-			prot += in.get();
+			prot += static_cast<char>(in.get());
 		if (prot.length() == 0) 
 			throw ParseException("protocol must not be empty");
 		vs.protocol = prot;
@@ -432,7 +446,7 @@ namespace CVD {
 	}
 
 
-	void get_dc1394_options(const VideoSource& vs, ImageRef& size, int& fps, ImageRef& offset, bool& verbose, bool& bus_reset, int& format7_mode)
+	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset, bool& verbose, bool& bus_reset, int& format7_mode)
 	{ 
 		size = offset = ImageRef(-1, -1);
 		fps = -1;
@@ -442,7 +456,7 @@ namespace CVD {
 
 		for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it) {
 			if (it->first == "fps")
-				fps = atoi(it->second.c_str());
+				fps = stof(it->second);
 			else if (it->first == "size")
 				size = parseImageRef(it->second, true);
 			else if (it->first == "offset")

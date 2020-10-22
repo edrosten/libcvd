@@ -143,7 +143,7 @@ namespace CVD
 				row_start=I[++row];
 				continue;
 			}
-			int x = *it - row_start;
+			int x = static_cast<int>(*it - row_start);
 			if (x > 2 && x < w-3)
 				corners.push_back(ImageRef(x, row));
 		}
