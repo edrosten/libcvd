@@ -3,10 +3,10 @@
 
 namespace CVD {
 
-  struct YC {
-    unsigned char y; // luminance
-    unsigned char c; // U or V
-  };
+	struct YC {
+		unsigned char y; // luminance
+		unsigned char c; // U or V
+	};
 }
 
 

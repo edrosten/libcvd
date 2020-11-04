@@ -8,7 +8,7 @@
 
 namespace CVD
 {
-	
+
 	namespace gl
 	{
 		template<class C> struct data;
@@ -33,7 +33,7 @@ namespace CVD
 		};
 
 		//Rgb<*> types
-	
+
 		template<> struct data<Rgb<unsigned int> >
 		{
 			static const int format=GL_RGB;

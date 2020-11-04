@@ -91,7 +91,7 @@ namespace CVD {
 			{
 				WriteTypeMismatch(const std::string& available, const std::string& requested);
 			};
-			
+
 			/// An error occurred in one of the helper libraries
 			/// @ingroup gException
 			struct InternalLibraryError: public All
@@ -116,19 +116,19 @@ namespace CVD {
 
 		}
 	}
-	
+
 	namespace Internal
 	{
 		template<class C, int i> struct save_default_
 		{
 			static const bool use_16bit=1;
 		};
-		  
+
 		template<class C> struct save_default_<C,1>
 		{
 			static const bool use_16bit=(CVD::Pixel::traits<typename CVD::Pixel::Component<C>::type>::bits_used) > 8;
 		};
-		  
+
 		template<class C> struct save_default
 		{
 			static const bool use_16bit = save_default_<C, CVD::Pixel::traits<typename CVD::Pixel::Component<C>::type>::integral>::use_16bit;
@@ -146,7 +146,7 @@ namespace CVD {
 		// void get_raw_pixel_line(T) Where T is available for everything in Types
 		// Constructor accepting istream;
 
-		
+
 		//Basic typelist.
 		struct Head{};
 		template<class A, class B> struct TypeList
@@ -155,7 +155,7 @@ namespace CVD {
 			typedef B Next;
 		};
 
-		
+
 
 		////////////////////////////////////////////////////////////////////////////////
 		//
@@ -238,7 +238,7 @@ namespace CVD {
 			}
 		};
 
-		
+
 		////////////////////////////////////////////////////////////////////////////////	
 		//
 		// Driver functions for loading images.
@@ -261,9 +261,9 @@ namespace CVD {
 
 		template <class T, class ImageLoader> void readImage(Image<T>& im, std::istream& in)
 		{
-		  ImageLoader loader(in);
-		  im.resize(loader.size());
-		  readImage(im, loader);
+			ImageLoader loader(in);
+			im.resize(loader.size());
+			readImage(im, loader);
 		}
 
 		////////////////////////////////////////////////////////////////////////////////	
@@ -282,7 +282,7 @@ namespace CVD {
 		// constructor(ostream&, ImageRef, string type)  Construct an image writer for a given type
 		// void write_raw_pixel_line(T*)                 Write pixels of type T.
 
-	
+
 		////////////////////////////////////////////////////////////////////////////////
 		//
 		// Select an outgoing type, convert if necessary and then save.
@@ -330,7 +330,7 @@ namespace CVD {
 			maybe_process_and_write<Pixel, Writer, typename Writer::template Outgoing<Pixel>::type>::write(o, im, p);
 		}
 
-	
+
 	}
 
 

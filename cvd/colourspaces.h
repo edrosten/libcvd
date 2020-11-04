@@ -28,7 +28,7 @@ namespace CVD
 		bayer_gbrg() {}
 		bayer_gbrg(unsigned char v) : val(v) {}
 	};
-	
+
 	/// Bayer datatype representing the colour filter pattern GRBG
 	/// @ingroup gVideoBuffer
 	struct bayer_grbg
@@ -48,7 +48,7 @@ namespace CVD
 		bayer_rggb() {}
 		bayer_rggb(unsigned char v) : val(v) {}
 	};
-	
+
 	/// 16 bit Bayer datatype representing the colour filter pattern BGGR
 	/// @ingroup gVideoBuffer
 	struct bayer_bggr16
@@ -68,7 +68,7 @@ namespace CVD
 		bayer_gbrg16() {}
 		bayer_gbrg16(unsigned short v) : val(v) {}
 	};
-	
+
 	/// 16bit Bayer datatype representing the colour filter pattern GRBG
 	/// @ingroup gVideoBuffer
 	struct bayer_grbg16
@@ -108,7 +108,7 @@ namespace CVD
 		bayer_gbrg16be() {}
 		bayer_gbrg16be(unsigned short v) : val(v) {}
 	};
-	
+
 	/// 16bit big endian Bayer datatype representing the colour filter pattern GRBG
 	/// @ingroup gVideoBuffer
 	struct bayer_grbg16be
@@ -133,7 +133,7 @@ namespace CVD
 	/// @ingroup gVideoBuffer
 	/// @deprecated
 	typedef bayer_bggr bayer;
-	
+
 	/// A datatype to represent yuv411 (uyyvyy) data, typically from firewire
 	/// cameras. It can be used to configure dvbuffer to return this format.
 	/// @ingroup gVideoBuffer
@@ -170,7 +170,7 @@ namespace CVD
 		typedef std::ratio<6, 4> bytes_per_pixel;
 		//unsigned short val;
 	};
-	
+
 	/// A datatype to represent the other yuv422 (uyvy) data. This is returned
 	/// by the @ref QTBuffer on Mac OSX. See the following from Apple:
 	/// http://developer.apple.com/quicktime/icefloe/dispatch020.html

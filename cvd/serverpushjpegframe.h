@@ -5,30 +5,30 @@
 namespace CVD
 {
 
-template<class T> class ServerPushJpegBuffer;
+	template<class T> class ServerPushJpegBuffer;
 
-template<class T> class ServerPushJpegFrame: public LocalVideoFrame<T>
-{
-	friend class CVD::ServerPushJpegBuffer<T>;
+	template<class T> class ServerPushJpegFrame: public LocalVideoFrame<T>
+	{
+		friend class CVD::ServerPushJpegBuffer<T>;
 
-	public:		
+		public:		
 
 		/// The underlying JPEG data.
 		const std::string& jpeg() {return image_data;};
 
-	private:
+		private:
 		~ServerPushJpegFrame()
 		{
 		}
 
 		ServerPushJpegFrame(double time, CVD::Image<T>&& im, const std::string& data)
-		:LocalVideoFrame<T>(time, std::move(im)),image_data(data)
+			:LocalVideoFrame<T>(time, std::move(im)),image_data(data)
 		{
 		}	
-		
-	private:
+
+		private:
 		std::string image_data;
-};
+	};
 
 
 };

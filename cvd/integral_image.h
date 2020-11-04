@@ -16,7 +16,7 @@ namespace CVD
 	/// @param in The source image.
 	/// @param out The source image.
 	/// @ingroup gVision
-		
+
 	template<class S, class D> void integral_image(const BasicImage<S>& in, BasicImage<D>& out)
 	{
 		if( in.size() != out.size())
@@ -44,51 +44,51 @@ namespace CVD
 			}
 		}
 	}
-	#ifndef DOXYGEN_IGNORE_INTERNAL
-		namespace Internal
-		{
-			template<class C> class IntegralImage{};
+#ifndef DOXYGEN_IGNORE_INTERNAL
+	namespace Internal
+	{
+		template<class C> class IntegralImage{};
 
-			template<class C>  struct ImagePromise<IntegralImage<C> >
-			{
-				ImagePromise(const BasicImage<C>& im)
+		template<class C>  struct ImagePromise<IntegralImage<C> >
+		{
+			ImagePromise(const BasicImage<C>& im)
 				:i(im)
-				{}
+			{}
 
-				const BasicImage<C>& i;
-				template<class D> void execute(Image<D>& j)
-				{
-					j.resize(i.size());
-					integral_image<C,D>(i, j);
-				}
-			};
+			const BasicImage<C>& i;
+			template<class D> void execute(Image<D>& j)
+			{
+				j.resize(i.size());
+				integral_image<C,D>(i, j);
+			}
 		};
+	};
 
-		template<class C> Internal::ImagePromise<Internal::IntegralImage<C> > integral_image(const BasicImage<C>& c)
-		{
-			return Internal::ImagePromise<Internal::IntegralImage<C> >(c);
-		}
-	#else
-		///Compute an integral image. In an integral image, pixel (x,y) is equal to the sum of all the pixels 
-		///in the rectangle from (0,0) to (x,y) in the original image.
-		///Type deduction is automatic, and D can not be specified. The following usage will work:
-		///
-		/// \code
-		/// Image<byte> a;
-		/// Image<int> b;
-		/// ...
-		/// b = integral_image(a);
-		/// \endcode
-		/// Note that this is performed using lazy evaluation, so convertion happens on evaluation of assignment,
-		/// and reallocation is not performed if <code>b</code> is unique and of the correct size.
-		/// @param D The destination image pixel type
-		/// @param S The source image pixel type
-		/// @param from The source image.
-		/// @return The integral image
-		/// @ingroup gVision
-		template<class S, class D> Image<D> integral_image(const BasicImage<S>& from);
+	template<class C> Internal::ImagePromise<Internal::IntegralImage<C> > integral_image(const BasicImage<C>& c)
+	{
+		return Internal::ImagePromise<Internal::IntegralImage<C> >(c);
+	}
+#else
+	///Compute an integral image. In an integral image, pixel (x,y) is equal to the sum of all the pixels 
+	///in the rectangle from (0,0) to (x,y) in the original image.
+	///Type deduction is automatic, and D can not be specified. The following usage will work:
+	///
+	/// \code
+	/// Image<byte> a;
+	/// Image<int> b;
+	/// ...
+	/// b = integral_image(a);
+	/// \endcode
+	/// Note that this is performed using lazy evaluation, so convertion happens on evaluation of assignment,
+	/// and reallocation is not performed if <code>b</code> is unique and of the correct size.
+	/// @param D The destination image pixel type
+	/// @param S The source image pixel type
+	/// @param from The source image.
+	/// @return The integral image
+	/// @ingroup gVision
+	template<class S, class D> Image<D> integral_image(const BasicImage<S>& from);
 
-	#endif
+#endif
 
 }
 

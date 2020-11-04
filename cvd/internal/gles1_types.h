@@ -13,7 +13,7 @@
 
 namespace CVD
 {
-	
+
 	namespace gl
 	{
 		template<class C> struct data;
@@ -31,7 +31,7 @@ namespace CVD
 			static const int format=GL_LUMINANCE;
 			static const int type  =GL_BYTE;
 		};
-		
+
 		template<> struct data<unsigned  short>
 		{
 			static const int format=GL_LUMINANCE;
@@ -51,7 +51,7 @@ namespace CVD
 		};
 
 		//Rgb<*> types
-	
+
 		template<> struct data<Rgb<unsigned char> >
 		{
 			static const int format=GL_RGB;
@@ -63,7 +63,7 @@ namespace CVD
 			static const int format=GL_RGB;
 			static const int type  =GL_BYTE;
 		};
-		
+
 		template<> struct data<Rgb<unsigned  short> >
 		{
 			static const int format=GL_RGB;
@@ -95,7 +95,7 @@ namespace CVD
 			static const int format=GL_RGBA;
 			static const int type  =GL_BYTE;
 		};
-		
+
 		template<> struct data<Rgba<unsigned  short> >
 		{
 			static const int format=GL_RGBA;
@@ -126,7 +126,7 @@ namespace CVD
 			static const int format=GL_LUMINANCE_ALPHA;
 			static const int type  =GL_BYTE;
 		};
-		
+
 		template<> struct data<La<unsigned  short> >
 		{
 			static const int format=GL_LUMINANCE_ALPHA;
@@ -138,7 +138,7 @@ namespace CVD
 			static const int format=GL_LUMINANCE_ALPHA;
 			static const int type  =GL_SHORT;
 		};
-		
+
 		template<> struct data<La<float> >
 		{
 			static const int format=GL_LUMINANCE_ALPHA;
@@ -152,7 +152,7 @@ namespace CVD
 			static const int format=GL_RGBA;
 			static const int type  =GL_UNSIGNED_BYTE;
 		};
-		
+
 	};
 
 };

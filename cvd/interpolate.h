@@ -29,7 +29,7 @@ namespace CVD
 		return -0.5 * (d3 - d1) / (d3 + d1 - 2 * d2);
 	}
 
-	#if defined CVD_HAVE_TOON || defined DOXYGEN_IGNORE_INTERNAL
+#if defined CVD_HAVE_TOON || defined DOXYGEN_IGNORE_INTERNAL
 
 	///Interpolate a 2D local maximum, by fitting a quadratic. This is done by using
 	///using the 9 datapoints to compute the local Hessian using finite differences and
@@ -55,14 +55,14 @@ namespace CVD
 	///@return Location of the local extrema.
 	///@ingroup gVision
 	TooN::Vector<2> interpolate_extremum(double I__1__1,
-		                                 double I__1_0,
-		                                 double I__1_1,
-		                                 double I_0__1,
-		                                 double I_0_0,
-		                                 double I_0_1,
-		                                 double I_1__1,
-		                                 double I_1_0,
-		                                 double I_1_1)
+			double I__1_0,
+			double I__1_1,
+			double I_0__1,
+			double I_0_0,
+			double I_0_1,
+			double I_1__1,
+			double I_1_0,
+			double I_1_1)
 	{
 		//Compute the gradient values
 		double gx = 0.5 * (I_1_0 - I__1_0);
@@ -80,10 +80,10 @@ namespace CVD
 		TooN::Vector<2> v;
 		v[0] = -Dinv * (gyy * gx - gxy * gy);
 		v[1] = -Dinv * (-gxy * gx + gxx * gy);
-		
+
 		return v;
 	}
-										 
+
 
 	///Interpolate a 2D local maximum, by fitting a quadratic.
 	///@param i Image in which to interpolate extremum
@@ -92,8 +92,8 @@ namespace CVD
 	///@ingroup gVision
 	template<class I> TooN::Vector<2> interpolate_extremum(const BasicImage<I>& i, ImageRef p)
 	{
-	    CVD_IMAGE_ASSERT(p.x > 0 && p.y > 0 && p.x < i.size().x-1 && p.y < i.size().y-1, ImageError::AccessOutsideImage);
-		
+		CVD_IMAGE_ASSERT(p.x > 0 && p.y > 0 && p.x < i.size().x-1 && p.y < i.size().y-1, ImageError::AccessOutsideImage);
+
 		//Extract and label 9 particular points
 		double I__1__1 = i[p + ImageRef(-1, -1)];
 		double I__1_0  = i[p + ImageRef(-1,  0)];
@@ -106,8 +106,8 @@ namespace CVD
 		double I_1_1   = i[p + ImageRef( 1,  1)];
 		return interpolate_extremum(I__1__1, I__1_0, I__1_1, I_0__1, I_0_0, I_0_1, I_1__1, I_1_0, I_1_1) + vec(p);
 	}
-	
-	#endif
+
+#endif
 
 	///Interpolate a 2D local maximum, by fitting a quadratic. This is done by using
 	///using the 9 datapoints to compute the local Hessian using finite differences and
@@ -134,14 +134,14 @@ namespace CVD
 	///@return pair containing Location of the local extrema and the value
 	///@ingroup gVision
 	std::pair<TooN::Vector<2>, double> interpolate_extremum_value(double I__1__1,
-		                                 double I__1_0,
-		                                 double I__1_1,
-		                                 double I_0__1,
-		                                 double I_0_0,
-		                                 double I_0_1,
-		                                 double I_1__1,
-		                                 double I_1_0,
-		                                 double I_1_1)
+			double I__1_0,
+			double I__1_1,
+			double I_0__1,
+			double I_0_0,
+			double I_0_1,
+			double I_1__1,
+			double I_1_0,
+			double I_1_1)
 	{
 		//Compute the gradient values
 		double gx = 0.5 * (I_1_0 - I__1_0);
@@ -172,7 +172,7 @@ namespace CVD
 	///@ingroup gVision
 	template<class I> std::pair<TooN::Vector<2>, double> interpolate_extremum_value(const BasicImage<I>& i, ImageRef p)
 	{
-	    CVD_IMAGE_ASSERT(p.x > 0 && p.y > 0 && p.x < i.size().x-1 && p.y < i.size().y-1, ImageError::AccessOutsideImage);
+		CVD_IMAGE_ASSERT(p.x > 0 && p.y > 0 && p.x < i.size().x-1 && p.y < i.size().y-1, ImageError::AccessOutsideImage);
 
 		//Extract and label 9 particular points
 		double I__1__1 = i[p + ImageRef(-1, -1)];

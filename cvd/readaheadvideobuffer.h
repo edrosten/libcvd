@@ -98,17 +98,17 @@ namespace CVD {
 				//Now return the final frame
 				if(vf)
 					vbuffer.put_frame(vf);
-				
+
 			}
 			ReadAheadVideoBuffer(VideoBuffer<T>& vb, size_t maxReadAhead=10) 
-			: VideoBuffer<T>(type_update(vb.type())), 
-			  vbuffer(vb), 
-			  captured(maxReadAhead)
-			{
-				//Start the thread
-				reader_thread = move(thread([this](){this->run();}));
-			}
-			
+				: VideoBuffer<T>(type_update(vb.type())), 
+				vbuffer(vb), 
+				captured(maxReadAhead)
+		{
+			//Start the thread
+			reader_thread = move(thread([this](){this->run();}));
+		}
+
 
 
 			void run() {
@@ -133,17 +133,17 @@ namespace CVD {
 					VideoFrame<T>* frame = vbuffer.get_frame();
 					captured.push(frame);
 				}
-				
+
 				//At this point, this should be the only thread doing anything
 				//with the buffer since the other thread is waiting in the destructor.
-				done:
+done:
 
 				//Empty the command queue
 				Command com;
 				while(maybe_pop(com))
 					if(com.code == Command::PUT)
 						vbuffer.put_frame(com.frame);
-				
+
 				flush_captured();
 			}
 

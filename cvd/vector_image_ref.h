@@ -40,8 +40,8 @@ namespace CVD
 	inline ImageRef ir_rounded(const TooN::Vector<2>& v)
 	{
 		return ImageRef(
-      static_cast<int>(v[0] > 0.0 ? v[0] + 0.5 : v[0] - 0.5),
-      static_cast<int>(v[1] > 0.0 ? v[1] + 0.5 : v[1] - 0.5));
+				static_cast<int>(v[0] > 0.0 ? v[0] + 0.5 : v[0] - 0.5),
+				static_cast<int>(v[1] > 0.0 ? v[1] + 0.5 : v[1] - 0.5));
 	}
 
 	/// Rescale an ImageRef by a scaling factor
@@ -49,7 +49,7 @@ namespace CVD
 	/// @ingroup gImage
 	inline ImageRef ir_rescale_rounded(const ImageRef &v, double rescaling_factor)
 	{
-	  return ir_rounded(vec(v) * rescaling_factor);
+		return ir_rounded(vec(v) * rescaling_factor);
 	}
 
 }

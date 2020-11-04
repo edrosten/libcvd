@@ -8,7 +8,7 @@
 
 namespace CVD {
 
-	#ifndef DOXYGEN_IGNORE_INTERNAL
+#ifndef DOXYGEN_IGNORE_INTERNAL
 	namespace Internal{
 		class UntypedParameter;
 	}
@@ -16,14 +16,14 @@ namespace CVD {
 
 	template<> class Parameter<Internal::UntypedParameter>
 	{
-			virtual const void* get_data_pointer() const=0;
+		virtual const void* get_data_pointer() const=0;
 
-			public: 
-				virtual Parameter* duplicate() const=0;
+		public: 
+		virtual Parameter* duplicate() const=0;
 
 	};
-	#endif
-	
+#endif
+
 	///Class for holding parameters for image savers, with type erasure. Use like:
 	///@code
 	///  map<string, Parameter<> > p;
@@ -37,7 +37,7 @@ namespace CVD {
 			C parameter;
 		public:
 			Parameter(const C& c)
-			:parameter(c)
+				:parameter(c)
 			{
 			}
 
@@ -56,7 +56,7 @@ namespace CVD {
 	{
 		private:
 			std::unique_ptr<Parameter<Internal::UntypedParameter> > param;
-			
+
 		public:
 			Parameter()
 			{}
@@ -68,7 +68,7 @@ namespace CVD {
 			}
 
 			template<class C> Parameter(const Parameter<C>& p)
-			:param(std::unique_ptr<Parameter<Internal::UntypedParameter> >(static_cast<Parameter<Internal::UntypedParameter>*>(new Parameter<C>(p))))
+				:param(std::unique_ptr<Parameter<Internal::UntypedParameter> >(static_cast<Parameter<Internal::UntypedParameter>*>(new Parameter<C>(p))))
 			{}
 
 			template<class C> Parameter& operator=(const Parameter<C>& p)
@@ -76,7 +76,7 @@ namespace CVD {
 				param = std::unique_ptr<Parameter<Internal::UntypedParameter> >(static_cast<Parameter<Internal::UntypedParameter>*>(new Parameter<C>(p)));
 				return *this;
 			}
-			
+
 			template<class C> bool is() const 
 			{
 				if(param.get() == 0)

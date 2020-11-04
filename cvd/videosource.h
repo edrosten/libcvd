@@ -27,7 +27,7 @@ namespace CVD {
 	{
 		ParseException(const std::string& what_) : Exceptions::All(what_) {}
 	};
-	
+
 	struct VideoSourceException : public Exceptions::All
 	{
 		VideoSourceException(const std::string& what_) : Exceptions::All(what_) {}
@@ -61,7 +61,7 @@ namespace CVD {
 
 			unique_ptr<std::ifstream> stream  = std::make_unique<ifstream>(filename);
 			unique_ptr<VideoBuffer<T>> buf = make_unique<ServerPushJpegBuffer<T>>(*stream);
-			
+
 			return new VideoBufferWithData<T, std::ifstream>(buf, stream);
 		}
 	};
@@ -83,7 +83,7 @@ namespace CVD {
 	//
 	void get_deinterlace_options(const VideoSource& vs, DeinterlaceBufferFields::Fields& fields, bool&);
 
-	
+
 	namespace Internal{
 		template<class T> struct CanDeinterlace
 		{
@@ -111,15 +111,15 @@ namespace CVD {
 		static VideoBuffer<T>* make(DeinterlaceBufferFields::Fields, bool&, const std::string&)
 		{
 			throw  VideoSourceException("DeinterlaceBuffer cannot handle input type");
- 		}
- 	};
+		}
+	};
 
 
-    ////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////
 	//
 	// Colourspace conversion buffer
 	//
-    
+
 	void get_skip_options(const VideoSource& vs, bool& do_seek, double& seek, int& drop);
 	template<class T> struct makeSkipBuffer
 	{
@@ -132,11 +132,11 @@ namespace CVD {
 	};
 
 
-    ////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////
 	//
 	// Colourspace conversion buffer
 	//
-    
+
 	void get_colourspace_options(const VideoSource& vs, std::string& from);
 
 	template<class Out, class In, bool can_convert> struct MakeConverter{
@@ -177,7 +177,7 @@ namespace CVD {
 		else if(c == "rgb<byte>" || c == "rgb")
 			return makeConvertBufferBit<T, Rgb<byte> >(r);
 		//else if(c == "yuv411")
-			//return makeConvertBufferBit<T, yuv411>(r);
+		//return makeConvertBufferBit<T, yuv411>(r);
 		else if(c == "yuv422")
 			return makeConvertBufferBit<T, yuv422>(r);
 		else if(c == "yuv420p")
@@ -288,7 +288,7 @@ namespace CVD {
 	{
 		throw VideoSourceException("VideoFileBuffer cannot handle types other than byte, Rgb<byte>");
 	}
-	
+
 	template <> VideoBuffer<byte>* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose, const std::string& formatname, const std::map<std::string,std::string>&);
 	template <> VideoBuffer<Rgb<byte> >* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose, const std::string& formatname, const std::map<std::string,std::string>&);
 
@@ -302,7 +302,7 @@ namespace CVD {
 	{
 		throw VideoSourceException("DVBuffer2 cannot handle " + PNM::type_name<T>::name());
 	}
-	
+
 	template <> VideoBuffer<byte>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
 	template <> VideoBuffer<unsigned short>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
 	//template <> VideoBuffer<yuv411>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
@@ -415,21 +415,21 @@ namespace CVD {
 		} 
 		else
 			throw VideoSourceException("undefined video source protocol: '" + vs.protocol + "'\n\t valid protocols: "
-									   "colourspace, jpegstream, "
-									   "file, "
-									   "v4l2, "
-									   "dc1394, "
-									   "files, "
-									   "uvc"
-									   );
+					"colourspace, jpegstream, "
+					"file, "
+					"v4l2, "
+					"dc1394, "
+					"files, "
+					"uvc"
+					);
 	}
 
-/**
-opens a video device described by a video source url given from an input stream. See
-@ref open_video_source(const std::string &) for details on the url syntax.
+	/**
+	  opens a video device described by a video source url given from an input stream. See
+	  @ref open_video_source(const std::string &) for details on the url syntax.
 
-@ingroup gVideo
-*/
+	  @ingroup gVideo
+	  */
 	template <class T> VideoBuffer<T>* open_video_source(std::istream& in)
 	{
 		VideoSource vs;
@@ -437,22 +437,22 @@ opens a video device described by a video source url given from an input stream.
 		return open_video_source<T>(vs);
 	}
 
-/**
-opens a video device described by a video source url. This allows to decide at
-runtime what kind of video input your program is using. Basic use is to call
-open_video_source<T>(url) to get a VideoBuffer<T>*.
+	/**
+	  opens a video device described by a video source url. This allows to decide at
+	  runtime what kind of video input your program is using. Basic use is to call
+	  open_video_source<T>(url) to get a VideoBuffer<T>*.
 
 
-In many cases, the VideoBuffer returned by open_video_source() is a wrapper
-around the video buffer dealing with the hardware and so does not provide 
-access to the controls. The underlying buffer can be accessed with 
-VideoBuffer::root_buffer().
+	  In many cases, the VideoBuffer returned by open_video_source() is a wrapper
+	  around the video buffer dealing with the hardware and so does not provide 
+	  access to the controls. The underlying buffer can be accessed with 
+	  VideoBuffer::root_buffer().
 
-Threre are also several pseudo buffers (such as deinterlacing and colorspace
-conversion) which are chained to other buffers by taking a URL as an argument.
+	  Threre are also several pseudo buffers (such as deinterlacing and colorspace
+	  conversion) which are chained to other buffers by taking a URL as an argument.
 
-The url syntax is the following:
-@verbatim
+	  The url syntax is the following:
+	  @verbatim
 url		 := protocol ':' [ '[' options ']' ] // identifier
 protocol := "files" | "file" | "v4l2" | "jpegstream" | "dc1394" | "qt" | "colourspace" | "deinterlace"
 options  := option [ ',' options ]
@@ -476,7 +476,7 @@ Open a V4L2 device at /dev/video0:
 @verbatim
 v4l2:///dev/video0
 @endverbatim
-   
+
 Open a V4L2 device with fields on input 2:
 @verbatim
 v4l2:[input=2,fields]///dev/video0
@@ -508,85 +508,85 @@ and start grabbing video:
 mkfifo /tmp/video
 wget http//my.camera/file_representing_video -O /tmp/video
 @endverbatim
-then open a source with:
-@verbatim
-jpegstream:///tmp/video
-@endverbatim
-If the argument is provided from a shell such as BASH, then then
-redirection can be used:
-@verbatim
-jpegstream://<(wget http//my.camera/file_representing_video -O - )
-@endverbatim
+	then open a source with:
+		@verbatim
+		jpegstream:///tmp/video
+		@endverbatim
+		If the argument is provided from a shell such as BASH, then then
+		redirection can be used:
+		@verbatim
+		jpegstream://<(wget http//my.camera/file_representing_video -O - )
+		@endverbatim
 
-Fields are:
-bool = true | yes | 1 | false | no | 0
-offset = <width>x<height>
-size = <offset> | qvga | vga | pal | ntsc | xga
+		Fields are:
+		bool = true | yes | 1 | false | no | 0
+		offset = <width>x<height>
+		size = <offset> | qvga | vga | pal | ntsc | xga
 
-Options supported by the various protocols are:
-@verbatim
-'files' protocol (DiskBuffer2):  identifier is glob pattern
-		fps = <number>
-		read_ahead [= <number>] (default is 50 if specified without value)
-		on_end = repeat_last | unset_pending | loop (default is repeat_last)
+		Options supported by the various protocols are:
+		@verbatim
+		'files' protocol (DiskBuffer2):  identifier is glob pattern
+										 fps = <number>
+													   read_ahead [= <number>] (default is 50 if specified without value)
+																		  on_end = repeat_last | unset_pending | loop (default is repeat_last)
 
-'file' protocol (VideoFileBuffer): identifier is path to file, or device name
-	   read_ahead  [= <number>] (default is 50 if specified without value)
-	   on_end = repeat_last | unset_pending | loop (default is repeat_last)
-	   format = <ffmpeg format name>
-	   <ffmpeg option> = <value>
+																						 'file' protocol (VideoFileBuffer): identifier is path to file, or device name
+																															read_ahead  [= <number>] (default is 50 if specified without value)
+																																					   on_end = repeat_last | unset_pending | loop (default is repeat_last)
+																																										 format = <ffmpeg format name>
+																																														<ffmpeg option> = <value>
 
-'v4l2' protocol (V4LBuffer): identifier is device name
-	   size = <size> (default vga)
-	   input = <number>
-	   interlaced | fields [= <bool> ]
-		   verbose [ = <bool> ]
+																																																	'v4l2' protocol (V4LBuffer): identifier is device name
+																																																								 size = <size> (default vga)
+																																																													  input = <number>
+																																																																	 interlaced | fields [= <bool> ]
+																																																																				 verbose [ = <bool> ]
 
-'uvc' protocol (UVCBuffer): identifier is device name
-	   size = <size> (default vga)
-	   fps = <number>
-	   mjpeg [ = <bool> ]
-		   verbose [ = <bool> ]
-'dc1394' protocol (DVBuffer): identifier is camera number
-	   fps = <number> (default is camera default)
-	   size = <size>
-	   offset = <offset>
-	   verbose [ = <bool> ]
-	   reset [ = <bool> ]
-	   mode | format7 | format7_mode = <number>
+																																																																						  'uvc' protocol (UVCBuffer): identifier is device name
+																																																																													  size = <size> (default vga)
+																																																																																		   fps = <number>
+																																																																																						 mjpeg [ = <bool> ]
+																																																																																									  verbose [ = <bool> ]
+																																																																																											   'dc1394' protocol (DVBuffer): identifier is camera number
+																																																																																																			 fps = <number> (default is camera default)
+																																																																																																									 size = <size>
+																																																																																																												  offset = <offset>
+																																																																																																																verbose [ = <bool> ]
+																																																																																																																			reset [ = <bool> ]
+																																																																																																																					 mode | format7 | format7_mode = <number>
 
-'qt' protocol (QTBuffer): identifier is camera number
-	  size = vga | qvga | <width>x<height>	(default vga)
-	  showsettings [ = <bool> ] (default 0)
-	  verbose [ = <bool> ] (default 0)
+																																																																																																																						   'qt' protocol (QTBuffer): identifier is camera number
+																																																																																																																													 size = vga | qvga | <width>x<height>	(default vga)
+																																																																																																																																		  showsettings [ = <bool> ] (default 0)
+																																																																																																																																						 verbose [ = <bool> ] (default 0)
 
-'jpegstream' protocol (ServerPushJpegBuffer): identifier is path to file
-	  read_ahead  [= <number>] (default is 50 if specified without value)
+																																																																																																																																									 'jpegstream' protocol (ServerPushJpegBuffer): identifier is path to file
+																																																																																																																																																				   read_ahead  [= <number>] (default is 50 if specified without value)
 
-'deinterlace' protcol (DeinterlaceBuffer): identifier is a video URL
-      oddonly  [ = <bool> ]
-      evenonly [ = <bool> ]
-      oddeven  [ = <bool> ]   (default)
-      evenodd  [ = <bool> ]
-	  double   [ = <bool> ]  (perform line doubling by averaging)
+																																																																																																																																																													'deinterlace' protcol (DeinterlaceBuffer): identifier is a video URL
+																																																																																																																																																																							   oddonly  [ = <bool> ]
+																																																																																																																																																																													evenonly [ = <bool> ]
+																																																																																																																																																																																		 oddeven  [ = <bool> ]   (default)
+																																																																																																																																																																																							  evenodd  [ = <bool> ]
+																																																																																																																																																																																											 double   [ = <bool> ]  (perform line doubling by averaging)
 
-'colourspace' protcol (ColourspaceBuffer): identifier is a video URL
-      from = byte | mono | gray | grey | yuv411 | yuv422 | rgb<byte> 
-	         | rgb | bayer_bggr | bayer_gbrg | bayer_grbg | bayer_rggb  (default mono)
+																																																																																																																																																																																														 'colourspace' protcol (ColourspaceBuffer): identifier is a video URL
+																																																																																																																																																																																																									from = byte | mono | gray | grey | yuv411 | yuv422 | rgb<byte> 
+																																																																																																																																																																																																																	 | rgb | bayer_bggr | bayer_gbrg | bayer_grbg | bayer_rggb  (default mono)
 
-'skip' protocol: identifier is a video URL
-	seek = <double>
-	drip = <int>
+																																																																																																																																																																																																																							 'skip' protocol: identifier is a video URL
+																																																																																																																																																																																																																								 seek = <double>
+																																																																																																																																																																																																																								 drip = <int>
 
-@endverbatim
+																																																																																																																																																																																																																								 @endverbatim
 
-@ingroup gVideo
-*/
-	template <class T> VideoBuffer<T>* open_video_source(const std::string& src)
-	{
-		std::istringstream in(src);
-		return open_video_source<T>(in);
-	}	 
+																																																																																																																																																																																																																								 @ingroup gVideo
+																																																																																																																																																																																																																								 */
+																																																																																																																																																																																																																								 template <class T> VideoBuffer<T>* open_video_source(const std::string& src)
+																																																																																																																																																																																																																								 {
+																																																																																																																																																																																																																									 std::istringstream in(src);
+																																																																																																																																																																																																																									 return open_video_source<T>(in);
+																																																																																																																																																																																																																								 }	 
 }
 
 #endif

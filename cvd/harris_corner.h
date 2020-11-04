@@ -12,7 +12,7 @@
 
 namespace CVD
 {
-	
+
 	namespace Harris
 	{
 		///A Utility fuction.
@@ -30,7 +30,7 @@ namespace CVD
 				return (xx * yy - xy * xy) - 0.04 * sq(xx + yy);
 			}
 		};
-		
+
 		///Compute the score according to Shi-Tomasi
 		///@ingroup gVision
 		struct ShiTomasiScore
@@ -42,7 +42,7 @@ namespace CVD
 				return std::min(abs(l1), std::abs(l2));
 			}
 		};
-		
+
 		///Used to save corner positions from harrislike_corner_detect
 		///@ingroup gVision
 		struct PosInserter
@@ -93,16 +93,16 @@ namespace CVD
 		zeroBorders(yy);
 
 		typedef typename Pixel::traits<B>::wider_type gType;
-		
+
 		//Compute gradients
 		for(int y=1; y < i.size().y - 1; y++)
 			for(int x=1; x < i.size().x - 1; x++)
 			{
-				
+
 				//FIXME use fast-casting using an arrsy for byte to float conversion.
 				gType gx = (gType)i[y][x-1] - i[y][x+1];
 				gType gy = (gType)i[y-1][x] - i[y+1][x];
-				
+
 				//Compute the gradient moments
 				xx[y][x] = gx * gx;
 				xy[y][x] = gx * gy;
@@ -112,7 +112,7 @@ namespace CVD
 		convolveGaussian(xx, xx, blur, sigmas);
 		convolveGaussian(xy, xy, blur, sigmas);
 		convolveGaussian(yy, yy, blur, sigmas);
-		
+
 		//Avoid computing the score along the image borders where the
 		//result of the convolution is not valid.
 		int	kspread = (int)ceil(sigmas * blur);
@@ -149,13 +149,13 @@ namespace CVD
 				float c = xx[y][x];
 
 				if( c > xx[y-1][x-1]  &&
-					c > xx[y-1][x+0]  &&
-					c > xx[y-1][x+1]  &&
-					c > xx[y-0][x-1]  &&
-					c > xx[y-0][x+1]  &&
-					c > xx[y+1][x-1]  &&
-					c > xx[y+1][x+0]  &&
-					c > xx[y+1][x+1])
+						c > xx[y-1][x+0]  &&
+						c > xx[y-1][x+1]  &&
+						c > xx[y-0][x-1]  &&
+						c > xx[y-0][x+1]  &&
+						c > xx[y+1][x-1]  &&
+						c > xx[y+1][x+0]  &&
+						c > xx[y+1][x+1])
 				{
 					if(corner_heap.size() <= N  || c > corner_heap[0].first)
 					{

@@ -10,7 +10,7 @@
 
 namespace CVD
 {
-	
+
 	namespace Internal
 	{
 		Rgb<float> grey(float d)
@@ -20,7 +20,7 @@ namespace CVD
 			d = max(0.f, min(d, 1.0f));
 			return Rgb<float>(d, d, d);
 		}
-			
+
 		Rgb<float> hot(float d)
 		{
 			using std::max; 
@@ -34,7 +34,7 @@ namespace CVD
 			else
 				return Rgb<float>(1, 1, (d-2./3.)*3);
 		}
-		
+
 		Rgb<float> jet(float d)
 		{
 			using std::max; 
@@ -74,7 +74,7 @@ namespace CVD
 		{
 			using std::max; 
 			using std::min;
-			
+
 			if(d < 1./2.)
 				return Rgb<float>(1-d*2, 0, 0);
 			else
@@ -85,13 +85,13 @@ namespace CVD
 
 
 		template<class C, class D>
-		Rgb<C> conv(const D& func, float d)
-		{
-			Rgb<float> col = func(d);
-			Rgb<C> r;
-			Pixel::ConvertPixels<Rgb<float>, Rgb<C> >::convert(&col, &r, 1);
-			return r;
-		}
+			Rgb<C> conv(const D& func, float d)
+			{
+				Rgb<float> col = func(d);
+				Rgb<C> r;
+				Pixel::ConvertPixels<Rgb<float>, Rgb<C> >::convert(&col, &r, 1);
+				return r;
+			}
 	};
 
 
@@ -105,7 +105,7 @@ namespace CVD
 	///@include colourmaps.cc
 	template<class C> struct Colourmap<Rgb<C> >
 	{
-		
+
 		///Glow/Hot colourscale (red-yellow-white)
 		///@param d Value in \f$[0, 1)\f$ to map
 		static Rgb<C> hot(double d) { return Internal::conv<C>(Internal::hot, d);} 
@@ -121,7 +121,7 @@ namespace CVD
 		///@param d Value in \f$[0, 1)\f$ to map
 		static Rgb<C> grey(double d) { return Internal::conv<C>(Internal::grey, d);} 
 	};
-	
+
 
 	///@example colourmaps.cc
 	///Example of how to use the CVD::Colourmap class for visualisation.

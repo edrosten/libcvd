@@ -53,8 +53,8 @@ namespace CVD
 			/// seek_to() was called for an invalid timestamp
 			/// @ingroup gException
 			struct BadSeek: public All { BadSeek(double t);///< Construct from invalid timestamp
-			 }; 
-			
+			}; 
+
 		}
 	}
 
@@ -66,7 +66,7 @@ namespace CVD
 	/// converted (see @link gImageIO Image loading and saving, and format conversion@endlink).
 	/// @ingroup gVideoBuffer
 	template<typename T> 
-	class DiskBuffer2: public CVD::LocalVideoBuffer<T>
+		class DiskBuffer2: public CVD::LocalVideoBuffer<T>
 	{
 		public:
 			/// Construct a DiskBuffer2 from a vector of filenames. 
@@ -77,8 +77,8 @@ namespace CVD
 			/// @param eob What should the buffer do when it reaches the end of the list of files?
 			DiskBuffer2(const std::vector<std::string>& names, double fps, VideoBufferFlags::OnEndOfBuffer eob = VideoBufferFlags::RepeatLastFrame);
 
- 			virtual ImageRef size() {return my_size;}
-			
+			virtual ImageRef size() {return my_size;}
+
 			/// Is there another frame waiting in the buffer? By default, this always 
 			/// returns true, but if the VideoBufferFlags::OnEndOfBuffer setting is VideoBufferFlags::UnsetPending, this will return
 			/// false after the last frame has been returned by get_frame()
@@ -87,11 +87,11 @@ namespace CVD
 			virtual DiskBuffer2Frame<T>* get_frame();
 			virtual void put_frame(VideoFrame<T>* f);
 			virtual void seek_to(double t);
-		
+
 			/// What should the buffer do when it reaches the end of the list of files?
 			/// @param eob The desired behaviour
 			virtual void on_end_of_buffer(VideoBufferFlags::OnEndOfBuffer eob) 
-				{end_of_buffer_behaviour = eob;}
+			{end_of_buffer_behaviour = eob;}
 
 			virtual double frame_rate() 
 			{
@@ -112,121 +112,121 @@ namespace CVD
 	// CONSTRUCTOR
 	//
 	template<typename T>
-	inline DiskBuffer2<T>::DiskBuffer2(const std::vector<std::string>& names, double fps, VideoBufferFlags::OnEndOfBuffer eob) 
-	:LocalVideoBuffer<T>(VideoBufferType::NotLive),end_of_buffer_behaviour(eob)
-	{
-		frames_per_sec = fps;
-
-		start_time = 0;
-		next_frame=0;
-		time_per_frame = 1/fps;	
-
-		file_names = names;
-
-		if(file_names.size() == 0)
-			throw Exceptions::DiskBuffer2::NoFiles();
-
-		Image<T> foo;
-		std::ifstream im;
-		im.open(names[0].c_str(), std::ios::in|std::ios::binary);
-
-		if(!im.good())
-			throw Exceptions::DiskBuffer2::BadFile(names[0], errno);
-		
-		try
+		inline DiskBuffer2<T>::DiskBuffer2(const std::vector<std::string>& names, double fps, VideoBufferFlags::OnEndOfBuffer eob) 
+		:LocalVideoBuffer<T>(VideoBufferType::NotLive),end_of_buffer_behaviour(eob)
 		{
-			img_load(foo, im);
-		}
-		catch(Exceptions::Image_IO::All err)
-		{
-			throw Exceptions::DiskBuffer2::BadImage(names[0], err.what());
-		}
+			frames_per_sec = fps;
 
-		my_size = foo.size();
-		frame_ready = true;
-	}
+			start_time = 0;
+			next_frame=0;
+			time_per_frame = 1/fps;	
+
+			file_names = names;
+
+			if(file_names.size() == 0)
+				throw Exceptions::DiskBuffer2::NoFiles();
+
+			Image<T> foo;
+			std::ifstream im;
+			im.open(names[0].c_str(), std::ios::in|std::ios::binary);
+
+			if(!im.good())
+				throw Exceptions::DiskBuffer2::BadFile(names[0], errno);
+
+			try
+			{
+				img_load(foo, im);
+			}
+			catch(Exceptions::Image_IO::All err)
+			{
+				throw Exceptions::DiskBuffer2::BadImage(names[0], err.what());
+			}
+
+			my_size = foo.size();
+			frame_ready = true;
+		}
 
 	//
 	// GET FRAME
 	//
 	template<typename T>
-	inline DiskBuffer2Frame<T>* DiskBuffer2<T>::get_frame()
-	{
-		if(next_frame < 0)
-			next_frame = 0;
-
-		if(!frame_pending())
-			throw Exceptions::DiskBuffer2::EndOfBuffer();
-
-		Image<T> foo(my_size);
-		
-		std::ifstream im_file(file_names[next_frame].c_str(), std::ios::in|std::ios::binary);
-
-		if(!im_file.good())
-			throw Exceptions::DiskBuffer2::BadFile(file_names[next_frame], errno);
-
-		try{
-		  img_load(foo, im_file);
-		}
-		catch(CVD::Exceptions::Image_IO::All err)
+		inline DiskBuffer2Frame<T>* DiskBuffer2<T>::get_frame()
 		{
-			throw Exceptions::DiskBuffer2::BadImage(file_names[next_frame], err.what());
-		}
+			if(next_frame < 0)
+				next_frame = 0;
 
-		DiskBuffer2Frame<T>* vf = new DiskBuffer2Frame<T>(next_frame * time_per_frame + start_time, std::move(foo), file_names[next_frame]);
+			if(!frame_pending())
+				throw Exceptions::DiskBuffer2::EndOfBuffer();
 
-		next_frame++;
-		
-		if(next_frame > (int)file_names.size()-1)
-		{
-			switch(end_of_buffer_behaviour)
-			{
-				case VideoBufferFlags::RepeatLastFrame:
-					next_frame = file_names.size()-1;
-					break;
-				
-				case VideoBufferFlags::UnsetPending:
-					frame_ready = false;
-				   break;
-				
-				case VideoBufferFlags::Loop:
-					next_frame = 0;
-					break;
+			Image<T> foo(my_size);
+
+			std::ifstream im_file(file_names[next_frame].c_str(), std::ios::in|std::ios::binary);
+
+			if(!im_file.good())
+				throw Exceptions::DiskBuffer2::BadFile(file_names[next_frame], errno);
+
+			try{
+				img_load(foo, im_file);
 			}
-		}
+			catch(CVD::Exceptions::Image_IO::All err)
+			{
+				throw Exceptions::DiskBuffer2::BadImage(file_names[next_frame], err.what());
+			}
 
-		return vf;	
-	}
+			DiskBuffer2Frame<T>* vf = new DiskBuffer2Frame<T>(next_frame * time_per_frame + start_time, std::move(foo), file_names[next_frame]);
+
+			next_frame++;
+
+			if(next_frame > (int)file_names.size()-1)
+			{
+				switch(end_of_buffer_behaviour)
+				{
+					case VideoBufferFlags::RepeatLastFrame:
+						next_frame = file_names.size()-1;
+						break;
+
+					case VideoBufferFlags::UnsetPending:
+						frame_ready = false;
+						break;
+
+					case VideoBufferFlags::Loop:
+						next_frame = 0;
+						break;
+				}
+			}
+
+			return vf;	
+		}
 
 	//
 	// PUT FRAME
 	//
 	template<typename T>
-	inline void DiskBuffer2<T>::put_frame(VideoFrame<T>* f)
-	{
-		//Check that the type is correct...
-		DiskBuffer2Frame<T>* db2f = dynamic_cast<DiskBuffer2Frame<T>*>(f);
+		inline void DiskBuffer2<T>::put_frame(VideoFrame<T>* f)
+		{
+			//Check that the type is correct...
+			DiskBuffer2Frame<T>* db2f = dynamic_cast<DiskBuffer2Frame<T>*>(f);
 
-		if(db2f == NULL)
-			throw CVD::Exceptions::VideoBuffer::BadPutFrame();
-		else 
-			delete db2f;
-	}
+			if(db2f == NULL)
+				throw CVD::Exceptions::VideoBuffer::BadPutFrame();
+			else 
+				delete db2f;
+		}
 
 	//
 	// SEEK TO
 	//
 	template<typename T>
-	inline void DiskBuffer2<T>::seek_to(double t)
-	{
-		// t is in ms, but work in seconds
-		// round the answer to the nearest whole frame
-		int frameno = static_cast<int>((t - start_time) / time_per_frame + 0.5);
-		if(frameno < 0 || static_cast<unsigned int>(frameno) > (file_names.size() - 1))
-			throw Exceptions::DiskBuffer2::BadSeek(t);
-		next_frame = frameno;
-		frame_ready = true;
-	}
+		inline void DiskBuffer2<T>::seek_to(double t)
+		{
+			// t is in ms, but work in seconds
+			// round the answer to the nearest whole frame
+			int frameno = static_cast<int>((t - start_time) / time_per_frame + 0.5);
+			if(frameno < 0 || static_cast<unsigned int>(frameno) > (file_names.size() - 1))
+				throw Exceptions::DiskBuffer2::BadSeek(t);
+			next_frame = frameno;
+			frame_ready = true;
+		}
 }
 
 

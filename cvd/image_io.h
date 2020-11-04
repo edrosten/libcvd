@@ -25,7 +25,7 @@
 
 namespace CVD
 {
-	
+
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -33,14 +33,14 @@ namespace CVD
 	// Image loading
 	//
 
-	#ifndef DOXYGEN_IGNORE_INTERNAL
+#ifndef DOXYGEN_IGNORE_INTERNAL
 	namespace Internal
 	{
 		class ImageLoaderIstream{};
 		template<> struct ImagePromise<ImageLoaderIstream>
 		{
 			ImagePromise(std::istream& is)
-			:i(is){}
+				:i(is){}
 
 			std::istream& i;
 			template<class C> void execute(Image<C>& im)
@@ -53,7 +53,7 @@ namespace CVD
 		template<> struct ImagePromise<ImageLoaderString>
 		{
 			ImagePromise(const std::string& ss)
-			:s(ss){}
+				:s(ss){}
 
 			const std::string& s;
 			template<class C> void execute(Image<C>& im)
@@ -62,7 +62,7 @@ namespace CVD
 			}
 		};
 	};
-	#endif
+#endif
 
 	// This is not the real definition, but this is what it would look like if all
 	// the macros were expanded. The real definition is above
@@ -81,22 +81,22 @@ namespace CVD
 			PNM = 0 , 
 			/// JPEG image format. This is a compressed (lossy) image format, but defaults to 95% quality, which has very few compression artefacts. This image type is only present if libjpeg is available.
 			/// RGB and Greyscale JPEGs are supported
-			#ifdef CVD_HAVE_JPEG
+#ifdef CVD_HAVE_JPEG
 			JPEG = 1,
-			#endif
+#endif
 			/// Windows BMP (or DIB) format. Uncompressed 8 bit grey scale and 24 bit RGB are supported.
 			BMP = 2,
 			/// PNG image format. 1, 8 and 16 bit, Greyscale, RGB and RGBA images are supported.
 			/// This image type is only present if libpng is available.
-			#ifdef CVD_HAVE_PNG
+#ifdef CVD_HAVE_PNG
 			PNG = 3,
-			#endif
+#endif
 			/// TIFF image format. 1, 8, 16, 32 (float) and 64 (double) suported. Greyscale, RGB and RGBA supported.
 			/// This image type is only present if libtiff is available. G4 FAX encoding is used for bools, otherwise
 			/// "Deflate" compression is used.
-			#ifdef CVD_HAVE_TIFF
+#ifdef CVD_HAVE_TIFF
 			TIFF = 4,
-			#endif
+#endif
 			/// Postscript  format. This outputs a bare PostScript image with the coordinate system set up 
 			/// to that (x,y) corresponds to pixel (x,y), with (0,0) being at the top left of the pixel (0,0).
 			/// The Y axis is therefore inverted compared to normal postscript drawing, but is image aligned.
@@ -122,14 +122,14 @@ namespace CVD
 		};
 	}
 
-	#ifndef DOXYGEN_IGNORE_INTERNAL
+#ifndef DOXYGEN_IGNORE_INTERNAL
 
 	Internal::ImagePromise<Internal::ImageLoaderIstream> img_load(std::istream& i);
 	Internal::ImagePromise<Internal::ImageLoaderString> img_load(const std::string &s);
-	#endif
+#endif
 
-	#if DOXYGEN_INCLUDE_ONLY_FOR_DOCS
-	
+#if DOXYGEN_INCLUDE_ONLY_FOR_DOCS
+
 	/// Load an image from an istream, and return the image.
 	/// The template type is deduced automatically, and must not be specified.
 	///
@@ -139,7 +139,7 @@ namespace CVD
 	/// @param i The istream to load from
 	/// @ingroup gImageIO
 	template<class C> Image<C> img_load(std::istream& i);
-	
+
 	/// Load an image from a file, and return the image.
 	/// The template type is deduced automatically, and must not be specified.
 	///
@@ -152,7 +152,7 @@ namespace CVD
 
 
 
-	#endif	
+#endif	
 
 
 	/// Load an image from a stream. This function resizes the Image as necessary.
@@ -164,55 +164,55 @@ namespace CVD
 	/// @ingroup gImageIO
 	template<class I> void img_load(Image<I>& im, std::istream& i)
 	{
-	  if(!i.good())
-	  {
-	    //Check for one of the commonest errors and put in
-	    //a special case
-	    std::ifstream* fs;
-	    if((fs = dynamic_cast<std::ifstream*>(&i)) && !fs->is_open())
-	      throw Exceptions::Image_IO::IfstreamNotOpen();
-	    else
-	      throw Exceptions::Image_IO::EofBeforeImage();
-	  }
-	  int c = i.peek();
-	  
-	  if(!i.good())
-	    throw Exceptions::Image_IO::EofBeforeImage();
+		if(!i.good())
+		{
+			//Check for one of the commonest errors and put in
+			//a special case
+			std::ifstream* fs;
+			if((fs = dynamic_cast<std::ifstream*>(&i)) && !fs->is_open())
+				throw Exceptions::Image_IO::IfstreamNotOpen();
+			else
+				throw Exceptions::Image_IO::EofBeforeImage();
+		}
+		int c = i.peek();
 
-	  if(c == 'P')
-	    CVD::Internal::readImage<I, PNM::Reader>(im, i);
+		if(!i.good())
+			throw Exceptions::Image_IO::EofBeforeImage();
+
+		if(c == 'P')
+			CVD::Internal::readImage<I, PNM::Reader>(im, i);
 #ifdef CVD_HAVE_JPEG
-	  else if(c == 0xff)
-	    CVD::Internal::readImage<I, JPEG::reader>(im, i);
+		else if(c == 0xff)
+			CVD::Internal::readImage<I, JPEG::reader>(im, i);
 #endif
 #ifdef CVD_HAVE_TIFF
-	  else if(c == 'I' || c == 'M') //Little or big endian TIFF
-	    CVD::Internal::readImage<I, TIFF::tiff_reader>(im, i);
+		else if(c == 'I' || c == 'M') //Little or big endian TIFF
+			CVD::Internal::readImage<I, TIFF::tiff_reader>(im, i);
 #endif
 #ifdef CVD_HAVE_PNG
-	  else if(c == 0x89)
-	    CVD::Internal::readImage<I, PNG::png_reader>(im, i);
+		else if(c == 0x89)
+			CVD::Internal::readImage<I, PNG::png_reader>(im, i);
 #endif
-	  else if(c == 'B')
-	    CVD::Internal::readImage<I, BMP::Reader>(im, i);
-	  else if(c == 'S')
-	    CVD::Internal::readImage<I, FITS::reader>(im, i);
-	  else if(c == 'C')
-		CVD::Internal::readImage<I, CVDimage::reader>(im, i);
-	  else if(c == ' ' || c == '\t' || isdigit(c) || c == '-' || c == '+')
-	    CVD::Internal::readImage<I, TEXT::reader>(im, i);
-	  else
-	    throw Exceptions::Image_IO::UnsupportedImageType();
+		else if(c == 'B')
+			CVD::Internal::readImage<I, BMP::Reader>(im, i);
+		else if(c == 'S')
+			CVD::Internal::readImage<I, FITS::reader>(im, i);
+		else if(c == 'C')
+			CVD::Internal::readImage<I, CVDimage::reader>(im, i);
+		else if(c == ' ' || c == '\t' || isdigit(c) || c == '-' || c == '+')
+			CVD::Internal::readImage<I, TEXT::reader>(im, i);
+		else
+			throw Exceptions::Image_IO::UnsupportedImageType();
 	}
-		
+
 	//  syg21
 	template<class I> void img_load(Image<I> &im, const std::string &s)
 	{
-	  std::ifstream i(s.c_str(), std::ios::in|std::ios::binary);
+		std::ifstream i(s.c_str(), std::ios::in|std::ios::binary);
 
-	  if(!i.good())
-	    throw Exceptions::Image_IO::OpenError(s, "for reading", errno);
-	  img_load(im, i);
+		if(!i.good())
+			throw Exceptions::Image_IO::OpenError(s, "for reading", errno);
+		img_load(im, i);
 	}	
 
 
@@ -235,51 +235,51 @@ namespace CVD
 	/// @param t The image file format to use (see ImageType::ImageType for a list of supported formats)
 	/// @ingroup gImageIO
 	template<class PixelType> 
-	void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t, const std::map<std::string, Parameter<> >& p = std::map<std::string, Parameter<> >())
-	{
-	  switch (t) {
-	  default:
-	  case ImageType::PNM:  
-	  case ImageType::Automatic:
-	  case ImageType::Unknown:
-		Internal::writeImage<PixelType, PNM::Writer>(im, o, p); break;
-	  #ifdef CVD_HAVE_JPEG
-		  case ImageType::JPEG: Internal::writeImage<PixelType, JPEG::writer>(im,o, p); break;
-	  #endif
-	  #ifdef CVD_HAVE_PNG
-		  case ImageType::PNG: Internal::writeImage<PixelType, PNG::png_writer>(im,o, p); break;
-	  #endif
-	  #ifdef CVD_HAVE_TIFF
-		  case ImageType::TIFF: Internal::writeImage<PixelType, TIFF::tiff_writer>(im,o, p); break;
-	  #endif
-	  case ImageType::FITS: Internal::writeImage<PixelType, FITS::writer>(im,o, p); break;
-	  case ImageType::BMP:  Internal::writeImage<PixelType, BMP::Writer>(im, o, p); break;
-	  case ImageType::TXT:  Internal::writeImage<PixelType, TEXT::writer>(im, o, p); break;
-	  case ImageType::PS:   Internal::writeImage<PixelType, PS::writer>(im, o, p); break;
-	  case ImageType::EPS:  Internal::writeImage<PixelType, PS::eps_writer>(im, o, p); break;
-	  case ImageType::CVD:  Internal::writeImage<PixelType, CVDimage::writer>(im,o, p); break;
-	  }
-	}
+		void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t, const std::map<std::string, Parameter<> >& p = std::map<std::string, Parameter<> >())
+		{
+			switch (t) {
+				default:
+				case ImageType::PNM:  
+				case ImageType::Automatic:
+				case ImageType::Unknown:
+					Internal::writeImage<PixelType, PNM::Writer>(im, o, p); break;
+#ifdef CVD_HAVE_JPEG
+				case ImageType::JPEG: Internal::writeImage<PixelType, JPEG::writer>(im,o, p); break;
+#endif
+#ifdef CVD_HAVE_PNG
+				case ImageType::PNG: Internal::writeImage<PixelType, PNG::png_writer>(im,o, p); break;
+#endif
+#ifdef CVD_HAVE_TIFF
+				case ImageType::TIFF: Internal::writeImage<PixelType, TIFF::tiff_writer>(im,o, p); break;
+#endif
+				case ImageType::FITS: Internal::writeImage<PixelType, FITS::writer>(im,o, p); break;
+				case ImageType::BMP:  Internal::writeImage<PixelType, BMP::Writer>(im, o, p); break;
+				case ImageType::TXT:  Internal::writeImage<PixelType, TEXT::writer>(im, o, p); break;
+				case ImageType::PS:   Internal::writeImage<PixelType, PS::writer>(im, o, p); break;
+				case ImageType::EPS:  Internal::writeImage<PixelType, PS::eps_writer>(im, o, p); break;
+				case ImageType::CVD:  Internal::writeImage<PixelType, CVDimage::writer>(im,o, p); break;
+			}
+		}
 
 	template<class PixelType> void img_save(const BasicImage<PixelType>& im, const std::string& name, ImageType::ImageType t, ImageType::ImageType d = ImageType::PNM, const std::map<std::string, Parameter<> >& p = std::map<std::string, Parameter<> >())
 	{
-	  std::ofstream out(name.c_str(), std::ios::out|std::ios::binary);
-	  if(!out.good())
-	    throw Exceptions::Image_IO::OpenError(name, "for writing", errno);
+		std::ofstream out(name.c_str(), std::ios::out|std::ios::binary);
+		if(!out.good())
+			throw Exceptions::Image_IO::OpenError(name, "for writing", errno);
 
-	  if(t == ImageType::Automatic)
-	  {
-		t = string_to_image_type(name);
-		if(t == ImageType::Unknown)
-			t = d;
-	  }
+		if(t == ImageType::Automatic)
+		{
+			t = string_to_image_type(name);
+			if(t == ImageType::Unknown)
+				t = d;
+		}
 
-	  img_save(im, out, t, p);
+		img_save(im, out, t, p);
 	}
 
 	template<class PixelType> void img_save(const BasicImage<PixelType>& im, const std::string& name, const std::map<std::string, Parameter<> >& p = std::map<std::string, Parameter<> >())
 	{
-	    img_save(im, name, ImageType::Automatic, ImageType::PNM, p);
+		img_save(im, name, ImageType::Automatic, ImageType::PNM, p);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////

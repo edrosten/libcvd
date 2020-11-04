@@ -10,7 +10,7 @@ namespace CVD
 
 	/// A frame from a ColourspaceBuffer. Can be treated as a VideoFrame
 	template<class T> 
-	class ColourspaceFrame : public CVD::LocalVideoFrame<T>
+		class ColourspaceFrame : public CVD::LocalVideoFrame<T>
 	{
 		/// Allow ColourspaceBuffer to manage frames.
 		public:
@@ -19,7 +19,7 @@ namespace CVD
 			}
 
 			ColourspaceFrame(double time, CVD::Image<T>&& converted)
-			:LocalVideoFrame<T>(time, std::move(converted))
+				:LocalVideoFrame<T>(time, std::move(converted))
 			{
 			}	
 	};

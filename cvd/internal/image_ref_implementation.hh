@@ -1,10 +1,10 @@
 constexpr inline ImageRef::ImageRef()
-:x(0),y(0)
+	:x(0),y(0)
 {
 }
 
 constexpr inline ImageRef::ImageRef(int xp, int yp)
-:x(xp),y(yp)
+	:x(xp),y(yp)
 {}
 
 inline ImageRef::ImageRef(std::istream& is)
@@ -13,12 +13,12 @@ inline ImageRef::ImageRef(std::istream& is)
 	is.read((char*)&y,sizeof(int));
 }
 
-	//////////////////////////////////////////////////////////////////////////
-	// the following cryptic pieces of rubbish are because inline functions //
-	// must have their one and only return function as the last call        //
-	// so this code makes use of the fact that expressions to the right     //
-	// of || are only evaluated when the left hand side is false            //
-	//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// the following cryptic pieces of rubbish are because inline functions //
+// must have their one and only return function as the last call        //
+// so this code makes use of the fact that expressions to the right     //
+// of || are only evaluated when the left hand side is false            //
+//////////////////////////////////////////////////////////////////////////
 
 inline bool ImageRef::next(const ImageRef& max)	// move on to the next value
 {
@@ -70,15 +70,15 @@ constexpr inline bool ImageRef::operator !=(const ImageRef& ref) const
 
 constexpr inline ImageRef ImageRef::operator-() const
 {
-  ImageRef v(-x, -y);
-  return v;
+	ImageRef v(-x, -y);
+	return v;
 }
 
 constexpr inline ImageRef& ImageRef::operator*=(const double scale)
 {
-  x=(int)(x*scale);
-  y=(int)(y*scale);
-  return *this;
+	x=(int)(x*scale);
+	y=(int)(y*scale);
+	return *this;
 }
 
 constexpr inline ImageRef& ImageRef::operator/=(const double scale)
@@ -174,47 +174,47 @@ constexpr inline ImageRef operator*(const int scale, const ImageRef&  ref)
 
 constexpr inline bool ImageRef::operator<(const ImageRef & other) const
 {
-  return y < other.y || ( y == other.y && x < other.x);
+	return y < other.y || ( y == other.y && x < other.x);
 }
 
 constexpr inline bool ImageRef::operator>(const ImageRef & other) const
 {
-  return y > other.y || ( y == other.y && x > other.x);
+	return y > other.y || ( y == other.y && x > other.x);
 }
 
 
 constexpr inline int& ImageRef::operator[](int i)
 {
-  if(i==0)
-    return x;
-  else if(i==1)
-    return y;
-  else
-	throw Exceptions::BadSubscript();
+	if(i==0)
+		return x;
+	else if(i==1)
+		return y;
+	else
+		throw Exceptions::BadSubscript();
 }
 
 constexpr inline int ImageRef::operator[](int i) const
 {
-  if(i==0)
-    return x;
-  else if(i==1)
-    return y;
-  else
-    throw Exceptions::BadSubscript();
+	if(i==0)
+		return x;
+	else if(i==1)
+		return y;
+	else
+		throw Exceptions::BadSubscript();
 }
 
 constexpr inline unsigned int ImageRef::mag_squared() const
 {
-  typedef unsigned int uint;
-  return uint(x*x) + uint(y*y);
+	typedef unsigned int uint;
+	return uint(x*x) + uint(y*y);
 }
 
 constexpr inline int ImageRef::area() const
 {
-  return x * y;
+	return x * y;
 }
 
 constexpr inline ImageRef ImageRef::dot_times(const ImageRef &ref) const
 {
-  return ImageRef(x * ref.x, y * ref.y);
+	return ImageRef(x * ref.x, y * ref.y);
 }

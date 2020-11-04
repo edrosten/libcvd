@@ -15,7 +15,7 @@ namespace CVD {
 	namespace BMP {
 		using Internal::TypeList;
 		using Internal::Head;
-		
+
 		class ReadPimpl;
 		class Reader
 		{
@@ -25,7 +25,7 @@ namespace CVD {
 
 				ImageRef size();
 				bool top_row_first();
-				
+
 				void get_raw_pixel_line(unsigned char*);
 				void get_raw_pixel_line(Rgb<unsigned char>*);
 
@@ -33,8 +33,8 @@ namespace CVD {
 				std::string name();
 
 				typedef TypeList<byte, 
-				        TypeList<Rgb<byte>, 
-						                   Head> > Types;
+						TypeList<Rgb<byte>, 
+						Head> > Types;
 
 			private:
 				std::unique_ptr<ReadPimpl> t;

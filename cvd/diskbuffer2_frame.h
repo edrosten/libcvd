@@ -15,31 +15,31 @@ namespace CVD
 	/// converted (see @link gImageIO Image loading and saving, and format conversion@endlink).
 	/// @ingroup gVideoFrame
 	template<typename T> 
-	class DiskBuffer2Frame : public CVD::LocalVideoFrame<T>
+		class DiskBuffer2Frame : public CVD::LocalVideoFrame<T>
 	{
-			/// Allow DiskBuffer2 to create a DiskBuffer2Frame
-			friend class CVD::DiskBuffer2<T>;
+		/// Allow DiskBuffer2 to create a DiskBuffer2Frame
+		friend class CVD::DiskBuffer2<T>;
 		public:		
 
-			/// What is the filename for this image?
-			const std::string& name() {return frame_name;};
+		/// What is the filename for this image?
+		const std::string& name() {return frame_name;};
 
-			/// set the time stamp, required for TimedDiskBuffer2
-			void timestamp( double time ) { this->my_timestamp = time; }
+		/// set the time stamp, required for TimedDiskBuffer2
+		void timestamp( double time ) { this->my_timestamp = time; }
 
 		private:
-			~DiskBuffer2Frame()
-			{
-			}
+		~DiskBuffer2Frame()
+		{
+		}
 
-			DiskBuffer2Frame(double time, CVD::Image<T>&& from_disk, const std::string& file)
+		DiskBuffer2Frame(double time, CVD::Image<T>&& from_disk, const std::string& file)
 			:LocalVideoFrame<T>(time, std::move(from_disk)),frame_name(file)
-			{
-			}	
+		{
+		}	
 
-			
+
 		private:
-			const std::string& frame_name;
+		const std::string& frame_name;
 	};
 }
 

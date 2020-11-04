@@ -6,7 +6,7 @@
 
 namespace CVD
 {
-	
+
 	/// %All exceptions thrown by CVD objects and functions are contained within this namespace.
 	/// @ingroup gException
 	namespace Exceptions
@@ -18,7 +18,7 @@ namespace CVD
 			using std::runtime_error::runtime_error;
 			All() : std::runtime_error("No exception message provided") {}
 			All(const std::string& whatarg)
-			: std::runtime_error(whatarg){}
+				: std::runtime_error(whatarg){}
 		};
 
 		/// Out of memory exception

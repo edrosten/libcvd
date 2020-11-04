@@ -1,15 +1,15 @@
 /*******************************************************************************
-                                                                  
-   LocalVideoFrame - A video frame for when the data is local snd should be
-   					 managed by the program instead of the system. Uses Image
-					 to manage the memory. Programs which will only ever use 
-					 these can be optimized by using the image() methos. These
-					 can be deleted sensibly, but it is not currently allowed, 
-					 to make the interface more consistent.
-                                                               
-   E. Rosten	   - 18 March 2005
-                                                             
-*******************************************************************************/
+
+  LocalVideoFrame - A video frame for when the data is local snd should be
+  managed by the program instead of the system. Uses Image
+  to manage the memory. Programs which will only ever use 
+  these can be optimized by using the image() methos. These
+  can be deleted sensibly, but it is not currently allowed, 
+  to make the interface more consistent.
+
+  E. Rosten	   - 18 March 2005
+
+ *******************************************************************************/
 
 
 #ifndef CVD_LOCALVIDEOFRAME_FRAME_H
@@ -45,9 +45,9 @@ namespace CVD
 			LocalVideoFrame(double time, CVD::Image<T>&& local)
 				:VideoFrame<T>(time, nullptr, local.size()),
 				im(std::move(local))
-			{
-				this->my_data = im.data();
-			}	
+		{
+			this->my_data = im.data();
+		}	
 
 			/// Returns the image. A LocalVideoFrame can be treated just like any other Image
 			/// (for example it can use optimised copying)

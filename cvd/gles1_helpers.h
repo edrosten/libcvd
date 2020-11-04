@@ -27,13 +27,13 @@
 namespace CVD
 {
 
-    /// add a translation specified by an ImageRef
-    /// @param v the translation ImageRef
-    /// @ingroup gGL
-    inline void glTranslate( const ImageRef & v )
-    {
-        glTranslatef(v.x, v.y, 0);
-    }
+	/// add a translation specified by an ImageRef
+	/// @param v the translation ImageRef
+	/// @ingroup gGL
+	inline void glTranslate( const ImageRef & v )
+	{
+		glTranslatef(v.x, v.y, 0);
+	}
 
 	/// add a translation specified from the first three coordinates of a vector
 	/// @param v the translation vector
@@ -110,56 +110,56 @@ namespace CVD
 	/// @param so3 the SO3
 	/// @ingroup gGL
 	template <typename P>
-	inline void glMultMatrix( const TooN::SO3<P> & so3 )
-	{
-		glMultMatrix( so3.get_matrix());
-	}
+		inline void glMultMatrix( const TooN::SO3<P> & so3 )
+		{
+			glMultMatrix( so3.get_matrix());
+		}
 
 	/// multiplies a SE3 onto the current matrix stack. This multiplies
 	/// the SO3 and the translation in order.
 	/// @param se3 the SE3
 	/// @ingroup gGL
 	template <typename P>
-	inline void glMultMatrix( const TooN::SE3<P> & se3 )
-	{
-		glTranslate( se3.get_translation());
-		glMultMatrix( se3.get_rotation());
-	}
+		inline void glMultMatrix( const TooN::SE3<P> & se3 )
+		{
+			glTranslate( se3.get_translation());
+			glMultMatrix( se3.get_rotation());
+		}
 
 	/// multiplies a SO2 onto the current matrix stack
 	/// @param so2 the SO2
 	/// @ingroup gGL
 	template <typename P>
-	inline void glMultMatrix( const TooN::SO2<P> & so2 )
-	{
-		glMultMatrix( so2.get_matrix());
-	}
+		inline void glMultMatrix( const TooN::SO2<P> & so2 )
+		{
+			glMultMatrix( so2.get_matrix());
+		}
 
 	/// multiplies a SE2 onto the current matrix stack. This multiplies
 	/// the SO2 and the translation in order.
 	/// @param se3 the SE2
 	/// @ingroup gGL
 	template <typename P>
-	inline void glMultMatrix( const TooN::SE2<P> & se2 )
-	{
-		glTranslate( se2.get_translation());
-		glMultMatrix( se2.get_rotation());
-	}
+		inline void glMultMatrix( const TooN::SE2<P> & se2 )
+		{
+			glTranslate( se2.get_translation());
+			glMultMatrix( se2.get_rotation());
+		}
 
 	/// Sets up an ortho projection suitable for drawing onto individual pixels of a
 	/// gl window (or video image.) glVertex2f(0.0,0.0) will be the top left pixel and
 	/// glVertex2f(xsize-1.0, ysize-1.0) will be the bottom right pixel. Depth is set
 	/// from -1 to 1.
-        /// n.b. You first need to set up the matrix environment yourself,
+	/// n.b. You first need to set up the matrix environment yourself,
 	/// e.g. glMatrixMode(GL_PROJECTION); glLoadIdentity();
 	/// @param size ImageRef containing the size of the GL window.
 	template <typename P> inline void glOrtho( const CVD::ImageRef & size, const P nearPlane = -1.0, const P farPlane = 1.0)
 	{
-	    ::glOrthof( -0.375, size.x - 0.375, size.y - 0.375, -0.375, nearPlane, farPlane );
+		::glOrthof( -0.375, size.x - 0.375, size.y - 0.375, -0.375, nearPlane, farPlane );
 	}
 
 	/// Sets up an ortho projection from a simple Vector<6>
-        /// n.b. You first need to set up the matrix environment yourself,
+	/// n.b. You first need to set up the matrix environment yourself,
 	/// e.g. glMatrixMode(GL_PROJECTION); glLoadIdentity();
 	/// @param param 6-vector containing the parameters of the projection
 	template <typename P, typename A> inline void glOrtho( const TooN::Vector<6, P, A> & param)
@@ -180,15 +180,15 @@ namespace CVD
 	/// @param far far clipping plane
 	/// @ingroup gGL
 	template <typename P, typename A>
-	inline void glFrustum( const TooN::Vector<4, P, A> & params, const float width, const float height, const float nearPlane = 0.1, const float farPlane = 100)
-	{
-		GLfloat left, right, bottom, top;
-		left = -nearPlane * params[2] / params[0];
-		top = nearPlane * params[3] / params[1];
-		right = nearPlane * ( width - params[2] ) / params[0];
-		bottom = - nearPlane * ( height - params[3] ) / params[1];
-		::glFrustumf( left, right, bottom, top, nearPlane, farPlane );
-	}
+		inline void glFrustum( const TooN::Vector<4, P, A> & params, const float width, const float height, const float nearPlane = 0.1, const float farPlane = 100)
+		{
+			GLfloat left, right, bottom, top;
+			left = -nearPlane * params[2] / params[0];
+			top = nearPlane * params[3] / params[1];
+			right = nearPlane * ( width - params[2] ) / params[0];
+			bottom = - nearPlane * ( height - params[3] ) / params[1];
+			::glFrustumf( left, right, bottom, top, nearPlane, farPlane );
+		}
 
 	/// sets a gl frustum taking the first 4 parameters from the camera model. see @see glFrustum for
 	/// details on the created frustum.
@@ -211,7 +211,7 @@ namespace CVD
 	{
 		::glFrustumf( param[0], param[1], param[2], param[3], param[4], param[5]);
 	}
-    
+
 	/// Set the new colour to the red, green and blue components given in the Vector
 	/// (where 0.0 represents zero intensity and 1.0 full intensity)
 	/// @param v The new colour
@@ -229,7 +229,7 @@ namespace CVD
 	{
 		glColor4f(v[0], v[1], v[2], v[3]);
 	}
-    
+
 	/// Set the new clear colour to the red, green, blue and alpha components given in the Vector
 	/// (where 0.0 represents zero intensity and 1.0 full intensity)
 	/// @param v The new colour
@@ -254,10 +254,10 @@ namespace CVD
 	template <typename P, typename A> inline void glColor(const TooN::Vector<-1, P, A> & v)
 	{
 		switch(v.size()){
-		case 3: glColor4f(v[0], v[1], v[2], 1);
-			break;
-		case 4: glColor4f(v[0], v[1], v[2], v[3]);
-			break;
+			case 3: glColor4f(v[0], v[1], v[2], 1);
+					break;
+			case 4: glColor4f(v[0], v[1], v[2], v[3]);
+					break;
 		}
 	}
 
@@ -270,7 +270,7 @@ namespace CVD
 		glColor4ub(c.red, c.green, c.blue, 255);
 	}
 
- 	/// Set the new colour to the red, green and blue components given
+	/// Set the new colour to the red, green and blue components given
 	/// (where 0.0 represents zero intensity and 1.0 full intensity)
 	/// @param c The new colour
 	///@ingroup gGL
@@ -279,7 +279,7 @@ namespace CVD
 		glColor4f(c.red, c.green, c.blue, 1);
 	}
 
- 	/// Set the new colour to the red, green and blue components given
+	/// Set the new colour to the red, green and blue components given
 	/// (where 0.0 represents zero intensity and 255 full intensity). The Rgb8::dummy member is ignored
 	/// @param c The new colour
 	///@ingroup gGL
@@ -288,7 +288,7 @@ namespace CVD
 		glColor4ub(c.red, c.green, c.blue, 255);
 	}
 
- 	/// Set the new colour to the red, green, blue and alpha components given
+	/// Set the new colour to the red, green, blue and alpha components given
 	/// (where 0.0 represents zero intensity and 255 full intensity)
 	/// @param c The new colour
 	///@ingroup gGL
@@ -297,7 +297,7 @@ namespace CVD
 		glColor4ub(c.red, c.green, c.blue, c.dummy);
 	}
 
- 	/// Set the new colour to the red, green, blue and alpha components given
+	/// Set the new colour to the red, green, blue and alpha components given
 	/// (where 0 represents zero intensity and 255 full intensity)
 	/// @param c The new colour
 	///@ingroup gGL
@@ -306,7 +306,7 @@ namespace CVD
 		glColor4ub(c.red, c.green, c.blue, c.alpha);
 	}
 
- 	/// Set the new colour to the red, green, blue and alpha components given
+	/// Set the new colour to the red, green, blue and alpha components given
 	/// (where 0.0 represents zero intensity and 1.0 full intensity)
 	/// @param c The new colour
 	///@ingroup gGL
@@ -315,7 +315,7 @@ namespace CVD
 		glColor4f(c.red, c.green, c.blue, c.alpha);
 	}
 
- 	/// Read the current image from the colour buffer specified by glReadBuffer
+	/// Read the current image from the colour buffer specified by glReadBuffer
 	/// @param i The image to write the image data into. This must already be initialised to be an BasicImage (or Image) of the right size.
 	/// @param origin The window co-ordinate of the first pixel to be read from the frame buffer
 	///@ingroup gGL
@@ -324,7 +324,7 @@ namespace CVD
 		::glReadPixels(origin.x, origin.y, i.size().x, i.size().y, gl::data<C>::format, gl::data<C>::type, i.data());
 	}
 
- 	/// Read the current image from the colour buffer specified by glReadBuffer
+	/// Read the current image from the colour buffer specified by glReadBuffer
 	/// @param size   The size of the area to read.
 	/// @param origin The window co-ordinate of the first pixel to be read from the frame buffer
 	///@ingroup gGL
@@ -355,48 +355,48 @@ namespace CVD
 		::glTexImage2D(target, level, gl::data<C>::format, i.size().x, i.size().y, border, gl::data<C>::format, gl::data<C>::type, i.data());
 	}
 
-    /// Prints the current errors on the gl error stack
-    ///@ingroup gGL
-    inline void glPrintErrors(void){
-        GLenum code;
-        while((code = glGetError()) != GL_NO_ERROR){
-            std::cout << "GL:" << code << std::endl;
-        }
-    }
+	/// Prints the current errors on the gl error stack
+	///@ingroup gGL
+	inline void glPrintErrors(void){
+		GLenum code;
+		while((code = glGetError()) != GL_NO_ERROR){
+			std::cout << "GL:" << code << std::endl;
+		}
+	}
 
-    /// @defgroup gGLText OpenGL text rendering
-    /// @ingroup gGL
-    /// @{
+	/// @defgroup gGLText OpenGL text rendering
+	/// @ingroup gGL
+	/// @{
 
-    /// sets the font to use for future font rendering commands. currently sans, serif and mono are available.
-    /// @param fontname string containing font name
-    void glSetFont( const std::string & fontname );
+	/// sets the font to use for future font rendering commands. currently sans, serif and mono are available.
+	/// @param fontname string containing font name
+	void glSetFont( const std::string & fontname );
 
-    /// returns the name of the currently active font
-    const std::string & glGetFont();
+	/// returns the name of the currently active font
+	const std::string & glGetFont();
 
-    /// different style for font rendering
-    enum TEXT_STYLE {
-        FILL = 0,       ///< renders glyphs as filled polygons
-        OUTLINE = 1,    ///< renders glyphs as outlines with GL_LINES
-        NICE = 2        ///< renders glyphs filled with antialiased outlines
-    };
+	/// different style for font rendering
+	enum TEXT_STYLE {
+		FILL = 0,       ///< renders glyphs as filled polygons
+		OUTLINE = 1,    ///< renders glyphs as outlines with GL_LINES
+		NICE = 2        ///< renders glyphs filled with antialiased outlines
+	};
 
-    /// renders a string in GL using the current settings.
-    /// Font coordinates are +X along the line and +Y along the up direction of glyphs.
-    /// The origin is at the top baseline at the left of the first character. Characters have a maximum size of 1.
-    /// linefeed is interpreted as a new line and the start is offset in -Y direction by @ref spacing . Individual characters
-    /// are separated by @ref kerning + plus their individual with.
-    /// @param text string to be rendered, unknown characters are replaced with '?'
-    /// @param style rendering style
-    /// @param spacing distance between individual text lines
-    /// @param kerning distance between characters
-    std::pair<double, double> glDrawText(const std::string & text, enum TEXT_STYLE style = NICE, double spacing = 1.5, double kerning = 0.1);
+	/// renders a string in GL using the current settings.
+	/// Font coordinates are +X along the line and +Y along the up direction of glyphs.
+	/// The origin is at the top baseline at the left of the first character. Characters have a maximum size of 1.
+	/// linefeed is interpreted as a new line and the start is offset in -Y direction by @ref spacing . Individual characters
+	/// are separated by @ref kerning + plus their individual with.
+	/// @param text string to be rendered, unknown characters are replaced with '?'
+	/// @param style rendering style
+	/// @param spacing distance between individual text lines
+	/// @param kerning distance between characters
+	std::pair<double, double> glDrawText(const std::string & text, enum TEXT_STYLE style = NICE, double spacing = 1.5, double kerning = 0.1);
 
-    /// returns the size of the bounding box of a text to be rendered, similar to @ref glDrawText but without any visual output
-    std::pair<double, double> glGetExtends(const std::string & text, double spacing = 1.5, double kerning = 0.1);
+	/// returns the size of the bounding box of a text to be rendered, similar to @ref glDrawText but without any visual output
+	std::pair<double, double> glGetExtends(const std::string & text, double spacing = 1.5, double kerning = 0.1);
 
-    ///@}
+	///@}
 
 };
 

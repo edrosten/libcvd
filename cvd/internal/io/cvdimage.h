@@ -14,111 +14,111 @@
 
 namespace CVD
 {
-namespace CVDimage
-{
-
-	using CVD::Internal::TypeList;
-	using CVD::Internal::Head;
-
-
-	class ReadPimpl;
-	class reader
+	namespace CVDimage
 	{
-		public:
-			reader(std::istream&);
-			~reader();
 
-			ImageRef size();
-			bool top_row_first();
-
-			void get_raw_pixel_line(unsigned char*);
-			void get_raw_pixel_line(bayer_bggr*);
-			void get_raw_pixel_line(bayer_rggb*);
-			void get_raw_pixel_line(bayer_grbg*);
-			void get_raw_pixel_line(bayer_gbrg*);
-			void get_raw_pixel_line(Rgb<unsigned char>*);
-			void get_raw_pixel_line(Rgba<unsigned char>*);
-
-			std::string datatype();
-			std::string name();
+		using CVD::Internal::TypeList;
+		using CVD::Internal::Head;
 
 
-			typedef TypeList<byte,
-					TypeList<bayer_bggr, 
-					TypeList<bayer_rggb, 
-					TypeList<bayer_grbg, 
-					TypeList<bayer_gbrg, 
-					TypeList<Rgb<byte>, 
-					TypeList<Rgba<byte>, 
-					Head> > > > > > > Types;
-		
-		private:
-			std::unique_ptr<ReadPimpl> t; 
-	};
+		class ReadPimpl;
+		class reader
+		{
+			public:
+				reader(std::istream&);
+				~reader();
+
+				ImageRef size();
+				bool top_row_first();
+
+				void get_raw_pixel_line(unsigned char*);
+				void get_raw_pixel_line(bayer_bggr*);
+				void get_raw_pixel_line(bayer_rggb*);
+				void get_raw_pixel_line(bayer_grbg*);
+				void get_raw_pixel_line(bayer_gbrg*);
+				void get_raw_pixel_line(Rgb<unsigned char>*);
+				void get_raw_pixel_line(Rgba<unsigned char>*);
+
+				std::string datatype();
+				std::string name();
 
 
-	class WritePimpl;
+				typedef TypeList<byte,
+						TypeList<bayer_bggr, 
+						TypeList<bayer_rggb, 
+						TypeList<bayer_grbg, 
+						TypeList<bayer_gbrg, 
+						TypeList<Rgb<byte>, 
+						TypeList<Rgba<byte>, 
+						Head> > > > > > > Types;
 
-	class writer
-	{
-		public:
-			writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, Parameter<> >& p);
-			~writer();
+			private:
+				std::unique_ptr<ReadPimpl> t; 
+		};
 
-			void write_raw_pixel_line(const byte*);
-			void write_raw_pixel_line(const bayer_bggr*);
-			void write_raw_pixel_line(const bayer_rggb*);
-			void write_raw_pixel_line(const bayer_grbg*);
-			void write_raw_pixel_line(const bayer_gbrg*);
-			void write_raw_pixel_line(const Rgb<byte>*);
-			void write_raw_pixel_line(const Rgba<byte>*);
 
-			template<class Incoming> struct Outgoing
-			{		
-				typedef byte type;
-			};		
+		class WritePimpl;
 
-			static const int top_row_first=1;
-		protected:
-			std::unique_ptr<WritePimpl> t; 
-	};
+		class writer
+		{
+			public:
+				writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, Parameter<> >& p);
+				~writer();
 
-	template <> struct writer::Outgoing<bayer_bggr> 
-	{
-		typedef bayer_bggr type;
-	};
+				void write_raw_pixel_line(const byte*);
+				void write_raw_pixel_line(const bayer_bggr*);
+				void write_raw_pixel_line(const bayer_rggb*);
+				void write_raw_pixel_line(const bayer_grbg*);
+				void write_raw_pixel_line(const bayer_gbrg*);
+				void write_raw_pixel_line(const Rgb<byte>*);
+				void write_raw_pixel_line(const Rgba<byte>*);
 
-	template <> struct writer::Outgoing<bayer_rggb> 
-	{
-		typedef bayer_rggb type;
-	};
+				template<class Incoming> struct Outgoing
+				{		
+					typedef byte type;
+				};		
 
-	template <> struct writer::Outgoing<bayer_grbg> 
-	{
-		typedef bayer_grbg type;
-	};
+				static const int top_row_first=1;
+			protected:
+				std::unique_ptr<WritePimpl> t; 
+		};
 
-	template <> struct writer::Outgoing<bayer_gbrg> 
-	{
-		typedef bayer_gbrg type;
-	};
+		template <> struct writer::Outgoing<bayer_bggr> 
+		{
+			typedef bayer_bggr type;
+		};
 
-	template<class C> struct writer::Outgoing<Rgb<C> > 
-	{
-		typedef Rgb<byte> type;
-	};
+		template <> struct writer::Outgoing<bayer_rggb> 
+		{
+			typedef bayer_rggb type;
+		};
 
-	template<class C> struct writer::Outgoing<Rgba<C> > 
-	{
-		typedef Rgba<byte> type;
-	};
+		template <> struct writer::Outgoing<bayer_grbg> 
+		{
+			typedef bayer_grbg type;
+		};
 
-	template<> struct writer::Outgoing<Rgb8> 
-	{
-		typedef Rgb<byte> type;
-	};
+		template <> struct writer::Outgoing<bayer_gbrg> 
+		{
+			typedef bayer_gbrg type;
+		};
 
-}
+		template<class C> struct writer::Outgoing<Rgb<C> > 
+		{
+			typedef Rgb<byte> type;
+		};
+
+		template<class C> struct writer::Outgoing<Rgba<C> > 
+		{
+			typedef Rgba<byte> type;
+		};
+
+		template<> struct writer::Outgoing<Rgb8> 
+		{
+			typedef Rgb<byte> type;
+		};
+
+	}
 }
 
 #endif
