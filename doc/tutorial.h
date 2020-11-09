@@ -82,9 +82,9 @@ RGB images can be used via CVD#Rgb and RGBA images via CVD#Rgba.
 
 \subsection imagedisplay Basic image visualisation
 @code
+#include <cvd/gl_helpers.h>                 //OpenGL wrappers for various CVD types
 #include <cvd/image_io.h>
 #include <cvd/videodisplay.h>               //Very cheap and cheerful X window with OpenGL capabilities
-#include <cvd/gl_helpers.h>                 //OpenGL wrappers for various CVD types
 using namespace CVD;
 
 int main()
@@ -209,9 +209,9 @@ vector<Image<byte> > some_images(CreateImagesBegin(an_image), CreateImagesEnd(an
 
 Basic video access and display is demonstrated by the following code:
 @code
-#include <cvd/videosource.h>
-#include <cvd/videodisplay.h>
 #include <cvd/gl_helpers.h>
+#include <cvd/videodisplay.h>
+#include <cvd/videosource.h>
 
 using namespace CVD;
 

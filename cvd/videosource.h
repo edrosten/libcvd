@@ -1,443 +1,493 @@
 #ifndef VIDEOSOURCE_H
 #define VIDEOSOURCE_H
 
-#include <iostream>
+#include <cstdlib>
 #include <fstream>
+#include <iostream>
+#include <map>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <cstdlib>
-#include <memory>
-#include <map>
 
 #include <cvd/config.h>
 
 #include <cvd/colourspacebuffer.h>
-#include <cvd/deinterlacebuffer.h>
 #include <cvd/colourspaces.h>
-#include <cvd/videobufferwithdata.h>
+#include <cvd/deinterlacebuffer.h>
 #include <cvd/readaheadvideobuffer.h>
 #include <cvd/video/skipbuffer.h>
+#include <cvd/videobufferwithdata.h>
 
 #include <cvd/diskbuffer2.h>
 #include <cvd/serverpushjpegbuffer.h>
 
-namespace CVD {
-	struct ParseException : public Exceptions::All
+namespace CVD
+{
+struct ParseException : public Exceptions::All
+{
+	ParseException(const std::string& what_)
+	    : Exceptions::All(what_)
 	{
-		ParseException(const std::string& what_) : Exceptions::All(what_) {}
-	};
-
-	struct VideoSourceException : public Exceptions::All
-	{
-		VideoSourceException(const std::string& what_) : Exceptions::All(what_) {}
-	};
-
-	struct VideoSource 
-	{
-		std::string protocol;
-		std::string identifier;
-		typedef std::vector<std::pair<std::string,std::string> > option_list;
-		option_list options;
-	};
-
-	std::ostream& operator<<(std::ostream& out, const VideoSource& vs);
-
-	void parse(std::istream& in, VideoSource& vs);
-	template <class T> VideoBuffer<T>* open_video_source(const std::string& src);
-
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	// Server push JPEG buffer
-	//
-
-	template<class T, bool Implemented = Pixel::DefaultConvertible<T>::is> struct makeJPEGStream
-	{
-		static VideoBuffer<T>* make(const std::string& filename)
-		{
-			using std::unique_ptr;
-			using std::ifstream;
-			using std::make_unique;
-
-			unique_ptr<std::ifstream> stream  = std::make_unique<ifstream>(filename);
-			unique_ptr<VideoBuffer<T>> buf = make_unique<ServerPushJpegBuffer<T>>(*stream);
-
-			return new VideoBufferWithData<T, std::ifstream>(buf, stream);
-		}
-	};
-
-	template<class T> struct makeJPEGStream<T, false>
-	{
-		static VideoBuffer<T>* make(const std::string&)
-		{
-			throw VideoSourceException("ServerPushJpegBuffer cannot handle type " + PNM::type_name<T>::name());
-		}
-	};
-
-	void get_jpegstream_options(const VideoSource& vs, int& fps);
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	// Deinterlace buffer
-	//
-	void get_deinterlace_options(const VideoSource& vs, DeinterlaceBufferFields::Fields& fields, bool&);
-
-
-	namespace Internal{
-		template<class T> struct CanDeinterlace
-		{
-			static const bool can = std::numeric_limits<T>::is_specialized;
-		};
-
-		template<class T> struct CanDeinterlace<Rgb<T> >
-		{
-			static const bool can = CanDeinterlace<T>::can;
-		};
-	};
-
-	template<class T,  bool B = Internal::CanDeinterlace<T>::can> struct makeDeinterlaceBuffer
-	{
-		static VideoBuffer<T>* make(DeinterlaceBufferFields::Fields f, bool& linedouble, const std::string& url)
-		{
-			auto source  = std::unique_ptr<VideoBuffer<T>>(open_video_source<T>(url));
-			std::unique_ptr<VideoBuffer<T>> buf = std::make_unique<DeinterlaceBuffer<T>>(*source, f, linedouble);
-			return new VideoBufferWithData<T, VideoBuffer<T> >(buf, source);
-		}
-	};
-
-	template<class T> struct makeDeinterlaceBuffer<T, 0>
-	{
-		static VideoBuffer<T>* make(DeinterlaceBufferFields::Fields, bool&, const std::string&)
-		{
-			throw  VideoSourceException("DeinterlaceBuffer cannot handle input type");
-		}
-	};
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	// Colourspace conversion buffer
-	//
-
-	void get_skip_options(const VideoSource& vs, bool& do_seek, double& seek, int& drop);
-	template<class T> struct makeSkipBuffer
-	{
-		static VideoBuffer<T>* make(bool do_seek, double seek, int drop, const std::string& url)
-		{
-			auto source  = std::unique_ptr<VideoBuffer<T>>(open_video_source<T>(url));
-			std::unique_ptr<VideoBuffer<T>> buf = std::make_unique<SkipBuffer<T>>(*source, do_seek, seek, drop);
-			return new VideoBufferWithData<T, VideoBuffer<T> >(buf, source);
-		}
-	};
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	// Colourspace conversion buffer
-	//
-
-	void get_colourspace_options(const VideoSource& vs, std::string& from);
-
-	template<class Out, class In, bool can_convert> struct MakeConverter{
-		static VideoBuffer<Out>* make(const std::string& r)
-		{
-			std::unique_ptr<VideoBuffer<In>> buf  { open_video_source<In>(r) };
-
-			std::unique_ptr<VideoBuffer<Out>> cvt =  std::make_unique<ColourspaceBuffer<Out, In>>(*buf);
-			return new VideoBufferWithData<Out, VideoBuffer<In> >(cvt, buf);
-		}
-	};
-
-	template<class Out, class In> struct MakeConverter<Out, In, false>
-	{
-		static VideoBuffer<Out>* make(const std::string&)
-		{
-			throw VideoSourceException("ColorspaceBuffer cannot convert from " + PNM::type_name<In>::name() + " to " + PNM::type_name<Out>::name());
-		}
-	};
-
-	template<class T> struct MakeConverter<T, T, true>{
-		static VideoBuffer<T>* make(const std::string& r)
-		{
-			return open_video_source<T>(r);
-		}
-	};
-
-	template<class Out, class In> VideoBuffer<Out>* makeConvertBufferBit(const std::string& r)
-	{
-		return MakeConverter<Out, In, IsConvertible<In, Out>::is >::make(r);
-	};
-
-	template<class T> VideoBuffer<T>* makeColourspaceBuffer(const std::string& c, const std::string& r)
-	{
-
-		if(c == "byte" || c == "mono" || c == "gray" || c == "grey")
-			return makeConvertBufferBit<T, byte>(r);
-		else if(c == "rgb<byte>" || c == "rgb")
-			return makeConvertBufferBit<T, Rgb<byte> >(r);
-		//else if(c == "yuv411")
-		//return makeConvertBufferBit<T, yuv411>(r);
-		else if(c == "yuv422")
-			return makeConvertBufferBit<T, yuv422>(r);
-		else if(c == "yuv420p")
-			return makeConvertBufferBit<T, yuv420p>(r);
-		else if(c == "vuy422")
-			return makeConvertBufferBit<T, vuy422>(r);
-		else if(c == "bayer_bggr")
-			return makeConvertBufferBit<T, bayer_bggr>(r);
-		else if(c == "bayer_gbrg")
-			return makeConvertBufferBit<T, bayer_gbrg>(r);
-		else if(c == "bayer_grbg")
-			return makeConvertBufferBit<T, bayer_grbg>(r);
-		else if(c == "bayer_rggb")
-			return makeConvertBufferBit<T, bayer_rggb>(r);
-		else if(c == "bayer_bggr16be")
-			return makeConvertBufferBit<T, bayer_bggr16be>(r);
-		else if(c == "bayer_gbrg16be")
-			return makeConvertBufferBit<T, bayer_gbrg16be>(r);
-		else if(c == "bayer_grbg16be")
-			return makeConvertBufferBit<T, bayer_grbg16be>(r);
-		else if(c == "bayer_rggb16be")
-			return makeConvertBufferBit<T, bayer_rggb16be>(r);
-		else
-			throw  VideoSourceException("ColorspaceBuffer cannot handle type " + c);
 	}
+};
 
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	// DiskBuffer2 buffer
-	//
+struct VideoSourceException : public Exceptions::All
+{
+	VideoSourceException(const std::string& what_)
+	    : Exceptions::All(what_)
+	{
+	}
+};
 
-	// This has to be done with conditional compilation.
+struct VideoSource
+{
+	std::string protocol;
+	std::string identifier;
+	typedef std::vector<std::pair<std::string, std::string>> option_list;
+	option_list options;
+};
 
+std::ostream& operator<<(std::ostream& out, const VideoSource& vs);
+
+void parse(std::istream& in, VideoSource& vs);
+template <class T>
+VideoBuffer<T>* open_video_source(const std::string& src);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Server push JPEG buffer
+//
+
+template <class T, bool Implemented = Pixel::DefaultConvertible<T>::is>
+struct makeJPEGStream
+{
+	static VideoBuffer<T>* make(const std::string& filename)
+	{
+		using std::ifstream;
+		using std::make_unique;
+		using std::unique_ptr;
+
+		unique_ptr<std::ifstream> stream = std::make_unique<ifstream>(filename);
+		unique_ptr<VideoBuffer<T>> buf = make_unique<ServerPushJpegBuffer<T>>(*stream);
+
+		return new VideoBufferWithData<T, std::ifstream>(buf, stream);
+	}
+};
+
+template <class T>
+struct makeJPEGStream<T, false>
+{
+	static VideoBuffer<T>* make(const std::string&)
+	{
+		throw VideoSourceException("ServerPushJpegBuffer cannot handle type " + PNM::type_name<T>::name());
+	}
+};
+
+void get_jpegstream_options(const VideoSource& vs, int& fps);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Deinterlace buffer
+//
+void get_deinterlace_options(const VideoSource& vs, DeinterlaceBufferFields::Fields& fields, bool&);
+
+namespace Internal
+{
+	template <class T>
+	struct CanDeinterlace
+	{
+		static const bool can = std::numeric_limits<T>::is_specialized;
+	};
+
+	template <class T>
+	struct CanDeinterlace<Rgb<T>>
+	{
+		static const bool can = CanDeinterlace<T>::can;
+	};
+};
+
+template <class T, bool B = Internal::CanDeinterlace<T>::can>
+struct makeDeinterlaceBuffer
+{
+	static VideoBuffer<T>* make(DeinterlaceBufferFields::Fields f, bool& linedouble, const std::string& url)
+	{
+		auto source = std::unique_ptr<VideoBuffer<T>>(open_video_source<T>(url));
+		std::unique_ptr<VideoBuffer<T>> buf = std::make_unique<DeinterlaceBuffer<T>>(*source, f, linedouble);
+		return new VideoBufferWithData<T, VideoBuffer<T>>(buf, source);
+	}
+};
+
+template <class T>
+struct makeDeinterlaceBuffer<T, 0>
+{
+	static VideoBuffer<T>* make(DeinterlaceBufferFields::Fields, bool&, const std::string&)
+	{
+		throw VideoSourceException("DeinterlaceBuffer cannot handle input type");
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Colourspace conversion buffer
+//
+
+void get_skip_options(const VideoSource& vs, bool& do_seek, double& seek, int& drop);
+template <class T>
+struct makeSkipBuffer
+{
+	static VideoBuffer<T>* make(bool do_seek, double seek, int drop, const std::string& url)
+	{
+		auto source = std::unique_ptr<VideoBuffer<T>>(open_video_source<T>(url));
+		std::unique_ptr<VideoBuffer<T>> buf = std::make_unique<SkipBuffer<T>>(*source, do_seek, seek, drop);
+		return new VideoBufferWithData<T, VideoBuffer<T>>(buf, source);
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Colourspace conversion buffer
+//
+
+void get_colourspace_options(const VideoSource& vs, std::string& from);
+
+template <class Out, class In, bool can_convert>
+struct MakeConverter
+{
+	static VideoBuffer<Out>* make(const std::string& r)
+	{
+		std::unique_ptr<VideoBuffer<In>> buf { open_video_source<In>(r) };
+
+		std::unique_ptr<VideoBuffer<Out>> cvt = std::make_unique<ColourspaceBuffer<Out, In>>(*buf);
+		return new VideoBufferWithData<Out, VideoBuffer<In>>(cvt, buf);
+	}
+};
+
+template <class Out, class In>
+struct MakeConverter<Out, In, false>
+{
+	static VideoBuffer<Out>* make(const std::string&)
+	{
+		throw VideoSourceException("ColorspaceBuffer cannot convert from " + PNM::type_name<In>::name() + " to " + PNM::type_name<Out>::name());
+	}
+};
+
+template <class T>
+struct MakeConverter<T, T, true>
+{
+	static VideoBuffer<T>* make(const std::string& r)
+	{
+		return open_video_source<T>(r);
+	}
+};
+
+template <class Out, class In>
+VideoBuffer<Out>* makeConvertBufferBit(const std::string& r)
+{
+	return MakeConverter<Out, In, IsConvertible<In, Out>::is>::make(r);
+};
+
+template <class T>
+VideoBuffer<T>* makeColourspaceBuffer(const std::string& c, const std::string& r)
+{
+
+	if(c == "byte" || c == "mono" || c == "gray" || c == "grey")
+		return makeConvertBufferBit<T, byte>(r);
+	else if(c == "rgb<byte>" || c == "rgb")
+		return makeConvertBufferBit<T, Rgb<byte>>(r);
+	//else if(c == "yuv411")
+	//return makeConvertBufferBit<T, yuv411>(r);
+	else if(c == "yuv422")
+		return makeConvertBufferBit<T, yuv422>(r);
+	else if(c == "yuv420p")
+		return makeConvertBufferBit<T, yuv420p>(r);
+	else if(c == "vuy422")
+		return makeConvertBufferBit<T, vuy422>(r);
+	else if(c == "bayer_bggr")
+		return makeConvertBufferBit<T, bayer_bggr>(r);
+	else if(c == "bayer_gbrg")
+		return makeConvertBufferBit<T, bayer_gbrg>(r);
+	else if(c == "bayer_grbg")
+		return makeConvertBufferBit<T, bayer_grbg>(r);
+	else if(c == "bayer_rggb")
+		return makeConvertBufferBit<T, bayer_rggb>(r);
+	else if(c == "bayer_bggr16be")
+		return makeConvertBufferBit<T, bayer_bggr16be>(r);
+	else if(c == "bayer_gbrg16be")
+		return makeConvertBufferBit<T, bayer_gbrg16be>(r);
+	else if(c == "bayer_grbg16be")
+		return makeConvertBufferBit<T, bayer_grbg16be>(r);
+	else if(c == "bayer_rggb16be")
+		return makeConvertBufferBit<T, bayer_rggb16be>(r);
+	else
+		throw VideoSourceException("ColorspaceBuffer cannot handle type " + c);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// DiskBuffer2 buffer
+//
+
+// This has to be done with conditional compilation.
 
 #ifdef CVD_HAVE_GLOB
-	template<class T, bool Implemented = Pixel::DefaultConvertible<T>::is> struct makeDiskBuffer2
+template <class T, bool Implemented = Pixel::DefaultConvertible<T>::is>
+struct makeDiskBuffer2
+{
+	static VideoBuffer<T>* make(const std::string& files, double fps, VideoBufferFlags::OnEndOfBuffer eob)
 	{
-		static VideoBuffer<T>* make(const std::string& files, double fps, VideoBufferFlags::OnEndOfBuffer eob)
-		{
-			return new DiskBuffer2<T>(globlist(files), fps, eob);    
-		}
-	};
+		return new DiskBuffer2<T>(globlist(files), fps, eob);
+	}
+};
 
-	template<class T> struct makeDiskBuffer2<T, false>
+template <class T>
+struct makeDiskBuffer2<T, false>
+{
+	static VideoBuffer<T>* make(const std::string&, double, VideoBufferFlags::OnEndOfBuffer)
 	{
-		static VideoBuffer<T>* make(const std::string& , double , VideoBufferFlags::OnEndOfBuffer)
-		{
-			throw VideoSourceException("DiskBuffer2 cannot handle type " + PNM::type_name<T>::name());
-		}
-	};
+		throw VideoSourceException("DiskBuffer2 cannot handle type " + PNM::type_name<T>::name());
+	}
+};
 
 #else
-	template<class T, bool Implemented = 0> struct makeDiskBuffer2
+template <class T, bool Implemented = 0>
+struct makeDiskBuffer2
+{
+	static VideoBuffer<T>* make(const std::string&, double, VideoBufferFlags::OnEndOfBuffer)
 	{
-		static VideoBuffer<T>* make(const std::string& , double , VideoBufferFlags::OnEndOfBuffer)
-		{
-			throw VideoSourceException("DiskBuffer2 (shell glob expansion) is not compiled in to libcvd.");
-		}
-	};
+		throw VideoSourceException("DiskBuffer2 (shell glob expansion) is not compiled in to libcvd.");
+	}
+};
 #endif
 
-	void get_files_options(const VideoSource& vs, int& fps, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob);
+void get_files_options(const VideoSource& vs, int& fps, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob);
 
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	// v4l buffer
-	//
+////////////////////////////////////////////////////////////////////////////////
+//
+// v4l buffer
+//
 
-	template <class T> VideoBuffer<T>* makeV4LBuffer(const std::string&, const ImageRef&, int, bool, bool)
+template <class T>
+VideoBuffer<T>* makeV4LBuffer(const std::string&, const ImageRef&, int, bool, bool)
+{
+	throw VideoSourceException("V4LBuffer cannot handle types other than byte, bayer, yuv422, vuy422, Rgb<byte>");
+}
+
+template <>
+VideoBuffer<byte>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
+template <>
+VideoBuffer<bayer_grbg>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
+template <>
+VideoBuffer<yuv422>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
+template <>
+VideoBuffer<vuy422>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
+template <>
+VideoBuffer<yuv420p>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
+template <>
+VideoBuffer<Rgb<byte>>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
+template <>
+VideoBuffer<Rgb8>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
+
+void get_v4l2_options(const VideoSource& vs, ImageRef& size, int& input, bool& interlaced, bool& verbose);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// uvc buffer
+//
+
+template <class T>
+VideoBuffer<T>* makeUVCBuffer(const std::string&, const ImageRef&, double, bool, bool)
+{
+	throw VideoSourceException("UVCBuffer cannot handle types other than yuv422, or Rgb<byte>");
+}
+
+template <>
+VideoBuffer<yuv422>* makeUVCBuffer(const std::string& dev, const ImageRef& size, double fps, bool mjpeg, bool verbose);
+template <>
+VideoBuffer<Rgb<byte>>* makeUVCBuffer(const std::string& dev, const ImageRef& size, double fps, bool mjpeg, bool verbose);
+
+void get_uvc_options(const VideoSource& vs, ImageRef& size, double& fps, bool& mjpeg, bool& verbose);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// video file buffer
+//
+
+template <class T>
+VideoBuffer<T>* makeVideoFileBuffer(const std::string&, VideoBufferFlags::OnEndOfBuffer, bool, const std::string&, const std::map<std::string, std::string>&)
+{
+	throw VideoSourceException("VideoFileBuffer cannot handle types other than byte, Rgb<byte>");
+}
+
+template <>
+VideoBuffer<byte>* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose, const std::string& formatname, const std::map<std::string, std::string>&);
+template <>
+VideoBuffer<Rgb<byte>>* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose, const std::string& formatname, const std::map<std::string, std::string>&);
+
+void get_file_options(const VideoSource& vs, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob, bool& verbose, std::string& formatname, std::map<std::string, std::string>&);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// DC1394 buffer
+//
+template <class T>
+VideoBuffer<T>* makeDVBuffer2(int, ImageRef, float, ImageRef, bool, bool, int)
+{
+	throw VideoSourceException("DVBuffer2 cannot handle " + PNM::type_name<T>::name());
+}
+
+template <>
+VideoBuffer<byte>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
+template <>
+VideoBuffer<unsigned short>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
+//template <> VideoBuffer<yuv411>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
+template <>
+VideoBuffer<yuv422>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
+template <>
+VideoBuffer<Rgb<byte>>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
+template <>
+VideoBuffer<bayer_bggr>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
+template <>
+VideoBuffer<bayer_gbrg>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
+template <>
+VideoBuffer<bayer_grbg>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
+template <>
+VideoBuffer<bayer_rggb>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
+template <>
+VideoBuffer<bayer_bggr16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
+template <>
+VideoBuffer<bayer_gbrg16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
+template <>
+VideoBuffer<bayer_grbg16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
+template <>
+VideoBuffer<bayer_rggb16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
+
+void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset, bool& verbose, bool& bus_reset, int& format7_mode);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// video source handler
+//
+
+template <class T>
+VideoBuffer<T>* open_video_source(const VideoSource& vs)
+{
+	if(vs.protocol == "jpegstream")
 	{
-		throw VideoSourceException("V4LBuffer cannot handle types other than byte, bayer, yuv422, vuy422, Rgb<byte>");
-	}
+		int ra_frames = 0;
+		get_jpegstream_options(vs, ra_frames);
 
-	template <> VideoBuffer<byte>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
-	template <> VideoBuffer<bayer_grbg>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
-	template <> VideoBuffer<yuv422>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
-	template <> VideoBuffer<vuy422>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
-	template <> VideoBuffer<yuv420p>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
-	template <> VideoBuffer<Rgb<byte> >* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
-	template <> VideoBuffer<Rgb8>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose);
+		std::unique_ptr<VideoBuffer<T>> jpeg_buffer(makeJPEGStream<T>::make(vs.identifier));
 
-	void get_v4l2_options(const VideoSource& vs, ImageRef& size, int& input, bool& interlaced, bool& verbose);
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	// uvc buffer
-	//
-
-	template <class T> VideoBuffer<T>* makeUVCBuffer(const std::string&, const ImageRef&, double, bool, bool)
-	{
-		throw VideoSourceException("UVCBuffer cannot handle types other than yuv422, or Rgb<byte>");
-	}
-
-	template <> VideoBuffer<yuv422>* makeUVCBuffer(const std::string& dev, const ImageRef& size, double fps, bool mjpeg, bool verbose);
-	template <> VideoBuffer<Rgb<byte> >* makeUVCBuffer(const std::string& dev, const ImageRef& size, double fps, bool mjpeg, bool verbose);
-
-	void get_uvc_options(const VideoSource& vs, ImageRef& size, double& fps, bool& mjpeg, bool& verbose);
-
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	// video file buffer
-	//
-
-	template <class T> VideoBuffer<T>* makeVideoFileBuffer(const std::string& , VideoBufferFlags::OnEndOfBuffer, bool, const std::string&, const std::map<std::string,std::string>&)
-	{
-		throw VideoSourceException("VideoFileBuffer cannot handle types other than byte, Rgb<byte>");
-	}
-
-	template <> VideoBuffer<byte>* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose, const std::string& formatname, const std::map<std::string,std::string>&);
-	template <> VideoBuffer<Rgb<byte> >* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose, const std::string& formatname, const std::map<std::string,std::string>&);
-
-	void get_file_options(const VideoSource& vs, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob, bool& verbose, std::string& formatname, std::map<std::string,std::string>&);
-
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	// DC1394 buffer
-	//
-	template <class T> VideoBuffer<T>* makeDVBuffer2(int , ImageRef , float , ImageRef, bool, bool, int)
-	{
-		throw VideoSourceException("DVBuffer2 cannot handle " + PNM::type_name<T>::name());
-	}
-
-	template <> VideoBuffer<byte>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
-	template <> VideoBuffer<unsigned short>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
-	//template <> VideoBuffer<yuv411>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
-	template <> VideoBuffer<yuv422>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
-	template <> VideoBuffer<Rgb<byte> >* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
-	template <> VideoBuffer<bayer_bggr>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
-	template <> VideoBuffer<bayer_gbrg>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
-	template <> VideoBuffer<bayer_grbg>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
-	template <> VideoBuffer<bayer_rggb>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
-	template <> VideoBuffer<bayer_bggr16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
-	template <> VideoBuffer<bayer_gbrg16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
-	template <> VideoBuffer<bayer_grbg16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
-	template <> VideoBuffer<bayer_rggb16be>* makeDVBuffer2(int cam, ImageRef size, float fps, ImageRef offset, bool verbose, bool bus_reset, int format7_mode);
-
-	void get_dc1394_options(const VideoSource& vs, ImageRef& size, float& fps, ImageRef& offset, bool& verbose, bool& bus_reset, int& format7_mode);
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	// video source handler
-	//
-
-	template <class T> VideoBuffer<T>* open_video_source(const VideoSource& vs)
-	{
-		if(vs.protocol == "jpegstream")
-		{
-			int ra_frames=0;
-			get_jpegstream_options(vs, ra_frames);
-
-			std::unique_ptr<VideoBuffer<T> > jpeg_buffer(makeJPEGStream<T>::make(vs.identifier));
-
-			if(ra_frames == 0)
-				return jpeg_buffer.release();
-			else
-			{
-				std::unique_ptr<VideoBuffer<T>> b = std::make_unique<ReadAheadVideoBuffer<T>>(*(jpeg_buffer.get()), ra_frames);
-				return new VideoBufferWithData<T, VideoBuffer<T> >(b, jpeg_buffer);
-			}
-		}
-		else if(vs.protocol == "deinterlace")
-		{
-			DeinterlaceBufferFields::Fields f=DeinterlaceBufferFields::OddEven;
-			bool linedouble=false;
-
-			get_deinterlace_options(vs, f, linedouble);
-
-			return makeDeinterlaceBuffer<T>::make(f, linedouble, vs.identifier);
-		}
-		else if(vs.protocol == "skip")
-		{
-			double seek=0;
-			bool do_seek=0;
-			int drop=0;
-
-			get_skip_options(vs, do_seek, seek, drop);
-
-			return makeSkipBuffer<T>::make(do_seek, seek, drop, vs.identifier);
-		}
-		else if(vs.protocol == "colourspace" || vs.protocol == "colorspace")
-		{
-			std::string from = "byte";
-			get_colourspace_options(vs, from);
-
-			return makeColourspaceBuffer<T>(from, vs.identifier);
-		}
-		else if (vs.protocol == "files") {
-			int fps, ra_frames=0;
-			VideoBufferFlags::OnEndOfBuffer eob;
-			get_files_options(vs, fps, ra_frames, eob);
-			VideoBuffer<T>* vb = makeDiskBuffer2<T>::make(vs.identifier, fps, eob);
-			if (ra_frames)
-				vb = new ReadAheadVideoBuffer<T>(*vb, ra_frames);
-			return vb;
-		}
-		else if (vs.protocol == "v4l2") {
-			ImageRef size;
-			int input;
-			bool interlaced, verbose;
-			get_v4l2_options(vs, size, input, interlaced, verbose);
-			return makeV4LBuffer<T>(vs.identifier, size, input, interlaced, verbose);	
-		} 
-		else if (vs.protocol == "uvc") {
-			ImageRef size;
-			bool mjpeg, verbose;
-			double fps;
-			get_uvc_options(vs, size, fps, mjpeg, verbose);
-			return makeUVCBuffer<T>(vs.identifier, size, fps, mjpeg, verbose);	
-		} 
-		else if (vs.protocol == "dc1394") {
-			int cam_no = atoi(vs.identifier.c_str());
-			ImageRef size, offset;
-			float fps;
-			bool verbose;
-			bool bus_reset;
-			int  format7_mode;
-			get_dc1394_options(vs, size, fps, offset, verbose, bus_reset, format7_mode);
-			return makeDVBuffer2<T>(cam_no, size, fps, offset, verbose, bus_reset, format7_mode);
-		} 
-		else if (vs.protocol == "file" || vs.protocol == "ffmpeg") {
-			int ra_frames = 0;
-			VideoBufferFlags::OnEndOfBuffer eob;
-			bool verbose=0;
-			std::string formatname ="";
-			std::map<std::string,std::string> opts;
-			get_file_options(vs, ra_frames, eob, verbose, formatname, opts);
-			VideoBuffer<T>* vb = makeVideoFileBuffer<T>(vs.identifier, eob, verbose, formatname, opts);
-			if (ra_frames)
-				vb = new ReadAheadVideoBuffer<T>(*vb, ra_frames);
-			return vb;
-		} 
+		if(ra_frames == 0)
+			return jpeg_buffer.release();
 		else
-			throw VideoSourceException("undefined video source protocol: '" + vs.protocol + "'\n\t valid protocols: "
-					"colourspace, jpegstream, "
-					"file, "
-					"v4l2, "
-					"dc1394, "
-					"files, "
-					"uvc"
-					);
+		{
+			std::unique_ptr<VideoBuffer<T>> b = std::make_unique<ReadAheadVideoBuffer<T>>(*(jpeg_buffer.get()), ra_frames);
+			return new VideoBufferWithData<T, VideoBuffer<T>>(b, jpeg_buffer);
+		}
 	}
+	else if(vs.protocol == "deinterlace")
+	{
+		DeinterlaceBufferFields::Fields f = DeinterlaceBufferFields::OddEven;
+		bool linedouble = false;
 
-	/**
+		get_deinterlace_options(vs, f, linedouble);
+
+		return makeDeinterlaceBuffer<T>::make(f, linedouble, vs.identifier);
+	}
+	else if(vs.protocol == "skip")
+	{
+		double seek = 0;
+		bool do_seek = 0;
+		int drop = 0;
+
+		get_skip_options(vs, do_seek, seek, drop);
+
+		return makeSkipBuffer<T>::make(do_seek, seek, drop, vs.identifier);
+	}
+	else if(vs.protocol == "colourspace" || vs.protocol == "colorspace")
+	{
+		std::string from = "byte";
+		get_colourspace_options(vs, from);
+
+		return makeColourspaceBuffer<T>(from, vs.identifier);
+	}
+	else if(vs.protocol == "files")
+	{
+		int fps, ra_frames = 0;
+		VideoBufferFlags::OnEndOfBuffer eob;
+		get_files_options(vs, fps, ra_frames, eob);
+		VideoBuffer<T>* vb = makeDiskBuffer2<T>::make(vs.identifier, fps, eob);
+		if(ra_frames)
+			vb = new ReadAheadVideoBuffer<T>(*vb, ra_frames);
+		return vb;
+	}
+	else if(vs.protocol == "v4l2")
+	{
+		ImageRef size;
+		int input;
+		bool interlaced, verbose;
+		get_v4l2_options(vs, size, input, interlaced, verbose);
+		return makeV4LBuffer<T>(vs.identifier, size, input, interlaced, verbose);
+	}
+	else if(vs.protocol == "uvc")
+	{
+		ImageRef size;
+		bool mjpeg, verbose;
+		double fps;
+		get_uvc_options(vs, size, fps, mjpeg, verbose);
+		return makeUVCBuffer<T>(vs.identifier, size, fps, mjpeg, verbose);
+	}
+	else if(vs.protocol == "dc1394")
+	{
+		int cam_no = atoi(vs.identifier.c_str());
+		ImageRef size, offset;
+		float fps;
+		bool verbose;
+		bool bus_reset;
+		int format7_mode;
+		get_dc1394_options(vs, size, fps, offset, verbose, bus_reset, format7_mode);
+		return makeDVBuffer2<T>(cam_no, size, fps, offset, verbose, bus_reset, format7_mode);
+	}
+	else if(vs.protocol == "file" || vs.protocol == "ffmpeg")
+	{
+		int ra_frames = 0;
+		VideoBufferFlags::OnEndOfBuffer eob;
+		bool verbose = 0;
+		std::string formatname = "";
+		std::map<std::string, std::string> opts;
+		get_file_options(vs, ra_frames, eob, verbose, formatname, opts);
+		VideoBuffer<T>* vb = makeVideoFileBuffer<T>(vs.identifier, eob, verbose, formatname, opts);
+		if(ra_frames)
+			vb = new ReadAheadVideoBuffer<T>(*vb, ra_frames);
+		return vb;
+	}
+	else
+		throw VideoSourceException("undefined video source protocol: '" + vs.protocol + "'\n\t valid protocols: "
+		                                                                                "colourspace, jpegstream, "
+		                                                                                "file, "
+		                                                                                "v4l2, "
+		                                                                                "dc1394, "
+		                                                                                "files, "
+		                                                                                "uvc");
+}
+
+/**
 	  opens a video device described by a video source url given from an input stream. See
 	  @ref open_video_source(const std::string &) for details on the url syntax.
 
 	  @ingroup gVideo
 	  */
-	template <class T> VideoBuffer<T>* open_video_source(std::istream& in)
-	{
-		VideoSource vs;
-		parse(in, vs);
-		return open_video_source<T>(vs);
-	}
+template <class T>
+VideoBuffer<T>* open_video_source(std::istream& in)
+{
+	VideoSource vs;
+	parse(in, vs);
+	return open_video_source<T>(vs);
+}
 
-	/**
+/**
 	  opens a video device described by a video source url. This allows to decide at
 	  runtime what kind of video input your program is using. Basic use is to call
 	  open_video_source<T>(url) to get a VideoBuffer<T>*.
@@ -582,11 +632,12 @@ wget http//my.camera/file_representing_video -O /tmp/video
 
 																																																																																																																																																																																																																								 @ingroup gVideo
 																																																																																																																																																																																																																								 */
-																																																																																																																																																																																																																								 template <class T> VideoBuffer<T>* open_video_source(const std::string& src)
-																																																																																																																																																																																																																								 {
-																																																																																																																																																																																																																									 std::istringstream in(src);
-																																																																																																																																																																																																																									 return open_video_source<T>(in);
-																																																																																																																																																																																																																								 }	 
+template <class T>
+VideoBuffer<T>* open_video_source(const std::string& src)
+{
+	std::istringstream in(src);
+	return open_video_source<T>(in);
+}
 }
 
 #endif

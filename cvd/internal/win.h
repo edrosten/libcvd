@@ -32,4 +32,4 @@ typedef __int32 int32_t;
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-#endif 
+#endif

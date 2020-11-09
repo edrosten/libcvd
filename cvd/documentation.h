@@ -130,52 +130,50 @@ interface to external libraries.
 
 			   */
 
-			   ///////////////////////////////////////////////////////
-			   // Modules classifying classes and functions
+///////////////////////////////////////////////////////
+// Modules classifying classes and functions
 
-			   /// @defgroup gImage Image storage and manipulation
-			   /// Basic image functionality. The %CVD image classes provide fast and
-			   /// flexible access to images.
+/// @defgroup gImage Image storage and manipulation
+/// Basic image functionality. The %CVD image classes provide fast and
+/// flexible access to images.
 
-			   /// @defgroup gImageIO Image loading and saving, and format conversion
-			   /// Functions to support saving and loading of BasicImage and Image 
-			   /// to and from streams. Supports a few common file formats (autodetecting on loading).
-			   /// Also functions for perfoming type conversion as necessary.
+/// @defgroup gImageIO Image loading and saving, and format conversion
+/// Functions to support saving and loading of BasicImage and Image
+/// to and from streams. Supports a few common file formats (autodetecting on loading).
+/// Also functions for perfoming type conversion as necessary.
 
-			   /// @defgroup gVideo Video devices and video files
-			   /// Classes and functions to manage video streams and present them as images.
+/// @defgroup gVideo Video devices and video files
+/// Classes and functions to manage video streams and present them as images.
 
-			   /// @defgroup gVideoBuffer Video buffers
-			   /// @ingroup gVideo
-			   /// All classes and functions relating to video buffers (as opposed to video frames)
+/// @defgroup gVideoBuffer Video buffers
+/// @ingroup gVideo
+/// All classes and functions relating to video buffers (as opposed to video frames)
 
-			   /// @defgroup gVideoFrame Video frames
-			   /// @ingroup gVideo
-			   /// All classes and functions relating to video frames (as opposed to video buffers)
+/// @defgroup gVideoFrame Video frames
+/// @ingroup gVideo
+/// All classes and functions relating to video frames (as opposed to video buffers)
 
-			   /// @defgroup gException Exceptions 
-			   /// Exceptions generated and thrown by %CVD classes and functions
+/// @defgroup gException Exceptions
+/// Exceptions generated and thrown by %CVD classes and functions
 
-			   /// @defgroup gGraphics Computer graphics
-			   /// Classes and functions to support miscellaneous pixel operations
+/// @defgroup gGraphics Computer graphics
+/// Classes and functions to support miscellaneous pixel operations
 
-			   /// @defgroup gVision Computer Vision
-			   /// Functions and classes to support common computer vision concepts and operations
+/// @defgroup gVision Computer Vision
+/// Functions and classes to support common computer vision concepts and operations
 
-			   /// @defgroup gGL GL helper functions and classes.
-			   /// Overloaded versions of GL functions to use %CVD classes and datatypes, and
-			   /// other helpful GL classes and functions.
+/// @defgroup gGL GL helper functions and classes.
+/// Overloaded versions of GL functions to use %CVD classes and datatypes, and
+/// other helpful GL classes and functions.
 
-			   /// @defgroup gMaths Mathematical operations
-			   /// Useful mathematical classes and functions
+/// @defgroup gMaths Mathematical operations
+/// Useful mathematical classes and functions
 
-			   /// @defgroup gLinAlg Linear Algebra
-			   /// Classes and functions for common Linear Algebra concepts and operations
+/// @defgroup gLinAlg Linear Algebra
+/// Classes and functions for common Linear Algebra concepts and operations
 
-			   /// @defgroup gCPP General C++ and system helper functions
-			   /// Classes and functions for writing better code
+/// @defgroup gCPP General C++ and system helper functions
+/// Classes and functions for writing better code
 
-
-			   /// @namespace CVD
-			   /// All classes and functions are within the CVD namespace
-
+/// @namespace CVD
+/// All classes and functions are within the CVD namespace

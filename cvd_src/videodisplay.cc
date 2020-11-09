@@ -14,86 +14,78 @@
 //#include <iostream>
 //#include <cassert>
 
+#include <assert.h>
 #include <iostream>
 #include <math.h>
 #include <stdlib.h>
-#include <assert.h>
 
 using namespace std;
 using namespace CVD;
 
 CVD::Exceptions::VideoDisplay::InitialisationError::InitialisationError(string w)
-	:CVD::Exceptions::VideoDisplay::All("VideoDisplay inintialisation error: " + w)
+    : CVD::Exceptions::VideoDisplay::All("VideoDisplay inintialisation error: " + w)
 {
 }
 
 CVD::Exceptions::VideoDisplay::RuntimeError::RuntimeError(string w)
-	:CVD::Exceptions::VideoDisplay::All("VideoDisplay error: " + w)
+    : CVD::Exceptions::VideoDisplay::All("VideoDisplay error: " + w)
 {
 }
 
 //namespace CVD {
-int CVD::defAttr[] = {GLX_RGBA,
-	GLX_RED_SIZE, 3, 
+int CVD::defAttr[] = { GLX_RGBA,
+	GLX_RED_SIZE, 3,
 	GLX_GREEN_SIZE, 3,
 	GLX_BLUE_SIZE, 2,
 	GLX_DOUBLEBUFFER, 0,
 	// GLX_DEPTH_SIZE, 8,
 	// GLX_STENCIL_SIZE, 8,
-	0};
+	0 };
 
-
-
-
-
-CVD::VideoDisplay::VideoDisplay(double left, double top, double right, double bottom, double scale, int* visualAttr, bool map) :
-	my_left(left),
-	my_top(top),
-	my_right(right),
-	my_bottom(bottom),
-	my_scale(scale),
-	my_orig_left(left),
-	my_orig_top(top),
-	my_orig_right(right),
-	my_orig_bottom(bottom),
-	my_orig_scale(scale)
+CVD::VideoDisplay::VideoDisplay(double left, double top, double right, double bottom, double scale, int* visualAttr, bool map)
+    : my_left(left)
+    , my_top(top)
+    , my_right(right)
+    , my_bottom(bottom)
+    , my_scale(scale)
+    , my_orig_left(left)
+    , my_orig_top(top)
+    , my_orig_right(right)
+    , my_orig_bottom(bottom)
+    , my_orig_scale(scale)
 {
 	init(my_left, my_top, my_right, my_bottom, scale, visualAttr, map);
 }
 
-
-CVD::VideoDisplay::VideoDisplay(ImageRef s, double scale, int* visualAttr) :
-	my_left(0),
-	my_top(0),
-	my_right(s.x),
-	my_bottom(s.y),
-	my_scale(scale),
-	my_orig_left(0),
-	my_orig_top(0),
-	my_orig_right(s.x),
-	my_orig_bottom(s.y),
-	my_orig_scale(scale)
+CVD::VideoDisplay::VideoDisplay(ImageRef s, double scale, int* visualAttr)
+    : my_left(0)
+    , my_top(0)
+    , my_right(s.x)
+    , my_bottom(s.y)
+    , my_scale(scale)
+    , my_orig_left(0)
+    , my_orig_top(0)
+    , my_orig_right(s.x)
+    , my_orig_bottom(s.y)
+    , my_orig_scale(scale)
 {
 	init(my_left, my_top, my_right, my_bottom, scale, visualAttr, true);
 }
 
-
-CVD::VideoDisplay::VideoDisplay(ImageRef s, const DoNotMapStruct&, int* visualAttr) :
-	my_left(0),
-	my_top(0),
-	my_right(s.x),
-	my_bottom(s.y),
-	my_scale(1.0),
-	my_orig_left(0),
-	my_orig_top(0),
-	my_orig_right(s.x),
-	my_orig_bottom(s.y),
-	my_orig_scale(1.0)
+CVD::VideoDisplay::VideoDisplay(ImageRef s, const DoNotMapStruct&, int* visualAttr)
+    : my_left(0)
+    , my_top(0)
+    , my_right(s.x)
+    , my_bottom(s.y)
+    , my_scale(1.0)
+    , my_orig_left(0)
+    , my_orig_top(0)
+    , my_orig_right(s.x)
+    , my_orig_bottom(s.y)
+    , my_orig_scale(1.0)
 {
 	init(my_left, my_top, my_right, my_bottom, 1.0, visualAttr, false);
 }
-
-
 
 void CVD::VideoDisplay::init(double left, double top, double right, double bottom, double scale, int* visualAttr, bool map)
 {
@@ -102,31 +94,29 @@ void CVD::VideoDisplay::init(double left, double top, double right, double botto
 	my_positive_right = right > left;
 	my_positive_down = bottom > top;
 
-
 	my_display = XOpenDisplay(NULL);
-	if (my_display == NULL)
+	if(my_display == NULL)
 		throw Exceptions::VideoDisplay::InitialisationError(string("Can't connect to display ") + getenv("DISPLAY"));
-
 
 	// get an appropriate visual
 	my_visual = glXChooseVisual(my_display, DefaultScreen(my_display), visualAttr);
-	if (my_visual == NULL)
+	if(my_visual == NULL)
 		throw Exceptions::VideoDisplay::InitialisationError(string("No matching visual on display ") + getenv("DISPLAY"));
 
 	// check I got an rgba visual (32 bit)
 	int isRgba;
-	(void) glXGetConfig(my_display, my_visual, GLX_RGBA, &isRgba);
+	(void)glXGetConfig(my_display, my_visual, GLX_RGBA, &isRgba);
 	assert(isRgba);
 
 	// create a GLX context
-	if ((my_glx_context = glXCreateContext(my_display, my_visual, 0, GL_TRUE)) == NULL)
+	if((my_glx_context = glXCreateContext(my_display, my_visual, 0, GL_TRUE)) == NULL)
 		throw Exceptions::VideoDisplay::InitialisationError(string("Cannot create GL context on ") + getenv("DISPLAY"));
 
 	// create a colormap (it's empty for rgba visuals)
 	my_cmap = XCreateColormap(my_display,
-			RootWindow(my_display, my_visual->screen),
-			my_visual->visual,
-			AllocNone);
+	    RootWindow(my_display, my_visual->screen),
+	    my_visual->visual,
+	    AllocNone);
 
 	// set the attributes for the window
 	XSetWindowAttributes swa;
@@ -139,22 +129,21 @@ void CVD::VideoDisplay::init(double left, double top, double right, double botto
 	int ysize = static_cast<int>(fabs(bottom - top) * scale);
 	// create a window
 	my_window = XCreateWindow(my_display,
-			RootWindow(my_display, my_visual->screen),
-			0, // init_x
-			0, // init_y
-			xsize,
-			ysize,
-			0, 
-			my_visual->depth,
-			InputOutput,
-			my_visual->visual,
-			CWBorderPixel | CWColormap | CWEventMask, &swa);
+	    RootWindow(my_display, my_visual->screen),
+	    0, // init_x
+	    0, // init_y
+	    xsize,
+	    ysize,
+	    0,
+	    my_visual->depth,
+	    InputOutput,
+	    my_visual->visual,
+	    CWBorderPixel | CWColormap | CWEventMask, &swa);
 
-	if (my_window == 0)
+	if(my_window == 0)
 		throw Exceptions::VideoDisplay::InitialisationError(string("Cannot create a window on ") + getenv("DISPLAY"));
 
 	set_title("Video Display");
-
 
 	if(map)
 	{
@@ -164,31 +153,25 @@ void CVD::VideoDisplay::init(double left, double top, double right, double botto
 		XEvent ev;
 		do
 		{
-			XNextEvent(my_display,&ev);
-		}
-		while (ev.type != MapNotify);
+			XNextEvent(my_display, &ev);
+		} while(ev.type != MapNotify);
 	}
 
 	// Connect the GLX context to the window
-	if (!glXMakeCurrent(my_display, my_window, my_glx_context))
+	if(!glXMakeCurrent(my_display, my_window, my_glx_context))
 		throw Exceptions::VideoDisplay::InitialisationError("Cannot make window current to GL context");
 
 	XSelectInput(my_display,
-			my_window,
-			ButtonPressMask |
-			ButtonReleaseMask     |
-			Button1MotionMask     |
-			PointerMotionHintMask | 
-			KeyPressMask);
-
+	    my_window,
+	    ButtonPressMask | ButtonReleaseMask | Button1MotionMask | PointerMotionHintMask | KeyPressMask);
 
 	// Sort out the GL scaling
-	glLoadIdentity(); 
+	glLoadIdentity();
 	glViewport(0, 0, xsize, ysize);
 
 	glColor3f(1.0, 1.0, 1.0);
 
-	glDrawBuffer(GL_FRONT);      // On Vino, we only use the front buffer 
+	glDrawBuffer(GL_FRONT); // On Vino, we only use the front buffer
 
 	set_zoom(left, top, right, bottom, scale);
 }
@@ -204,22 +187,19 @@ void CVD::VideoDisplay::set_zoom(double left, double top, double right, double b
 	my_bottom = bottom;
 	my_scale = scale;
 
-
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-
 
 	glMatrixMode(GL_PROJECTION);
 
 	glLoadIdentity();
-	glOrtho(left, right, bottom, top, -1 , 1);    // If the origin is the top left 
+	glOrtho(left, right, bottom, top, -1, 1); // If the origin is the top left
 
 	glRasterPos2d(left, top);
 
 	// video is now the same way as upside down to graphics!
 	glPixelZoom(static_cast<float>(scale), static_cast<float>(-scale));
 	//glPixelZoom(1,-1);
-
 }
 
 void CVD::VideoDisplay::zoom_in(double cx, double cy, double factor)
@@ -233,7 +213,7 @@ void CVD::VideoDisplay::zoom_in(double cx, double cy, double factor)
 
 	// Work out the new image corners. scale is how much things are zoomed up, so
 	// this is just multipled by the factor
-	set_zoom(cx - width,  cy - height, cx + width, cy + height, my_scale * factor);
+	set_zoom(cx - width, cy - height, cx + width, cy + height, my_scale * factor);
 }
 
 CVD::VideoDisplay::~VideoDisplay()
@@ -248,21 +228,24 @@ CVD::VideoDisplay::~VideoDisplay()
 }
 
 void CVD::VideoDisplay::set_title(const string& s)
-{ 
+{
 	// give the window a name
 	XStoreName(my_display, my_window, s.c_str());
 }
 
-void CVD::VideoDisplay::select_events(long event_mask){
+void CVD::VideoDisplay::select_events(long event_mask)
+{
 	XSelectInput(my_display, my_window, event_mask);
 	XFlush(my_display);
 }
 
-void CVD::VideoDisplay::flush(){
+void CVD::VideoDisplay::flush()
+{
 	XFlush(my_display);
 }
 
-void CVD::VideoDisplay::get_event(XEvent* event){
+void CVD::VideoDisplay::get_event(XEvent* event)
+{
 	XNextEvent(my_display, event);
 }
 
@@ -274,7 +257,7 @@ int CVD::VideoDisplay::pending()
 void CVD::VideoDisplay::make_current()
 {
 	// Connect the GLX context to the window
-	if (!glXMakeCurrent(my_display, my_window, my_glx_context))
+	if(!glXMakeCurrent(my_display, my_window, my_glx_context))
 		throw Exceptions::VideoDisplay::InitialisationError("Cannot make window current to GL context");
 }
 
@@ -333,14 +316,14 @@ void CVD::VideoDisplay::locate_display_pointer(int& x, int& y)
 	unsigned int mask_return;
 
 	XQueryPointer(my_display,
-			my_window,
-			&root_return,
-			&child_return,
-			&root_x_return,
-			&root_y_return,
-			&x,
-			&y,
-			&mask_return);
+	    my_window,
+	    &root_return,
+	    &child_return,
+	    &root_x_return,
+	    &root_y_return,
+	    &x,
+	    &y,
+	    &mask_return);
 }
 
 //
@@ -361,10 +344,4 @@ void CVD::VideoDisplay::swap_buffers()
 
 //} // namespace CVD
 
-
-
 const VideoDisplay::DoNotMapStruct VideoDisplay::DoNotMap;
-
-
-
-

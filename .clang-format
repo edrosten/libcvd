@@ -1,0 +1,16 @@
+---
+Language:        Cpp
+BasedOnStyle:  WebKit
+AccessModifierOffset: 0
+IndentWidth: 4
+BreakBeforeBraces: Allman
+AllowShortIfStatementsOnASingleLine: false
+IndentCaseLabels: true
+ColumnLimit: 0
+ReflowComments:  false
+SpaceBeforeParens: Never
+Standard:        c++17
+TabWidth:        4
+UseTab:          ForIndentation
+...
+

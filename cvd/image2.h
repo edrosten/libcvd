@@ -3,23 +3,14 @@
 
 namespace CVD
 {
-	class Default;
-	class Reference;
+class Default;
+class Reference;
 
-	template<class Pixel, class Base=Default> class Image: public Image<Pixel, Reference>
-	{
-
-
-	}
-
-
-
-
-
+template <class Pixel, class Base = Default>
+class Image : public Image<Pixel, Reference>
+{
+}
 
 }
 
-
-
 #endif
-
