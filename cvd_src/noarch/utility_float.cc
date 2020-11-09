@@ -25,7 +25,7 @@ namespace CVD
 
 	double sum_squared_differences(const float* a, const float* b, size_t count)
 	{
-      return SumSquaredDifferences<double, float,float>::sum_squared_differences(a,b,count);
+		return SumSquaredDifferences<double, float,float>::sum_squared_differences(a,b,count);
 	}
 
 	void square(const float* in, float* out, size_t count)

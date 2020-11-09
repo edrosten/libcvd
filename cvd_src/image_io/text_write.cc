@@ -14,7 +14,7 @@ class CVD::TEXT::WritePimpl
 {
 	public:
 		WritePimpl(ostream&oo, ImageRef size, const string& t)
-		:o(oo),my_size(size),type(t),row(0)
+			:o(oo),my_size(size),type(t),row(0)
 		{
 			if(t != "double" && t != "float")
 				throw UnsupportedImageSubType("TEXT", t);
@@ -62,7 +62,7 @@ class CVD::TEXT::WritePimpl
 };
 
 TEXT::writer::writer(ostream& o, ImageRef size, const string& type, const std::map<std::string, Parameter<> >&)
-:t(new WritePimpl(o, size, type))
+	:t(new WritePimpl(o, size, type))
 {}
 
 TEXT::writer::~writer()

@@ -5,8 +5,8 @@ namespace CVD{
 	namespace{
 
 
-		#define _mm_shuffle_32(X, Y, Z)\
-				_mm_castps_si128(_mm_shuffle_ps(_mm_castsi128_ps(X), _mm_castsi128_ps(Y), Z))
+#define _mm_shuffle_32(X, Y, Z)\
+		_mm_castps_si128(_mm_shuffle_ps(_mm_castsi128_ps(X), _mm_castsi128_ps(Y), Z))
 
 		void shift_3(__m128i& w_01_08, __m128i& w_09_16, __m128i& w_17_24)
 		{
@@ -36,7 +36,7 @@ namespace CVD{
 			//w_01_08 = [ 0 0 0 0 E F 0 0 ]
 			//w23_tmp = [ B C 0 0 0 0 H 0 ]
 			//w_chnk1 = [ B C 0 0 E F H 0 ]
-			
+
 			w_chnk1 = _mm_shuffle_32(w_chnk1, w_chnk1, _MM_SHUFFLE(1, 3, 2, 0));
 			//w_chnk1 = [ B C E F H 0 0 0 ]
 
@@ -82,7 +82,7 @@ namespace CVD{
 			//Step 4: extract pairs
 			__m128i chunk1, chunk2;
 			extract_pairs(s_top_a, s_top_b, s_top_c, chunk1, chunk2);
-			
+
 			//Finish off: divide by 9 and pack to bytes.
 
 			//Multiply by 65536/9 and right shift by 16
@@ -189,7 +189,7 @@ namespace CVD{
 			// Furthermore, the third row (bot) is averaged against mid in exactly
 			// the same way as top, producing a second output row. In this way,
 			// 3 rows of 48 pixels are converted in to two rows of 32 pixels.
-			
+
 			//Load 48 consecutive bytes from memory	
 			__m128i t_1_16 =  load(data0);
 			__m128i t_17_32 = load(data0+16);
@@ -198,7 +198,7 @@ namespace CVD{
 			__m128i m_1_16 =  load(data1);
 			__m128i m_17_32 = load(data1+16);
 			__m128i m_33_48 = load(data1+32);
-			
+
 			__m128i b_1_16 =  load(data2);
 			__m128i b_17_32 = load(data2+16);
 			__m128i b_33_48 = load(data2+32);
@@ -214,7 +214,7 @@ namespace CVD{
 
 			//Step 1: Weighting
 			//Perform the weightings 4 2 4 4 2 4 4 2 4 (top and bottom) 2 1 2 2 1 2 (mid)
-			
+
 			weight_top(top_01_08, top_09_16, top_17_24);
 			weight_mid(mid_01_08, mid_09_16, mid_17_24);
 
@@ -223,7 +223,7 @@ namespace CVD{
 			top_01_08 = _mm_add_epi16(top_01_08, mid_01_08);
 			top_09_16 = _mm_add_epi16(top_09_16, mid_09_16);
 			top_17_24 = _mm_add_epi16(top_17_24, mid_17_24);
-			
+
 			//Steps 3, 4:
 			store(out0, square_average(top_01_08, top_09_16, top_17_24));
 
@@ -250,7 +250,7 @@ namespace CVD{
 			mid_01_08 = _mm_unpackhi_epi8(m_17_32, _mm_setzero_si128());
 			mid_09_16 = _mm_unpacklo_epi8(m_33_48, _mm_setzero_si128());
 			mid_17_24 = _mm_unpackhi_epi8(m_33_48,_mm_setzero_si128());
-			
+
 			weight_top(top_01_08, top_09_16, top_17_24);
 			weight_mid(mid_01_08, mid_09_16, mid_17_24);
 			top_01_08 = _mm_add_epi16(top_01_08, mid_01_08);

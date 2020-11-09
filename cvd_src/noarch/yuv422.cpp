@@ -7,7 +7,7 @@
 
 #include <iostream>
 namespace CVD {
-	
+
 	namespace{
 		unsigned char saturate(int i)
 		{
@@ -34,49 +34,49 @@ namespace CVD {
 		};
 
 		template<class C, class Ind>
-		void convert_422(const BasicImage<C>& from, BasicImage<Rgb<byte> >& to)
-		{
-			int yy, uu, vv, ug_plus_vg, ub, vr;
-			int r,g,b;
-
-			size_t bytes_per_row = from.size().x * 2;
-
-			for(int y=0; y < from.size().y; y++)
+			void convert_422(const BasicImage<C>& from, BasicImage<Rgb<byte> >& to)
 			{
-				const unsigned char* yuv = reinterpret_cast<const unsigned char*>(from.data()) + bytes_per_row*y;
+				int yy, uu, vv, ug_plus_vg, ub, vr;
+				int r,g,b;
 
-				for(int x=0; x < from.size().x; x+=2, yuv+=4)
+				size_t bytes_per_row = from.size().x * 2;
+
+				for(int y=0; y < from.size().y; y++)
 				{
-					uu = yuv[Ind::uu] - 128;
-					vv = yuv[Ind::vv] - 128;
-					ug_plus_vg = uu * 88 + vv * 183;
-					ub = uu * 454;
-					vr = vv * 359;
+					const unsigned char* yuv = reinterpret_cast<const unsigned char*>(from.data()) + bytes_per_row*y;
 
-					yy = yuv[Ind::y1] << 8;
-					r = (yy + vr) >> 8;
-					g = (yy - ug_plus_vg) >> 8;
-					b = (yy + ub) >> 8;
-					to[y][x+0].red   = saturate(r);
-					to[y][x+0].green = saturate(g);
-					to[y][x+0].blue  = saturate(b);
+					for(int x=0; x < from.size().x; x+=2, yuv+=4)
+					{
+						uu = yuv[Ind::uu] - 128;
+						vv = yuv[Ind::vv] - 128;
+						ug_plus_vg = uu * 88 + vv * 183;
+						ub = uu * 454;
+						vr = vv * 359;
 
-					yy = yuv[Ind::y2] << 8;
-					r = (yy + vr) >> 8;
-					g = (yy - ug_plus_vg) >> 8;
-					b = (yy + ub) >> 8;
-					to[y][x+1].red   = saturate(r);
-					to[y][x+1].green = saturate(g);
-					to[y][x+1].blue  = saturate(b);
+						yy = yuv[Ind::y1] << 8;
+						r = (yy + vr) >> 8;
+						g = (yy - ug_plus_vg) >> 8;
+						b = (yy + ub) >> 8;
+						to[y][x+0].red   = saturate(r);
+						to[y][x+0].green = saturate(g);
+						to[y][x+0].blue  = saturate(b);
+
+						yy = yuv[Ind::y2] << 8;
+						r = (yy + vr) >> 8;
+						g = (yy - ug_plus_vg) >> 8;
+						b = (yy + ub) >> 8;
+						to[y][x+1].red   = saturate(r);
+						to[y][x+1].green = saturate(g);
+						to[y][x+1].blue  = saturate(b);
+					}
 				}
 			}
-		}
 
 		template<class C, class Ind> void convert_422_grey(const BasicImage<C>& from, BasicImage<byte>& to)
 		{
 			//yuv422 / vuy422 is along the lines of yuyv
 			//which is 4 bytes for 2 pixels, i.e. 2 bytes per pixel
-			
+
 			size_t bytes_per_row = from.size().x * 2;
 
 			for(int y=0; y < from.size().y; y++)

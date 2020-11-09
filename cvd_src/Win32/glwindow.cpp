@@ -13,12 +13,12 @@ using namespace std;
 namespace CVD {
 
 	Exceptions::GLWindow::CreationError::CreationError(std::string w)
-	:CVD::Exceptions::GLWindow::All {"GLWindow creation error: " + w}
+		:CVD::Exceptions::GLWindow::All {"GLWindow creation error: " + w}
 	{
 	}
 
 	Exceptions::GLWindow::RuntimeError::RuntimeError(std::string w)
-	:CVD::Exceptions::GLWindow::All {"GLWindow error: " + w}
+		:CVD::Exceptions::GLWindow::All {"GLWindow error: " + w}
 	{
 	}
 
@@ -127,18 +127,18 @@ namespace CVD {
 		// Create The Window
 		HWND hWnd;
 		if (!(hWnd=CreateWindowEx(  dwExStyle,                          // Extended Style For The Window
-			"glwindow",                         // Class Name
-			NULL, //title.c_str(),                              // Window Title
-			dwStyle |                           // Defined Window Style
-			WS_CLIPSIBLINGS |                   // Required Window Style
-			WS_CLIPCHILDREN,                    // Required Window Style
-			0, 0,                               // Window Position
-			WindowRect.right-WindowRect.left,   // Calculate Window Width
-			WindowRect.bottom-WindowRect.top,   // Calculate Window Height
-			NULL,                               // No Parent Window
-			NULL,                               // No Menu
-			hInstance,                          // Instance
-			NULL)))                             // Dont Pass Anything To WM_CREATE
+						"glwindow",                         // Class Name
+						NULL, //title.c_str(),                              // Window Title
+						dwStyle |                           // Defined Window Style
+						WS_CLIPSIBLINGS |                   // Required Window Style
+						WS_CLIPCHILDREN,                    // Required Window Style
+						0, 0,                               // Window Position
+						WindowRect.right-WindowRect.left,   // Calculate Window Width
+						WindowRect.bottom-WindowRect.top,   // Calculate Window Height
+						NULL,                               // No Parent Window
+						NULL,                               // No Menu
+						hInstance,                          // Instance
+						NULL)))                             // Dont Pass Anything To WM_CREATE
 		{
 			throw Exceptions::GLWindow::CreationError("Window Creation Error.");
 		}
@@ -148,8 +148,8 @@ namespace CVD {
 			sizeof(PIXELFORMATDESCRIPTOR),              // Size Of This Pixel Format Descriptor
 			1,                                          // Version Number
 			PFD_DRAW_TO_WINDOW |                        // Format Must Support Window
-			PFD_SUPPORT_OPENGL |                        // Format Must Support OpenGL
-			PFD_DOUBLEBUFFER,                           // Must Support Double Buffering
+				PFD_SUPPORT_OPENGL |                        // Format Must Support OpenGL
+				PFD_DOUBLEBUFFER,                           // Must Support Double Buffering
 			PFD_TYPE_RGBA,                              // Request An RGBA Format
 			static_cast<unsigned char>(bpp),            // Select Our Color Depth
 			0, 0, 0, 0, 0, 0,                           // Color Bits Ignored
@@ -409,62 +409,62 @@ namespace CVD {
 		while(PeekMessage(&msg, state->hWnd, 0, 0, PM_REMOVE)){
 			//TranslateMessage(&msg);  // don't care for WM_CHAR/WM_DEADCHAR messages
 			switch(msg.message){
-			case WM_LBUTTONDOWN:
-				handler.on_mouse_down(*this, convertPosition(msg.lParam), convertButtonState(msg.wParam), GLWindow::BUTTON_LEFT);
-				break;
-			case WM_LBUTTONUP:
-				handler.on_mouse_up(*this, convertPosition(msg.lParam), convertButtonState(msg.wParam), GLWindow::BUTTON_LEFT);
-				break;
-			case WM_MBUTTONDOWN:
-				handler.on_mouse_down(*this, convertPosition(msg.lParam), convertButtonState(msg.wParam), GLWindow::BUTTON_MIDDLE);
-				break;
-			case WM_MBUTTONUP:
-				handler.on_mouse_up(*this, convertPosition(msg.lParam), convertButtonState(msg.wParam), GLWindow::BUTTON_MIDDLE);
-				break;
-			case WM_RBUTTONDOWN:
-				handler.on_mouse_down(*this, convertPosition(msg.lParam), convertButtonState(msg.wParam), GLWindow::BUTTON_RIGHT);
-				break;
-			case WM_RBUTTONUP:
-				handler.on_mouse_up(*this, convertPosition(msg.lParam), convertButtonState(msg.wParam), GLWindow::BUTTON_RIGHT);
-				break;
-			case WM_MOUSEWHEEL:
-				// positive forward, negative backward, FIXME check correspondence to X11 implementation
-				handler.on_mouse_up(*this, convertPosition(msg.lParam), convertButtonState(GET_KEYSTATE_WPARAM(msg.wParam)), (GET_WHEEL_DELTA_WPARAM(msg.wParam) > 0) ? GLWindow::BUTTON_WHEEL_UP : GLWindow::BUTTON_WHEEL_DOWN);
-				break;
-			case WM_MOUSEMOVE:
-				handler.on_mouse_move(*this, convertPosition(msg.lParam), convertButtonState(msg.wParam));
-				break;
-			case WM_KEYDOWN:
-				{
-					unsigned char state[256];
-					GetKeyboardState(state);
-					char buffer[4];
-					int res = ToAscii((UINT)msg.wParam, (UINT)(msg.lParam & 0xffffff) >> 16, state, (LPWORD)buffer, 0);
-					if(res == 1){
-						handler.on_key_down(*this, buffer[0]);
-					} else {
-						handler.on_key_down(*this, (int)msg.wParam);
+				case WM_LBUTTONDOWN:
+					handler.on_mouse_down(*this, convertPosition(msg.lParam), convertButtonState(msg.wParam), GLWindow::BUTTON_LEFT);
+					break;
+				case WM_LBUTTONUP:
+					handler.on_mouse_up(*this, convertPosition(msg.lParam), convertButtonState(msg.wParam), GLWindow::BUTTON_LEFT);
+					break;
+				case WM_MBUTTONDOWN:
+					handler.on_mouse_down(*this, convertPosition(msg.lParam), convertButtonState(msg.wParam), GLWindow::BUTTON_MIDDLE);
+					break;
+				case WM_MBUTTONUP:
+					handler.on_mouse_up(*this, convertPosition(msg.lParam), convertButtonState(msg.wParam), GLWindow::BUTTON_MIDDLE);
+					break;
+				case WM_RBUTTONDOWN:
+					handler.on_mouse_down(*this, convertPosition(msg.lParam), convertButtonState(msg.wParam), GLWindow::BUTTON_RIGHT);
+					break;
+				case WM_RBUTTONUP:
+					handler.on_mouse_up(*this, convertPosition(msg.lParam), convertButtonState(msg.wParam), GLWindow::BUTTON_RIGHT);
+					break;
+				case WM_MOUSEWHEEL:
+					// positive forward, negative backward, FIXME check correspondence to X11 implementation
+					handler.on_mouse_up(*this, convertPosition(msg.lParam), convertButtonState(GET_KEYSTATE_WPARAM(msg.wParam)), (GET_WHEEL_DELTA_WPARAM(msg.wParam) > 0) ? GLWindow::BUTTON_WHEEL_UP : GLWindow::BUTTON_WHEEL_DOWN);
+					break;
+				case WM_MOUSEMOVE:
+					handler.on_mouse_move(*this, convertPosition(msg.lParam), convertButtonState(msg.wParam));
+					break;
+				case WM_KEYDOWN:
+					{
+						unsigned char state[256];
+						GetKeyboardState(state);
+						char buffer[4];
+						int res = ToAscii((UINT)msg.wParam, (UINT)(msg.lParam & 0xffffff) >> 16, state, (LPWORD)buffer, 0);
+						if(res == 1){
+							handler.on_key_down(*this, buffer[0]);
+						} else {
+							handler.on_key_down(*this, (int)msg.wParam);
+						}
 					}
-				}
-				break;
-			case WM_KEYUP:
-				{
-					unsigned char state[256];
-					GetKeyboardState(state);
-					char buffer[4];
-					int res = ToAscii((UINT)msg.wParam, (UINT)(msg.lParam & 0xffffff) >> 16, state, (LPWORD)buffer, 0);
-					if(res == 1){
-						handler.on_key_up(*this, buffer[0]);
-					} else {
-						handler.on_key_up(*this, (int)msg.wParam);
+					break;
+				case WM_KEYUP:
+					{
+						unsigned char state[256];
+						GetKeyboardState(state);
+						char buffer[4];
+						int res = ToAscii((UINT)msg.wParam, (UINT)(msg.lParam & 0xffffff) >> 16, state, (LPWORD)buffer, 0);
+						if(res == 1){
+							handler.on_key_up(*this, buffer[0]);
+						} else {
+							handler.on_key_up(*this, (int)msg.wParam);
+						}
 					}
-				}
-				break;
-			case WM_PAINT:
-				// This will never be called here, it will always be in WndProc...
-				handler.on_event(*this, EVENT_EXPOSE);
-			default:
-				DispatchMessage(&msg);
+					break;
+				case WM_PAINT:
+					// This will never be called here, it will always be in WndProc...
+					handler.on_event(*this, EVENT_EXPOSE);
+				default:
+					DispatchMessage(&msg);
 			}
 		}
 
@@ -472,62 +472,62 @@ namespace CVD {
 	}
 
 	class SaveEvents : public GLWindow::EventHandler {
-	private:
-		std::vector<GLWindow::Event>& events;
-	public:
-		SaveEvents(std::vector<GLWindow::Event>& events_) : events(events_) {}
-		void on_key_down(GLWindow&, int key) {
-			GLWindow::Event e;
-			e.type = GLWindow::Event::KEY_DOWN;
-			e.which = key;
-			events.push_back(e);
-		}
-		void on_key_up(GLWindow&, int key) {
-			GLWindow::Event e;
-			e.type = GLWindow::Event::KEY_UP;
-			e.which = key;
-			events.push_back(e);
-		}
+		private:
+			std::vector<GLWindow::Event>& events;
+		public:
+			SaveEvents(std::vector<GLWindow::Event>& events_) : events(events_) {}
+			void on_key_down(GLWindow&, int key) {
+				GLWindow::Event e;
+				e.type = GLWindow::Event::KEY_DOWN;
+				e.which = key;
+				events.push_back(e);
+			}
+			void on_key_up(GLWindow&, int key) {
+				GLWindow::Event e;
+				e.type = GLWindow::Event::KEY_UP;
+				e.which = key;
+				events.push_back(e);
+			}
 
-		void on_mouse_move(GLWindow&, ImageRef where, int state) {
-			GLWindow::Event e;
-			e.type = GLWindow::Event::MOUSE_MOVE;
-			e.state = state;
-			e.where = where;
-			events.push_back(e);
-		}
+			void on_mouse_move(GLWindow&, ImageRef where, int state) {
+				GLWindow::Event e;
+				e.type = GLWindow::Event::MOUSE_MOVE;
+				e.state = state;
+				e.where = where;
+				events.push_back(e);
+			}
 
-		void on_mouse_down(GLWindow&, ImageRef where, int state, int button) {
-			GLWindow::Event e;
-			e.type = GLWindow::Event::MOUSE_DOWN;
-			e.state = state;
-			e.which = button;
-			e.where = where;
-			events.push_back(e);
-		}
+			void on_mouse_down(GLWindow&, ImageRef where, int state, int button) {
+				GLWindow::Event e;
+				e.type = GLWindow::Event::MOUSE_DOWN;
+				e.state = state;
+				e.which = button;
+				e.where = where;
+				events.push_back(e);
+			}
 
-		void on_mouse_up(GLWindow&, ImageRef where, int state, int button) {
-			GLWindow::Event e;
-			e.type = GLWindow::Event::MOUSE_UP;
-			e.state = state;
-			e.which = button;
-			e.where = where;
-			events.push_back(e);
-		}
+			void on_mouse_up(GLWindow&, ImageRef where, int state, int button) {
+				GLWindow::Event e;
+				e.type = GLWindow::Event::MOUSE_UP;
+				e.state = state;
+				e.which = button;
+				e.where = where;
+				events.push_back(e);
+			}
 
-		void on_resize(GLWindow&, ImageRef size) {
-			GLWindow::Event e;
-			e.type = GLWindow::Event::RESIZE;
-			e.size = size;
-			events.push_back(e);
-		}
+			void on_resize(GLWindow&, ImageRef size) {
+				GLWindow::Event e;
+				e.type = GLWindow::Event::RESIZE;
+				e.size = size;
+				events.push_back(e);
+			}
 
-		void on_event(GLWindow&, int event) {
-			GLWindow::Event e;
-			e.type = GLWindow::Event::EVENT;
-			e.which = event;
-			events.push_back(e);
-		}
+			void on_event(GLWindow&, int event) {
+				GLWindow::Event e;
+				e.type = GLWindow::Event::EVENT;
+				e.which = event;
+				events.push_back(e);
+			}
 	};
 
 	void GLWindow::get_events(std::vector<Event>& events)
@@ -542,17 +542,17 @@ namespace CVD {
 	}
 
 	class MakeSummary : public GLWindow::EventHandler {
-	private:
-		GLWindow::EventSummary& summary;
-	public:
-		MakeSummary(GLWindow::EventSummary& summary_) : summary(summary_) {}
+		private:
+			GLWindow::EventSummary& summary;
+		public:
+			MakeSummary(GLWindow::EventSummary& summary_) : summary(summary_) {}
 
-		void on_key_down(GLWindow&, int key) {  ++summary.key_down[key]; }
-		void on_key_up(GLWindow&, int key) { ++summary.key_up[key]; }
-		void on_mouse_move(GLWindow&, ImageRef where, int) { summary.cursor = where; summary.cursor_moved = true; }
-		void on_mouse_down(GLWindow&, ImageRef where, int state, int button) { summary.mouse_down[button] = std::make_pair(where,state); }
-		void on_mouse_up(GLWindow&, ImageRef where, int state, int button) { summary.mouse_up[button] = std::make_pair(where,state); }
-		void on_event(GLWindow&, int event) { ++summary.events[event]; }
+			void on_key_down(GLWindow&, int key) {  ++summary.key_down[key]; }
+			void on_key_up(GLWindow&, int key) { ++summary.key_up[key]; }
+			void on_mouse_move(GLWindow&, ImageRef where, int) { summary.cursor = where; summary.cursor_moved = true; }
+			void on_mouse_down(GLWindow&, ImageRef where, int state, int button) { summary.mouse_down[button] = std::make_pair(where,state); }
+			void on_mouse_up(GLWindow&, ImageRef where, int state, int button) { summary.mouse_up[button] = std::make_pair(where,state); }
+			void on_event(GLWindow&, int event) { ++summary.events[event]; }
 	};
 
 	void GLWindow::get_events(EventSummary& summary)
@@ -586,58 +586,58 @@ namespace CVD {
 	}
 
 	LRESULT CALLBACK WndProc(   HWND    hWnd,           // Handle For This Window
-		UINT    uMsg,           // Message For This Window
-		WPARAM  wParam,         // Additional Message Information
-		LPARAM  lParam)         // Additional Message Information
+			UINT    uMsg,           // Message For This Window
+			WPARAM  wParam,         // Additional Message Information
+			LPARAM  lParam)         // Additional Message Information
 	{
 		switch(uMsg){
-		case WM_WINDOWPOSCHANGED:
-			if(windowMap.count(hWnd) == 1){
-				GLWindow::State & state = windowMap[hWnd];
-				WINDOWPOS * pos = (WINDOWPOS *)lParam;
-				ImageRef newSize(pos->cx, pos->cy);
-				newSize -= state.size_offset;
-				if(newSize != state.size){
-					state.size = newSize;
-					state.parent->activate();
-					glViewport(0, 0, state.size.x, state.size.y);
-					if(currentHandler != NULL)
-						currentHandler->on_resize(*state.parent, state.size);
-					else
-						cerr << "Event outside of cvd control for " << state.title << endl;
+			case WM_WINDOWPOSCHANGED:
+				if(windowMap.count(hWnd) == 1){
+					GLWindow::State & state = windowMap[hWnd];
+					WINDOWPOS * pos = (WINDOWPOS *)lParam;
+					ImageRef newSize(pos->cx, pos->cy);
+					newSize -= state.size_offset;
+					if(newSize != state.size){
+						state.size = newSize;
+						state.parent->activate();
+						glViewport(0, 0, state.size.x, state.size.y);
+						if(currentHandler != NULL)
+							currentHandler->on_resize(*state.parent, state.size);
+						else
+							cerr << "Event outside of cvd control for " << state.title << endl;
+					}
+					state.position = ImageRef(pos->x, pos->y) - state.position_offset;
+					return 0;
 				}
-				state.position = ImageRef(pos->x, pos->y) - state.position_offset;
-				return 0;
-			}
-			break;
-		case WM_CLOSE:
-			if(windowMap.count(hWnd) == 1) {
-				GLWindow::State& state = windowMap[hWnd];
-				closeGLWindow(&state);
+				break;
+			case WM_CLOSE:
+				if(windowMap.count(hWnd) == 1) {
+					GLWindow::State& state = windowMap[hWnd];
+					closeGLWindow(&state);
 
-				return 0;
-			}
+					return 0;
+				}
 
-			break;
-		case WM_DESTROY:
-			if(windowMap.count(hWnd) == 1) {
-				GLWindow::State& state = windowMap[hWnd];
-				// This should happen as part of closeGLWindow when we receive WM_CLOSE, but it doesn't hurt to double-check.
-				markGLWindowAsClosed(&state);
+				break;
+			case WM_DESTROY:
+				if(windowMap.count(hWnd) == 1) {
+					GLWindow::State& state = windowMap[hWnd];
+					// This should happen as part of closeGLWindow when we receive WM_CLOSE, but it doesn't hurt to double-check.
+					markGLWindowAsClosed(&state);
 
-				return 0;
-			}
+					return 0;
+				}
 
-			break;
-		case WM_PAINT: 
-			if(windowMap.count(hWnd) == 1) {
-				GLWindow::State& state = windowMap[hWnd];
-				state.needs_repaint = true;
-				// We don't want to return 0 here, as we don't actually paint anything straight away 
-				// (and so Windows will keep sending messages until we do).
-			}
+				break;
+			case WM_PAINT: 
+				if(windowMap.count(hWnd) == 1) {
+					GLWindow::State& state = windowMap[hWnd];
+					state.needs_repaint = true;
+					// We don't want to return 0 here, as we don't actually paint anything straight away 
+					// (and so Windows will keep sending messages until we do).
+				}
 
-			break;
+				break;
 		}
 		// Pass All Unhandled Messages To DefWindowProc
 		return DefWindowProc(hWnd,uMsg,wParam,lParam);

@@ -5,7 +5,7 @@
 namespace CVD
 {
 	namespace Internal{
-				
+
 		void halfSampleSSE2(const byte* in, byte* out, int w, int h) 
 		{
 			const unsigned long long mask[2] = {0x00FF00FF00FF00FFull, 0x00FF00FF00FF00FFull};

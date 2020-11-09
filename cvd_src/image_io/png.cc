@@ -15,13 +15,13 @@ using namespace std;
 
 static void png_set_swap_if_necessary(png_structp png_ptr, int depth)
 {
-	#ifdef CVD_INTERNAL_ARCH_LITTLE_ENDIAN
-		if(depth == 16)
-			  png_set_swap(png_ptr);
-	#elif defined CVD_INTERNAL_ARCH_BIG_ENDIAN
-	#else 
-		#error No endianness specified
-	#endif
+#ifdef CVD_INTERNAL_ARCH_LITTLE_ENDIAN
+	if(depth == 16)
+		png_set_swap(png_ptr);
+#elif defined CVD_INTERNAL_ARCH_BIG_ENDIAN
+#else 
+#error No endianness specified
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ class CVD::PNG::PNGPimpl
 		std::string datatype();
 		std::string name();
 		ImageRef size();
-	
+
 	private:
 		std::istream& i;
 		std::string type;
@@ -107,27 +107,27 @@ ImageRef PNGPimpl::size()
 }
 
 #ifdef CVD_INTERNAL_VERBOSE_PNG
-	#include <map>
+#include <map>
 
-	#define LOG(X) do{ cerr << X; }while(0)
+#define LOG(X) do{ cerr << X; }while(0)
 
-	static string lookup_color_type(int i)
-	{
-		map<int, string> m;
-		#define ADD(X) m[X] = #X
-		ADD(PNG_COLOR_TYPE_GRAY);
-		ADD(PNG_COLOR_TYPE_GRAY_ALPHA);
-		ADD(PNG_COLOR_TYPE_PALETTE);
-		ADD(PNG_COLOR_TYPE_RGB);
-		ADD(PNG_COLOR_TYPE_RGB_ALPHA);
-		ADD(PNG_COLOR_MASK_PALETTE);
-		ADD(PNG_COLOR_MASK_COLOR);
-		ADD(PNG_COLOR_MASK_ALPHA);
+static string lookup_color_type(int i)
+{
+	map<int, string> m;
+#define ADD(X) m[X] = #X
+	ADD(PNG_COLOR_TYPE_GRAY);
+	ADD(PNG_COLOR_TYPE_GRAY_ALPHA);
+	ADD(PNG_COLOR_TYPE_PALETTE);
+	ADD(PNG_COLOR_TYPE_RGB);
+	ADD(PNG_COLOR_TYPE_RGB_ALPHA);
+	ADD(PNG_COLOR_MASK_PALETTE);
+	ADD(PNG_COLOR_MASK_COLOR);
+	ADD(PNG_COLOR_MASK_ALPHA);
 
-		return m[i];
-	}
+	return m[i];
+}
 #else
-	#define LOG(X)
+#define LOG(X)
 #endif
 
 template<class P> void PNGPimpl::read_pixels(P* data)
@@ -141,7 +141,7 @@ template<class P> void PNGPimpl::read_pixels(P* data)
 
 	if(setjmp(png_jmpbuf(png_ptr)))     
 		throw Exceptions::Image_IO::MalformedImage(error_string);
-	
+
 	unsigned char* cptr = reinterpret_cast<unsigned char*>(data);
 	unsigned char** row_ptr = &cptr;
 
@@ -152,12 +152,12 @@ template<class T> int safe_cast(const T&)=delete;
 int safe_cast(png_uint_32 t){
 	if(t > numeric_limits<int>::max())
 		throw Exceptions::Image_IO::UnsupportedImageSubType("PNG", "dimension over INT_MAX");
-	
+
 	return static_cast<int>(t);
 }
 
 PNGPimpl::PNGPimpl(std::istream& in)
-:i(in),type(""),row(0),png_ptr(0),info_ptr(0),end_info(0)
+	:i(in),type(""),row(0),png_ptr(0),info_ptr(0),end_info(0)
 {
 	//Read the header and make sure it really is a PNG...
 	unsigned char header[8];
@@ -174,7 +174,7 @@ PNGPimpl::PNGPimpl(std::istream& in)
 
 	if(!png_ptr)
 		throw Exceptions::OutOfMemory();
-	
+
 	info_ptr = png_create_info_struct(png_ptr);
 	if(!info_ptr)
 	{
@@ -203,7 +203,7 @@ PNGPimpl::PNGPimpl(std::istream& in)
 
 
 	png_set_sig_bytes(png_ptr, 8);
-	
+
 	png_read_info(png_ptr, info_ptr);
 
 	png_uint_32 w, h;
@@ -222,7 +222,7 @@ PNGPimpl::PNGPimpl(std::istream& in)
 	LOG("channels  = " << (int)png_get_channels(png_ptr, info_ptr) << endl);
 
 	LOG("tRNS?     = " << png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) << endl);
-	
+
 	my_size.x = safe_cast(w);
 	my_size.y = safe_cast(h);
 
@@ -243,7 +243,7 @@ PNGPimpl::PNGPimpl(std::istream& in)
 	}
 	else
 		type = PNM::type_name<unsigned short>::name();
-	
+
 	//Get rid of palette, by transforming it to RGB
 	if(colour == PNG_COLOR_TYPE_PALETTE)
 	{
@@ -259,7 +259,7 @@ PNGPimpl::PNGPimpl(std::istream& in)
 		}
 	}
 
-	
+
 	if(colour & PNG_COLOR_MASK_COLOR)
 		if(colour & PNG_COLOR_MASK_ALPHA)
 			type = "CVD::Rgba<" + type + ">";
@@ -270,7 +270,7 @@ PNGPimpl::PNGPimpl(std::istream& in)
 			type = "CVD::GreyAlpha<" + type + ">";
 		else
 			type = type;
-	
+
 	if(interlace != PNG_INTERLACE_NONE)
 		throw Exceptions::Image_IO::UnsupportedImageSubType("PNG", "Interlace not yet supported");
 
@@ -299,7 +299,7 @@ png_reader::~png_reader()
 }
 
 png_reader::png_reader(istream& i)
-:p(new PNGPimpl(i))
+	:p(new PNGPimpl(i))
 {
 }
 
@@ -326,16 +326,16 @@ bool png_reader::top_row_first()
 //Mechanically generate the pixel reading calls.
 #define GEN1(X) void png_reader::get_raw_pixel_line(X*d){p->read_pixels(d);}
 #define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
-GEN1(bool)
-GEN3(unsigned char)
+	GEN1(bool)
+	GEN3(unsigned char)
 GEN3(unsigned short)
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// PNG writing functions.
-//
+	////////////////////////////////////////////////////////////////////////////////
+	//
+	// PNG writing functions.
+	//
 
-class CVD::PNG::WriterPimpl
+	class CVD::PNG::WriterPimpl
 {
 	public:
 		WriterPimpl(std::ostream&, ImageRef size, const std::string& type);
@@ -344,20 +344,20 @@ class CVD::PNG::WriterPimpl
 
 	private:
 
-	long row;
-	std::ostream& o;
-	ImageRef size;
-	std::string type;
-	std::string error_string;
+		long row;
+		std::ostream& o;
+		ImageRef size;
+		std::string type;
+		std::string error_string;
 
-	png_structp png_ptr;
-	png_infop info_ptr, end_info;
+		png_structp png_ptr;
+		png_infop info_ptr, end_info;
 
 };
 
 
 WriterPimpl::WriterPimpl(ostream& out, ImageRef sz, const string& type_)
-:row(0),o(out),size(sz),type(type_)
+	:row(0),o(out),size(sz),type(type_)
 {
 	//Create required structs
 	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, &error_string, error_fn, warn_fn);
@@ -435,7 +435,7 @@ WriterPimpl::WriterPimpl(ostream& out, ImageRef sz, const string& type_)
 
 	//Write the header 
 	png_write_info(png_ptr, info_ptr);
-	
+
 	//Write the transformations
 	png_set_swap_if_necessary(png_ptr, depth);
 
@@ -482,7 +482,7 @@ WriterPimpl::~WriterPimpl()
 }
 
 png_writer::png_writer(std::ostream&o, ImageRef size, const std::string& type, const std::map<std::string, Parameter<> >&)
-:p(new WriterPimpl(o, size, type))
+	:p(new WriterPimpl(o, size, type))
 {
 }
 
@@ -494,7 +494,7 @@ png_writer::~png_writer()
 #undef GEN3
 #define GEN1(X) void png_writer::write_raw_pixel_line(const X*d){p->write_line(d);}
 #define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
-GEN1(bool)
-GEN1(Rgb8)
-GEN3(unsigned char)
+	GEN1(bool)
+	GEN1(Rgb8)
+	GEN3(unsigned char)
 GEN3(unsigned short)

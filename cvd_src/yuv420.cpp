@@ -62,7 +62,7 @@ namespace CVD {
 	{
 		if (from.size() != to.size())
 			throw Exceptions::Image::IncompatibleImageSizes(__FUNCTION__);
-		
+
 		memcpy(to.data(), from.data(), to.size().area());
 	}	
 }

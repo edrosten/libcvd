@@ -94,15 +94,15 @@ template<class C> void WritePimpl::write_raw_pixel_line(const C* dat)
 	//Do some type checking
 	if(type != PNM::type_name<C>::name())
 		throw WriteTypeMismatch(type, PNM::type_name<C>::name());
-	
+
 	//Do some sanity checking
 	if(row >= (unsigned long)my_size.y)
 		throw InternalLibraryError("CVD", "Write past end of image.");
-	
+
 	write_raw_pixel_line_(dat);
 	row++;
 }
-		
+
 
 template<class C> void WritePimpl::write_raw_pixel_line_(const C* dat)
 {
@@ -146,7 +146,7 @@ void WritePimpl::write_raw_pixel_line_(const Rgba<unsigned short>* dat)
 
 
 WritePimpl::WritePimpl(ostream& os, ImageRef s, const string& t)
-:o(os),my_size(s),type(t),row(0),cards(0)
+	:o(os),my_size(s),type(t),row(0),cards(0)
 {
 	raw=1;
 	write("SIMPLE  =                    T");
@@ -203,16 +203,16 @@ WritePimpl::WritePimpl(ostream& os, ImageRef s, const string& t)
 WritePimpl::~WritePimpl()
 {	
 	//Make the data big endian
-	#ifdef CVD_INTERNAL_ARCH_LITTLE_ENDIAN
-		size_t nelems = data.size() / bpp;
-		if(raw)
-			for(size_t i=0; i < nelems; i++)
-				reverse(&data[i*bpp], &data[i*bpp] + bpp);
-	#elif defined CVD_INTERNAL_ARCH_BIG_ENDIAN
+#ifdef CVD_INTERNAL_ARCH_LITTLE_ENDIAN
+	size_t nelems = data.size() / bpp;
+	if(raw)
+		for(size_t i=0; i < nelems; i++)
+			reverse(&data[i*bpp], &data[i*bpp] + bpp);
+#elif defined CVD_INTERNAL_ARCH_BIG_ENDIAN
 
-	#else 
-		#error No endianness specified
-	#endif
+#else 
+#error No endianness specified
+#endif
 
 	vector<unsigned char> raw_data(data.size());
 
@@ -221,8 +221,8 @@ WritePimpl::~WritePimpl()
 		for(int r=0; r < a2; r++)
 			for(int p=0; p < a3; p++)
 				for(int b=0; b < bpp; b++)
-						raw_data[p*a1*a2*bpp+ (r*a1+c)*bpp+b] = data[(((a2-r-1) * a1 + c)*a3 + p)*bpp + b];
-	
+					raw_data[p*a1*a2*bpp+ (r*a1+c)*bpp+b] = data[(((a2-r-1) * a1 + c)*a3 + p)*bpp + b];
+
 	o.write((char*)&raw_data[0], raw_data.size());
 }
 
@@ -234,7 +234,7 @@ WritePimpl::~WritePimpl()
 //
 
 CVD::FITS::writer::writer(ostream& o, ImageRef size, const string& type, const map<string, Parameter<> >&)
-:t(new WritePimpl(o, size, type))
+	:t(new WritePimpl(o, size, type))
 {}
 
 CVD::FITS::writer::~writer()
@@ -246,11 +246,11 @@ CVD::FITS::writer::~writer()
 #define GEN1(X) void CVD::FITS::writer::write_raw_pixel_line(const X*d){t->write_raw_pixel_line(d);}
 #define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
 
-GEN3(unsigned char)
-GEN3(unsigned short)
-GEN3(short)
-GEN3(int)
-GEN3(float)
+	GEN3(unsigned char)
+	GEN3(unsigned short)
+	GEN3(short)
+	GEN3(int)
+	GEN3(float)
 GEN3(double)
 
 

@@ -36,7 +36,7 @@ void ReadPimpl::get_raw_pixel_line(double* d)
 {
 	if(row  > (unsigned long)my_size.y)
 		throw InternalLibraryError("CVD", "Read past end of image.");
-	
+
 	copy(raster_data[row].begin(), raster_data[row].end(), d);
 	row ++;
 }
@@ -57,7 +57,7 @@ ReadPimpl::~ReadPimpl()
 
 
 ReadPimpl::ReadPimpl(istream& is)
-:i(is),row(0)
+	:i(is),row(0)
 {
 	my_size.x = -1;
 	my_size.y = 0;
@@ -71,14 +71,14 @@ ReadPimpl::ReadPimpl(istream& is)
 
 		if(i.fail())
 			break;
-		
+
 		istringstream l(line);
 		raster_data.resize(my_size.y + 1);
 		copy(istream_iterator<double>(l), istream_iterator<double>(), back_inserter(raster_data.back()));
 
 		if(raster_data.back().size() == 0)
 			break;
-		
+
 		if(my_size.y == 0)
 			my_size.x = static_cast<int>(raster_data[0].size());
 		else if(my_size.x != (int)raster_data.back().size())
@@ -102,7 +102,7 @@ ReadPimpl::ReadPimpl(istream& is)
 //
 
 reader::reader(istream& i)
-:t(new ReadPimpl(i))
+	:t(new ReadPimpl(i))
 {}
 
 reader::~reader()

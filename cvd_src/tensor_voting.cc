@@ -20,7 +20,7 @@ namespace CVD
 			v[1] = makeVector(-sin(angle), cos(angle));
 			return v;
 		}
-	
+
 		//See the tensor voting documentation for a description of the maths
 		pair<Matrix<2>, double> tensor_kernel_element(Vector<2>& g, int x1, int y1, double sigma, double ratio)
 		{
@@ -51,14 +51,14 @@ namespace CVD
 				return  make_pair(d.as_col() * d.as_row(), scale);
 			}
 		}
-		
+
 		//Borrowed from the tag library.
 		template<class A, class B> struct refpair
 		{
 			A& a;
 			B& b;
 			refpair(A& aa, B& bb)
-			:a(aa),b(bb)
+				:a(aa),b(bb)
 			{}
 
 			void operator=(const pair<A,B>& p)
@@ -81,7 +81,7 @@ namespace CVD
 			t.o = (ptrdiff_t)s * y + x;
 			return t;
 		}
-		
+
 		//Compute a kernel, with small values set to zero, with pointer offsets
 		//for the nonzero elements.
 		vector<pair<TV_coord, Matrix<2> > > compute_a_tensor_kernel(int radius, double cutoff, double angle, double sigma, double ratio, int row_stride)
@@ -103,7 +103,7 @@ namespace CVD
 					if(scale >= cutoff)
 						ret.push_back(make_pair(make(x,y,row_stride), scale * tensor));
 				}
-			
+
 			return ret;
 		}
 	}

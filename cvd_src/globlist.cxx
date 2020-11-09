@@ -12,27 +12,27 @@ using namespace CVD;
 // Makes a list of files matching a pattern
 //
 namespace CVD{
-vector<string> globlist(const string& gl)
-{
-	vector<string> ret;
+	vector<string> globlist(const string& gl)
+	{
+		vector<string> ret;
 
-	glob_t g;
-	unsigned int i;
-	
-	#ifdef CVD_INTERNAL_GLOB_IS_BAD
+		glob_t g;
+		unsigned int i;
+
+#ifdef CVD_INTERNAL_GLOB_IS_BAD
 		glob(gl.c_str(), 0 ,  0 , &g);
-	#else
+#else
 		glob(gl.c_str(), GLOB_BRACE | GLOB_TILDE,  0 , &g);
-	#endif
+#endif
 
-	for(i=0; i < g.gl_pathc; i++)
-		ret.push_back(g.gl_pathv[i]);
+		for(i=0; i < g.gl_pathc; i++)
+			ret.push_back(g.gl_pathv[i]);
 
-	globfree(&g);
+		globfree(&g);
 
-	if(ret.size() == 1 && ret[0] == "")
-		ret.resize(0);
+		if(ret.size() == 1 && ret[0] == "")
+			ret.resize(0);
 
-	return ret;
-}
+		return ret;
+	}
 }

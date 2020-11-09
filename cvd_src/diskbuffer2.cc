@@ -34,9 +34,9 @@ DiskBuffer2::EndOfBuffer::EndOfBuffer()
 
 DiskBuffer2::BadSeek::BadSeek(double t)
 	: All([=] {
-		ostringstream ss;
-		ss << "DiskBuffer2: Seek to time " << t << "mS failed. No such time in the buffer";
-		return ss.str();
-	}())
+			ostringstream ss;
+			ss << "DiskBuffer2: Seek to time " << t << "mS failed. No such time in the buffer";
+			return ss.str();
+			}())
 {
 }

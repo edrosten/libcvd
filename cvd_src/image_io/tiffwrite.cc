@@ -64,14 +64,14 @@ toff_t TIFFWritePimpl::seek(thandle_t vis, toff_t off, int dir)
 {
 	TIFFWritePimpl* p = (TIFFWritePimpl*)vis;
 	ostream& o(p->o);
-	
+
 	if(dir == SEEK_SET)
 		o.seekp(off, ios_base::beg);
 	else if(dir == SEEK_CUR)
 		o.seekp(off, ios_base::cur);
 	else if(dir == SEEK_END)
 		o.seekp(off, ios_base::end);
-	
+
 
 	//From comments in libtiff:
 
@@ -157,7 +157,7 @@ template<class T> void TIFFWritePimpl::write_raw_pixel_line(const T* data)
 	//Do some type checking
 	if(type != PNM::type_name<T>::name())
 		throw WriteTypeMismatch(type, PNM::type_name<T>::name());
-	
+
 	//Do some sanity checking
 	if(row >= (unsigned long)my_size.y)
 		throw InternalLibraryError("CVD", "Write past end of image.");
@@ -165,7 +165,7 @@ template<class T> void TIFFWritePimpl::write_raw_pixel_line(const T* data)
 
 	if(TIFFWriteEncodedStrip(tif, row, const_cast<T*>(data), strip_size) == -1)
 		throw WriteError(error_msg);
-		
+
 	row++;
 }
 
@@ -174,12 +174,12 @@ void TIFFWritePimpl::write_raw_pixel_line(const bool* data)
 	//Do some type checking
 	if(type != PNM::type_name<bool>::name())
 		throw WriteTypeMismatch(type, PNM::type_name<bool>::name());
-	
+
 	//Do some sanity checking
 	if(row >= (unsigned long)my_size.y)
 		throw InternalLibraryError("CVD", "Write past end of image.");
 
-	
+
 	fill(bool_rowbuf.begin(), bool_rowbuf.end(), 0);
 
 	//Pack bools
@@ -189,8 +189,8 @@ void TIFFWritePimpl::write_raw_pixel_line(const bool* data)
 	if(TIFFWriteScanline(tif, &bool_rowbuf[0], row) == -1)
 		throw WriteError(error_msg);
 
-	
-		
+
+
 	row++;
 }
 
@@ -202,10 +202,10 @@ TIFFWritePimpl::~TIFFWritePimpl()
 
 
 TIFFWritePimpl::TIFFWritePimpl(ostream& os, ImageRef s, const string& t)
-:o(os),my_size(s),type(t),row(0),tif(0)
+	:o(os),my_size(s),type(t),row(0),tif(0)
 {
 	TIFFSetErrorHandler(tiff_error_handler);
-	
+
 	//Find out the file size, and the suitability of the stream
 	o.seekp(0, ios_base::end);
 	length = o.tellp();
@@ -215,7 +215,7 @@ TIFFWritePimpl::TIFFWritePimpl(ostream& os, ImageRef s, const string& t)
 
 
 	tif = TIFFClientOpen("std::ostream", "w", this, 
-						 read, write, seek, close, size, map, unmap);
+			read, write, seek, close, size, map, unmap);
 
 	if(tif == NULL)
 		throw WriteError(error_msg);
@@ -346,7 +346,7 @@ TIFFWritePimpl::TIFFWritePimpl(ostream& os, ImageRef s, const string& t)
 //
 
 tiff_writer::tiff_writer(ostream& o, ImageRef size, const string& type, const std::map<std::string, Parameter<> >&)
-:t(new TIFFWritePimpl(o, size, type))
+	:t(new TIFFWritePimpl(o, size, type))
 {}
 
 tiff_writer::~tiff_writer()
@@ -357,10 +357,10 @@ tiff_writer::~tiff_writer()
 #define GEN1(X) void tiff_writer::write_raw_pixel_line(const X*d){t->write_raw_pixel_line(d);}
 #define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
 
-GEN1(bool)
-GEN3(unsigned char)
-GEN3(unsigned short)
-GEN3(float)
+	GEN1(bool)
+	GEN3(unsigned char)
+	GEN3(unsigned short)
+	GEN3(float)
 GEN3(double)
 
 

@@ -1,7 +1,7 @@
 #include <cvd/morphology.h>
 
 namespace CVD{
-	
+
 	namespace Internal{
 		namespace MorphologyHelpers{
 			//Split a list of ImageRefs up in to rows.

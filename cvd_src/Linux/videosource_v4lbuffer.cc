@@ -9,11 +9,11 @@ namespace CVD{
 
 	template <> VideoBuffer<bayer_grbg>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose)
 	{
-		#ifdef V4L2_PIX_FMT_SBGGR8
-			return new V4LBuffer<bayer_grbg>(dev, size, input, interlaced, 0, verbose);
-		#else
-			throw VideoSourceException("Bayer video grabbing is not available in this kernel version.");
-		#endif
+#ifdef V4L2_PIX_FMT_SBGGR8
+		return new V4LBuffer<bayer_grbg>(dev, size, input, interlaced, 0, verbose);
+#else
+		throw VideoSourceException("Bayer video grabbing is not available in this kernel version.");
+#endif
 	}
 
 	template <> VideoBuffer<yuv422>* makeV4LBuffer(const std::string& dev, const ImageRef& size, int input, bool interlaced, bool verbose)

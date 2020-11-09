@@ -8,7 +8,7 @@ namespace CVD {
 			const uint8x8_t red = vdup_n_u8(r);
 			const uint8x8_t green = vdup_n_u8(g);
 			const uint8x8_t blue = vdup_n_u8(b);
-			
+
 			for( int y = 0; y < from.size().y; ++y){
 				const Rgb<byte> * in = from[y];
 				byte * out = to[y];
@@ -30,15 +30,15 @@ namespace CVD {
 	{
 
 		if((from.size().x % 8) == 0){
-            // red (77) + green (150) + blue (29) = 256
-            Internal::convert_rgb_to_grey_NEON( from, to, 77, 150, 29);
+			// red (77) + green (150) + blue (29) = 256
+			Internal::convert_rgb_to_grey_NEON( from, to, 77, 150, 29);
 		} else {
 			const int multiple_of_8_width = (from.size().x / 8) * 8;
 			const ImageRef end_fast(multiple_of_8_width, from.size().y);
 
-            // red (77) + green (150) + blue (29) = 256
+			// red (77) + green (150) + blue (29) = 256
 			Internal::convert_rgb_to_grey_NEON( from.sub_image(ImageRef_zero, end_fast), to.sub_image(ImageRef_zero, end_fast).ref(), 77, 150, 29);
-			
+
 			for(int y = 0; y < from.size().y; ++y){
 				const Rgb<byte> * in = from[y]+multiple_of_8_width;
 				byte * out = to[y]+multiple_of_8_width;

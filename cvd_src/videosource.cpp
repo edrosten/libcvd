@@ -4,7 +4,7 @@
 
 namespace CVD {
 	using namespace std;
-		
+
 	void tolower(std::string& s)
 	{
 		for (size_t i=0; i<s.length(); ++i)
@@ -18,7 +18,7 @@ namespace CVD {
 	}
 
 	using std::tolower;
-	
+
 	//If the flag is specified at all, but no parameter is
 	//given, this implies true.
 	bool parseBoolFlag(std::string s)
@@ -59,7 +59,7 @@ namespace CVD {
 		}
 		return size;
 	}
-		
+
 	std::string escape(char c)
 	{
 		static std::string escaped[256];
@@ -85,16 +85,16 @@ namespace CVD {
 	std::string unescape(const std::string& s)
 	{
 		static const char mapping[][2] = {{'a','\a'},
-										  {'b','\b'},
-										  {'f','\f'},
-										  {'n','\n'},
-										  {'r','\r'},
-										  {'t','\t'},
-										  {'v','\v'},
-										  {'\\','\\'},
-										  {'\'','\''},
-										  {'"','"'},
-										  {0,0}};
+			{'b','\b'},
+			{'f','\f'},
+			{'n','\n'},
+			{'r','\r'},
+			{'t','\t'},
+			{'v','\v'},
+			{'\\','\\'},
+			{'\'','\''},
+			{'"','"'},
+			{0,0}};
 		std::string ret;
 		ret.reserve(s.length());
 		for (size_t i=0; i<s.length(); ++i) {
@@ -228,7 +228,7 @@ namespace CVD {
 				tolower(name);
 				//std::cerr << "opt: " << name << std::endl;
 				skip_ws(in);	
-			
+
 				if (in.peek() != '=')
 					vs.options.push_back(std::make_pair(name,""));
 				else {
@@ -261,7 +261,7 @@ namespace CVD {
 			vs.identifier = id;
 			//std::cerr << "id" << std::endl;
 		}
-	
+
 	}
 
 	void get_jpegstream_options(const VideoSource& vs, int& ra_frames)
@@ -276,13 +276,13 @@ namespace CVD {
 			}
 			else
 				throw VideoSourceException("invalid option for files protocol: "+it->first +
-										   "\n\t valid options: read_ahead");
+						"\n\t valid options: read_ahead");
 		}
 	}
 
 	void get_deinterlace_options(const VideoSource& vs, DeinterlaceBufferFields::Fields& fields, bool& line_double)
 	{
-		
+
 		for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it)
 		{		
 			if(it->first == "oddonly" && parseBoolFlag(it->second) == true)
@@ -297,13 +297,13 @@ namespace CVD {
 				line_double = true;
 			else
 				throw VideoSourceException("invalid option for files protocol: "+it->first +
-										   "\n\t valid options: oddonly, evenonly, oddeven, evenodd, double");
+						"\n\t valid options: oddonly, evenonly, oddeven, evenodd, double");
 		}
 	}
 
 	void get_skip_options(const VideoSource& vs, bool& do_seek, double& seek, int& drop)
 	{
-		
+
 		for (VideoSource::option_list::const_iterator it=vs.options.begin(); it != vs.options.end(); ++it)
 		{		
 			if(it->first == "seek")
@@ -317,7 +317,7 @@ namespace CVD {
 			}
 			else
 				throw VideoSourceException("invalid option for files protocol: "+it->first +
-										   "\n\t valid options: seek=<time>, drop=<n>"); 
+						"\n\t valid options: seek=<time>, drop=<n>"); 
 		}
 	}
 
@@ -331,7 +331,7 @@ namespace CVD {
 			}
 			else
 				throw VideoSourceException("invalid option for files protocol: "+it->first +
-										   "\n\t valid options: from");
+						"\n\t valid options: from");
 		}
 	}
 
@@ -358,7 +358,7 @@ namespace CVD {
 					throw VideoSourceException("invalid end-of-buffer behaviour: "+it->second+"\n\t valid options are repeat_last, unset_pending, loop");
 			} else
 				throw VideoSourceException("invalid option for files protocol: "+it->first +
-										   "\n\t valid options: read_ahead, on_end, fps");
+						"\n\t valid options: read_ahead, on_end, fps");
 		}
 	}
 
@@ -387,9 +387,9 @@ namespace CVD {
 			else if (it->first == "fps") {
 				fps = stod(it->second.c_str());
 			} else if (it->first == "verbose") {
-						verbose = parseBoolFlag(it->second);
+				verbose = parseBoolFlag(it->second);
 			} else if (it->first == "mjpeg" || it->first == "jpeg") {
-						jpeg = parseBoolFlag(it->second);
+				jpeg = parseBoolFlag(it->second);
 			} else
 				throw VideoSourceException("invalid option for 'uvc' protocol: "+it->first+"\n\t valid options: size, fps, mjpeg, verbose");
 		}
@@ -408,9 +408,9 @@ namespace CVD {
 			else if (it->first == "input") {
 				input = atoi(it->second.c_str());
 			} else if (it->first == "verbose") {
-						verbose = parseBoolFlag(it->second);
+				verbose = parseBoolFlag(it->second);
 			} else if (it->first == "interlaced" || it->first == "fields") {
-						interlaced = parseBoolFlag(it->second);
+				interlaced = parseBoolFlag(it->second);
 			} else
 				throw VideoSourceException("invalid option for 'v4l2' protocol: "+it->first+"\n\t valid options: size, input, interlaced, fields");
 		}
@@ -470,6 +470,6 @@ namespace CVD {
 			else
 				throw VideoSourceException("invalid option for dc1394 protocol: "+it->first+"\n\t valid options: fps, size, offset, verbose");
 		}
-   }
-	
+	}
+
 }

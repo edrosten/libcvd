@@ -28,14 +28,14 @@ static string rtrim(string str)
 {
 	string ws (" \t\f\v\n\r");
 	size_t pos;
-  
+
 	pos=str.find_last_not_of(ws);
 	if (pos!=string::npos)
 		str.erase(pos+1);
 	else
 		str.clear();
 
-    return str;
+	return str;
 }
 
 //Trim off whitespace on the left hand side
@@ -43,7 +43,7 @@ static string ltrim(const string& str)
 {
 	string ws (" \t\f\v\n\r");
 	size_t pos;
-  
+
 	pos=str.find_first_not_of(ws);
 	if (pos!=string::npos)
 		return string(str.begin()+pos, str.end());
@@ -109,7 +109,7 @@ class CVD::FITS::ReadPimpl
 		unsigned long row;
 		ImageRef my_size;
 		string   type;
-	
+
 		//HDU is the FITS term: header description units.
 		//The HDU has multiple 36 card stacks of 80 column cards.
 		//which is 2880 bytes
@@ -118,7 +118,7 @@ class CVD::FITS::ReadPimpl
 		void next_card()
 		{
 			if(card != NULL)
-					card += 80;
+				card += 80;
 
 			if(card == NULL || card == HDU_card_stack + 2880)
 			{	
@@ -136,7 +136,7 @@ class CVD::FITS::ReadPimpl
 				return 0;
 			return equal(s.begin(), s.end(), card);
 		}
-		
+
 		//keywords are left justified, in columns 1--8
 		string get_keyword()
 		{
@@ -228,7 +228,7 @@ ReadPimpl::~ReadPimpl()
 
 
 ReadPimpl::ReadPimpl(istream& is)
-:i(is),row(0),card(NULL)
+	:i(is),row(0),card(NULL)
 {
 	next_card();
 	if(!match_card_start("SIMPLE  =                    T"))
@@ -237,7 +237,7 @@ ReadPimpl::ReadPimpl(istream& is)
 	next_card();
 	expect_keyword("BITPIX");
 	int bpp = get_int(get_numeric_field());
-	
+
 	if(bpp == 8)
 		type = PNM::type_name<byte>::name();
 	else if(bpp == 16)
@@ -250,8 +250,8 @@ ReadPimpl::ReadPimpl(istream& is)
 		type = PNM::type_name<double>::name();
 	else
 		throw Exceptions::Image_IO::MalformedImage("FITS images has unrecognised BITPIX (" + get_numeric_field() + ")");
-		
-	
+
+
 	unsigned int num_axes;
 	next_card();
 	expect_keyword("NAXIS");
@@ -259,7 +259,7 @@ ReadPimpl::ReadPimpl(istream& is)
 
 	if(num_axes < 1 || num_axes>3)
 		throw Exceptions::Image_IO::UnsupportedImageSubType("FITS", get_numeric_field() + " axes given (1, 2 or 3 supported).");
-	
+
 	//Read in the axis lengths
 	//select obvious defailts for missing axes
 	int a1=0, a2=1, a3=1;
@@ -282,7 +282,7 @@ ReadPimpl::ReadPimpl(istream& is)
 	}
 	my_size.x = a1;
 	my_size.y = a2;
-	
+
 	double add_for_zero=0;
 	string bzero;
 
@@ -310,7 +310,7 @@ ReadPimpl::ReadPimpl(istream& is)
 	else
 		throw Exceptions::Image_IO::UnsupportedImageSubType("FITS", "BZERO is " + bzero + ". Only 0 or 32768 (for int16 images) supported");
 
-	
+
 	//Figure out the colourspace
 	if(a3 == 1)
 		type = type;
@@ -325,12 +325,12 @@ ReadPimpl::ReadPimpl(istream& is)
 
 
 	//We should really use BZERO, too.
-	
+
 	//Images are planar. So, deplanarize here.
 	//Also, correct the endianness
 	//FIXME this could be much more efficient.
 	bpp = abs(bpp)/8;
-	
+
 	size_t nelems = a1 * a2 * a3;
 	size_t nbytes = nelems * bpp;
 	vector<unsigned char> raw_data;
@@ -340,25 +340,25 @@ ReadPimpl::ReadPimpl(istream& is)
 
 	if(i.eof())
 		throw(Exceptions::Image_IO::MalformedImage("EOF in image."));
-		
+
 
 	//Make the data follow the native byte ordering
-	#ifdef CVD_INTERNAL_ARCH_LITTLE_ENDIAN
-		for(size_t i=0; i < nelems; i++)
-			reverse(&raw_data[i*bpp], &raw_data[i*bpp] + bpp);
-	#elif defined CVD_INTERNAL_ARCH_BIG_ENDIAN
+#ifdef CVD_INTERNAL_ARCH_LITTLE_ENDIAN
+	for(size_t i=0; i < nelems; i++)
+		reverse(&raw_data[i*bpp], &raw_data[i*bpp] + bpp);
+#elif defined CVD_INTERNAL_ARCH_BIG_ENDIAN
 
-	#else
-			#error No endianness defined.
-	#endif
-	
+#else
+#error No endianness defined.
+#endif
+
 	//Convert planar to inline
 	for(int c=0; c < a1; c++)
 		for(int r=0; r < a2; r++)
 			for(int p=0; p < a3; p++)
 				for(int b=0; b < bpp; b++)
-						data[((r * a1 + c)*a3 + p)*bpp + b] = raw_data[p*a1*a2*bpp+ ((a2-r-1)*a1+c)*bpp+b];
-	
+					data[((r * a1 + c)*a3 + p)*bpp + b] = raw_data[p*a1*a2*bpp+ ((a2-r-1)*a1+c)*bpp+b];
+
 	bytes_per_pixel = a3 * bpp;
 }
 
@@ -371,7 +371,7 @@ ReadPimpl::ReadPimpl(istream& is)
 //
 
 reader::reader(istream& i)
-:t(new ReadPimpl(i))
+	:t(new ReadPimpl(i))
 {}
 
 reader::~reader()
@@ -402,9 +402,9 @@ bool reader::top_row_first()
 #define GEN1(X) void reader::get_raw_pixel_line(X*d){t->get_raw_pixel_line(d);}
 #define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
 
-GEN3(unsigned char)
-GEN3(signed short)
-GEN3(unsigned short)
-GEN3(signed int)
-GEN3(float)
+	GEN3(unsigned char)
+	GEN3(signed short)
+	GEN3(unsigned short)
+	GEN3(signed int)
+	GEN3(float)
 GEN3(double)
