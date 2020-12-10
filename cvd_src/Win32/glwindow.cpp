@@ -1,9 +1,9 @@
 #include <cvd/glwindow.h>
 #include <exception>
 
-#include <gl/gl.h>
 #include <windows.h>
 #include <windowsx.h>
+#include <gl/gl.h>
 
 #include <cassert>
 #include <iostream>
