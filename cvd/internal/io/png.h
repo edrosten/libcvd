@@ -1,6 +1,7 @@
 #ifndef CVD_INTERNAL_IO_PNG_H
 #define CVD_INTERNAL_IO_PNG_H
 
+#include <any>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -123,7 +124,7 @@ namespace PNG
 	class png_writer
 	{
 		public:
-		png_writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, Parameter<>>& p);
+		png_writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, std::any>& p);
 		~png_writer();
 
 		void write_raw_pixel_line(const bool*);

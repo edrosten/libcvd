@@ -1,6 +1,7 @@
 #ifndef CVD_IMAGE_IO_H
 #define CVD_IMAGE_IO_H
 
+#include <any>
 #include <cctype>
 #include <cvd/config.h>
 #include <cvd/exceptions.h>
@@ -244,7 +245,7 @@ ImageType::ImageType string_to_image_type(const std::string& name);
 /// @param t The image file format to use (see ImageType::ImageType for a list of supported formats)
 /// @ingroup gImageIO
 template <class PixelType>
-void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t, const std::map<std::string, Parameter<>>& p = std::map<std::string, Parameter<>>())
+void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::ImageType t, const std::map<std::string, std::any>& p = std::map<std::string, std::any>())
 {
 	switch(t)
 	{
@@ -291,7 +292,7 @@ void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::Image
 }
 
 template <class PixelType>
-void img_save(const BasicImage<PixelType>& im, const std::string& name, ImageType::ImageType t, ImageType::ImageType d = ImageType::PNM, const std::map<std::string, Parameter<>>& p = std::map<std::string, Parameter<>>())
+void img_save(const BasicImage<PixelType>& im, const std::string& name, ImageType::ImageType t, ImageType::ImageType d = ImageType::PNM, const std::map<std::string, std::any>& p = std::map<std::string, std::any>())
 {
 	std::ofstream out(name.c_str(), std::ios::out | std::ios::binary);
 	if(!out.good())
@@ -308,7 +309,7 @@ void img_save(const BasicImage<PixelType>& im, const std::string& name, ImageTyp
 }
 
 template <class PixelType>
-void img_save(const BasicImage<PixelType>& im, const std::string& name, const std::map<std::string, Parameter<>>& p = std::map<std::string, Parameter<>>())
+void img_save(const BasicImage<PixelType>& im, const std::string& name, const std::map<std::string, std::any>& p = std::map<std::string, std::any>())
 {
 	img_save(im, name, ImageType::Automatic, ImageType::PNM, p);
 }

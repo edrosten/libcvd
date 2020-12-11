@@ -486,7 +486,7 @@ WriterPimpl::~WriterPimpl()
 	png_destroy_write_struct(&png_ptr, &info_ptr);
 }
 
-png_writer::png_writer(std::ostream& o, ImageRef size, const std::string& type, const std::map<std::string, Parameter<>>&)
+png_writer::png_writer(std::ostream& o, ImageRef size, const std::string& type, const std::map<std::string, std::any>&)
     : p(new WriterPimpl(o, size, type))
 {
 }

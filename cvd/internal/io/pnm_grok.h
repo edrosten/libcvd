@@ -4,6 +4,7 @@
 #include <cvd/image.h>
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/internal/load_and_save.h>
+#include <any>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -77,7 +78,7 @@ namespace PNM
 	class Writer
 	{
 		public:
-		Writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, Parameter<>>& p);
+		Writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, std::any>& p);
 		~Writer();
 
 		//void write_raw_pixel_line(const bool*);

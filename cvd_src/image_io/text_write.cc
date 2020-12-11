@@ -64,7 +64,7 @@ class CVD::TEXT::WritePimpl
 	unsigned long row;
 };
 
-TEXT::writer::writer(ostream& o, ImageRef size, const string& type, const std::map<std::string, Parameter<>>&)
+TEXT::writer::writer(ostream& o, ImageRef size, const string& type, const std::map<std::string, std::any>&)
     : t(new WritePimpl(o, size, type))
 {
 }

@@ -1,6 +1,7 @@
 #ifndef PNM_CVDIMAGE_H
 #define PNM_CVDIMAGE_H
 
+#include <any>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -60,7 +61,7 @@ namespace CVDimage
 	class writer
 	{
 		public:
-		writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, Parameter<>>& p);
+		writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, std::any>& p);
 		~writer();
 
 		void write_raw_pixel_line(const byte*);
