@@ -12,17 +12,15 @@ jobs:
     steps:
     - run: |
            sudo apt-get update
-           sudo apt install g++-10 gcc-10
+           sudo apt install g++-10 gcc-10 cmake ninja
     - uses: actions/checkout@v2
     - name: configure
-      run: ./configure
-      env: 
-        CC: gcc-10
-        CXX: g++-10 -Werror -Wno-stringop-overflow
-    - name: make
-      run: make
-    - name: make test
-      run: make test
+      working-directory: ./build
+      run: cmake -G Ninja ..
+    - name: compile
+      run: ninja
+    - name: test
+      run: ctest
   build-windows:
     runs-on: windows-2019
     steps:
