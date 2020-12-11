@@ -14,6 +14,8 @@ jobs:
            sudo apt-get update
            sudo apt install g++-10 gcc-10 cmake ninja-build
     - uses: actions/checkout@v2
+    - name: setup
+      run: mkdir build
     - name: configure
       working-directory: ./build
       run: cmake -G Ninja ..
