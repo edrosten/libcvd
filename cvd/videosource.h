@@ -255,8 +255,8 @@ struct makeDiskBuffer2
 	static VideoBuffer<T>* make(const std::string&, double, VideoBufferFlags::OnEndOfBuffer)
 	{
 		throw VideoSourceException("DiskBuffer2 (shell glob expansion) is not compiled in to libcvd.");
-		}
-	};
+	}
+};
 #endif
 
 void get_files_options(const VideoSource& vs, int& fps, VideoBufferFlags::OnEndOfBuffer& eob);
