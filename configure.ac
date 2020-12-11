@@ -1,14 +1,14 @@
 AC_INIT(CVD,2.1)
 AC_COPYRIGHT(Copyright foo)
 
-m4_include([m4/ax_cxx_compile_stdcxx_14.m4])
+m4_include([m4/ax_cxx_compile_stdcxx.m4])
 
 AC_CONFIG_HEADERS
 AC_HEADER_STDC
 
 AC_PROG_AWK
 AC_PROG_CXX
-AX_CXX_COMPILE_STDCXX_14
+AX_CXX_COMPILE_STDCXX(17, noext, mandatory)
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_RANLIB
