@@ -515,7 +515,7 @@ GEN2(unsigned short)
 	class pnm_writer
 {
 	public:
-		pnm_writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, Parameter<> >& p);
+		pnm_writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, std::any >& p);
 		~pnm_writer();
 
 		//void write_raw_pixel_line(const bool*);
@@ -569,13 +569,13 @@ void writePNMHeader(ostream& out, int channels, ImageRef size, int maxval, bool 
 	out << size.x << " " << size.y << endl << maxval << endl;
 }
 
-pnm_writer::pnm_writer(std::ostream& out, ImageRef size_, const std::string& type_, const std::map<std::string, Parameter<> >& p)
+pnm_writer::pnm_writer(std::ostream& out, ImageRef size_, const std::string& type_, const std::map<std::string, std::any >& p)
 	:text(0),row(0),o(out),size(size_),type(type_)
 {
 	if(p.count("pnm.raw"))
 	{
 		try{
-			text=!(p.find("pnm.raw")->second.get<bool>());
+			text=!(std::any_cast<bool>(p.find("pnm.raw")->second));
 		}
 		catch(const std::bad_cast&){
 			cerr << "Warning pnm.raw is not a bool.\n";
@@ -666,7 +666,7 @@ void pnm_writer::write_raw_pixel_line(const C* data)
 // Public interface
 //
 
-Writer::Writer(std::ostream& out, ImageRef size_, const std::string& type_, const std::map<std::string, Parameter<> >&  p)
+Writer::Writer(std::ostream& out, ImageRef size_, const std::string& type_, const std::map<std::string, std::any >&  p)
 	:p(new pnm_writer(out, size_, type_, p))
 {}
 

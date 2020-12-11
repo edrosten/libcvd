@@ -5,10 +5,10 @@
 #include <cvd/exceptions.h>
 #include <cvd/image_convert.h>
 #include <cvd/internal/convert_pixel_types.h>
-#include <cvd/internal/io/parameter.h>
 #include <cvd/internal/name_CVD_rgb_types.h>
 #include <iostream>
 #include <map>
+#include <any>
 #include <memory>
 #include <string>
 #include <typeinfo>
@@ -297,7 +297,7 @@ namespace Internal
 	template <class Pixel, class ImageWriter, class OutgoingPixel>
 	struct maybe_process_and_write
 	{
-		static void write(std::ostream& os, const BasicImage<Pixel>& im, const std::map<std::string, Parameter<>>& p)
+		static void write(std::ostream& os, const BasicImage<Pixel>& im, const std::map<std::string, std::any>& p)
 		{
 			ImageWriter w(os, im.size(), CVD::PNM::type_name<OutgoingPixel>::name(), p);
 			Image<OutgoingPixel> row(ImageRef(im.size().x, 1));
@@ -320,7 +320,7 @@ namespace Internal
 	template <class Pixel, class ImageWriter>
 	struct maybe_process_and_write<Pixel, ImageWriter, Pixel>
 	{
-		static void write(std::ostream& os, const BasicImage<Pixel>& im, const std::map<std::string, Parameter<>>& p)
+		static void write(std::ostream& os, const BasicImage<Pixel>& im, const std::map<std::string, std::any>& p)
 		{
 			ImageWriter w(os, im.size(), CVD::PNM::type_name<Pixel>::name(), p);
 
@@ -334,7 +334,7 @@ namespace Internal
 	};
 
 	template <class Pixel, class Writer>
-	void writeImage(const BasicImage<Pixel>& im, std::ostream& o, const std::map<std::string, Parameter<>>& p)
+	void writeImage(const BasicImage<Pixel>& im, std::ostream& o, const std::map<std::string, std::any>& p)
 	{
 		maybe_process_and_write<Pixel, Writer, typename Writer::template Outgoing<Pixel>::type>::write(o, im, p);
 	}

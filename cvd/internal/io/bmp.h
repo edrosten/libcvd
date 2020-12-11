@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <any>
 
 #include <cvd/byte.h>
 #include <cvd/image.h>
@@ -47,7 +48,7 @@ namespace BMP
 	class Writer
 	{
 		public:
-		Writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, Parameter<>>& p);
+		Writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, std::any>& p);
 		~Writer();
 
 		void write_raw_pixel_line(const byte*);

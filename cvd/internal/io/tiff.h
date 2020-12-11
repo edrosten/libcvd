@@ -3,6 +3,7 @@
 
 #include <cvd/image.h>
 #include <cvd/internal/load_and_save.h>
+#include <any>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -146,7 +147,7 @@ namespace TIFF
 	class tiff_writer
 	{
 		public:
-		tiff_writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, Parameter<>>& p);
+		tiff_writer(std::ostream&, ImageRef size, const std::string& type, const std::map<std::string, std::any>& p);
 		~tiff_writer();
 
 		void write_raw_pixel_line(const bool*);

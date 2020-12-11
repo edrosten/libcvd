@@ -336,7 +336,7 @@ namespace CVD
 		class WritePimpl
 		{
 			public:
-				WritePimpl(std::ostream&, int  xsize, int ysize, const string& type, const std::map<std::string, Parameter<> >& p, const std::string& comm="");
+				WritePimpl(std::ostream&, int  xsize, int ysize, const string& type, const std::map<std::string, std::any >& p, const std::string& comm="");
 				int channels(){return m_channels;}
 				int  x_size() const {return xs;}
 				int  y_size() const {return ys;}
@@ -356,7 +356,7 @@ namespace CVD
 
 
 
-		WritePimpl::WritePimpl(std::ostream& out, int xsize, int ysize, const string& t, const std::map<std::string, Parameter<> >& p, const string& comm)
+		WritePimpl::WritePimpl(std::ostream& out, int xsize, int ysize, const string& t, const std::map<std::string, std::any >& p, const string& comm)
 			:o(out)
 		{
 			xs = xsize;
@@ -401,7 +401,7 @@ namespace CVD
 			if(p.count("jpeg.quality"))
 			{
 				try{
-					quality = p.find("jpeg.quality")->second.get<int>();
+					quality = std::any_cast<int>(p.find("jpeg.quality")->second);
 					quality = max(0,min(100,quality));
 				}
 				catch(const std::bad_cast&)
@@ -470,7 +470,7 @@ namespace CVD
 		// Public interfaces to image writing.
 		//
 
-		writer::writer(ostream& o, ImageRef size, const string& s, const std::map<std::string, Parameter<> >& p)
+		writer::writer(ostream& o, ImageRef size, const string& s, const std::map<std::string, std::any >& p)
 			:t(new WritePimpl(o, size.x, size.y, s, p))
 		{}
 

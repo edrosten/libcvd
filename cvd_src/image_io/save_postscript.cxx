@@ -207,7 +207,7 @@ namespace CVD
 		// Public interfaces to image writing.
 		//
 
-		writer::writer(ostream& o, ImageRef size, const string& s, const map<string, Parameter<> >&)
+		writer::writer(ostream& o, ImageRef size, const string& s, const map<string, std::any >&)
 			:t(new WritePimpl(o, size, s))
 		{}
 
@@ -232,7 +232,7 @@ namespace CVD
 			return os.str();
 		}
 
-		eps_writer::eps_writer(ostream& o, ImageRef size, const string& s, const map<string, Parameter<> >&)
+		eps_writer::eps_writer(ostream& o, ImageRef size, const string& s, const map<string, std::any >&)
 			:t(new WritePimpl(o, size, s, eps_header(size)))
 		{}
 

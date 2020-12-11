@@ -880,7 +880,7 @@ namespace CVD
 		// Public interfaces to image writing.
 		//
 
-		writer::writer(ostream& o, ImageRef size, const string& s, const std::map<std::string, Parameter<> >&)
+		writer::writer(ostream& o, ImageRef size, const string& s, const std::map<std::string, std::any >&)
 			:t(new WritePimpl(o, size.x, size.y, s))
 		{}
 

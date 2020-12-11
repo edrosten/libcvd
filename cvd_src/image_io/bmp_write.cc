@@ -64,7 +64,7 @@ namespace BMP
 		vector<char> buf;
 	};
 
-	Writer::Writer(std::ostream& o, ImageRef size, const std::string& type, const std::map<std::string, Parameter<>>&)
+	Writer::Writer(std::ostream& o, ImageRef size, const std::string& type, const std::map<std::string, std::any>&)
 	    : t(new WritePimpl(o, size, type))
 	{
 	}
