@@ -12,12 +12,13 @@
 #ifndef __CVD_IMAGE_REF_H__
 #define __CVD_IMAGE_REF_H__
 
-#include <iostream>
+#include <cassert>
 #include <cctype>
 #include <cvd/exceptions.h>
-#include <cassert>
+#include <iostream>
 
-namespace CVD {
+namespace CVD
+{
 
 /// @ingroup gImage
 
@@ -27,12 +28,11 @@ namespace CVD {
 /// An (x,y) image co-ordinate
 class ImageRef
 {
-public:
-
+	public:
 	//Construction
 	/// Construct an ImageRef initialised at (0,0)
 	constexpr ImageRef();
-	constexpr ImageRef(const ImageRef&)=default;
+	constexpr ImageRef(const ImageRef&) = default;
 
 	/// Construct an ImageRef
 	/// @param xp The x co-ordinate
@@ -45,9 +45,8 @@ public:
 	//#if __cplusplus >= 201103
 	//
 	//ImageRef(const std::initializer_list<int>& init)
-//	:
-//	#endif
-
+	//	:
+	//	#endif
 
 	//Iteration
 
@@ -83,75 +82,74 @@ public:
 	/// @param size The size of the image
 	inline void end(const ImageRef& size);
 
-
 	//Operators
 
 	/// Assigment
 	/// @param ref The co-ordinate to copy
-	constexpr ImageRef& 	operator=(const ImageRef& ref);
+	constexpr ImageRef& operator=(const ImageRef& ref);
 	/// Logical equals
 	/// @param ref The co-ordinate to compare with
-	constexpr bool 		operator==(const ImageRef& ref) const;
+	constexpr bool operator==(const ImageRef& ref) const;
 	/// Logical not equals
 	/// @param ref The co-ordinate to compare with
-	constexpr bool 		operator!=(const ImageRef& ref) const;
+	constexpr bool operator!=(const ImageRef& ref) const;
 	/// Unary minus. Negates both x and y components.
-	constexpr ImageRef  operator-() const;
+	constexpr ImageRef operator-() const;
 	/// Multiply both x and y co-ordinates by a scalar
 	/// @param scale The multiplier
-	constexpr ImageRef&  operator*=(const double scale);
+	constexpr ImageRef& operator*=(const double scale);
 	/// Divide both x and y co-ordinates by a scalar
 	/// @param scale The factor
-	constexpr ImageRef&	operator/=(const double scale);
+	constexpr ImageRef& operator/=(const double scale);
 	/// Add an offset to the co-ordinate
 	/// @param rhs The offset
-	constexpr ImageRef& 	operator+=(const ImageRef rhs);
+	constexpr ImageRef& operator+=(const ImageRef rhs);
 	/// Subtract an offset from the co-ordinate
 	/// @param rhs The offset
-	constexpr ImageRef& 	operator-=(const ImageRef rhs);
+	constexpr ImageRef& operator-=(const ImageRef rhs);
 	/// Multiply both x and y co-ordinates by a scalar
 	/// @param scale The multiplier
-	constexpr ImageRef 	operator*(const double scale) const;
+	constexpr ImageRef operator*(const double scale) const;
 	/// Divide both x and y co-ordinates by a scalar
 	/// @param scale The factor
-	constexpr ImageRef 	operator/(const double scale) const;
+	constexpr ImageRef operator/(const double scale) const;
 	/// Add an offset to the co-ordinate
 	/// @param rhs The offset
-	constexpr ImageRef 	operator+(const ImageRef rhs) const;
+	constexpr ImageRef operator+(const ImageRef rhs) const;
 	/// Subtract an offset from the co-ordinate
 	/// @param rhs The offset
-	constexpr ImageRef 	operator-(const ImageRef rhs) const;
+	constexpr ImageRef operator-(const ImageRef rhs) const;
 	/// Bitwise left-shift operator
 	/// @param i The amount to shift
-	constexpr ImageRef& 	operator<<=(int i);
+	constexpr ImageRef& operator<<=(int i);
 	/// Bitwise right-shift operator
 	/// @param i The amount to shift
-	constexpr ImageRef& 	operator>>=(int i);
+	constexpr ImageRef& operator>>=(int i);
 	/// Bitwise right-shift operator
 	/// @param i The amount to shift
-	constexpr ImageRef		operator>>(int i) const;
+	constexpr ImageRef operator>>(int i) const;
 	/// Bitwise left-shift operator
 	/// @param i The amount to shift
-	constexpr ImageRef		operator<<(int i) const;
+	constexpr ImageRef operator<<(int i) const;
 	/** An ImageRef is less than another ImageRef if it is earlier in the
-	  standard horizontal scan-line order, i.e. has a smaller y-co-ordinate
-	  or the same y-co-ordinate but a smaller x-co-ordinate. An ordering of
-	  ImageRefs is needed to allow them to be used in STL for sets, maps,
-	  multisets, multimaps etc. **/
-	constexpr bool operator<(const ImageRef & other) const;
+			  standard horizontal scan-line order, i.e. has a smaller y-co-ordinate
+			  or the same y-co-ordinate but a smaller x-co-ordinate. An ordering of
+			  ImageRefs is needed to allow them to be used in STL for sets, maps,
+			  multisets, multimaps etc. **/
+	constexpr bool operator<(const ImageRef& other) const;
 	/** An ImageRef is greater than another ImageRef if it is earlier in the
-	  standard horizontal scan-line order, i.e. has a smaller y-co-ordinate
-	  or the same y-co-ordinate but a smaller x-co-ordinate. **/
-	constexpr bool operator>(const ImageRef & other) const;
+			  standard horizontal scan-line order, i.e. has a smaller y-co-ordinate
+			  or the same y-co-ordinate but a smaller x-co-ordinate. **/
+	constexpr bool operator>(const ImageRef& other) const;
 
 	/// Magnitude-squared (x*x + y*y)
-	constexpr unsigned int     mag_squared() const;
+	constexpr unsigned int mag_squared() const;
 
 	/// Area (product of x and y; signed)
 	constexpr int area() const;
 
 	/// The equivalent of doing .* in matlab
-	constexpr ImageRef dot_times(const ImageRef &ref) const;
+	constexpr ImageRef dot_times(const ImageRef& ref) const;
 
 	/// Square bracket subscripts for easy loops. 0=x 1=y other=error
 	constexpr int& operator[](int i);
@@ -168,21 +166,22 @@ public:
 	// and now the data members (which are public!)
 	int x; ///< The x co-ordinate
 	int y; ///< The y co-ordinate
-
 };
 
 /// Left-multiply an ImageRef by a scalar. Mutiplies both x and y.
 /// @param scale The multiplier
 /// @param ref The ImageRef to scale
 /// @relates ImageRef
-constexpr inline ImageRef operator*(const int scale, const ImageRef&  ref);
+constexpr inline ImageRef operator*(const int scale, const ImageRef& ref);
 
 namespace Exceptions
 {
-  /// Exception if subscript for [] is not 0 or 1
-  struct BadSubscript: public CVD::Exceptions::All {BadSubscript(){};};
+	/// Exception if subscript for [] is not 0 or 1
+	struct BadSubscript : public CVD::Exceptions::All
+	{
+		BadSubscript() {};
+	};
 }
-
 
 #include <cvd/internal/image_ref_implementation.hh>
 
@@ -210,7 +209,7 @@ inline std::istream& operator>>(std::istream& is, ImageRef& ref)
 	if(c == -1)
 		return is;
 
-	if(c == '(' )
+	if(c == '(')
 	{
 		is >> std::ws >> ref.x >> std::ws;
 
@@ -222,7 +221,7 @@ inline std::istream& operator>>(std::istream& is, ImageRef& ref)
 		if(is.get() != ')')
 			goto bad;
 	}
-	else if(c == '[' )
+	else if(c == '[')
 	{
 		is >> std::ws >> ref.x >> std::ws >> ref.y >> std::ws;
 		if(is.get() != ']')
@@ -238,7 +237,7 @@ inline std::istream& operator>>(std::istream& is, ImageRef& ref)
 
 	return is;
 
-	bad:
+bad:
 	is.setstate(std::ios_base::badbit);
 
 	return is;
@@ -248,8 +247,6 @@ inline std::istream& operator>>(std::istream& is, ImageRef& ref)
 /// @relates ImageRef
 const ImageRef ImageRef_zero(0, 0);
 
-
 } //namespace CVD
-
 
 #endif

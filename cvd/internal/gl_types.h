@@ -8,91 +8,104 @@
 
 namespace CVD
 {
-	
-	namespace gl
+
+namespace gl
+{
+	template <class C>
+	struct data;
+
+	//Scalar types
+	template <>
+	struct data<unsigned int>
 	{
-		template<class C> struct data;
-
-		//Scalar types
-		template<> struct data<unsigned int>
-		{
-			static const int format=GL_LUMINANCE;
-			static const int type  =GL_UNSIGNED_INT;
-		};
-
-		template<> struct data<int>
-		{
-			static const int format=GL_LUMINANCE;
-			static const int type  =GL_INT;
-		};
-
-		template<> struct data<double>
-		{
-			static const int format=GL_LUMINANCE;
-			static const int type  =GL_DOUBLE;
-		};
-
-		//Rgb<*> types
-	
-		template<> struct data<Rgb<unsigned int> >
-		{
-			static const int format=GL_RGB;
-			static const int type  =GL_UNSIGNED_INT;
-		};
-
-		template<> struct data<Rgb<int> >
-		{
-			static const int format=GL_RGB;
-			static const int type  =GL_INT;
-		};
-
-		template<> struct data<Rgb<double> >
-		{
-			static const int format=GL_RGB;
-			static const int type  =GL_DOUBLE;
-		};
-
-		//Rgba<*> types
-
-		template<> struct data<Rgba<unsigned int> >
-		{
-			static const int format=GL_RGBA;
-			static const int type  =GL_UNSIGNED_INT;
-		};
-
-		template<> struct data<Rgba<int> >
-		{
-			static const int format=GL_RGBA;
-			static const int type  =GL_INT;
-		};
-
-		template<> struct data<Rgba<double> >
-		{
-			static const int format=GL_RGBA;
-			static const int type  =GL_DOUBLE;
-		};
-
-		//La<*> types
-
-		template<> struct data<La<unsigned int> >
-		{
-			static const int format=GL_LUMINANCE_ALPHA;
-			static const int type  =GL_UNSIGNED_INT;
-		};
-
-		template<> struct data<La<int> >
-		{
-			static const int format=GL_LUMINANCE_ALPHA;
-			static const int type  =GL_INT;
-		};
-
-		template<> struct data<La<double> >
-		{
-			static const int format=GL_LUMINANCE_ALPHA;
-			static const int type  =GL_DOUBLE;
-		};
-
+		static const int format = GL_LUMINANCE;
+		static const int type = GL_UNSIGNED_INT;
 	};
+
+	template <>
+	struct data<int>
+	{
+		static const int format = GL_LUMINANCE;
+		static const int type = GL_INT;
+	};
+
+	template <>
+	struct data<double>
+	{
+		static const int format = GL_LUMINANCE;
+		static const int type = GL_DOUBLE;
+	};
+
+	//Rgb<*> types
+
+	template <>
+	struct data<Rgb<unsigned int>>
+	{
+		static const int format = GL_RGB;
+		static const int type = GL_UNSIGNED_INT;
+	};
+
+	template <>
+	struct data<Rgb<int>>
+	{
+		static const int format = GL_RGB;
+		static const int type = GL_INT;
+	};
+
+	template <>
+	struct data<Rgb<double>>
+	{
+		static const int format = GL_RGB;
+		static const int type = GL_DOUBLE;
+	};
+
+	//Rgba<*> types
+
+	template <>
+	struct data<Rgba<unsigned int>>
+	{
+		static const int format = GL_RGBA;
+		static const int type = GL_UNSIGNED_INT;
+	};
+
+	template <>
+	struct data<Rgba<int>>
+	{
+		static const int format = GL_RGBA;
+		static const int type = GL_INT;
+	};
+
+	template <>
+	struct data<Rgba<double>>
+	{
+		static const int format = GL_RGBA;
+		static const int type = GL_DOUBLE;
+	};
+
+	//La<*> types
+
+	template <>
+	struct data<La<unsigned int>>
+	{
+		static const int format = GL_LUMINANCE_ALPHA;
+		static const int type = GL_UNSIGNED_INT;
+	};
+
+	template <>
+	struct data<La<int>>
+	{
+		static const int format = GL_LUMINANCE_ALPHA;
+		static const int type = GL_INT;
+	};
+
+	template <>
+	struct data<La<double>>
+	{
+		static const int format = GL_LUMINANCE_ALPHA;
+		static const int type = GL_DOUBLE;
+	};
+
+};
 
 };
 

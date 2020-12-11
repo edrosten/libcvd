@@ -3,7 +3,8 @@
 namespace CVD
 {
 RunnableBatch::RunnableBatch(unsigned int p)
-:joined(0),parallelism(0)
+    : joined(0)
+    , parallelism(0)
 {
 }
 

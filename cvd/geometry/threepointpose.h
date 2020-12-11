@@ -2,11 +2,11 @@
 #define THREEPOINTPOSE_H
 
 #include <TooN/se3.h>
-#include <vector>
 #include <array>
+#include <vector>
 
-namespace CVD {
-
+namespace CVD
+{
 
 /// @defgroup geometry Camera pose estimation
 /// contains functions for estimating camera pose from different correspondences.
@@ -21,7 +21,7 @@ namespace CVD {
 /// @param[out] poses the vector onto which any valid poses are appended
 /// @return the number of  poses appended to the vector
 /// @ingroup geometry
-int three_point_pose(const std::array<TooN::Vector<3>,3>& x, const std::array<TooN::Vector<2>,3>& z, std::vector<TooN::SE3<> >& poses);
+int three_point_pose(const std::array<TooN::Vector<3>, 3>& x, const std::array<TooN::Vector<2>, 3>& z, std::vector<TooN::SE3<>>& poses);
 
 /// The function for pose estimation from three 2D - 3D point correspondences.
 /// It implements the algorithm given by the Fischer and Bolles RANSAC paper, 1980.
@@ -33,7 +33,7 @@ int three_point_pose(const std::array<TooN::Vector<3>,3>& x, const std::array<To
 /// @param[out] poses the vector onto which any valid poses are appended
 /// @return the number of  poses appended to the vector
 /// @ingroup geometry
-int three_point_pose(const std::array<TooN::Vector<3>,3>& x, const std::array<TooN::Vector<2>,3>& rays, std::vector<TooN::SE3<> >& poses);
+int three_point_pose(const std::array<TooN::Vector<3>, 3>& x, const std::array<TooN::Vector<2>, 3>& rays, std::vector<TooN::SE3<>>& poses);
 
 }
 

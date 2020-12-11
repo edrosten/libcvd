@@ -216,19 +216,19 @@ TIFFPimpl::~TIFFPimpl()
 
 //#define CVD_INTERNAL_VERBOSE_TIFF
 #ifdef CVD_INTERNAL_VERBOSE_TIFF
-	#define LOG(X) do{ cerr << X; }while(0)
-	#define VAR(X) #X << " = " << X
+#define LOG(X) do{ cerr << X; }while(0)
+#define VAR(X) #X << " = " << X
 #else
-	#define LOG(X)
-	#define VAR(X)
+#define LOG(X)
+#define VAR(X)
 #endif
 
 
 TIFFPimpl::TIFFPimpl(istream& is)
-:i(is),row(0)
+	:i(is),row(0)
 {
 	TIFFSetErrorHandler(tiff_error_handler);
-	
+
 	//Find out the file size, and the suitability of the stream
 	i.seekg(0, ios_base::end);
 	length = i.tellg();
@@ -238,14 +238,14 @@ TIFFPimpl::TIFFPimpl(istream& is)
 
 
 	tif = TIFFClientOpen("std::istream", "r", this, 
-						 read, write, seek, close, size, map, unmap);
+			read, write, seek, close, size, map, unmap);
 
 
 	if(tif == NULL)
 		throw MalformedImage(error_msg);
 
 
-	#ifdef CVD_INTERNAL_VERBOSE_TIFF
+#ifdef CVD_INTERNAL_VERBOSE_TIFF
 	{
 		int dircount=1;
 		for(; TIFFReadDirectory(tif); dircount++)
@@ -255,7 +255,7 @@ TIFFPimpl::TIFFPimpl(istream& is)
 		TIFFSetDirectory(tif, 0);
 
 	}
-	#endif
+#endif
 
 	//Libtiff types
 	uint32 w=0, h=0;
@@ -265,7 +265,7 @@ TIFFPimpl::TIFFPimpl(istream& is)
 	TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
 	TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);	
 	TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &bitspersample);
-	
+
 	TIFFGetFieldDefaulted(tif, TIFFTAG_SAMPLESPERPIXEL, &spp);
 
 	TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photo);	
@@ -326,7 +326,7 @@ TIFFPimpl::TIFFPimpl(istream& is)
 		}
 		else
 			goto keep_cooked;
-		
+
 		//Figure out the colourspace
 		if(spp == 1)
 			type = type;
@@ -342,30 +342,30 @@ TIFFPimpl::TIFFPimpl(istream& is)
 		use_cooked_rgba_interface=0;
 	}
 
-	keep_cooked:;
-	if(use_cooked_rgba_interface == 1)
-	{	
-		//The format is "complex" and we don't know how to read it.
-		type = "CVD::Rgba<unsigned char>";
-		inverted_grey=0;
-	}
+keep_cooked:;
+			if(use_cooked_rgba_interface == 1)
+			{	
+				//The format is "complex" and we don't know how to read it.
+				type = "CVD::Rgba<unsigned char>";
+				inverted_grey=0;
+			}
 
-	if(type == "bool")
-		bool_rowbuf.resize((size().x + 7)/8);
+			if(type == "bool")
+				bool_rowbuf.resize((size().x + 7)/8);
 
-	LOG(VAR(type) << endl);
-	LOG(VAR(use_cooked_rgba_interface) << endl);
+			LOG(VAR(type) << endl);
+			LOG(VAR(use_cooked_rgba_interface) << endl);
 
 
 
-	if(use_cooked_rgba_interface)
-	{
-		raster_data.resize(my_size.x* my_size.y);
+			if(use_cooked_rgba_interface)
+			{
+				raster_data.resize(my_size.x* my_size.y);
 
-		//Read the whole image
-		if(TIFFReadRGBAImageOriented(tif, my_size.x, my_size.y, &raster_data[0], 0, ORIENTATION_TOPLEFT) == -1)
-			throw MalformedImage(error_msg);
-	}
+				//Read the whole image
+				if(TIFFReadRGBAImageOriented(tif, my_size.x, my_size.y, &raster_data[0], 0, ORIENTATION_TOPLEFT) == -1)
+					throw MalformedImage(error_msg);
+			}
 }
 
 
@@ -377,7 +377,7 @@ TIFFPimpl::TIFFPimpl(istream& is)
 //
 
 tiff_reader::tiff_reader(istream& i)
-:t(new TIFFPimpl(i))
+	:t(new TIFFPimpl(i))
 {}
 
 tiff_reader::~tiff_reader()
@@ -407,8 +407,8 @@ ImageRef tiff_reader::size()
 #define GEN1(X) void tiff_reader::get_raw_pixel_line(X*d){t->get_raw_pixel_line(d);}
 #define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
 
-GEN1(bool)
-GEN3(unsigned char)
-GEN3(unsigned short)
-GEN3(float)
+	GEN1(bool)
+	GEN3(unsigned char)
+	GEN3(unsigned short)
+	GEN3(float)
 GEN3(double)
