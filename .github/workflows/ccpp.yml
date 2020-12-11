@@ -20,7 +20,7 @@ jobs:
       working-directory: ./build
       run: cmake -G Ninja ..
     - name: compile
-      run: ninja
+      run: ninja -C build
     - name: test
       run: ctest
   build-windows:
