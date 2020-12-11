@@ -275,8 +275,6 @@ PNGPimpl::PNGPimpl(std::istream& in)
 			type = "CVD::Rgb<" + type + ">";
 	else if(colour & PNG_COLOR_MASK_ALPHA)
 		type = "CVD::GreyAlpha<" + type + ">";
-	else
-		type = type;
 
 	if(interlace != PNG_INTERLACE_NONE)
 		throw Exceptions::Image_IO::UnsupportedImageSubType("PNG", "Interlace not yet supported");
@@ -360,7 +358,7 @@ class CVD::PNG::WriterPimpl
 	std::string error_string;
 
 	png_structp png_ptr;
-	png_infop info_ptr, end_info;
+	png_infop info_ptr;
 };
 
 WriterPimpl::WriterPimpl(ostream& out, ImageRef sz, const string& type_)
