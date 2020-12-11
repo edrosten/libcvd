@@ -15,7 +15,6 @@
 #include <cvd/colourspacebuffer.h>
 #include <cvd/colourspaces.h>
 #include <cvd/deinterlacebuffer.h>
-#include <cvd/readaheadvideobuffer.h>
 #include <cvd/video/skipbuffer.h>
 #include <cvd/videobufferwithdata.h>
 
@@ -260,7 +259,7 @@ struct makeDiskBuffer2
 };
 #endif
 
-void get_files_options(const VideoSource& vs, int& fps, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob);
+void get_files_options(const VideoSource& vs, int& fps, VideoBufferFlags::OnEndOfBuffer& eob);
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -324,7 +323,7 @@ VideoBuffer<byte>* makeVideoFileBuffer(const std::string& file, VideoBufferFlags
 template <>
 VideoBuffer<Rgb<byte>>* makeVideoFileBuffer(const std::string& file, VideoBufferFlags::OnEndOfBuffer eob, bool verbose, const std::string& formatname, const std::map<std::string, std::string>&);
 
-void get_file_options(const VideoSource& vs, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob, bool& verbose, std::string& formatname, std::map<std::string, std::string>&);
+void get_file_options(const VideoSource& vs, VideoBufferFlags::OnEndOfBuffer& eob, bool& verbose, std::string& formatname, std::map<std::string, std::string>&);
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -374,18 +373,7 @@ VideoBuffer<T>* open_video_source(const VideoSource& vs)
 {
 	if(vs.protocol == "jpegstream")
 	{
-		int ra_frames = 0;
-		get_jpegstream_options(vs, ra_frames);
-
-		std::unique_ptr<VideoBuffer<T>> jpeg_buffer(makeJPEGStream<T>::make(vs.identifier));
-
-		if(ra_frames == 0)
-			return jpeg_buffer.release();
-		else
-		{
-			std::unique_ptr<VideoBuffer<T>> b = std::make_unique<ReadAheadVideoBuffer<T>>(*(jpeg_buffer.get()), ra_frames);
-			return new VideoBufferWithData<T, VideoBuffer<T>>(b, jpeg_buffer);
-		}
+		return makeJPEGStream<T>::make(vs.identifier);
 	}
 	else if(vs.protocol == "deinterlace")
 	{
@@ -415,13 +403,10 @@ VideoBuffer<T>* open_video_source(const VideoSource& vs)
 	}
 	else if(vs.protocol == "files")
 	{
-		int fps, ra_frames = 0;
+		int fps;
 		VideoBufferFlags::OnEndOfBuffer eob;
-		get_files_options(vs, fps, ra_frames, eob);
-		VideoBuffer<T>* vb = makeDiskBuffer2<T>::make(vs.identifier, fps, eob);
-		if(ra_frames)
-			vb = new ReadAheadVideoBuffer<T>(*vb, ra_frames);
-		return vb;
+		get_files_options(vs, fps, eob);
+		return makeDiskBuffer2<T>::make(vs.identifier, fps, eob);
 	}
 	else if(vs.protocol == "v4l2")
 	{
@@ -452,16 +437,12 @@ VideoBuffer<T>* open_video_source(const VideoSource& vs)
 	}
 	else if(vs.protocol == "file" || vs.protocol == "ffmpeg")
 	{
-		int ra_frames = 0;
 		VideoBufferFlags::OnEndOfBuffer eob;
 		bool verbose = 0;
 		std::string formatname = "";
 		std::map<std::string, std::string> opts;
-		get_file_options(vs, ra_frames, eob, verbose, formatname, opts);
-		VideoBuffer<T>* vb = makeVideoFileBuffer<T>(vs.identifier, eob, verbose, formatname, opts);
-		if(ra_frames)
-			vb = new ReadAheadVideoBuffer<T>(*vb, ra_frames);
-		return vb;
+		get_file_options(vs, eob, verbose, formatname, opts);
+		return makeVideoFileBuffer<T>(vs.identifier, eob, verbose, formatname, opts);
 	}
 	else
 		throw VideoSourceException("undefined video source protocol: '" + vs.protocol + "'\n\t valid protocols: "
@@ -515,11 +496,6 @@ Some Examples:
 Open a DiskBuffer2 for *.pgm in /local/capture/:
 @verbatim
 files:///local/capture/ *.pgm
-@endverbatim
-
-Open a DiskBuffer2 that loops and uses a ReadAheadVideoBuffer wrapper with 40 frame buffer, with 30 fps:
-@verbatim
-files:[read_ahead=40, fps=30, on_end=loop]///local/capture/ *.pgm
 @endverbatim
 
 Open a V4L2 device at /dev/video0:

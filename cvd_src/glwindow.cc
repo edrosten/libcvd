@@ -46,7 +46,7 @@ void CVD::GLWindow::init(const ImageRef& size, int bpp, const std::string& title
 		None
 	};
 	XVisualInfo* visualInfo = glXChooseVisual(display, DefaultScreen(display), visualAttributes);
-	if(visualAttributes == 0)
+	if(visualInfo == 0)
 	{
 		XCloseDisplay(display);
 		throw Exceptions::GLWindow::CreationError("glXChooseVisual failed");
@@ -296,14 +296,14 @@ class SaveEvents : public GLWindow::EventHandler
 	    : events(events_)
 	{
 	}
-	void on_key_down(GLWindow&, int key)
+	void on_key_down(GLWindow&, unsigned int key) override
 	{
 		GLWindow::Event e;
 		e.type = GLWindow::Event::KEY_DOWN;
 		e.which = key;
 		events.push_back(e);
 	}
-	void on_key_up(GLWindow&, int key)
+	void on_key_up(GLWindow&, unsigned int key) override
 	{
 		GLWindow::Event e;
 		e.type = GLWindow::Event::KEY_UP;
@@ -311,7 +311,7 @@ class SaveEvents : public GLWindow::EventHandler
 		events.push_back(e);
 	}
 
-	void on_mouse_move(GLWindow&, ImageRef where, int state)
+	void on_mouse_move(GLWindow&, ImageRef where, unsigned int state) override
 	{
 		GLWindow::Event e;
 		e.type = GLWindow::Event::MOUSE_MOVE;
@@ -320,7 +320,7 @@ class SaveEvents : public GLWindow::EventHandler
 		events.push_back(e);
 	}
 
-	void on_mouse_down(GLWindow&, ImageRef where, int state, int button)
+	void on_mouse_down(GLWindow&, ImageRef where, unsigned int state, unsigned int button) override
 	{
 		GLWindow::Event e;
 		e.type = GLWindow::Event::MOUSE_DOWN;
@@ -330,7 +330,7 @@ class SaveEvents : public GLWindow::EventHandler
 		events.push_back(e);
 	}
 
-	void on_mouse_up(GLWindow&, ImageRef where, int state, int button)
+	void on_mouse_up(GLWindow&, ImageRef where, unsigned int state, unsigned int button) override
 	{
 		GLWindow::Event e;
 		e.type = GLWindow::Event::MOUSE_UP;
@@ -340,7 +340,7 @@ class SaveEvents : public GLWindow::EventHandler
 		events.push_back(e);
 	}
 
-	void on_resize(GLWindow&, ImageRef size)
+	void on_resize(GLWindow&, ImageRef size) override
 	{
 		GLWindow::Event e;
 		e.type = GLWindow::Event::RESIZE;
@@ -348,7 +348,7 @@ class SaveEvents : public GLWindow::EventHandler
 		events.push_back(e);
 	}
 
-	void on_event(GLWindow&, int event)
+	void on_event(GLWindow&, unsigned int event) override
 	{
 		GLWindow::Event e;
 		e.type = GLWindow::Event::EVENT;
@@ -379,16 +379,16 @@ class MakeSummary : public GLWindow::EventHandler
 	{
 	}
 
-	void on_key_down(GLWindow&, int key) { ++summary.key_down[key]; }
-	void on_key_up(GLWindow&, int key) { ++summary.key_up[key]; }
-	void on_mouse_move(GLWindow&, ImageRef where, int)
+	void on_key_down(GLWindow&, unsigned int key) override { ++summary.key_down[key]; }
+	void on_key_up(GLWindow&, unsigned int key) override { ++summary.key_up[key]; }
+	void on_mouse_move(GLWindow&, ImageRef where, unsigned int) override
 	{
 		summary.cursor = where;
 		summary.cursor_moved = true;
 	}
-	void on_mouse_down(GLWindow&, ImageRef where, int state, int button) { summary.mouse_down[button] = std::make_pair(where, state); }
-	void on_mouse_up(GLWindow&, ImageRef where, int state, int button) { summary.mouse_up[button] = std::make_pair(where, state); }
-	void on_event(GLWindow&, int event) { ++summary.events[event]; }
+	void on_mouse_down(GLWindow&, ImageRef where, unsigned int state, unsigned int button) override { summary.mouse_down[button] = std::make_pair(where, state); }
+	void on_mouse_up(GLWindow&, ImageRef where, unsigned int state, unsigned int button) override { summary.mouse_up[button] = std::make_pair(where, state); }
+	void on_event(GLWindow&, unsigned int event) override { ++summary.events[event]; }
 };
 
 void GLWindow::get_events(EventSummary& summary)

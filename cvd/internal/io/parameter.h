@@ -23,6 +23,7 @@ class Parameter<Internal::UntypedParameter>
 	virtual const void* get_data_pointer() const = 0;
 
 	public:
+	virtual ~Parameter() = default;
 	virtual Parameter* duplicate() const = 0;
 };
 #endif

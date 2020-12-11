@@ -287,23 +287,6 @@ void parse(std::istream& in, VideoSource& vs)
 	}
 }
 
-void get_jpegstream_options(const VideoSource& vs, int& ra_frames)
-{
-	ra_frames = 0;
-
-	for(VideoSource::option_list::const_iterator it = vs.options.begin(); it != vs.options.end(); ++it)
-	{
-		if(it->first == "read_ahead")
-		{
-			ra_frames = 50;
-			if(it->second.length())
-				ra_frames = atoi(it->second.c_str());
-		}
-		else
-			throw VideoSourceException("invalid option for files protocol: " + it->first + "\n\t valid options: read_ahead");
-	}
-}
-
 void get_deinterlace_options(const VideoSource& vs, DeinterlaceBufferFields::Fields& fields, bool& line_double)
 {
 
@@ -358,22 +341,15 @@ void get_colourspace_options(const VideoSource& vs, string& colourspace)
 	}
 }
 
-void get_files_options(const VideoSource& vs, int& fps, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob)
+void get_files_options(const VideoSource& vs, int& fps, VideoBufferFlags::OnEndOfBuffer& eob)
 {
 	fps = 30;
-	ra_frames = 0;
 	eob = VideoBufferFlags::RepeatLastFrame;
 	for(VideoSource::option_list::const_iterator it = vs.options.begin(); it != vs.options.end(); ++it)
 	{
 		if(it->first == "fps")
 		{
 			fps = atoi(it->second.c_str());
-		}
-		else if(it->first == "read_ahead")
-		{
-			ra_frames = 50;
-			if(it->second.length())
-				ra_frames = atoi(it->second.c_str());
 		}
 		else if(it->first == "on_end")
 		{
@@ -458,18 +434,12 @@ void get_v4l2_options(const VideoSource& vs, ImageRef& size, int& input, bool& i
 	}
 }
 
-void get_file_options(const VideoSource& vs, int& ra_frames, VideoBufferFlags::OnEndOfBuffer& eob, bool& verbose, string& fmtname, map<string, string>& opts)
+void get_file_options(const VideoSource& vs, VideoBufferFlags::OnEndOfBuffer& eob, bool& verbose, string& fmtname, map<string, string>& opts)
 {
 	eob = VideoBufferFlags::RepeatLastFrame;
 	for(VideoSource::option_list::const_iterator it = vs.options.begin(); it != vs.options.end(); ++it)
 	{
-		if(it->first == "read_ahead")
-		{
-			ra_frames = 50;
-			if(it->second.length())
-				ra_frames = atoi(it->second.c_str());
-		}
-		else if(it->first == "on_end")
+		if(it->first == "on_end")
 		{
 			if(it->second == "loop")
 				eob = VideoBufferFlags::Loop;

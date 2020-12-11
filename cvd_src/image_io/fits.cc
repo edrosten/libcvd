@@ -309,7 +309,7 @@ ReadPimpl::ReadPimpl(istream& is)
 
 	//Figure out the colourspace
 	if(a3 == 1)
-		type = type;
+		;
 	else if(a3 == 2)
 		type = "CVD::GreyAlpha<" + type + ">";
 	else if(a3 == 3)

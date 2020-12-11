@@ -703,7 +703,7 @@ inline void glPrintErrors(void)
 	GLenum code;
 	while((code = glGetError()) != GL_NO_ERROR)
 	{
-		std::cout << "GL:" << code << ":" << gluGetString(code) << std::endl;
+		std::cout << "GL:" << code << std::endl;
 	}
 }
 

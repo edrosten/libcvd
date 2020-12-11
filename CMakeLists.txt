@@ -123,7 +123,6 @@ set(HEADERS
 	cvd/morphology.h
 	cvd/nonmax_suppression.h
 	cvd/opencv.h
-	cvd/readaheadvideobuffer.h
 	cvd/rgb.h
 	cvd/rgb8.h
 	cvd/rgba.h
@@ -144,7 +143,6 @@ set(HEADERS
 	cvd/yc.h
 	cvd/video/skipbuffer.h
 	cvd/internal/builtin_components.h
-	cvd/internal/concurrency_utilities.h
 	cvd/internal/convert_pixel_types.h
 	cvd/internal/gles1_types.h
 	cvd/internal/gl_types.h
