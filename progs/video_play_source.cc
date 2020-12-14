@@ -47,7 +47,7 @@
 #endif
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
-#include "progs/tinyformat.h"
+#include "tinyformat.h"
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif

@@ -6,6 +6,6 @@ project(examples)
 # endif()
 
 add_executable(colourmaps colourmaps.cc)
-target_link_libraries(colourmaps PRIVATE CVD)
+target_link_libraries(colourmaps PRIVATE CVD CVD_ImageIO)
 add_executable(distance_transform distance_transform.cc)
-target_link_libraries(distance_transform PRIVATE CVD)
+target_link_libraries(distance_transform PRIVATE CVD CVD_ImageIO)

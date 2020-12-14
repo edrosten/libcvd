@@ -4,36 +4,14 @@ Note, the master branch is now libCVD-2.0 which is in beta and requires C++14.
 
 ## Compiling and installing
 
-libCVD currently has both an autoconf and cmake based build system. The
-autoconf one works on any unix-like system, and is well testes. The CMake
-one should work on any system but is a little newer so may be buggy in 
-untested configurations.
+libCVD has a CMake based build system.
 
-To install on a UNIX system:
-
-    ./configure && make && sudo make install
-
-To verify that a few things work, you can optionally run
-
-    make test
-
-To build on UNIX with [CMake](https://cmake.org/):
+To build with [CMake](https://cmake.org/):
     
-	mkdir build
-	cd build
-	cmake -DCMAKE_BUILD_TYPE=Release .. 
-	make 
-
-and optionally:
-
-    make test
-
-To build on Windows, use [CMake](https://cmake.org/):
-
-    mkdir build
-    cd build
-    cmake -DCMAKE_INSTALL_PREFIX=<directory> ..
-    cmake --build . --target INSTALL --config Release
+mkdir build
+cd build
+cmake .. 
+make 
 
 ### Dependencies
 
@@ -69,18 +47,6 @@ you will need to install a newer compiler. The easiest eay is to add the
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test
     sudo apt-get update
     sudo apt-get install g++-7
-
-Now you can build libcvd with either:
-
-    CXX=g++-7 ./configure
-	make
-or
-
-    mkdir build 
-	cd build
-    CXX=g++-7 cmake -DCMAKE_BUILD_TYPE=Release .. 
-	make 
-
 
 ## Documentation
 
