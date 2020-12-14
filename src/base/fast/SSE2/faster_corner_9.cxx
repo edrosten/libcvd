@@ -8,7 +8,7 @@ using namespace std;
 
 #include <emmintrin.h>
 
-#include "../fast/prototypes.h"
+#include "../prototypes.h"
 #include "faster_corner_utilities.h"
 
 namespace CVD

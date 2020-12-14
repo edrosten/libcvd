@@ -29,18 +29,13 @@ set(BASE_SRCS
 	src/base/bayer.cxx
 	src/base/colourspace_convert.cxx
 	src/base/connected_components.cc
+	src/base/convert_rgb_to_y.cc
 	src/base/convolution.cc
+	src/base/convolve_gaussian.cc
 	src/base/cvd_timer.cc
 	src/base/draw.cc
 	src/base/exceptions.cc
-	src/base/faster_corner_utilities.h
-	src/base/morphology.cc
-	src/base/nonmax_suppression.cxx
-	src/base/quartic.cpp
-	src/base/yuv411_to_stuff.cxx
-	src/base/yuv420.cpp
 	src/base/fast_corner.cxx
-	src/base/fast/fast_corner_9_nonmax.cxx
 	src/base/fast/fast_10_detect.cxx
 	src/base/fast/fast_10_score.cxx
 	src/base/fast/fast_11_detect.cxx
@@ -53,19 +48,26 @@ set(BASE_SRCS
 	src/base/fast/fast_8_score.cxx
 	src/base/fast/fast_9_detect.cxx
 	src/base/fast/fast_9_score.cxx
-	src/base/noarch/convert_rgb_to_y.cc
-	src/base/noarch/convolve_gaussian.cc
-	src/base/noarch/gradient.cc
-	src/base/noarch/half_sample.cc
-	src/base/noarch/median_3x3.cc
-	src/base/noarch/two_thirds_sample.cc
-	src/base/noarch/utility_byte_differences.cc
-	src/base/noarch/utility_double_int.cc
-	src/base/noarch/utility_float.cc
-	src/base/noarch/yuv422.cpp
-	src/base/noarch/slower_corner_10.cxx
-	src/base/noarch/slower_corner_12.cxx
-	src/base/noarch/slower_corner_9.cxx)
+	src/base/fast/fast_corner_9_nonmax.cxx
+	src/base/fast/slower_corner_10.cxx
+	src/base/fast/slower_corner_11.cxx
+	src/base/fast/slower_corner_12.cxx
+	src/base/fast/slower_corner_7.cxx
+	src/base/fast/slower_corner_8.cxx
+	src/base/fast/slower_corner_9.cxx
+	src/base/gradient.cc
+	src/base/half_sample.cc
+	src/base/median_3x3.cc
+	src/base/morphology.cc
+	src/base/nonmax_suppression.cxx
+	src/base/quartic.cpp
+	src/base/two_thirds_sample.cc
+	src/base/utility_byte_differences.cc
+	src/base/utility_double_int.cc
+	src/base/utility_float.cc
+	src/base/yuv411_to_stuff.cxx
+	src/base/yuv420.cpp
+	src/base/yuv422.cpp)
 set(VIDEO_SRCS
 	src/video/deinterlacebuffer.cc
 	src/video/diskbuffer2.cc
