@@ -6,7 +6,6 @@ extern "C"{
 #include "cvd/internal/io/jpeg.h"
 
 #include "cvd/image_io.h"
-#include "config_internal.h"
 using namespace std;
 #include <algorithm>
 #include <iostream>
@@ -92,7 +91,7 @@ namespace CVD
 
 			istream* i;
 			bool eof;
-			static const int bufsize=CVD_INTERNAL_JPEG_BUFFER_SIZE;
+			static const int bufsize=1;
 			JOCTET buf[bufsize+2];
 
 			//Constructor

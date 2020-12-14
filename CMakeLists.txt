@@ -278,11 +278,9 @@ endif()
 
 if(JPEG_FOUND)
 	set(CVD_HAVE_JPEG ON)
-	set(CVD_INTERNAL_JPEG_BUFFER_SIZE 1)
     list(APPEND IMAGEIO_SRCS src/image_io/jpeg.cxx)
 else()
 	set(CVD_HAVE_JPEG OFF)
-	set(CVD_INTERNAL_JPEG_BUFFER_SIZE OFF)
 endif()
 
 if(TIFF_FOUND)
