@@ -296,11 +296,11 @@ REGRESSION_OUT=$(patsubst %,tests/%.out, $(REGRESSIONS))
 test:$(REGRESSION_OUT)
 .PRECIOUS:tests/%.test
 tests/%.test: tests/%.cc 
-	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O0 -L. -lcvd -MMD -MP -MF tests/$*.d
+	$(CXX) -I. -I /usr/local/include $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -std=c++17 -O0 -L. -lopencv_core -lcvd -lopencv_imgproc -MMD -MP -MF tests/$*.d
 
 .PRECIOUS:tests/%.out
 tests/%.out: tests/%.test
-	LD_LIBRARY_PATH=. ./$<  && touch $@
+	LD_LIBRARY_PATH=".:$$LD_LIBRARY_PATH" ./$<  && touch $@
 
 
 
