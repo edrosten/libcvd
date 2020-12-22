@@ -420,7 +420,7 @@ void van_vliet_blur_simd(const double b[], const BasicImage<float> in, BasicImag
 }
 
 // Try to choose the fastest method
-void convolveGaussian(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas)
+void convolveGaussianIIR(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas)
 {
 	int ksize = (int)ceil(sigma * sigmas);
 	bool nice = ((I.size().x % 4) == 0 && (I.size().y % 4) == 0 && (I.row_stride() % 4) == 0 && (out.row_stride() % 4) == 0 && is_aligned<16>(I[0]) && is_aligned<16>(out[0]));
@@ -440,7 +440,8 @@ void convolveGaussian(const BasicImage<float>& I, BasicImage<float>& out, double
 		convolveGaussian_simd(I, out, sigma, sigmas);
 }
 
-void convolveGaussian_fir(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas)
+template<>
+void convolveGaussian<Convolution::Clamp, float, float>(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas)
 {
 	convolveGaussian_simd(I, out, sigma, sigmas);
 }
