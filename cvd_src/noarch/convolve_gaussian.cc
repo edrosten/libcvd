@@ -5,7 +5,7 @@ namespace CVD
 {
 
 // Try to choose the fastest method
-void convolveGaussian(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas)
+void convolveGaussianIIR(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas)
 {
 	int ksize = (int)ceil(sigma * sigmas);
 	if(ksize > 6)
@@ -15,11 +15,11 @@ void convolveGaussian(const BasicImage<float>& I, BasicImage<float>& out, double
 		van_vliet_blur(b, I, out);
 	}
 	else
-		convolveGaussian<float>(I, out, sigma, sigmas);
+		convolveGaussian(I, out, sigma, sigmas);
 }
-
-void convolveGaussian_fir(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas)
+template<>
+void convolveGaussian<Convolution::Clamp,float,float>(const BasicImage<float>& I, BasicImage<float>& out, double sigma, double sigmas)
 {
-	convolveGaussian<float>(I, out, sigma, sigmas);
+	Internal::convolveGaussianGeneric<Convolution::Clamp, float, float>(I, out, sigma, sigmas);
 }
 }
