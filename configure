@@ -7505,17 +7505,24 @@ fi
 if test "$have_jpeg" == yes
 then
 	dep_objects="$dep_objects cvd_src/image_io/jpeg.o"
+else
+	dep_objects="$dep_objects cvd_src/image_io/missing_jpeg.o"
 fi
+
 
 if test "$have_tiff" == yes
 then
 	dep_objects="$dep_objects cvd_src/image_io/tiff.o"
 	dep_objects="$dep_objects cvd_src/image_io/tiffwrite.o"
+else
+	dep_objects="$dep_objects cvd_src/image_io/missing_tiff.o"
 fi
 
 if test "$have_png" == yes
 then
 	dep_objects="$dep_objects cvd_src/image_io/png.o"
+else
+	dep_objects="$dep_objects cvd_src/image_io/missing_png.o"
 fi
 
 if test "$have_videodisplay"

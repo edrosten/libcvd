@@ -31,6 +31,13 @@ namespace Exceptions
 
 		/// This image type is not supported
 		/// @ingroup gException
+		struct MissingImageType : public All
+		{
+			MissingImageType(const std::string& type);
+		};
+
+		/// This image type is not supported
+		/// @ingroup gException
 		struct UnsupportedImageType : public All
 		{
 			UnsupportedImageType();
