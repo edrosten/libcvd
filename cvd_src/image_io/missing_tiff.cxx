@@ -12,37 +12,37 @@ namespace{
 }
 }
 
-tiff_reader::tiff_reader(std::istream& i)
+CVD::TIFF::Reader::Reader(std::istream& i)
 {
 	error();
 }
 
 
-tiff_reader::~tiff_reader()
+CVD::TIFF::Reader::~Reader()
 {} 
 
-std::string tiff_reader::datatype()
+std::string CVD::TIFF::Reader::datatype()
 {
 	error();
 }
 
-std::string tiff_reader::name()
+std::string CVD::TIFF::Reader::name()
 {
 	error();
 }
 
-bool tiff_reader::top_row_first()
+bool CVD::TIFF::Reader::top_row_first()
 {
 	error();
 };
 
-ImageRef tiff_reader::size()
+ImageRef CVD::TIFF::Reader::size()
 {
 	error();
 };
 
 //Mechanically generate the pixel reading calls.
-#define GEN1(X) void tiff_reader::get_raw_pixel_line(X*){error();}
+#define GEN1(X) void CVD::TIFF::Reader::get_raw_pixel_line(X*){error();}
 #define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
 
 GEN1(bool)
@@ -57,19 +57,19 @@ class CVD::TIFF::TIFFWritePimpl
 {
 };
 
-tiff_writer::tiff_writer(std::ostream&, ImageRef, const std::string&, const std::map<std::string, Parameter<>>&)
+CVD::TIFF::tiff_writer::tiff_writer(std::ostream&, ImageRef, const std::string&, const std::map<std::string, Parameter<>>&)
 {
 	error();
 }
 
-tiff_writer::~tiff_writer()
+CVD::TIFF::tiff_writer::~tiff_writer()
 {
 }
 
 #undef GEN1
 //Mechanically generate the pixel reading calls.
 #define GEN1(X) \
-	void tiff_writer::write_raw_pixel_line(const X*) {error();}
+	void CVD::TIFF::tiff_writer::write_raw_pixel_line(const X*) {error();}
 
 GEN1(bool)
 GEN3(unsigned char)

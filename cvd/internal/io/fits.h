@@ -25,11 +25,11 @@ namespace FITS
 	//
 
 	class ReadPimpl;
-	class reader
+	class Reader
 	{
 		public:
-		reader(std::istream&);
-		~reader();
+		Reader(std::istream&);
+		~Reader();
 
 		ImageRef size();
 		bool top_row_first();
@@ -78,6 +78,10 @@ namespace FITS
 		                                                                    TypeList<Rgba<double>,
 		                                                                        Head>>>>>>>>>>>>>>>>>>
 		    Types;
+		
+		static bool first_byte_matches(const int b){
+			return b == 'S';
+		}
 
 		private:
 		std::unique_ptr<ReadPimpl> t;

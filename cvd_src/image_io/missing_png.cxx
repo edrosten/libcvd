@@ -13,37 +13,37 @@ namespace {
 	}
 }
 
-CVD::PNG::png_reader::png_reader(std::istream&)
+CVD::PNG::Reader::Reader(std::istream&)
 {
 	error();
 }
 
 
-CVD::PNG::png_reader::~png_reader()
+CVD::PNG::Reader::~Reader()
 {} 
 
-std::string CVD::PNG::png_reader::datatype()
+std::string CVD::PNG::Reader::datatype()
 {
 	error();
 }
 
-std::string CVD::PNG::png_reader::name()
+std::string CVD::PNG::Reader::name()
 {
 	error();
 }
 
-bool CVD::PNG::png_reader::top_row_first()
+bool CVD::PNG::Reader::top_row_first()
 {
 	error();
 };
 
-ImageRef CVD::PNG::png_reader::size()
+ImageRef CVD::PNG::Reader::size()
 {
 	error();
 };
 
 #define GEN1(X) \
-	void CVD::PNG::png_reader::get_raw_pixel_line(X* d) {error();}
+	void CVD::PNG::Reader::get_raw_pixel_line(X* d) {error();}
 #define GEN3(X)  \
 	GEN1(X)      \
 	GEN1(Rgb<X>) \

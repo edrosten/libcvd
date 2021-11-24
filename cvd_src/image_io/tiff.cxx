@@ -376,35 +376,35 @@ keep_cooked:;
 // Implementation of public parts of TIFF reading
 //
 
-tiff_reader::tiff_reader(istream& i)
+Reader::Reader(istream& i)
 	:t(new TIFFPimpl(i))
 {}
 
-tiff_reader::~tiff_reader()
+Reader::~Reader()
 {
 }
 
-string tiff_reader::datatype()
+string Reader::datatype()
 {
 	return t->datatype();
 }
 
-string tiff_reader::name()
+string Reader::name()
 {
 	return "TIFF";
 }
 
-bool tiff_reader::top_row_first()
+bool Reader::top_row_first()
 {
 	return true;
 };
-ImageRef tiff_reader::size()
+ImageRef Reader::size()
 {
 	return t->size();
 };
 
 //Mechanically generate the pixel reading calls.
-#define GEN1(X) void tiff_reader::get_raw_pixel_line(X*d){t->get_raw_pixel_line(d);}
+#define GEN1(X) void Reader::get_raw_pixel_line(X*d){t->get_raw_pixel_line(d);}
 #define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
 
 	GEN1(bool)

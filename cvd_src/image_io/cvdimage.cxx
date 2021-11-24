@@ -478,63 +478,63 @@ namespace CVD
 				vector<byte> buffer, buffer2;
 		};
 
-		ImageRef reader::size()
+		ImageRef Reader::size()
 		{
 			return ImageRef(static_cast<int>(t->x_size()), static_cast<int>(t->y_size()));
 		}
 
-		void reader::get_raw_pixel_line(unsigned char* d)
+		void Reader::get_raw_pixel_line(unsigned char* d)
 		{
 			t->get_raw_pixel_line(d);
 		}
 
-		void reader::get_raw_pixel_line(bayer_bggr* d)
+		void Reader::get_raw_pixel_line(bayer_bggr* d)
 		{
 			t->get_raw_pixel_line(d);
 		}
 
-		void reader::get_raw_pixel_line(bayer_rggb* d)
+		void Reader::get_raw_pixel_line(bayer_rggb* d)
 		{
 			t->get_raw_pixel_line(d);
 		}
 
-		void reader::get_raw_pixel_line(bayer_grbg* d)
+		void Reader::get_raw_pixel_line(bayer_grbg* d)
 		{
 			t->get_raw_pixel_line(d);
 		}
 
-		void reader::get_raw_pixel_line(bayer_gbrg* d)
+		void Reader::get_raw_pixel_line(bayer_gbrg* d)
 		{
 			t->get_raw_pixel_line(d);
 		}
 
-		void reader::get_raw_pixel_line(Rgb<byte>* d)
+		void Reader::get_raw_pixel_line(Rgb<byte>* d)
 		{
 			t->get_raw_pixel_line(d);
 		}
 
-		void reader::get_raw_pixel_line(Rgba<byte>* d)
+		void Reader::get_raw_pixel_line(Rgba<byte>* d)
 		{
 			t->get_raw_pixel_line(d);
 		}
 
-		string reader::datatype()
+		string Reader::datatype()
 		{
 			return t->datatype();
 		}
-		string reader::name()
+		string Reader::name()
 		{
 			return "CVD";
 		}
-		bool reader::top_row_first()
+		bool Reader::top_row_first()
 		{
 			return true;
 		}
 
-		reader::~reader()
+		Reader::~Reader()
 		{}
 
-		reader::reader(std::istream& i)
+		Reader::Reader(std::istream& i)
 			:t(new ReadPimpl(i))
 		{}
 

@@ -25,54 +25,6 @@
 namespace CVD
 {
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Image loading
-//
-
-#ifndef DOXYGEN_IGNORE_INTERNAL
-namespace Internal
-{
-	class ImageLoaderIstream
-	{
-	};
-	template <>
-	struct ImagePromise<ImageLoaderIstream>
-	{
-		ImagePromise(std::istream& is)
-		    : i(is)
-		{
-		}
-
-		std::istream& i;
-		template <class C>
-		void execute(Image<C>& im)
-		{
-			img_load(im, i);
-		}
-	};
-
-	class ImageLoaderString
-	{
-	};
-	template <>
-	struct ImagePromise<ImageLoaderString>
-	{
-		ImagePromise(const std::string& ss)
-		    : s(ss)
-		{
-		}
-
-		const std::string& s;
-		template <class C>
-		void execute(Image<C>& im)
-		{
-			img_load(im, s);
-		}
-	};
-};
-#endif
-
 // This is not the real definition, but this is what it would look like if all
 // the macros were expanded. The real definition is above
 /// Contains the enumeration of possible image types
@@ -126,12 +78,6 @@ namespace ImageType
 	};
 }
 
-#ifndef DOXYGEN_IGNORE_INTERNAL
-
-Internal::ImagePromise<Internal::ImageLoaderIstream> img_load(std::istream& i);
-Internal::ImagePromise<Internal::ImageLoaderString> img_load(const std::string& s);
-#endif
-
 #if DOXYGEN_INCLUDE_ONLY_FOR_DOCS
 
 /// Load an image from an istream, and return the image.
@@ -158,6 +104,28 @@ Image<C> img_load(std::string& i);
 
 #endif
 
+
+namespace Internal{
+
+
+
+
+template<class I, class Tuple, int N=std::tuple_size_v<Tuple>-1>
+void img_load_tuple(Image<I>& im, std::istream& i, int c){
+	if constexpr (N==-1) {
+		throw Exceptions::Image_IO::UnsupportedImageType();
+	}
+
+	else if(std::tuple_element_t<N, Tuple>::first_byte_matches(c))
+		CVD::Internal::readImage<I,std::tuple_element_t<N, Tuple>>(im, i);
+	else
+		img_load_tuple<I, Tuple, N-1>(im, i, c);
+}
+
+using AllImageTypes=std::tuple<PNM::Reader, JPEG::Reader, TIFF::Reader, PNG::Reader, BMP::Reader, FITS::Reader, CVDimage::Reader, TEXT::Reader>;
+
+}
+
 /// Load an image from a stream. This function resizes the Image as necessary.
 /// It will also perform image type conversion (e.g. colour to greyscale)
 /// according the Pixel:::CIE conversion.
@@ -165,7 +133,7 @@ Image<C> img_load(std::string& i);
 /// @param im The image to receive the loaded image data
 /// @param i The stream
 /// @ingroup gImageIO
-template <class I>
+template <class I, class ImageTypes = Internal::AllImageTypes>
 void img_load(Image<I>& im, std::istream& i)
 {
 	if(!i.good())
@@ -182,37 +150,77 @@ void img_load(Image<I>& im, std::istream& i)
 
 	if(!i.good())
 		throw Exceptions::Image_IO::EofBeforeImage();
-
-	if(c == 'P')
-		CVD::Internal::readImage<I, PNM::Reader>(im, i);
-	else if(c == 0xff)
-		CVD::Internal::readImage<I, JPEG::reader>(im, i);
-	else if(c == 'I' || c == 'M') //Little or big endian TIFF
-		CVD::Internal::readImage<I, TIFF::tiff_reader>(im, i);
-	else if(c == 0x89)
-		CVD::Internal::readImage<I, PNG::png_reader>(im, i);
-	else if(c == 'B')
-		CVD::Internal::readImage<I, BMP::Reader>(im, i);
-	else if(c == 'S')
-		CVD::Internal::readImage<I, FITS::reader>(im, i);
-	else if(c == 'C')
-		CVD::Internal::readImage<I, CVDimage::reader>(im, i);
-	else if(c == ' ' || c == '\t' || isdigit(c) || c == '-' || c == '+')
-		CVD::Internal::readImage<I, TEXT::reader>(im, i);
-	else
-		throw Exceptions::Image_IO::UnsupportedImageType();
+	
+	Internal::img_load_tuple<I, ImageTypes>(im, i, c);
 }
 
 //  syg21
-template <class I>
+template <class I, class ImageTypes=Internal::AllImageTypes>
 void img_load(Image<I>& im, const std::string& s)
 {
 	std::ifstream i(s.c_str(), std::ios::in | std::ios::binary);
 
 	if(!i.good())
 		throw Exceptions::Image_IO::OpenError(s, "for reading", errno);
-	img_load(im, i);
+	img_load<I, ImageTypes>(im, i);
 }
+
+#ifndef DOXYGEN_IGNORE_INTERNAL
+namespace Internal
+{
+	template<class ImageTypes>
+	class ImageLoaderIstream
+	{
+	};
+
+	template <class ImageTypes>
+	struct ImagePromise<ImageLoaderIstream<ImageTypes>>
+	{
+		ImagePromise(std::istream& is)
+		    : i(is)
+		{
+		}
+
+		std::istream& i;
+		template <class C>
+		void execute(Image<C>& im)
+		{
+			img_load<C, ImageTypes>(im, i);
+		}
+	};
+
+	template<class ImageTypes>
+	class ImageLoaderString
+	{
+	};
+
+	template <class ImageTypes>
+	struct ImagePromise<ImageLoaderString<ImageTypes>>
+	{
+		ImagePromise(const std::string& ss)
+		    : s(ss)
+		{
+		}
+
+		const std::string& s;
+		template <class C>
+		void execute(Image<C>& im)
+		{
+			img_load<C, ImageTypes>(im, s);
+		}
+	};
+
+};
+
+template<class ImageTypes=Internal::AllImageTypes>
+Internal::ImagePromise<Internal::ImageLoaderIstream<ImageTypes>> img_load(std::istream& i){
+	return Internal::ImagePromise<Internal::ImageLoaderIstream<ImageTypes>>{i};
+}
+template<class ImageTypes=Internal::AllImageTypes>
+Internal::ImagePromise<Internal::ImageLoaderString<ImageTypes>> img_load(const std::string& s){
+	return Internal::ImagePromise<Internal::ImageLoaderString<ImageTypes>>{s};
+}
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //

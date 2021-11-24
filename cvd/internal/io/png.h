@@ -21,11 +21,11 @@ namespace PNG
 	class PNGPimpl;
 	class WriterPimpl;
 
-	class png_reader
+	class Reader
 	{
 		public:
-		png_reader(std::istream&);
-		~png_reader();
+		Reader(std::istream&);
+		~Reader();
 
 		ImageRef size();
 		bool top_row_first();
@@ -50,6 +50,9 @@ namespace PNG
 		                        TypeList<Rgba<unsigned short>,
 		                            Head>>>>>>>
 		    Types;
+		static bool first_byte_matches(const int b){
+			return b ==0x89;
+		}
 
 		private:
 		std::unique_ptr<PNGPimpl> p;

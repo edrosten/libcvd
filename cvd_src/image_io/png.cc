@@ -298,37 +298,37 @@ PNGPimpl::~PNGPimpl()
 // Implementation of PNG reader class
 //
 
-png_reader::~png_reader()
+Reader::~Reader()
 {
 }
 
-png_reader::png_reader(istream& i)
+Reader::Reader(istream& i)
     : p(new PNGPimpl(i))
 {
 }
 
-string png_reader::datatype()
+string Reader::datatype()
 {
 	return p->datatype();
 }
 
-string png_reader::name()
+string Reader::name()
 {
 	return p->name();
 }
 
-ImageRef png_reader::size()
+ImageRef Reader::size()
 {
 	return p->size();
 }
 
-bool png_reader::top_row_first()
+bool Reader::top_row_first()
 {
 	return true;
 }
 //Mechanically generate the pixel reading calls.
 #define GEN1(X) \
-	void png_reader::get_raw_pixel_line(X* d) { p->read_pixels(d); }
+	void Reader::get_raw_pixel_line(X* d) { p->read_pixels(d); }
 #define GEN3(X)  \
 	GEN1(X)      \
 	GEN1(Rgb<X>) \

@@ -39,6 +39,10 @@ namespace BMP
 		        Head>>
 		    Types;
 
+		static bool first_byte_matches(const int b){
+			return b == 'B';
+		}
+
 		private:
 		std::unique_ptr<ReadPimpl> t;
 	};

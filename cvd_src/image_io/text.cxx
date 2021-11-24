@@ -101,32 +101,32 @@ ReadPimpl::ReadPimpl(istream& is)
 // Implementation of public parts of text reading
 //
 
-reader::reader(istream& i)
+Reader::Reader(istream& i)
 	:t(new ReadPimpl(i))
 {}
 
-reader::~reader()
+Reader::~Reader()
 {
 }
 
-string reader::datatype()
+string Reader::datatype()
 {
 	return t->datatype();
 }
 
-bool reader::top_row_first()
+bool Reader::top_row_first()
 {
 	return true;
 }
-string reader::name()
+string Reader::name()
 {
 	return "TEXT";
 }
 
-ImageRef reader::size()
+ImageRef Reader::size()
 {
 	return t->size();
 };
 
 //Mechanically generate the pixel reading calls.
-void reader::get_raw_pixel_line(double*d){t->get_raw_pixel_line(d);}
+void Reader::get_raw_pixel_line(double*d){t->get_raw_pixel_line(d);}

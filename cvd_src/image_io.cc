@@ -127,14 +127,4 @@ ImageType::ImageType string_to_image_type(const std::string& name)
 		return ImageType::Unknown;
 }
 
-Internal::ImagePromise<Internal::ImageLoaderIstream> img_load(std::istream& i)
-{
-	return Internal::ImagePromise<Internal::ImageLoaderIstream>(i);
-}
-
-Internal::ImagePromise<Internal::ImageLoaderString> img_load(const std::string& s)
-{
-	return Internal::ImagePromise<Internal::ImageLoaderString>(s);
-}
-
 }
