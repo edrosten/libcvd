@@ -11,6 +11,7 @@
 #include <fstream>
 #include <memory>
 #include <string>
+#include <type_traits>
 
 #include <cvd/internal/io/bmp.h>
 #include <cvd/internal/io/cvdimage.h>
@@ -80,7 +81,9 @@ namespace ImageType
 
 #if DOXYGEN_INCLUDE_ONLY_FOR_DOCS
 
-/// Load an image from an istream, and return the image.
+/// Load an image from a stream. This function resizes the Image as necessary.
+/// It will also perform image type conversion (e.g. colour to greyscale)
+/// according the Pixel:::CIE conversion.
 /// The template type is deduced automatically, and must not be specified.
 ///
 /// The type deduction is performed using lazy evaluation, so the load operation
@@ -124,38 +127,24 @@ void img_load_tuple(Image<I>& im, std::istream& i, int c){
 
 using AllImageTypes=std::tuple<PNM::Reader, JPEG::Reader, TIFF::Reader, PNG::Reader, BMP::Reader, FITS::Reader, CVDimage::Reader, TEXT::Reader>;
 
-}
-
-/// Load an image from a stream. This function resizes the Image as necessary.
-/// It will also perform image type conversion (e.g. colour to greyscale)
-/// according the Pixel:::CIE conversion.
-/// @param I The pixel type of the image
-/// @param im The image to receive the loaded image data
-/// @param i The stream
-/// @ingroup gImageIO
-template <class I, class ImageTypes = Internal::AllImageTypes>
-void img_load(Image<I>& im, std::istream& i)
-{
-	if(!i.good())
-	{
-		//Check for one of the commonest errors and put in
-		//a special case
-		std::ifstream* fs;
-		if((fs = dynamic_cast<std::ifstream*>(&i)) && !fs->is_open())
-			throw Exceptions::Image_IO::IfstreamNotOpen();
-		else
-			throw Exceptions::Image_IO::EofBeforeImage();
-	}
-	int c = i.peek();
-
-	if(!i.good())
-		throw Exceptions::Image_IO::EofBeforeImage();
 	
-	Internal::img_load_tuple<I, ImageTypes>(im, i, c);
+template<class T > constexpr bool is_tuple_v = 0;
+template<class... Args> constexpr bool is_tuple_v<std::tuple<Args...>> = 1;
 }
 
-//  syg21
-template <class I, class ImageTypes=Internal::AllImageTypes>
+//img_load taking a variadic list of image types to load. The templating ensures >= 2 arguments
+template <class I, class A, class B, class... ImageTypes>
+void img_load(Image<I>& im, const std::string& s){
+	img_load<I, std::tuple<A, B, ImageTypes...>>(im, s);
+}	
+
+template <class I, class A, class B, class... ImageTypes>
+void img_load(Image<I>& im, std::istream& i){
+	img_load<I, std::tuple<A, B, ImageTypes...>>(im, i);
+}	
+
+
+template <class I, class ImageTypes>
 void img_load(Image<I>& im, const std::string& s)
 {
 	std::ifstream i(s.c_str(), std::ios::in | std::ios::binary);
@@ -163,6 +152,42 @@ void img_load(Image<I>& im, const std::string& s)
 	if(!i.good())
 		throw Exceptions::Image_IO::OpenError(s, "for reading", errno);
 	img_load<I, ImageTypes>(im, i);
+}
+
+//If there's only one argument it can be a tuple or a single element typelist
+template <class I, class ImageTypes>
+void img_load(Image<I>& im, std::istream& i)
+{
+	if constexpr (Internal::is_tuple_v<ImageTypes>){
+		if(!i.good())
+		{
+			//Check for one of the commonest errors and put in
+			//a special case
+			std::ifstream* fs;
+			if((fs = dynamic_cast<std::ifstream*>(&i)) && !fs->is_open())
+				throw Exceptions::Image_IO::IfstreamNotOpen();
+			else
+				throw Exceptions::Image_IO::EofBeforeImage();
+		}
+		int c = i.peek();
+
+		if(!i.good())
+			throw Exceptions::Image_IO::EofBeforeImage();
+		
+		Internal::img_load_tuple<I, ImageTypes>(im, i, c);
+	}
+	else
+		img_load<I, std::tuple<ImageTypes>>(im, i);
+}
+
+template <class I>
+void img_load(Image<I>& im, std::istream& i){
+	img_load<I, Internal::AllImageTypes>(im, i);
+}
+
+template <class I>
+void img_load(Image<I>& im, std::string& i){
+	img_load<I, Internal::AllImageTypes>(im, i);
 }
 
 #ifndef DOXYGEN_IGNORE_INTERNAL
