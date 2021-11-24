@@ -652,17 +652,24 @@ fi
 if test "$have_jpeg" == yes
 then 
 	DEPOBJ(image_io/jpeg)
-fi
+else
+	DEPOBJ(image_io/missing_jpeg)
+fi	
+
 
 if test "$have_tiff" == yes
 then 
 	DEPOBJ(image_io/tiff)
 	DEPOBJ(image_io/tiffwrite)
+else
+	DEPOBJ(image_io/missing_tiff)
 fi
 
 if test "$have_png" == yes
 then 
 	DEPOBJ(image_io/png)
+else
+	DEPOBJ(image_io/missing_png)
 fi
 
 if test "$have_videodisplay"

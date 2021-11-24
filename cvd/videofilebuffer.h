@@ -16,7 +16,6 @@
 #include <cvd/byte.h>
 #include <cvd/rgb.h>
 
-#include <cvd/config.h>
 namespace CVD
 {
 namespace Exceptions

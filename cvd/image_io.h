@@ -2,7 +2,6 @@
 #define CVD_IMAGE_IO_H
 
 #include <cctype>
-#include <cvd/config.h>
 #include <cvd/exceptions.h>
 #include <cvd/image_convert.h>
 #include <cvd/internal/load_and_save.h>
@@ -89,24 +88,18 @@ namespace ImageType
 		/// PNM image format (PBM, PGM or PPM).
 		/// This writes 8 or 16 bit raw PGMs or PPMs. PBM is not currently supported
 		PNM = 0,
-	/// JPEG image format. This is a compressed (lossy) image format, but defaults to 95% quality, which has very few compression artefacts. This image type is only present if libjpeg is available.
-	/// RGB and Greyscale JPEGs are supported
-#ifdef CVD_HAVE_JPEG
+		/// JPEG image format. This is a compressed (lossy) image format, but defaults to 95% quality, which has very few compression artefacts. This image type is only present if libjpeg is available.
+		/// RGB and Greyscale JPEGs are supported
 		JPEG = 1,
-#endif
 		/// Windows BMP (or DIB) format. Uncompressed 8 bit grey scale and 24 bit RGB are supported.
 		BMP = 2,
-	/// PNG image format. 1, 8 and 16 bit, Greyscale, RGB and RGBA images are supported.
-	/// This image type is only present if libpng is available.
-#ifdef CVD_HAVE_PNG
+		/// PNG image format. 1, 8 and 16 bit, Greyscale, RGB and RGBA images are supported.
+		/// This image type is only present if libpng is available.
 		PNG = 3,
-#endif
-	/// TIFF image format. 1, 8, 16, 32 (float) and 64 (double) suported. Greyscale, RGB and RGBA supported.
-	/// This image type is only present if libtiff is available. G4 FAX encoding is used for bools, otherwise
-	/// "Deflate" compression is used.
-#ifdef CVD_HAVE_TIFF
+		/// TIFF image format. 1, 8, 16, 32 (float) and 64 (double) suported. Greyscale, RGB and RGBA supported.
+		/// This image type is only present if libtiff is available. G4 FAX encoding is used for bools, otherwise
+		/// "Deflate" compression is used.
 		TIFF = 4,
-#endif
 		/// Postscript  format. This outputs a bare PostScript image with the coordinate system set up
 		/// to that (x,y) corresponds to pixel (x,y), with (0,0) being at the top left of the pixel (0,0).
 		/// The Y axis is therefore inverted compared to normal postscript drawing, but is image aligned.
@@ -192,18 +185,12 @@ void img_load(Image<I>& im, std::istream& i)
 
 	if(c == 'P')
 		CVD::Internal::readImage<I, PNM::Reader>(im, i);
-#ifdef CVD_HAVE_JPEG
 	else if(c == 0xff)
 		CVD::Internal::readImage<I, JPEG::reader>(im, i);
-#endif
-#ifdef CVD_HAVE_TIFF
 	else if(c == 'I' || c == 'M') //Little or big endian TIFF
 		CVD::Internal::readImage<I, TIFF::tiff_reader>(im, i);
-#endif
-#ifdef CVD_HAVE_PNG
 	else if(c == 0x89)
 		CVD::Internal::readImage<I, PNG::png_reader>(im, i);
-#endif
 	else if(c == 'B')
 		CVD::Internal::readImage<I, BMP::Reader>(im, i);
 	else if(c == 'S')
@@ -254,21 +241,15 @@ void img_save(const BasicImage<PixelType>& im, std::ostream& o, ImageType::Image
 		case ImageType::Unknown:
 			Internal::writeImage<PixelType, PNM::Writer>(im, o, p);
 			break;
-#ifdef CVD_HAVE_JPEG
 		case ImageType::JPEG:
 			Internal::writeImage<PixelType, JPEG::writer>(im, o, p);
 			break;
-#endif
-#ifdef CVD_HAVE_PNG
 		case ImageType::PNG:
 			Internal::writeImage<PixelType, PNG::png_writer>(im, o, p);
 			break;
-#endif
-#ifdef CVD_HAVE_TIFF
 		case ImageType::TIFF:
 			Internal::writeImage<PixelType, TIFF::tiff_writer>(im, o, p);
 			break;
-#endif
 		case ImageType::FITS:
 			Internal::writeImage<PixelType, FITS::writer>(im, o, p);
 			break;
