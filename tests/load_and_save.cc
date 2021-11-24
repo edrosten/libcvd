@@ -357,6 +357,38 @@ int main(int ac, char** av)
 		loadsave_safe<CVD::Rgba<unsigned int>>(av[i]);
 	}
 
+	//Test some of the variations
+	{
+		std::stringstream str;
+		Image<unsigned char> im(ImageRef(32, 32), 0);
+		img_save(im, str, ImageType::PNM);
+
+		str.seekg(0);
+		im = img_load(str);
+
+		str.seekg(0);
+		im = img_load<PNM::Reader>(str);
+
+		str.seekg(0);
+		im = img_load<PNM::Reader, FITS::Reader>(str);
+
+		str.seekg(0);
+		im = img_load<std::tuple<PNM::Reader, FITS::Reader>>(str);
+
+		str.seekg(0);
+		im = img_load<std::tuple<PNM::Reader>>(str);
+		
+		try{
+			str.seekg(0);
+			im = img_load<FITS::Reader>(str);
+			throw std::logic_error("Image load of the wrong type did not succeed");
+		}
+		catch(const CVD::Exceptions::Image_IO::UnsupportedImageType&)
+		{}
+	}
+
+
+
 	cerr << "Testing TEXT (type " << ImageType::TEXT << ")\n";
 	randtest<
 	    TypeList<double,

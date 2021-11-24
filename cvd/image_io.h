@@ -111,10 +111,8 @@ Image<C> img_load(std::string& i);
 namespace Internal{
 
 
-
-
 template<class I, class Tuple, int N=std::tuple_size_v<Tuple>-1>
-void img_load_tuple(Image<I>& im, std::istream& i, int c){
+void img_load_tuple(Image<I>& im, std::istream& i, [[maybe_unused]] int c){
 	if constexpr (N==-1) {
 		throw Exceptions::Image_IO::UnsupportedImageType();
 	}
@@ -193,13 +191,13 @@ void img_load(Image<I>& im, std::string& i){
 #ifndef DOXYGEN_IGNORE_INTERNAL
 namespace Internal
 {
-	template<class ImageTypes>
+	template<class... ImageTypes>
 	class ImageLoaderIstream
 	{
 	};
 
-	template <class ImageTypes>
-	struct ImagePromise<ImageLoaderIstream<ImageTypes>>
+	template <class... ImageTypes>
+	struct ImagePromise<ImageLoaderIstream<ImageTypes...>>
 	{
 		ImagePromise(std::istream& is)
 		    : i(is)
@@ -210,17 +208,17 @@ namespace Internal
 		template <class C>
 		void execute(Image<C>& im)
 		{
-			img_load<C, ImageTypes>(im, i);
+			img_load<C, ImageTypes...>(im, i);
 		}
 	};
 
-	template<class ImageTypes>
+	template<class... ImageTypes>
 	class ImageLoaderString
 	{
 	};
 
-	template <class ImageTypes>
-	struct ImagePromise<ImageLoaderString<ImageTypes>>
+	template <class... ImageTypes>
+	struct ImagePromise<ImageLoaderString<ImageTypes...>>
 	{
 		ImagePromise(const std::string& ss)
 		    : s(ss)
@@ -231,20 +229,32 @@ namespace Internal
 		template <class C>
 		void execute(Image<C>& im)
 		{
-			img_load<C, ImageTypes>(im, s);
+			img_load<C, ImageTypes...>(im, s);
 		}
 	};
 
 };
 
-template<class ImageTypes=Internal::AllImageTypes>
-Internal::ImagePromise<Internal::ImageLoaderIstream<ImageTypes>> img_load(std::istream& i){
-	return Internal::ImagePromise<Internal::ImageLoaderIstream<ImageTypes>>{i};
+
+template<class... ImageTypes>
+Internal::ImagePromise<Internal::ImageLoaderIstream<ImageTypes...>> img_load(std::istream& i){
+	return i;
 }
-template<class ImageTypes=Internal::AllImageTypes>
-Internal::ImagePromise<Internal::ImageLoaderString<ImageTypes>> img_load(const std::string& s){
-	return Internal::ImagePromise<Internal::ImageLoaderString<ImageTypes>>{s};
+
+template<class... ImageTypes>
+Internal::ImagePromise<Internal::ImageLoaderString<ImageTypes...>> img_load(std::string& i){
+	return i;
 }
+
+inline Internal::ImagePromise<Internal::ImageLoaderIstream<Internal::AllImageTypes>> img_load(std::istream& i){
+	return i;
+}
+
+inline Internal::ImagePromise<Internal::ImageLoaderString<Internal::AllImageTypes>> img_load(std::string& i){
+	return i;
+}
+
+
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
