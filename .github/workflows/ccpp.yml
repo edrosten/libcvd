@@ -23,6 +23,42 @@ jobs:
       run: make
     - name: make test
       run: make test
+  build-test-ubuntu-cmake:
+    runs-on: ubuntu-18.04
+    steps:
+    - run: |
+           sudo apt-get update
+           sudo apt install g++-10 gcc-10 cmake
+    - uses: actions/checkout@v2
+    - name: setup
+      run: mkdir build
+    - name: configure
+      working-directory: ./build
+      run: cmake ..
+      env: 
+        CC: gcc-10
+        CXX: g++-10 -Werror -Wno-stringop-overflow
+    - name: make
+      run: make
+      working-directory: ./build
+  build-test-ubuntu-cmake-light:
+    runs-on: ubuntu-18.04
+    steps:
+    - run: |
+           sudo apt-get update
+           sudo apt install g++-10 gcc-10 cmake
+    - uses: actions/checkout@v2
+    - name: setup
+      run: mkdir build
+    - name: configure
+      working-directory: ./build
+      run: cmake -DCMAKE_DISABLE_FIND_PACKAGE_PNG=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_JPEG=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_TIFF=TRUE ..
+      env: 
+        CC: gcc-10
+        CXX: g++-10 -Werror -Wno-stringop-overflow
+    - name: make
+      run: make
+      working-directory: ./build
   build-windows:
     runs-on: windows-2019
     steps:
