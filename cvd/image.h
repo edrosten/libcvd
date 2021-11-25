@@ -614,6 +614,14 @@ class Image : public SubImage<T>
 		return *this;
 	}
 
+	///Copy-ish constructor: new allocation and copy the data.
+	///@param copy The image to copy
+	Image(const SubImage<T>& i)
+	    : Image(i.size())
+	{
+		copy_from(i);
+	}
+
 	///Copy constructor: new allocation and copy the data.
 	///@param copy The image to copy
 	Image(const Image& i)
