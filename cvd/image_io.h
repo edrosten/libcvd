@@ -111,81 +111,64 @@ Image<C> img_load(std::string& i);
 namespace Internal{
 
 
-template<class I, class Tuple, int N=std::tuple_size_v<Tuple>-1>
-void img_load_tuple(Image<I>& im, std::istream& i, [[maybe_unused]] int c){
-	if constexpr (N==-1) {
-		throw Exceptions::Image_IO::UnsupportedImageType();
-	}
-
-	else if(std::tuple_element_t<N, Tuple>::first_byte_matches(c))
-		CVD::Internal::readImage<I,std::tuple_element_t<N, Tuple>>(im, i);
-	else
-		img_load_tuple<I, Tuple, N-1>(im, i, c);
-}
-
 using AllImageTypes=std::tuple<PNM::Reader, JPEG::Reader, TIFF::Reader, PNG::Reader, BMP::Reader, FITS::Reader, CVDimage::Reader, TEXT::Reader>;
 
+// This selects the correct image reader from the list of available readers
+// (provided as a tuple), using the first byte of the file to decide.
+template<class I, class ImageTypeList, int N=0>
+void img_load_tuple(Image<I>& im, std::istream& i, [[maybe_unused]] int c){
+	if constexpr (N==std::tuple_size_v<ImageTypeList>) {
+		throw Exceptions::Image_IO::UnsupportedImageType();
+	}
+	else{
+		using ImageReader = std::tuple_element_t<N, ImageTypeList>;
 	
-template<class T > constexpr bool is_tuple_v = 0;
-template<class... Args> constexpr bool is_tuple_v<std::tuple<Args...>> = 1;
+		if(ImageReader::first_byte_matches(c))
+			CVD::Internal::readImage<I,ImageReader>(im, i);
+		else
+			img_load_tuple<I, ImageTypeList, N+1>(im, i, c);
+	}
 }
 
-//img_load taking a variadic list of image types to load. The templating ensures >= 2 arguments
-template <class I, class A, class B, class... ImageTypes>
-void img_load(Image<I>& im, const std::string& s){
-	img_load<I, std::tuple<A, B, ImageTypes...>>(im, s);
-}	
+template<class... T> struct as_tuple{
+	using type = std::tuple<T...>;
+};
 
-template <class I, class A, class B, class... ImageTypes>
-void img_load(Image<I>& im, std::istream& i){
-	img_load<I, std::tuple<A, B, ImageTypes...>>(im, i);
-}	
+template<class... T> struct as_tuple<std::tuple<T...>>{
+	using type = std::tuple<T...>;
+};
+}
 
+//If there's only one argument it can be a tuple or a single element typelist
+template <class I, class Head = Internal::AllImageTypes, class... ImageTypes>
+void img_load(Image<I>& im, std::istream& i)
+{
+	if(!i.good())
+	{
+		//Check for one of the commonest errors and put in
+		//a special case
+		std::ifstream* fs;
+		if((fs = dynamic_cast<std::ifstream*>(&i)) && !fs->is_open())
+			throw Exceptions::Image_IO::IfstreamNotOpen();
+		else
+			throw Exceptions::Image_IO::EofBeforeImage();
+	}
+	int c = i.peek();
 
-template <class I, class ImageTypes>
+	if(!i.good())
+		throw Exceptions::Image_IO::EofBeforeImage();
+	
+	Internal::img_load_tuple<I, typename Internal::as_tuple<Head, ImageTypes...>::type>(im, i, c);
+}
+
+template <class I, class Head = Internal::AllImageTypes, class... ImageTypes>
 void img_load(Image<I>& im, const std::string& s)
 {
 	std::ifstream i(s.c_str(), std::ios::in | std::ios::binary);
 
 	if(!i.good())
 		throw Exceptions::Image_IO::OpenError(s, "for reading", errno);
-	img_load<I, ImageTypes>(im, i);
-}
-
-//If there's only one argument it can be a tuple or a single element typelist
-template <class I, class ImageTypes>
-void img_load(Image<I>& im, std::istream& i)
-{
-	if constexpr (Internal::is_tuple_v<ImageTypes>){
-		if(!i.good())
-		{
-			//Check for one of the commonest errors and put in
-			//a special case
-			std::ifstream* fs;
-			if((fs = dynamic_cast<std::ifstream*>(&i)) && !fs->is_open())
-				throw Exceptions::Image_IO::IfstreamNotOpen();
-			else
-				throw Exceptions::Image_IO::EofBeforeImage();
-		}
-		int c = i.peek();
-
-		if(!i.good())
-			throw Exceptions::Image_IO::EofBeforeImage();
-		
-		Internal::img_load_tuple<I, ImageTypes>(im, i, c);
-	}
-	else
-		img_load<I, std::tuple<ImageTypes>>(im, i);
-}
-
-template <class I>
-void img_load(Image<I>& im, std::istream& i){
-	img_load<I, Internal::AllImageTypes>(im, i);
-}
-
-template <class I>
-void img_load(Image<I>& im, std::string& i){
-	img_load<I, Internal::AllImageTypes>(im, i);
+	img_load<I, Head, ImageTypes...>(im, i);
 }
 
 #ifndef DOXYGEN_IGNORE_INTERNAL
