@@ -79,7 +79,7 @@ struct makeJPEGStream<T, false>
 {
 	static VideoBuffer<T>* make(const std::string&)
 	{
-		throw VideoSourceException("ServerPushJpegBuffer cannot handle type " + PNM::type_name<T>::name());
+		throw VideoSourceException("ServerPushJpegBuffer cannot handle type " + Internal::type_name<T>::name());
 	}
 };
 
@@ -167,7 +167,7 @@ struct MakeConverter<Out, In, false>
 {
 	static VideoBuffer<Out>* make(const std::string&)
 	{
-		throw VideoSourceException("ColorspaceBuffer cannot convert from " + PNM::type_name<In>::name() + " to " + PNM::type_name<Out>::name());
+		throw VideoSourceException("ColorspaceBuffer cannot convert from " + Internal::type_name<In>::name() + " to " + Internal::type_name<Out>::name());
 	}
 };
 
@@ -244,7 +244,7 @@ struct makeDiskBuffer2<T, false>
 {
 	static VideoBuffer<T>* make(const std::string&, double, VideoBufferFlags::OnEndOfBuffer)
 	{
-		throw VideoSourceException("DiskBuffer2 cannot handle type " + PNM::type_name<T>::name());
+		throw VideoSourceException("DiskBuffer2 cannot handle type " + Internal::type_name<T>::name());
 	}
 };
 
@@ -332,7 +332,7 @@ void get_file_options(const VideoSource& vs, VideoBufferFlags::OnEndOfBuffer& eo
 template <class T>
 VideoBuffer<T>* makeDVBuffer2(int, ImageRef, float, ImageRef, bool, bool, int)
 {
-	throw VideoSourceException("DVBuffer2 cannot handle " + PNM::type_name<T>::name());
+	throw VideoSourceException("DVBuffer2 cannot handle " + Internal::type_name<T>::name());
 }
 
 template <>

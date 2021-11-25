@@ -130,8 +130,8 @@ void attempt_invert(double* data, long num) { invert(data, num);}
 
 template<class T>
 void TIFFPimpl::checkRead(const T*){
-	if(datatype() != PNM::type_name<T>::name())
-		throw ReadTypeMismatch(datatype(), PNM::type_name<T>::name());
+	if(datatype() != Internal::type_name<T>::name())
+		throw ReadTypeMismatch(datatype(), Internal::type_name<T>::name());
 
 	if(row  > (unsigned long)my_size.y)
 		throw InternalLibraryError("CVD", "Read past end of image.");
@@ -183,8 +183,8 @@ template<class T> void TIFFPimpl::get_raw_pixel_line(T* d)
 
 void TIFFPimpl::get_raw_pixel_line(bool* d)
 {
-	if(datatype() != PNM::type_name<bool>::name())
-		throw ReadTypeMismatch(datatype(), PNM::type_name<bool>::name());
+	if(datatype() != Internal::type_name<bool>::name())
+		throw ReadTypeMismatch(datatype(), Internal::type_name<bool>::name());
 
 	if(TIFFReadScanline(tif, (void*)&bool_rowbuf[0], row) == -1)
 		throw MalformedImage(error_msg);
@@ -307,20 +307,20 @@ TIFFPimpl::TIFFPimpl(istream& is)
 		if(sampleformat == SAMPLEFORMAT_UINT)
 		{
 			if(bitspersample == 1)	
-				type = PNM::type_name<bool>::name();
+				type = Internal::type_name<bool>::name();
 			else if(bitspersample == 8)
-				type = PNM::type_name<unsigned char>::name();
+				type = Internal::type_name<unsigned char>::name();
 			else if(bitspersample == 16)
-				type = PNM::type_name<unsigned short>::name();
+				type = Internal::type_name<unsigned short>::name();
 			else 
 				goto keep_cooked;
 		}
 		else if(sampleformat == SAMPLEFORMAT_IEEEFP)
 		{
 			if(bitspersample == 32)
-				type = PNM::type_name<float>::name();
+				type = Internal::type_name<float>::name();
 			else if(bitspersample == 64)
-				type = PNM::type_name<double>::name();
+				type = Internal::type_name<double>::name();
 			else 
 				goto keep_cooked;
 		}

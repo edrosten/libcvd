@@ -51,8 +51,8 @@ namespace BMP
 		template <class T>
 		void get_raw_pixel_line(T* d)
 		{
-			if(datatype() != PNM::type_name<T>::name())
-				throw CVD::Exceptions::Image_IO::ReadTypeMismatch(datatype(), PNM::type_name<T>::name());
+			if(datatype() != Internal::type_name<T>::name())
+				throw CVD::Exceptions::Image_IO::ReadTypeMismatch(datatype(), Internal::type_name<T>::name());
 			get_raw_pixel_line(d);
 			//FIXME: check rows.
 		}
@@ -104,9 +104,9 @@ namespace BMP
 			rowSize += 4 - (rowSize % 4);
 
 		if(channels == 3 || notgray)
-			type = PNM::type_name<Rgb<byte>>::name();
+			type = Internal::type_name<Rgb<byte>>::name();
 		else
-			type = PNM::type_name<byte>::name();
+			type = Internal::type_name<byte>::name();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////

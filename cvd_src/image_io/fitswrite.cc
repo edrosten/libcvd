@@ -94,8 +94,8 @@ template <class C>
 void WritePimpl::write_raw_pixel_line(const C* dat)
 {
 	//Do some type checking
-	if(type != PNM::type_name<C>::name())
-		throw WriteTypeMismatch(type, PNM::type_name<C>::name());
+	if(type != Internal::type_name<C>::name())
+		throw WriteTypeMismatch(type, Internal::type_name<C>::name());
 
 	//Do some sanity checking
 	if(row >= (unsigned long)my_size.y)

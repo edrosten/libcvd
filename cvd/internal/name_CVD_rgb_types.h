@@ -6,7 +6,7 @@
 
 namespace CVD
 {
-namespace PNM
+namespace Internal
 {
 
 	template <>

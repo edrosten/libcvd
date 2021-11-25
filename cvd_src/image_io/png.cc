@@ -137,8 +137,8 @@ static string lookup_color_type(int i)
 template <class P>
 void PNGPimpl::read_pixels(P* data)
 {
-	if(datatype() != PNM::type_name<P>::name())
-		throw ReadTypeMismatch(datatype(), PNM::type_name<P>::name());
+	if(datatype() != Internal::type_name<P>::name())
+		throw ReadTypeMismatch(datatype(), Internal::type_name<P>::name());
 
 	if(row > (unsigned long)my_size.y)
 		throw InternalLibraryError("CVD", "Read past end of image.");
@@ -240,7 +240,7 @@ PNGPimpl::PNGPimpl(std::istream& in)
 	{
 		//Unpack bools to bytes to ease loading.
 		png_set_packing(png_ptr);
-		type = PNM::type_name<bool>::name();
+		type = Internal::type_name<bool>::name();
 	}
 	else if(depth <= 8)
 	{
@@ -248,10 +248,10 @@ PNGPimpl::PNGPimpl(std::istream& in)
 		if(depth < 8)
 			png_set_expand_gray_1_2_4_to_8(png_ptr);
 
-		type = PNM::type_name<unsigned char>::name();
+		type = Internal::type_name<unsigned char>::name();
 	}
 	else
-		type = PNM::type_name<unsigned short>::name();
+		type = Internal::type_name<unsigned short>::name();
 
 	//Get rid of palette, by transforming it to RGB
 	if(colour == PNG_COLOR_TYPE_PALETTE)
@@ -463,8 +463,8 @@ void WriterPimpl::write_line(const P* data)
 	unsigned char* chardata = const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(data));
 
 	//Do some type checking
-	if(type != PNM::type_name<P>::name())
-		throw WriteTypeMismatch(type, PNM::type_name<P>::name());
+	if(type != Internal::type_name<P>::name())
+		throw WriteTypeMismatch(type, Internal::type_name<P>::name());
 
 	//Set up error handling
 	if(setjmp(png_jmpbuf(png_ptr)))

@@ -456,8 +456,8 @@ namespace CVD
 
 				template<class T> void get_raw_pixel_line(T* d)
 				{
-					if(datatype() != PNM::type_name<T>::name())
-						throw CVD::Exceptions::Image_IO::ReadTypeMismatch(datatype(), PNM::type_name<T>::name());
+					if(datatype() != Internal::type_name<T>::name())
+						throw CVD::Exceptions::Image_IO::ReadTypeMismatch(datatype(), Internal::type_name<T>::name());
 
 					get_raw_pixel_lines((unsigned char*)d, 1);
 				}
@@ -809,8 +809,8 @@ namespace CVD
 
 		template<class C> 	void WritePimpl::write_raw_pixel_line(const C*d)
 		{
-			if(type != PNM::type_name<C>::name())
-				throw CVD::Exceptions::Image_IO::WriteTypeMismatch(type, PNM::type_name<C>::name());
+			if(type != Internal::type_name<C>::name())
+				throw CVD::Exceptions::Image_IO::WriteTypeMismatch(type, Internal::type_name<C>::name());
 
 			write_raw_pixel_lines((const unsigned char*)d, 1); 
 		}

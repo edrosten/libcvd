@@ -5,7 +5,7 @@
 
 namespace CVD
 {
-namespace PNM
+namespace Internal
 {
 	template <class T>
 	struct type_name

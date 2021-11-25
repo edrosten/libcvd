@@ -227,15 +227,15 @@ namespace Internal
 	{
 		static void read(BasicImage<PixelType>& im, ImageLoader& r)
 		{
-			if(r.datatype() == PNM::type_name<typename List::Type>::name())
+			if(r.datatype() == Internal::type_name<typename List::Type>::name())
 			{
-				//std::cout << "converting " << r.datatype() << " -> " << PNM::type_name<PixelType>::name() << " PixelByPixel: " << PixelByPixelConvertible<typename List::Type, PixelType>::is << " Convertible: " << IsConvertible<typename List::Type, PixelType>::is << std::endl;
+				//std::cout << "converting " << r.datatype() << " -> " << Internal::type_name<PixelType>::name() << " PixelByPixel: " << PixelByPixelConvertible<typename List::Type, PixelType>::is << " Convertible: " << IsConvertible<typename List::Type, PixelType>::is << std::endl;
 				if(PixelByPixelConvertible<typename List::Type, PixelType>::is)
 					read_and_maybe_process<PixelType, typename List::Type, ImageLoader>::exec(im, r);
 				else if(IsConvertible<typename List::Type, PixelType>::is)
 					read_and_then_process<PixelType, typename List::Type, ImageLoader>::exec(im, r);
 				else
-					throw CVD::Exceptions::Image_IO::ReadTypeMismatch(r.datatype(), PNM::type_name<PixelType>::name());
+					throw CVD::Exceptions::Image_IO::ReadTypeMismatch(r.datatype(), Internal::type_name<PixelType>::name());
 			}
 			else
 				Reader<PixelType, ImageLoader, typename List::Next>::read(im, r);
@@ -306,7 +306,7 @@ namespace Internal
 	{
 		static void write(std::ostream& os, const BasicImage<Pixel>& im, const std::map<std::string, Parameter<>>& p)
 		{
-			ImageWriter w(os, im.size(), CVD::PNM::type_name<OutgoingPixel>::name(), p);
+			ImageWriter w(os, im.size(), CVD::Internal::type_name<OutgoingPixel>::name(), p);
 			Image<OutgoingPixel> row(ImageRef(im.size().x, 1));
 
 			if(w.top_row_first)
@@ -329,7 +329,7 @@ namespace Internal
 	{
 		static void write(std::ostream& os, const BasicImage<Pixel>& im, const std::map<std::string, Parameter<>>& p)
 		{
-			ImageWriter w(os, im.size(), CVD::PNM::type_name<Pixel>::name(), p);
+			ImageWriter w(os, im.size(), CVD::Internal::type_name<Pixel>::name(), p);
 
 			if(w.top_row_first)
 				for(int r = 0; r < im.size().y; r++)

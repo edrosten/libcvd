@@ -217,7 +217,7 @@ struct vuy422
 	//unsigned short val;
 };
 
-namespace PNM
+namespace Internal
 {
 	template <>
 	struct type_name<bayer_bggr>

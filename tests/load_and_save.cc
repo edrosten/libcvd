@@ -162,7 +162,7 @@ string make_output_file_name(string fin, string type)
 	}
 
 	fn = " from " + fn;
-	fn = PNM::type_name<T>::name() + fn;
+	fn = Internal::type_name<T>::name() + fn;
 
 	Image<T> im;
 
@@ -251,7 +251,7 @@ struct randtest
 				//Make a random image
 				Image<Type> in(ImageRef(256 + i, 256 + i)), out;
 
-				cerr << "Testing " << in.size() << " " << fmt << " " << CVD::PNM::type_name<Type>::name() << " ";
+				cerr << "Testing " << in.size() << " " << fmt << " " << CVD::Internal::type_name<Type>::name() << " ";
 
 				for(int y = 0; y < in.size().y; y++)
 					for(int x = 0; x < in.size().x; x++)

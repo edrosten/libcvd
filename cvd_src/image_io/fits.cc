@@ -175,8 +175,8 @@ class CVD::FITS::ReadPimpl
 template <class T>
 void ReadPimpl::get_raw_pixel_line(T* d)
 {
-	if(datatype() != PNM::type_name<T>::name())
-		throw ReadTypeMismatch(datatype(), PNM::type_name<T>::name());
+	if(datatype() != Internal::type_name<T>::name())
+		throw ReadTypeMismatch(datatype(), Internal::type_name<T>::name());
 
 	if(row > (unsigned long)my_size.y)
 		throw InternalLibraryError("CVD", "Read past end of image.");
@@ -236,15 +236,15 @@ ReadPimpl::ReadPimpl(istream& is)
 	int bpp = get_int(get_numeric_field());
 
 	if(bpp == 8)
-		type = PNM::type_name<byte>::name();
+		type = Internal::type_name<byte>::name();
 	else if(bpp == 16)
-		type = PNM::type_name<short>::name();
+		type = Internal::type_name<short>::name();
 	else if(bpp == 32)
-		type = PNM::type_name<int>::name();
+		type = Internal::type_name<int>::name();
 	else if(bpp == -32)
-		type = PNM::type_name<float>::name();
+		type = Internal::type_name<float>::name();
 	else if(bpp == -64)
-		type = PNM::type_name<double>::name();
+		type = Internal::type_name<double>::name();
 	else
 		throw Exceptions::Image_IO::MalformedImage("FITS images has unrecognised BITPIX (" + get_numeric_field() + ")");
 

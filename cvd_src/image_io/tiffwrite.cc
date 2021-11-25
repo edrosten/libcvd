@@ -152,8 +152,8 @@ template <class T>
 void TIFFWritePimpl::write_raw_pixel_line(const T* data)
 {
 	//Do some type checking
-	if(type != PNM::type_name<T>::name())
-		throw WriteTypeMismatch(type, PNM::type_name<T>::name());
+	if(type != Internal::type_name<T>::name())
+		throw WriteTypeMismatch(type, Internal::type_name<T>::name());
 
 	//Do some sanity checking
 	if(row >= (unsigned long)my_size.y)
@@ -168,8 +168,8 @@ void TIFFWritePimpl::write_raw_pixel_line(const T* data)
 void TIFFWritePimpl::write_raw_pixel_line(const bool* data)
 {
 	//Do some type checking
-	if(type != PNM::type_name<bool>::name())
-		throw WriteTypeMismatch(type, PNM::type_name<bool>::name());
+	if(type != Internal::type_name<bool>::name())
+		throw WriteTypeMismatch(type, Internal::type_name<bool>::name());
 
 	//Do some sanity checking
 	if(row >= (unsigned long)my_size.y)

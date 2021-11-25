@@ -315,16 +315,16 @@ if(type == PBM)
 else if(type == PGM)
 {
 	if(m_is_2_byte)
-		elemtype = PNM::type_name<unsigned short>::name();
+		elemtype = Internal::type_name<unsigned short>::name();
 	else
-		elemtype = PNM::type_name<byte>::name();
+		elemtype = Internal::type_name<byte>::name();
 }
 if(type == PPM)
 {
 	if(m_is_2_byte)
-		elemtype = PNM::type_name<Rgb<unsigned short> >::name();
+		elemtype = Internal::type_name<Rgb<unsigned short> >::name();
 	else
-		elemtype = PNM::type_name<Rgb<byte> >::name();
+		elemtype = Internal::type_name<Rgb<byte> >::name();
 }
 
 
@@ -415,8 +415,8 @@ void maybe_swap(Rgb<byte>*, size_t)
 	template<class C>
 void pnm_in::get_raw_pixel_lines(C * c, unsigned long nlines)
 {
-	if(datatype() != PNM::type_name<C>::name())
-		throw ReadTypeMismatch(datatype(), PNM::type_name<C>::name());
+	if(datatype() != Internal::type_name<C>::name())
+		throw ReadTypeMismatch(datatype(), Internal::type_name<C>::name());
 
 	//Reading into uchars is sufficiently different from reading in to
 	//ushorts, so it has ben done as 2 functions as opposed to one 
@@ -646,8 +646,8 @@ template<class C> void write_text(const Rgb<C>* data, size_t n, ostream& o)
 	template<class C> 
 void pnm_writer::write_raw_pixel_line(const C* data)
 {
-	if(type != PNM::type_name<C>::name())
-		throw WriteTypeMismatch(type, PNM::type_name<C>::name());
+	if(type != Internal::type_name<C>::name())
+		throw WriteTypeMismatch(type, Internal::type_name<C>::name());
 
 	//Do some sanity checking
 	if(row >= size.y)
