@@ -81,21 +81,33 @@ namespace ImageType
 
 #if DOXYGEN_INCLUDE_ONLY_FOR_DOCS
 
-/// Load an image from a stream. This function resizes the Image as necessary.
-/// It will also perform image type conversion (e.g. colour to greyscale)
-/// according the Pixel:::CIE conversion.
-/// The template type is deduced automatically, and must not be specified.
-///
-/// The type deduction is performed using lazy evaluation, so the load operation
-/// is only performed if an image is assigned from this.
+/// Load an image from a stream.
 ///
 /// @param i The istream to load from
 /// @ingroup gImageIO
 template <class C>
 Image<C> img_load(std::istream& i);
 
-/// Load an image from a file, and return the image.
+/// This function resizes the Image as necessary.
+/// It will also perform image type conversion (e.g. colour to greyscale)
+/// according the Pixel:::CIE conversion.
 /// The template type is deduced automatically, and must not be specified.
+///
+/// The type deduction is performed using lazy evaluation, so the load operation
+/// is only performed if an image is assigned from this. 
+/// Load an image from a file, and return the image.
+///
+/// You can also restrict the range of supported images if you wish to omit certain
+/// image types from the final binary
+///
+/// \code
+///	Image<byte> i = img_load("file");  //Load a file, all types supported. 
+/// Image<byte> i = img_load<PNG::Reader, JPEG::Reader>("file");  //Load only supporting JPEG and PNG
+///
+/// using Files = std::tuple<PNG::Reader, JPEG::Reader>;
+/// Image<byte> i = img_load<Files>("file");  //Load only supporting JPEG and PNG
+///
+/// \endcode
 ///
 /// The type deduction is performed using lazy evaluation, so the load operation
 /// is only performed if an image is assigned from this.
