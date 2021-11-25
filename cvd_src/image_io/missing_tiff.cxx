@@ -12,37 +12,37 @@ namespace{
 }
 }
 
-CVD::TIFF::tiff_reader::tiff_reader(std::istream& i)
+CVD::TIFF::Reader::Reader(std::istream& i)
 {
 	error();
 }
 
 
-CVD::TIFF::tiff_reader::~tiff_reader()
+CVD::TIFF::Reader::~Reader()
 {} 
 
-std::string CVD::TIFF::tiff_reader::datatype()
+std::string CVD::TIFF::Reader::datatype()
 {
 	error();
 }
 
-std::string CVD::TIFF::tiff_reader::name()
+std::string CVD::TIFF::Reader::name()
 {
 	error();
 }
 
-bool CVD::TIFF::tiff_reader::top_row_first()
+bool CVD::TIFF::Reader::top_row_first()
 {
 	error();
 };
 
-ImageRef CVD::TIFF::tiff_reader::size()
+ImageRef CVD::TIFF::Reader::size()
 {
 	error();
 };
 
 //Mechanically generate the pixel reading calls.
-#define GEN1(X) void CVD::TIFF::tiff_reader::get_raw_pixel_line(X*){error();}
+#define GEN1(X) void CVD::TIFF::Reader::get_raw_pixel_line(X*){error();}
 #define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
 
 GEN1(bool)

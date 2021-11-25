@@ -13,40 +13,40 @@ namespace {
 }
 }
 
-CVD::JPEG::reader::reader(std::istream&)
+CVD::JPEG::Reader::Reader(std::istream&)
 {
 	error();
 }
 
 
-CVD::JPEG::reader::~reader()
+CVD::JPEG::Reader::~Reader()
 {} 
 
-std::string CVD::JPEG::reader::datatype()
+std::string CVD::JPEG::Reader::datatype()
 {
 	error();
 }
 
-std::string CVD::JPEG::reader::name()
+std::string CVD::JPEG::Reader::name()
 {
 	error();
 }
 
-bool CVD::JPEG::reader::top_row_first()
+bool CVD::JPEG::Reader::top_row_first()
 {
 	error();
 };
 
-ImageRef CVD::JPEG::reader::size()
+ImageRef CVD::JPEG::Reader::size()
 {
 	error();
 };
 
-void CVD::JPEG::reader::get_raw_pixel_line(unsigned char*){
+void CVD::JPEG::Reader::get_raw_pixel_line(unsigned char*){
 	error();
 }
 
-void CVD::JPEG::reader::get_raw_pixel_line(Rgb<unsigned char>*){
+void CVD::JPEG::Reader::get_raw_pixel_line(Rgb<unsigned char>*){
 	error();
 }
 

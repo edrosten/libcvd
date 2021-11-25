@@ -20,11 +20,11 @@ namespace JPEG
 	using CVD::Internal::TypeList;
 
 	class ReadPimpl;
-	class reader
+	class Reader
 	{
 		public:
-		reader(std::istream&);
-		~reader();
+		Reader(std::istream&);
+		~Reader();
 
 		ImageRef size();
 		bool top_row_first();
@@ -39,6 +39,10 @@ namespace JPEG
 		    TypeList<Rgb<byte>,
 		        Head>>
 		    Types;
+
+		static bool first_byte_matches(const int b){
+			return b == 0xff;
+		}
 
 		private:
 		std::unique_ptr<ReadPimpl> t;

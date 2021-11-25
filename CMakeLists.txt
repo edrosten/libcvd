@@ -299,7 +299,7 @@ configure_file(cmake/config_internal.h.in include/cvd_src/config_internal.h)
 
 add_library(${PROJECT_NAME} ${SRCS} ${HEADERS})
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME cvd)
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/include" ${CVD_DEP_INCLUDES_PUBLIC} PRIVATE ${CVD_DEP_INCLUDES_PRIVATE})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${CVD_DEP_LIBS})
 

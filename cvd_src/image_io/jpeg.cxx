@@ -52,38 +52,38 @@ namespace CVD
 				string type;
 		};
 
-		ImageRef reader::size()
+		ImageRef Reader::size()
 		{
 			return ImageRef(t->x_size(), t->y_size());
 		}
 
-		void reader::get_raw_pixel_line(unsigned char* d)
+		void Reader::get_raw_pixel_line(unsigned char* d)
 		{
 			t->get_raw_pixel_line(d);
 		}
 
-		void reader::get_raw_pixel_line(Rgb<byte>* d)
+		void Reader::get_raw_pixel_line(Rgb<byte>* d)
 		{
 			t->get_raw_pixel_line(d);
 		}
-		bool reader::top_row_first()
+		bool Reader::top_row_first()
 		{
 			return true;
 		}
 
-		string reader::datatype()
+		string Reader::datatype()
 		{
 			return t->datatype();
 		}
-		string reader::name()
+		string Reader::name()
 		{
 			return "JPEG";
 		}
 
-		reader::~reader()
+		Reader::~Reader()
 		{}
 
-		reader::reader(std::istream& i)
+		Reader::Reader(std::istream& i)
 			:t(new ReadPimpl(i))
 		{}
 

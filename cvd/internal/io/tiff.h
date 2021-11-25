@@ -22,11 +22,11 @@ namespace TIFF
 	//
 
 	class TIFFPimpl;
-	class tiff_reader
+	class Reader
 	{
 		public:
-		tiff_reader(std::istream&);
-		~tiff_reader();
+		Reader(std::istream&);
+		~Reader();
 
 		ImageRef size();
 		bool top_row_first();
@@ -65,6 +65,10 @@ namespace TIFF
 		                                                TypeList<Rgba<double>,
 		                                                    Head>>>>>>>>>>>>>
 		    Types;
+
+		static bool first_byte_matches(const int c){
+			return c == 'I' || c == 'M';
+		}
 
 		private:
 		std::unique_ptr<TIFFPimpl> t;

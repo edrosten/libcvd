@@ -43,6 +43,10 @@ namespace PNM
 		                    Head>>>>>
 		    Types;
 
+		static bool first_byte_matches(const int b){
+			return b == 'P';
+		}
+
 		private:
 		std::unique_ptr<pnm_in> p;
 	};

@@ -17,11 +17,11 @@ namespace TEXT
 	using CVD::Internal::TypeList;
 
 	class ReadPimpl;
-	class reader
+	class Reader
 	{
 		public:
-		reader(std::istream&);
-		~reader();
+		Reader(std::istream&);
+		~Reader();
 
 		ImageRef size();
 		bool top_row_first();
@@ -32,6 +32,10 @@ namespace TEXT
 		std::string name();
 
 		typedef TypeList<double, Head> Types;
+
+		static bool first_byte_matches(const int c){
+			return c == ' ' || c == '\t' || isdigit(c) || c == '-' || c == '+';
+		}
 
 		private:
 		std::unique_ptr<ReadPimpl> t;

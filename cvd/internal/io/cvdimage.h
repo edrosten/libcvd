@@ -21,11 +21,11 @@ namespace CVDimage
 	using CVD::Internal::TypeList;
 
 	class ReadPimpl;
-	class reader
+	class Reader
 	{
 		public:
-		reader(std::istream&);
-		~reader();
+		Reader(std::istream&);
+		~Reader();
 
 		ImageRef size();
 		bool top_row_first();
@@ -50,6 +50,10 @@ namespace CVDimage
 		                        TypeList<Rgba<byte>,
 		                            Head>>>>>>>
 		    Types;
+
+		static bool first_byte_matches(const int b){
+			return b == 'C';
+		}
 
 		private:
 		std::unique_ptr<ReadPimpl> t;

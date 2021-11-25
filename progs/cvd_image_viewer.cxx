@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	Image<Rgb<byte> > im;
+	Image<Rgb<CVD::byte> > im;
 
 	try
 	{
