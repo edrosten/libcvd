@@ -556,23 +556,34 @@ Image<T> warp(const BasicImage<T>& in, const CAM1& cam_in, const CAM2& cam_out)
 
 #endif
 
+namespace Internal{
+	template <class T>
+	Image<T> simpleTranspose(const SubImage<T>& in)
+	{
+		Image<T> out(ImageRef(in.size().y, in.size().x));
+		for(int r=0; r < in.size().y; r++)
+			for(int c=0; c < in.size().x; c++)
+				out[c][r] = in[r][c];	
+
+		return out;
+	}
+}
+
+
 /// flips an image vertically in place.
 template <class T>
-void flipVertical(Image<T>& in)
+void flipVertical(SubImage<T>&& in)
 {
-	int w = in.size().x;
-	T* buffer = new T[w];
-	T* top = in.data();
-	T* bottom = top + (in.size().y - 1) * w;
-	while(top < bottom)
-	{
-		std::copy(top, top + w, buffer);
-		std::copy(bottom, bottom + w, top);
-		std::copy(buffer, buffer + w, bottom);
-		top += w;
-		bottom -= w;
-	}
-	delete[] buffer;
+	for(int r=0; r < in.size().y/2; r++)
+		for(int c=0; c < in.size().x; c++){
+			std::swap(in[r][c], in[in.size().y-1-r][c]);
+		}
+}
+
+template <class T>
+void flipVertical(SubImage<T>& in)
+{
+	flipVertical(std::move(in));
 }
 
 /// flips an image horizontally in place.
@@ -581,6 +592,12 @@ void flipHorizontal(SubImage<T>&& in)
 {
 	for(int r = 0; r < in.size().y; r++)
 		std::reverse(in[r], in[r] + in.size().x);
+}
+
+template <class T>
+void flipHorizontal(SubImage<T>& in)
+{
+	flipHorizontal(std::move(in));
 }
 
 namespace median
