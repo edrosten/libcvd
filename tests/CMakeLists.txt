@@ -18,3 +18,7 @@ add_test(NAME load_and_save COMMAND load_and_save)
 add_executable(convolution convolution.cc)
 target_link_libraries(convolution PRIVATE CVD)
 add_test(NAME convolution COMMAND convolution)
+
+add_executable(flips flips.cc)
+target_link_libraries(flips PRIVATE CVD)
+add_test(NAME flips COMMAND flips)

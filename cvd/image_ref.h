@@ -163,6 +163,10 @@ class ImageRef
 	///@overload
 	constexpr ImageRef shiftr(int i) const;
 
+	constexpr ImageRef transpose() const{
+		return ImageRef(y,x);
+	}
+
 	// and now the data members (which are public!)
 	int x; ///< The x co-ordinate
 	int y; ///< The y co-ordinate

@@ -556,27 +556,77 @@ Image<T> warp(const BasicImage<T>& in, const CAM1& cam_in, const CAM2& cam_out)
 
 #endif
 
-namespace Internal{
+namespace Internal
+{
 	template <class T>
-	Image<T> simpleTranspose(const SubImage<T>& in)
+	void simpleTranspose(const SubImage<T>& in, SubImage<T> out)
 	{
-		Image<T> out(ImageRef(in.size().y, in.size().x));
-		for(int r=0; r < in.size().y; r++)
-			for(int c=0; c < in.size().x; c++)
-				out[c][r] = in[r][c];	
-
-		return out;
+		CVD_ASSERT(in.size().transpose() == out.size());
+		for(int r = 0; r < in.size().y; r++)
+			for(int c = 0; c < in.size().x; c++)
+				out[c][r] = in[r][c];
 	}
+
+	template <class T>
+	void recursiveTranspose(const SubImage<T>& in, SubImage<T> out, const int bytes = 2048)
+	{
+
+		CVD_ASSERT(in.size().transpose() == out.size());
+
+		if(in.size().area() * static_cast<int>(sizeof(T)) < bytes || in.size().x == 1 || in.size().y == 1)
+			simpleTranspose(in, out);
+		else if(in.size().x >= in.size().y)
+		{
+			//The image is very wide, so the strategy of picking largest-sqare-and-remainder
+			//can lead to linear recursion depth, so instead split it in half
+
+			const int width_left = in.size().x / 2;
+			const int width_right = in.size().x - width_left;
+			const ImageRef left_chunk { width_left, in.size().y };
+			const ImageRef right_chunk { width_right, in.size().y };
+			const ImageRef right_start { width_left, 0 };
+
+			recursiveTranspose(in.sub_image(ImageRef(0, 0), left_chunk), out.sub_image(ImageRef(0, 0), left_chunk.transpose()));
+			recursiveTranspose(in.sub_image(right_start, right_chunk), out.sub_image(right_start.transpose(), right_chunk.transpose()));
+		}
+		else
+		{
+			const int height_top = in.size().y / 2;
+			const int height_bottom = in.size().y - height_top;
+			ImageRef top_chunk { in.size().x, height_top };
+			ImageRef bottom_chunk { in.size().x, height_bottom };
+			ImageRef bottom_start { 0, height_top };
+
+			recursiveTranspose(in.sub_image(ImageRef(0, 0), top_chunk), out.sub_image(ImageRef(0, 0), top_chunk.transpose()));
+			recursiveTranspose(in.sub_image(bottom_start, bottom_chunk), out.sub_image(bottom_start.transpose(), bottom_chunk.transpose()));
+		}
+	}
+
 }
 
+template <class T>
+void transpose(const SubImage<T>& in, SubImage<T>&& out)
+{
+	CVD_ASSERT(in.size().transpose() == out.size());
+	Internal::recursiveTranspose(in, out);
+}
+
+template <class T>
+Image<T> transpose(const SubImage<T>& in)
+{
+	Image<T> out(in.size().transpose());
+	Internal::recursiveTranspose(in, out);
+	return out;
+}
 
 /// flips an image vertically in place.
 template <class T>
 void flipVertical(SubImage<T>&& in)
 {
-	for(int r=0; r < in.size().y/2; r++)
-		for(int c=0; c < in.size().x; c++){
-			std::swap(in[r][c], in[in.size().y-1-r][c]);
+	for(int r = 0; r < in.size().y / 2; r++)
+		for(int c = 0; c < in.size().x; c++)
+		{
+			std::swap(in[r][c], in[in.size().y - 1 - r][c]);
 		}
 }
 
