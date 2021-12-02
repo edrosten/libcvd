@@ -41,6 +41,20 @@ jobs:
     - name: make
       run: make
       working-directory: ./build
+  clang-format-ubuntu:
+    runs-on: ubuntu-18.04
+    steps:
+    - run: |
+           sudo apt-get update
+           sudo apt install clang-format-10
+    - uses: actions/checkout@v2
+    - name: format
+      run: find . \( -name '*.cpp' -o -name '*.h' -o -name '*.cc' -o -name '*.cxx'  \) -a -not -path ./progs/video_iOS/\* | xargs -n 1 clang-format-10 --verbose -i
+    - run: |
+        if ! git diff-index --exit-code --quiet HEAD; then
+            git diff
+            exit 1
+        fi
   build-test-ubuntu-cmake-light:
     runs-on: ubuntu-18.04
     steps:
