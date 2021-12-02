@@ -16,3 +16,9 @@ CVD::Exceptions::VideoBuffer::BadColourSpace::BadColourSpace(const std::string& 
         buffer + " can not grab video in the " + c + "colourspace on the specified device.")
 {
 }
+
+[[noreturn]] void CVD::Internal::error_abort(const char* f, int l, const char* code){
+	std::cerr << "Assertion failed at " << f << ": " << l << " " << code << "\n";
+	std::abort();
+}
+

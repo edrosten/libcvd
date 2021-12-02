@@ -62,7 +62,20 @@ namespace Internal
 	struct ImagePromise
 	{
 	};
+
+	[[noreturn]] void error_abort(const char* f, int l, const char* code);
 };
+#endif
+
+
+#ifdef CVD_DEBUG
+#define CVD_ASSERT(X) do{if(!(X))CVD::Internal::error_abort(__FILE__, __LINE__, #X);}while(0)
+#elif defined(_MSC_VER)
+#define CVD_ASSERT(X) __assume(X)
+#elif defined(__GNUC__) || defined(__clang__)
+#define CVD_ASSERT(X) do{if(!(X)) __builtin_unreachable();}while(0)
+#elif
+#define CVD_ASSERT(X) do{}while(0)
 #endif
 
 #ifdef CVD_IMAGE_DEBUG
