@@ -22,12 +22,12 @@
 
 using namespace CVD;
 
-typedef  unsigned char pix;
-#define  DATA_TYPE GL_LUMINANCE
+typedef unsigned char pix;
+#define DATA_TYPE GL_LUMINANCE
 
 VideoBuffer<pix>* get_vbuf()
 {
-	return new DVBuffer3<pix>(0, ImageRef(640,480));
+	return new DVBuffer3<pix>(0, ImageRef(640, 480));
 }
 
 #include "test/videoprog.cxx"

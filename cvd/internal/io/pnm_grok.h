@@ -43,7 +43,8 @@ namespace PNM
 		                    Head>>>>>
 		    Types;
 
-		static bool first_byte_matches(const int b){
+		static bool first_byte_matches(const int b)
+		{
 			return b == 'P';
 		}
 

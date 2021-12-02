@@ -18,8 +18,8 @@
 	Foundation, Inc., 
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <iostream>
 #include <TooN/se3.h>
+#include <iostream>
 
 using namespace std;
 using namespace TooN;
@@ -32,8 +32,8 @@ int main()
 	cin >> v;
 	se3 = SE3<>::exp(v);
 
-	Matrix<3,4> m;
-	m.slice<0,0,3,3>() = se3.get_rotation().get_matrix();
+	Matrix<3, 4> m;
+	m.slice<0, 0, 3, 3>() = se3.get_rotation().get_matrix();
 	m.T()[3] = se3.get_translation();
 
 	cout << m;

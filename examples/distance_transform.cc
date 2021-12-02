@@ -3,15 +3,15 @@
 #include <cvd/image_io.h>
 #include <random>
 
+using CVD::byte;
+using CVD::euclidean_distance_transform_sq;
 using CVD::Image;
 using CVD::ImageRef;
 using CVD::img_save;
-using CVD::euclidean_distance_transform_sq;
-using CVD::byte;
 using CVD::Rgb;
-using std::uniform_int_distribution;
-using std::mt19937;
 using std::max_element;
+using std::mt19937;
+using std::uniform_int_distribution;
 
 int main()
 {

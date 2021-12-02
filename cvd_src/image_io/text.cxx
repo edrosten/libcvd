@@ -1,8 +1,8 @@
 #include "cvd/image_io.h"
-#include <iterator>
-#include <vector>
-#include <sstream>
 #include <iostream>
+#include <iterator>
+#include <sstream>
+#include <vector>
 
 using namespace CVD;
 using namespace CVD::TEXT;
@@ -17,28 +17,27 @@ using namespace std;
 class CVD::TEXT::ReadPimpl
 {
 	public:
-		ReadPimpl(istream&);
-		~ReadPimpl();
-		ImageRef size();
-		string datatype();
-		void get_raw_pixel_line(double* data);
+	ReadPimpl(istream&);
+	~ReadPimpl();
+	ImageRef size();
+	string datatype();
+	void get_raw_pixel_line(double* data);
 
 	private:
-		istream& i;
-		unsigned long row;
-		ImageRef my_size;
+	istream& i;
+	unsigned long row;
+	ImageRef my_size;
 
-		vector<vector<double> > raster_data;
+	vector<vector<double>> raster_data;
 };
-
 
 void ReadPimpl::get_raw_pixel_line(double* d)
 {
-	if(row  > (unsigned long)my_size.y)
+	if(row > (unsigned long)my_size.y)
 		throw InternalLibraryError("CVD", "Read past end of image.");
 
 	copy(raster_data[row].begin(), raster_data[row].end(), d);
-	row ++;
+	row++;
 }
 
 string ReadPimpl::datatype()
@@ -52,12 +51,12 @@ ImageRef ReadPimpl::size()
 }
 
 ReadPimpl::~ReadPimpl()
-{	
+{
 }
 
-
 ReadPimpl::ReadPimpl(istream& is)
-	:i(is),row(0)
+    : i(is)
+    , row(0)
 {
 	my_size.x = -1;
 	my_size.y = 0;
@@ -84,8 +83,8 @@ ReadPimpl::ReadPimpl(istream& is)
 		else if(my_size.x != (int)raster_data.back().size())
 		{
 			ostringstream err;
-			err << "All rows must have the same number of columns: bad row is " 
-				<< my_size.y;
+			err << "All rows must have the same number of columns: bad row is "
+			    << my_size.y;
 			throw MalformedImage(err.str());
 		}
 
@@ -93,17 +92,15 @@ ReadPimpl::ReadPimpl(istream& is)
 	}
 }
 
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Implementation of public parts of text reading
 //
 
 Reader::Reader(istream& i)
-	:t(new ReadPimpl(i))
-{}
+    : t(new ReadPimpl(i))
+{
+}
 
 Reader::~Reader()
 {
@@ -129,4 +126,4 @@ ImageRef Reader::size()
 };
 
 //Mechanically generate the pixel reading calls.
-void Reader::get_raw_pixel_line(double*d){t->get_raw_pixel_line(d);}
+void Reader::get_raw_pixel_line(double* d) { t->get_raw_pixel_line(d); }

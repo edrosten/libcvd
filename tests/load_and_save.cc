@@ -377,17 +377,17 @@ int main(int ac, char** av)
 
 		str.seekg(0);
 		im = img_load<std::tuple<PNM::Reader>>(str);
-		
-		try{
+
+		try
+		{
 			str.seekg(0);
 			im = img_load<FITS::Reader>(str);
 			throw std::logic_error("Image load of the wrong type did not succeed");
 		}
 		catch(const CVD::Exceptions::Image_IO::UnsupportedImageType&)
-		{}
+		{
+		}
 	}
-
-
 
 	cerr << "Testing TEXT (type " << ImageType::TEXT << ")\n";
 	randtest<

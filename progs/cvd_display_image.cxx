@@ -19,9 +19,9 @@
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <cvd/gl_helpers.h>
 #include <cvd/image_io.h>
 #include <cvd/videodisplay.h>
-#include <cvd/gl_helpers.h>
 
 #include <iostream>
 
@@ -30,13 +30,12 @@ using namespace CVD;
 int main()
 {
 	try
-	{	
-		Image<Rgb<byte> > i = img_load(std::cin);
-
+	{
+		Image<Rgb<byte>> i = img_load(std::cin);
 
 		VideoDisplay d(i.size());
 
-		d.select_events(ExposureMask|KeyPressMask);
+		d.select_events(ExposureMask | KeyPressMask);
 
 		for(;;)
 		{

@@ -22,10 +22,9 @@ Exceptions::Image_IO::ImageSizeMismatch::ImageSizeMismatch(const ImageRef& src, 
 }
 
 Exceptions::Image_IO::MissingImageType::MissingImageType(const std::string& type)
-	: All("Image input: " + type + " support is not compiled in.")
+    : All("Image input: " + type + " support is not compiled in.")
 {
 }
-
 
 Exceptions::Image_IO::OpenError::OpenError(const string& name, const string& why, int error)
     : All("Opening file: " + name + " (" + why + "): " + strerror(error))

@@ -50,8 +50,9 @@ namespace PNG
 		                        TypeList<Rgba<unsigned short>,
 		                            Head>>>>>>>
 		    Types;
-		static bool first_byte_matches(const int b){
-			return b ==0x89;
+		static bool first_byte_matches(const int b)
+		{
+			return b == 0x89;
 		}
 
 		private:

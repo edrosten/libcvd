@@ -94,14 +94,14 @@ Image<C> img_load(std::istream& i);
 /// The template type is deduced automatically, and must not be specified.
 ///
 /// The type deduction is performed using lazy evaluation, so the load operation
-/// is only performed if an image is assigned from this. 
+/// is only performed if an image is assigned from this.
 /// Load an image from a file, and return the image.
 ///
 /// You can also restrict the range of supported images if you wish to omit certain
 /// image types from the final binary
 ///
 /// \code
-///	Image<byte> i = img_load("file");  //Load a file, all types supported. 
+///	Image<byte> i = img_load("file");  //Load a file, all types supported.
 /// Image<byte> i = img_load<PNG::Reader, JPEG::Reader>("file");  //Load only supporting JPEG and PNG
 ///
 /// using Files = std::tuple<PNG::Reader, JPEG::Reader>;
@@ -119,36 +119,42 @@ Image<C> img_load(std::string& i);
 
 #endif
 
+namespace Internal
+{
 
-namespace Internal{
+	using AllImageTypes = std::tuple<PNM::Reader, JPEG::Reader, TIFF::Reader, PNG::Reader, BMP::Reader, FITS::Reader, CVDimage::Reader, TEXT::Reader>;
 
-
-using AllImageTypes=std::tuple<PNM::Reader, JPEG::Reader, TIFF::Reader, PNG::Reader, BMP::Reader, FITS::Reader, CVDimage::Reader, TEXT::Reader>;
-
-// This selects the correct image reader from the list of available readers
-// (provided as a tuple), using the first byte of the file to decide.
-template<class I, class ImageTypeList, int N=0>
-void img_load_tuple(Image<I>& im, std::istream& i, [[maybe_unused]] int c){
-	if constexpr (N==std::tuple_size_v<ImageTypeList>) {
-		throw Exceptions::Image_IO::UnsupportedImageType();
-	}
-	else{
-		using ImageReader = std::tuple_element_t<N, ImageTypeList>;
-	
-		if(ImageReader::first_byte_matches(c))
-			CVD::Internal::readImage<I,ImageReader>(im, i);
+	// This selects the correct image reader from the list of available readers
+	// (provided as a tuple), using the first byte of the file to decide.
+	template <class I, class ImageTypeList, int N = 0>
+	void img_load_tuple(Image<I>& im, std::istream& i, [[maybe_unused]] int c)
+	{
+		if constexpr(N == std::tuple_size_v<ImageTypeList>)
+		{
+			throw Exceptions::Image_IO::UnsupportedImageType();
+		}
 		else
-			img_load_tuple<I, ImageTypeList, N+1>(im, i, c);
+		{
+			using ImageReader = std::tuple_element_t<N, ImageTypeList>;
+
+			if(ImageReader::first_byte_matches(c))
+				CVD::Internal::readImage<I, ImageReader>(im, i);
+			else
+				img_load_tuple<I, ImageTypeList, N + 1>(im, i, c);
+		}
 	}
-}
 
-template<class... T> struct as_tuple{
-	using type = std::tuple<T...>;
-};
+	template <class... T>
+	struct as_tuple
+	{
+		using type = std::tuple<T...>;
+	};
 
-template<class... T> struct as_tuple<std::tuple<T...>>{
-	using type = std::tuple<T...>;
-};
+	template <class... T>
+	struct as_tuple<std::tuple<T...>>
+	{
+		using type = std::tuple<T...>;
+	};
 }
 
 //If there's only one argument it can be a tuple or a single element typelist
@@ -169,7 +175,7 @@ void img_load(Image<I>& im, std::istream& i)
 
 	if(!i.good())
 		throw Exceptions::Image_IO::EofBeforeImage();
-	
+
 	Internal::img_load_tuple<I, typename Internal::as_tuple<Head, ImageTypes...>::type>(im, i, c);
 }
 
@@ -186,7 +192,7 @@ void img_load(Image<I>& im, const std::string& s)
 #ifndef DOXYGEN_IGNORE_INTERNAL
 namespace Internal
 {
-	template<class... ImageTypes>
+	template <class... ImageTypes>
 	class ImageLoaderIstream
 	{
 	};
@@ -207,7 +213,7 @@ namespace Internal
 		}
 	};
 
-	template<class... ImageTypes>
+	template <class... ImageTypes>
 	class ImageLoaderString
 	{
 	};
@@ -230,25 +236,27 @@ namespace Internal
 
 };
 
-
-template<class... ImageTypes>
-Internal::ImagePromise<Internal::ImageLoaderIstream<ImageTypes...>> img_load(std::istream& i){
+template <class... ImageTypes>
+Internal::ImagePromise<Internal::ImageLoaderIstream<ImageTypes...>> img_load(std::istream& i)
+{
 	return i;
 }
 
-template<class... ImageTypes>
-Internal::ImagePromise<Internal::ImageLoaderString<ImageTypes...>> img_load(std::string& i){
+template <class... ImageTypes>
+Internal::ImagePromise<Internal::ImageLoaderString<ImageTypes...>> img_load(std::string& i)
+{
 	return i;
 }
 
-inline Internal::ImagePromise<Internal::ImageLoaderIstream<Internal::AllImageTypes>> img_load(std::istream& i){
+inline Internal::ImagePromise<Internal::ImageLoaderIstream<Internal::AllImageTypes>> img_load(std::istream& i)
+{
 	return i;
 }
 
-inline Internal::ImagePromise<Internal::ImageLoaderString<Internal::AllImageTypes>> img_load(std::string& i){
+inline Internal::ImagePromise<Internal::ImageLoaderString<Internal::AllImageTypes>> img_load(std::string& i)
+{
 	return i;
 }
-
 
 #endif
 

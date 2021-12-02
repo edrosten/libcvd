@@ -18,10 +18,10 @@
 	Foundation, Inc., 
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <cvd/videodisplay.h>
-#include <cvd/image_io.h>
-#include <cvd/gl_helpers.h>
 #include <X11/keysym.h>
+#include <cvd/gl_helpers.h>
+#include <cvd/image_io.h>
+#include <cvd/videodisplay.h>
 #include <iostream>
 
 using namespace CVD;
@@ -36,12 +36,12 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	Image<Rgb<CVD::byte> > im;
+	Image<Rgb<CVD::byte>> im;
 
 	try
 	{
 		img_load(im, cin);
-		
+
 		VideoDisplay d(0, 0, im.size().x, im.size().y);
 
 		d.select_events(KeyPressMask | ExposureMask);
@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 			if(e.type == KeyPress)
 			{
 				KeySym key;
-				XLookupString(&e.xkey,	0, 0, &key, 0);
+				XLookupString(&e.xkey, 0, 0, &key, 0);
 
 				if(key == XK_Escape || key == XK_q)
 					break;

@@ -33,7 +33,8 @@ namespace TEXT
 
 		typedef TypeList<double, Head> Types;
 
-		static bool first_byte_matches(const int c){
+		static bool first_byte_matches(const int c)
+		{
 			return c == ' ' || c == '\t' || isdigit(c) || c == '-' || c == '+';
 		}
 

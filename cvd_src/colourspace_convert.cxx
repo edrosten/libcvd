@@ -1,15 +1,15 @@
 //FIXME!!
-#include <cvd/image_convert_fwd.h>
-#include <cvd/colourspaces.h>
+#include <cvd/byte.h>
 #include <cvd/colourspace.h>
 #include <cvd/colourspace_convert.h>
-#include <cvd/byte.h>
+#include <cvd/colourspaces.h>
+#include <cvd/image_convert_fwd.h>
 #include <cvd/rgb.h>
 
 namespace CVD
 {
 
-	/*
+/*
 
 	   template<> void convert_image(const BasicImage<yuv411>& from, BasicImage<Rgb<byte> >& to)
 	   {
