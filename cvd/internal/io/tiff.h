@@ -66,7 +66,8 @@ namespace TIFF
 		                                                    Head>>>>>>>>>>>>>
 		    Types;
 
-		static bool first_byte_matches(const int c){
+		static bool first_byte_matches(const int c)
+		{
 			return c == 'I' || c == 'M';
 		}
 

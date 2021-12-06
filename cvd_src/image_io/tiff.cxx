@@ -1,10 +1,10 @@
 #include "cvd/internal/io/tiff.h"
 #include "cvd/image_io.h"
 #include "cvd_src/config_internal.h"
-#include <tiffio.h>
 #include <algorithm>
-#include <vector>
 #include <iostream>
+#include <tiffio.h>
+#include <vector>
 
 using namespace CVD;
 using namespace CVD::TIFF;
@@ -19,39 +19,39 @@ using namespace std;
 class CVD::TIFF::TIFFPimpl
 {
 	public:
-		TIFFPimpl(istream&);
-		~TIFFPimpl();
-		ImageRef size();
-		string datatype();
-		template<class C> void get_raw_pixel_line(C* data);
-		void get_raw_pixel_line(bool* data);
-		void get_raw_pixel_line(Rgba<unsigned char>* data);
+	TIFFPimpl(istream&);
+	~TIFFPimpl();
+	ImageRef size();
+	string datatype();
+	template <class C>
+	void get_raw_pixel_line(C* data);
+	void get_raw_pixel_line(bool* data);
+	void get_raw_pixel_line(Rgba<unsigned char>* data);
 
 	private:
+	template <class C>
+	void checkRead(const C*);
 
-		template<class C> void checkRead(const C*);
+	istream& i;
+	uint32_t row;
+	ImageRef my_size;
+	string type;
+	streamoff length;
+	::TIFF* tif;
+	bool use_cooked_rgba_interface;
+	bool inverted_grey;
 
-		istream& i;
-		uint32_t row;
-		ImageRef my_size;
-		string   type;
-		streamoff length;
-		::TIFF* tif;
-		bool use_cooked_rgba_interface;
-		bool inverted_grey;
+	vector<uint32> raster_data;
+	vector<uint8> bool_rowbuf;
 
-		vector<uint32> raster_data;
-		vector<uint8>  bool_rowbuf;
-
-		static tsize_t write(thandle_t vis, tdata_t data, tsize_t count);
-		static tsize_t read(thandle_t vis, tdata_t data, tsize_t count);
-		static toff_t seek(thandle_t vis, toff_t off, int dir);
-		static toff_t size(thandle_t vis);
-		static int close(thandle_t vis);
-		static int map(thandle_t, tdata_t*, toff_t*);
-		static void unmap(thandle_t, tdata_t, toff_t);
+	static tsize_t write(thandle_t vis, tdata_t data, tsize_t count);
+	static tsize_t read(thandle_t vis, tdata_t data, tsize_t count);
+	static toff_t seek(thandle_t vis, toff_t off, int dir);
+	static toff_t size(thandle_t vis);
+	static int close(thandle_t vis);
+	static int map(thandle_t, tdata_t*, toff_t*);
+	static void unmap(thandle_t, tdata_t, toff_t);
 };
-
 
 tsize_t TIFFPimpl::read(thandle_t vis, tdata_t data, tsize_t count)
 {
@@ -100,69 +100,69 @@ void TIFFPimpl::unmap(thandle_t, tdata_t, toff_t)
 {
 }
 
-
-static const int error_size=512;
-static char error_msg[error_size]="";
+static const int error_size = 512;
+static char error_msg[error_size] = "";
 
 static void tiff_error_handler(const char*, const char* fmt, va_list ap)
 {
 	int n = vsnprintf(error_msg, error_size, fmt, ap);
 	if(n == error_size)
-		error_msg[n-1] = 0;
+		error_msg[n - 1] = 0;
 }
-
 
 //Compile-error free geryscale inverter.
 //Does nothing for unknown types
-template<class C> void invert(C* data, long num)
+template <class C>
+void invert(C* data, long num)
 {
-	for(long n=0; n< num; n++)
-		data[n] =  Pixel::traits<C>::max_intensity - data[n];
+	for(long n = 0; n < num; n++)
+		data[n] = Pixel::traits<C>::max_intensity - data[n];
 }
 
-void attempt_invert(...) {}
-void attempt_invert(bool* data, long num) { invert(data, num);}
-void attempt_invert(unsigned char* data, long num) { invert(data, num);}
-void attempt_invert(unsigned short* data, long num) { invert(data, num);}
-void attempt_invert(float* data, long num) { invert(data, num);}
-void attempt_invert(double* data, long num) { invert(data, num);}
+void attempt_invert(...) { }
+void attempt_invert(bool* data, long num) { invert(data, num); }
+void attempt_invert(unsigned char* data, long num) { invert(data, num); }
+void attempt_invert(unsigned short* data, long num) { invert(data, num); }
+void attempt_invert(float* data, long num) { invert(data, num); }
+void attempt_invert(double* data, long num) { invert(data, num); }
 
-
-template<class T>
-void TIFFPimpl::checkRead(const T*){
+template <class T>
+void TIFFPimpl::checkRead(const T*)
+{
 	if(datatype() != PNM::type_name<T>::name())
 		throw ReadTypeMismatch(datatype(), PNM::type_name<T>::name());
 
-	if(row  > (unsigned long)my_size.y)
+	if(row > (unsigned long)my_size.y)
 		throw InternalLibraryError("CVD", "Read past end of image.");
 }
 
-void TIFFPimpl::get_raw_pixel_line(Rgba<unsigned char>* data){
-	checkRead(data);	
+void TIFFPimpl::get_raw_pixel_line(Rgba<unsigned char>* data)
+{
+	checkRead(data);
 
 	if(use_cooked_rgba_interface)
 	{
-		uint32* raster = &raster_data[row*my_size.x];
+		uint32* raster = &raster_data[row * my_size.x];
 		uint32* end = raster + my_size.x;
 
-		for(;raster < end; raster++, data++)
+		for(; raster < end; raster++, data++)
 		{
-			data->red   = TIFFGetR(*raster);
+			data->red = TIFFGetR(*raster);
 			data->green = TIFFGetG(*raster);
-			data->blue  = TIFFGetB(*raster);
+			data->blue = TIFFGetB(*raster);
 			data->alpha = static_cast<unsigned char>(TIFFGetA(*raster));
 		}
 
-		row ++;
+		row++;
 	}
 	else
-	{	
+	{
 		get_raw_pixel_line<Rgba<unsigned char>>(data);
 	}
-
 }
 
-template<class T> void TIFFPimpl::get_raw_pixel_line(T* d)
+template <class T>
+void TIFFPimpl::get_raw_pixel_line(T* d)
 {
 	checkRead(d);
 	if(use_cooked_rgba_interface)
@@ -170,7 +170,7 @@ template<class T> void TIFFPimpl::get_raw_pixel_line(T* d)
 		throw InternalLibraryError("CVD", "Reading non-RGBA tiff data as RGBA");
 	}
 	else
-	{	
+	{
 		if(TIFFReadScanline(tif, (void*)d, row) == -1)
 			throw MalformedImage(error_msg);
 
@@ -190,8 +190,8 @@ void TIFFPimpl::get_raw_pixel_line(bool* d)
 		throw MalformedImage(error_msg);
 
 	//Unpack the bools
-	for(int i=0; i < my_size.x  ;i++)
-		d[i] = (bool_rowbuf[i/8] >> (7-i%8)) & 1;
+	for(int i = 0; i < my_size.x; i++)
+		d[i] = (bool_rowbuf[i / 8] >> (7 - i % 8)) & 1;
 
 	if(inverted_grey)
 		invert(d, my_size.x);
@@ -210,22 +210,26 @@ ImageRef TIFFPimpl::size()
 }
 
 TIFFPimpl::~TIFFPimpl()
-{	
+{
 	TIFFClose(tif);
 }
 
 //#define CVD_INTERNAL_VERBOSE_TIFF
 #ifdef CVD_INTERNAL_VERBOSE_TIFF
-#define LOG(X) do{ cerr << X; }while(0)
+#define LOG(X)     \
+	do             \
+	{              \
+		cerr << X; \
+	} while(0)
 #define VAR(X) #X << " = " << X
 #else
 #define LOG(X)
 #define VAR(X)
 #endif
 
-
 TIFFPimpl::TIFFPimpl(istream& is)
-	:i(is),row(0)
+    : i(is)
+    , row(0)
 {
 	TIFFSetErrorHandler(tiff_error_handler);
 
@@ -236,39 +240,34 @@ TIFFPimpl::TIFFPimpl(istream& is)
 		throw UnseekableIstream("TIFF");
 	i.seekg(0, ios_base::beg);
 
-
-	tif = TIFFClientOpen("std::istream", "r", this, 
-			read, write, seek, close, size, map, unmap);
-
+	tif = TIFFClientOpen("std::istream", "r", this,
+	    read, write, seek, close, size, map, unmap);
 
 	if(tif == NULL)
 		throw MalformedImage(error_msg);
 
-
 #ifdef CVD_INTERNAL_VERBOSE_TIFF
 	{
-		int dircount=1;
+		int dircount = 1;
 		for(; TIFFReadDirectory(tif); dircount++)
-		{}
+		{ }
 
 		LOG(VAR(dircount));
 		TIFFSetDirectory(tif, 0);
-
 	}
 #endif
 
 	//Libtiff types
-	uint32 w=0, h=0;
-	uint16 bitspersample=0, spp=0, sampleformat=0, photo=0, pl_type=0;
-
+	uint32 w = 0, h = 0;
+	uint16 bitspersample = 0, spp = 0, sampleformat = 0, photo = 0, pl_type = 0;
 
 	TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
-	TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);	
+	TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
 	TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &bitspersample);
 
 	TIFFGetFieldDefaulted(tif, TIFFTAG_SAMPLESPERPIXEL, &spp);
 
-	TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photo);	
+	TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photo);
 	TIFFGetField(tif, TIFFTAG_PLANARCONFIG, &pl_type);
 
 	LOG(VAR(w) << endl);
@@ -277,7 +276,6 @@ TIFFPimpl::TIFFPimpl(istream& is)
 	LOG(VAR(spp) << endl);
 	LOG(VAR(photo) << endl);
 	LOG(VAR(pl_type) << endl);
-
 
 	//Read the sample format. If it is missing, then it
 	//defaults to unsigned int as per the spec.
@@ -288,31 +286,31 @@ TIFFPimpl::TIFFPimpl(istream& is)
 
 	my_size.x = w;
 	my_size.y = h;
-	use_cooked_rgba_interface=1; //This is the default
-	inverted_grey=0;
+	use_cooked_rgba_interface = 1; //This is the default
+	inverted_grey = 0;
 
 	//Can we use our own interface?
 	//The alternative is the cooked RGBA interface which assumes all
-	//the world is 8 bits RGBA. This will load almost all images, but 
+	//the world is 8 bits RGBA. This will load almost all images, but
 	//special features, such as higher bit depths will be lost.
 	//Also, the entire image has to be loaded at once, so this can use large
 	//amounts of memory.
-	if((photo == PHOTOMETRIC_RGB  || photo == PHOTOMETRIC_MINISWHITE || photo == PHOTOMETRIC_MINISBLACK))
-	{	
+	if((photo == PHOTOMETRIC_RGB || photo == PHOTOMETRIC_MINISWHITE || photo == PHOTOMETRIC_MINISBLACK))
+	{
 		//We stand a chane here...
 		if(photo == PHOTOMETRIC_MINISWHITE)
-			inverted_grey=1;
+			inverted_grey = 1;
 
 		//Figure out the basic datatype
 		if(sampleformat == SAMPLEFORMAT_UINT)
 		{
-			if(bitspersample == 1)	
+			if(bitspersample == 1)
 				type = PNM::type_name<bool>::name();
 			else if(bitspersample == 8)
 				type = PNM::type_name<unsigned char>::name();
 			else if(bitspersample == 16)
 				type = PNM::type_name<unsigned short>::name();
-			else 
+			else
 				goto keep_cooked;
 		}
 		else if(sampleformat == SAMPLEFORMAT_IEEEFP)
@@ -321,7 +319,7 @@ TIFFPimpl::TIFFPimpl(istream& is)
 				type = PNM::type_name<float>::name();
 			else if(bitspersample == 64)
 				type = PNM::type_name<double>::name();
-			else 
+			else
 				goto keep_cooked;
 		}
 		else
@@ -331,45 +329,40 @@ TIFFPimpl::TIFFPimpl(istream& is)
 		if(spp == 1)
 			type = type;
 		else if(spp == 2)
-			type = "CVD::GreyAlpha<" + type  + ">";
+			type = "CVD::GreyAlpha<" + type + ">";
 		else if(spp == 3)
-			type = "CVD::Rgb<" + type  + ">";
+			type = "CVD::Rgb<" + type + ">";
 		else if(spp == 4)
-			type = "CVD::Rgba<" + type  + ">";
-		else 
+			type = "CVD::Rgba<" + type + ">";
+		else
 			goto keep_cooked;
 
-		use_cooked_rgba_interface=0;
+		use_cooked_rgba_interface = 0;
 	}
 
 keep_cooked:;
-			if(use_cooked_rgba_interface == 1)
-			{	
-				//The format is "complex" and we don't know how to read it.
-				type = "CVD::Rgba<unsigned char>";
-				inverted_grey=0;
-			}
+	if(use_cooked_rgba_interface == 1)
+	{
+		//The format is "complex" and we don't know how to read it.
+		type = "CVD::Rgba<unsigned char>";
+		inverted_grey = 0;
+	}
 
-			if(type == "bool")
-				bool_rowbuf.resize((size().x + 7)/8);
+	if(type == "bool")
+		bool_rowbuf.resize((size().x + 7) / 8);
 
-			LOG(VAR(type) << endl);
-			LOG(VAR(use_cooked_rgba_interface) << endl);
+	LOG(VAR(type) << endl);
+	LOG(VAR(use_cooked_rgba_interface) << endl);
 
+	if(use_cooked_rgba_interface)
+	{
+		raster_data.resize(my_size.x * my_size.y);
 
-
-			if(use_cooked_rgba_interface)
-			{
-				raster_data.resize(my_size.x* my_size.y);
-
-				//Read the whole image
-				if(TIFFReadRGBAImageOriented(tif, my_size.x, my_size.y, &raster_data[0], 0, ORIENTATION_TOPLEFT) == -1)
-					throw MalformedImage(error_msg);
-			}
+		//Read the whole image
+		if(TIFFReadRGBAImageOriented(tif, my_size.x, my_size.y, &raster_data[0], 0, ORIENTATION_TOPLEFT) == -1)
+			throw MalformedImage(error_msg);
+	}
 }
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -377,8 +370,9 @@ keep_cooked:;
 //
 
 Reader::Reader(istream& i)
-	:t(new TIFFPimpl(i))
-{}
+    : t(new TIFFPimpl(i))
+{
+}
 
 Reader::~Reader()
 {
@@ -404,11 +398,15 @@ ImageRef Reader::size()
 };
 
 //Mechanically generate the pixel reading calls.
-#define GEN1(X) void Reader::get_raw_pixel_line(X*d){t->get_raw_pixel_line(d);}
-#define GEN3(X) GEN1(X) GEN1(Rgb<X>) GEN1(Rgba<X>)
+#define GEN1(X) \
+	void Reader::get_raw_pixel_line(X* d) { t->get_raw_pixel_line(d); }
+#define GEN3(X)  \
+	GEN1(X)      \
+	GEN1(Rgb<X>) \
+	GEN1(Rgba<X>)
 
-	GEN1(bool)
-	GEN3(unsigned char)
-	GEN3(unsigned short)
-	GEN3(float)
+GEN1(bool)
+GEN3(unsigned char)
+GEN3(unsigned short)
+GEN3(float)
 GEN3(double)

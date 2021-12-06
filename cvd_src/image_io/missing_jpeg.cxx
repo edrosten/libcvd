@@ -7,9 +7,11 @@ class CVD::JPEG::ReadPimpl
 {
 };
 
-namespace {
-[[noreturn]] void error(){
-	throw Exceptions::Image_IO::MissingImageType("JPEG");	
+namespace
+{
+[[noreturn]] void error()
+{
+	throw Exceptions::Image_IO::MissingImageType("JPEG");
 }
 }
 
@@ -18,9 +20,9 @@ CVD::JPEG::Reader::Reader(std::istream&)
 	error();
 }
 
-
 CVD::JPEG::Reader::~Reader()
-{} 
+{
+}
 
 std::string CVD::JPEG::Reader::datatype()
 {
@@ -42,11 +44,13 @@ ImageRef CVD::JPEG::Reader::size()
 	error();
 };
 
-void CVD::JPEG::Reader::get_raw_pixel_line(unsigned char*){
+void CVD::JPEG::Reader::get_raw_pixel_line(unsigned char*)
+{
 	error();
 }
 
-void CVD::JPEG::Reader::get_raw_pixel_line(Rgb<unsigned char>*){
+void CVD::JPEG::Reader::get_raw_pixel_line(Rgb<unsigned char>*)
+{
 	error();
 }
 
@@ -63,10 +67,12 @@ CVD::JPEG::writer::~writer()
 {
 }
 
-void CVD::JPEG::writer::write_raw_pixel_line(const unsigned char*){
+void CVD::JPEG::writer::write_raw_pixel_line(const unsigned char*)
+{
 	error();
 }
 
-void CVD::JPEG::writer::write_raw_pixel_line(const Rgb<unsigned char>*){
+void CVD::JPEG::writer::write_raw_pixel_line(const Rgb<unsigned char>*)
+{
 	error();
 }

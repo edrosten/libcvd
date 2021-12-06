@@ -7,7 +7,7 @@ while(vd.pending())
 	{
 		delete vbuf;
 		return 0;
-	} 
+	}
 	else if(e.type == KeyPress)
 	{
 		KeySym k;
@@ -17,12 +17,12 @@ while(vd.pending())
 		if(k == XK_c)
 		{
 			char buf[100];
-			char *name;
+			char* name;
 
-			name=strrchr(argv[0], '/');
+			name = strrchr(argv[0], '/');
 
-			if(!name) 
-				name=argv[0];
+			if(!name)
+				name = argv[0];
 			else
 				name++;
 
@@ -42,9 +42,5 @@ while(vd.pending())
 		{
 			delete vbuf;
 			return 0;
-
 		}
-
-
 	}
-

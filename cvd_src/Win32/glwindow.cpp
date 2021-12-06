@@ -3,6 +3,7 @@
 
 #include <windows.h>
 #include <windowsx.h>
+
 #include <gl/gl.h>
 
 #include <cassert>

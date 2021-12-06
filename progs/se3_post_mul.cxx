@@ -18,36 +18,32 @@
 	Foundation, Inc., 
     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <iostream>
-#include <cstdlib>
 #include <TooN/se3.h>
+#include <cstdlib>
+#include <iostream>
 
 using namespace std;
 using namespace TooN;
 
-
 int main(int argc, char** argv)
 {
-	
+
 	if(argc != 7)
 	{
 		cerr << argv[0] << "error: put post multiplication SE3 on command line";
 		return 1;
 	}
 
-
 	Vector<6> camera;
 
-	for(int i=0; i< 6; i++)
-		camera[i] = atof(argv[i+1]);
-
+	for(int i = 0; i < 6; i++)
+		camera[i] = atof(argv[i + 1]);
 
 	Vector<6> in;
 
 	SE3<> s3, c;
 
 	c = SE3<>::exp(camera);
-
 
 	for(;;)
 	{
@@ -56,7 +52,7 @@ int main(int argc, char** argv)
 		if(!cin.good())
 			return 0;
 
-		s3=SE3<>::exp(in) * c;
+		s3 = SE3<>::exp(in) * c;
 
 		cout << s3.ln() << endl;
 	}

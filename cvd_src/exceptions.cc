@@ -17,8 +17,8 @@ CVD::Exceptions::VideoBuffer::BadColourSpace::BadColourSpace(const std::string& 
 {
 }
 
-[[noreturn]] void CVD::Internal::error_abort(const char* f, int l, const char* code){
+[[noreturn]] void CVD::Internal::error_abort(const char* f, int l, const char* code)
+{
 	std::cerr << "Assertion failed at " << f << ": " << l << " " << code << "\n";
 	std::abort();
 }
-
