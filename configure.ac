@@ -736,6 +736,25 @@ echo $CXXFLAGS
 echo $CPPFLAGS
 echo $LIBS
 
+AC_DEFINE([CVD_HAVE_ASSEMBLER], [], [Description])
+AC_DEFINE([CVD_HAVE_DC1394V2], [], [Description])
+AC_DEFINE([CVD_HAVE_FENV_H], [], [Description])
+AC_DEFINE([CVD_HAVE_FFMPEG], [], [Description])
+AC_DEFINE([CVD_HAVE_INLINE_ASM], [], [Description])
+AC_DEFINE([CVD_HAVE_JPEG], [], [Description])
+AC_DEFINE([CVD_HAVE_LIBUVC], [], [Description])
+AC_DEFINE([CVD_HAVE_MMX], [], [Description])
+AC_DEFINE([CVD_HAVE_MMXEXT], [], [Description])
+AC_DEFINE([CVD_HAVE_PNG], [], [Description])
+AC_DEFINE([CVD_HAVE_SSE], [], [Description])
+AC_DEFINE([CVD_HAVE_SSE2], [], [Description])
+AC_DEFINE([CVD_HAVE_SSE3], [], [Description])
+AC_DEFINE([CVD_HAVE_TIFF], [], [Description])
+AC_DEFINE([CVD_HAVE_TOON], [], [Description])
+AC_DEFINE([CVD_HAVE_V4L2BUFFER], [], [Description])
+AC_DEFINE([CVD_HAVE_VIDEODISPLAY], [], [Description])
+AC_DEFINE([CVD_MAJOR_VERSION], [], [Description])
+AC_DEFINE([CVD_MINOR_VERSION], [], [Description])
 
 AC_CONFIG_HEADERS([cvd/config.h cvd_src/config_internal.h])
 AC_OUTPUT(Makefile)
