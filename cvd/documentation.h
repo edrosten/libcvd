@@ -10,7 +10,7 @@
   \section Information
   This C++ library is designed to be easy to use and portable for fast video saving, loading and display.
   It supports OpenGL and X Windows.
-  It is released under the LGPL License.
+  This library is free software, see LICENSE file for details
 
   \section Features
   \subsection Language
