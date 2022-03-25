@@ -27,7 +27,6 @@ endif()
 
 set(SRCS
 	cvd_src/bayer.cxx
-	cvd_src/colourspace_convert.cxx
 	cvd_src/connected_components.cc
 	cvd_src/convolution.cc
 	cvd_src/cvd_timer.cc
@@ -112,7 +111,6 @@ set(HEADERS
 	cvd/helpers.h
 	cvd/image.h
 	cvd/image_convert.h
-	cvd/image_convert_fwd.h
 	cvd/image_io.h
 	cvd/image_ref.h
 	cvd/integral_image.h

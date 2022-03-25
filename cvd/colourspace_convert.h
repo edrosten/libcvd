@@ -2,8 +2,7 @@
 #define CVD_INCLUDE_COLOURSPACE_CONVERT_H
 #include <cvd/byte.h>
 #include <cvd/colourspaces.h>
-#include <cvd/image_convert.h>
-#include <cvd/image_convert_fwd.h>
+#include <cvd/convert_image.h>
 #include <cvd/rgb.h>
 
 namespace CVD

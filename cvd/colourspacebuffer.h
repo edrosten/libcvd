@@ -5,7 +5,7 @@
 
 #include <cvd/colourspace_convert.h>
 #include <cvd/colourspace_frame.h>
-#include <cvd/image_convert.h>
+#include <cvd/convert_image.h>
 #include <cvd/localvideobuffer.h>
 
 namespace CVD

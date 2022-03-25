@@ -4,9 +4,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cvd/convert_image.h>
 #include <cvd/exceptions.h>
 #include <cvd/image.h>
-#include <cvd/image_convert.h>
 #include <cvd/image_ref.h>
 #include <cvd/internal/builtin_components.h>
 #include <cvd/internal/rgb_components.h>

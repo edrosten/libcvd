@@ -88,7 +88,6 @@ CVD_OBJS=   \
 			cvd_src/image_io.o                              \
 			cvd_src/bayer.o                                 \
 			cvd_src/morphology.o                            \
-			cvd_src/colourspace_convert.o                   \
 			cvd_src/draw.o                                  \
 			cvd_src/noarch/yuv422.o                         \
 			cvd_src/yuv420.o                                \

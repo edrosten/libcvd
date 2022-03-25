@@ -2,8 +2,8 @@
 #define CVD_LOAD_AND_SAVE_H
 
 #include <cvd/colourspace_convert.h>
+#include <cvd/convert_image.h>
 #include <cvd/exceptions.h>
-#include <cvd/image_convert.h>
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/internal/io/parameter.h>
 #include <cvd/internal/name_CVD_rgb_types.h>
