@@ -289,7 +289,7 @@ printlibs:
 
 .PHONY: test
 
-REGRESSIONS=distance_transform_test fast_corner_test load_and_save image_ref convolution flips
+REGRESSIONS=distance_transform_test fast_corner_test load_and_save image_ref convolution flips copy
 REGRESSION_OUT=$(patsubst %,tests/%.out, $(REGRESSIONS))
 
 test:$(REGRESSION_OUT)
