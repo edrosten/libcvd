@@ -13,10 +13,10 @@
 #ifndef CVD_IMAGE_H
 #define CVD_IMAGE_H
 
+#include <cstring>
 #include <cvd/exceptions.h>
 #include <cvd/image_ref.h>
 #include <iterator>
-#include <string.h>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -546,7 +546,11 @@ class BasicImage : public Internal::ImageData<T>
 	inline void copy_from(const BasicImage<T>& other)
 	{
 		CVD_IMAGE_ASSERT2(other.size() == this->size(), Exceptions::Image::IncompatibleImageSizes, "copy_from");
-		std::copy(other.begin(), other.end(), this->begin());
+		for(int y = 0; y < my_size.y; y++)
+			if constexpr(std::is_trivially_copyable_v<T>)
+				std::memcpy((*this)[y], other[y], sizeof(T) * my_size.x);
+			else
+				std::copy(other[y], other[y] + my_size.x, (*this)[y]);
 	}
 
 	/// What is the size of this image?
@@ -635,7 +639,7 @@ class Image : public SubImage<T>
 	inline Image& copy_from(const SubImage<T>& other)
 	{
 		resize(other.size());
-		std::copy(other.begin(), other.end(), this->begin());
+		SubImage<T>::copy_from(other);
 		return *this;
 	}
 
