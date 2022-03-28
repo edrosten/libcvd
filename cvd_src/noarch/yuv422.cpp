@@ -1,7 +1,7 @@
 #include "cvd/colourspace.h"
 #include "cvd/colourspaces.h"
+#include "cvd/convert_image.h"
 #include "cvd/image.h"
-#include "cvd/image_convert.h"
 #include "cvd/utility.h"
 
 #include <iostream>

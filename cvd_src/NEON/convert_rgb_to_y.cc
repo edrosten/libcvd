@@ -1,5 +1,5 @@
 #include <arm_neon.h>
-#include <cvd/image_convert.h>
+#include <cvd/convert_image.h>
 
 namespace CVD
 {

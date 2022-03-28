@@ -1,4 +1,4 @@
-#include <cvd/image_convert.h>
+#include <cvd/convert_image.h>
 #include <cvd/utility.h>
 namespace CVD
 {

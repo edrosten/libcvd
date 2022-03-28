@@ -1,5 +1,5 @@
+#include <cvd/convert_image.h>
 #include <cvd/distance_transform.h>
-#include <cvd/image_convert.h>
 #include <cvd/image_io.h>
 #include <random>
 #include <utility>

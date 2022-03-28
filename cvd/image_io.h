@@ -2,8 +2,8 @@
 #define CVD_IMAGE_IO_H
 
 #include <cctype>
+#include <cvd/convert_image.h>
 #include <cvd/exceptions.h>
-#include <cvd/image_convert.h>
 #include <cvd/internal/load_and_save.h>
 #include <cvd/internal/name_CVD_rgb_types.h>
 #include <cvd/internal/name_builtin_types.h>
