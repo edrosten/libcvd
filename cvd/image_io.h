@@ -115,7 +115,7 @@ Image<C> img_load(std::istream& i);
 /// @param i The istream to load from
 /// @ingroup gImageIO
 template <class C>
-Image<C> img_load(std::string& i);
+Image<C> img_load(const std::string& i);
 
 #endif
 
@@ -243,7 +243,7 @@ Internal::ImagePromise<Internal::ImageLoaderIstream<ImageTypes...>> img_load(std
 }
 
 template <class... ImageTypes>
-Internal::ImagePromise<Internal::ImageLoaderString<ImageTypes...>> img_load(std::string& i)
+Internal::ImagePromise<Internal::ImageLoaderString<ImageTypes...>> img_load(const std::string& i)
 {
 	return i;
 }
@@ -253,7 +253,7 @@ inline Internal::ImagePromise<Internal::ImageLoaderIstream<Internal::AllImageTyp
 	return i;
 }
 
-inline Internal::ImagePromise<Internal::ImageLoaderString<Internal::AllImageTypes>> img_load(std::string& i)
+inline Internal::ImagePromise<Internal::ImageLoaderString<Internal::AllImageTypes>> img_load(const std::string& i)
 {
 	return i;
 }
