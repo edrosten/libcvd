@@ -127,9 +127,6 @@ namespace VFB
 		/// What is the path to the video file?
 		std::string file_name();
 
-		/// What codec is being used to decode this video?
-		std::string codec_name();
-
 		private:
 		std::unique_ptr<RawVideoFileBufferPIMPL> p;
 	};
@@ -218,12 +215,6 @@ class VideoFileBuffer : public CVD::LocalVideoBuffer<T>
 	std::string file_name()
 	{
 		return vf.file_name();
-	}
-
-	/// What codec is being used to decode this video?
-	std::string codec_name()
-	{
-		return vf.codec_name();
 	}
 
 	private:

@@ -17,6 +17,7 @@ extern "C"
 #include <libavcodec/avcodec.h>
 #include <libavdevice/avdevice.h>
 #include <libavformat/avformat.h>
+#include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
 }
 
@@ -211,14 +212,13 @@ namespace VFB
 		AVFrame* raw_image;
 		AVFrame* converted_image;
 
-		AVPacket packet;
 		ImageRef size;
 
 		double frame_rate;
 		double stream_time_base;
 		double approx_next_timestamp;
 
-		AVCodec* video_codec;
+		const AVCodec* video_codec;
 		SwsContext* img_convert_context;
 
 		bool verbose;
@@ -235,8 +235,6 @@ namespace VFB
 
 		private:
 		unique_ptr<VFHolderBase> next_frame;
-
-		string codec;
 
 		string err(int e)
 		{
@@ -269,8 +267,14 @@ namespace VFB
 
 			try
 			{
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(58, 9, 100)
+				// see https://github.com/FFmpeg/FFmpeg/commit/0694d8702421e7aff1340038559c438b61bb30dd
 				av_register_all();
+#endif
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 10, 100)
+				// see https://github.com/FFmpeg/FFmpeg/commit/3f0a41367eb9180ab6d22d43ad42b9bd85a26df0
 				avcodec_register_all();
+#endif
 				avdevice_register_all();
 				DS("starting");
 
@@ -280,7 +284,7 @@ namespace VFB
 				if(input_format_context == NULL)
 					throw Exceptions::VideoFileBuffer2("Out of memory.");
 
-				AVInputFormat* fmt = nullptr;
+				const AVInputFormat* fmt = nullptr;
 				if(formatname != "")
 					fmt = av_find_input_format(formatname.c_str());
 
@@ -319,8 +323,8 @@ namespace VFB
 				//verbosity and to find the first video stream.
 				for(unsigned int i = 0; i < input_format_context->nb_streams; i++)
 				{
-					AVMediaType t = input_format_context->streams[i]->codec->codec_type;
-					AVCodecContext* vc = input_format_context->streams[i]->codec;
+					AVMediaType t = input_format_context->streams[i]->codecpar->codec_type;
+					AVCodecParameters* vc = input_format_context->streams[i]->codecpar;
 
 					if(t == AVMEDIA_TYPE_UNKNOWN)
 						VS("    " << i << ": "
@@ -339,9 +343,8 @@ namespace VFB
 							VS("        selecting this stream.");
 							video_stream_index = i;
 
-							video_codec_context = input_format_context->streams[i]->codec;
-							size.x = video_codec_context->width;
-							size.y = video_codec_context->height;
+							size.x = vc->width;
+							size.y = vc->height;
 						}
 
 						AVStream& s = *(input_format_context->streams[i]);
@@ -356,9 +359,6 @@ namespace VFB
 						VV("            width             ", vc->width);
 						VV("            height            ", vc->height);
 						VV("            bit rate          ", vc->bit_rate);
-						VV("            timebase (num)    ", vc->time_base.num);
-						VV("            timebase (denom)  ", vc->time_base.den);
-						VV("            ticks per frame   ", vc->ticks_per_frame);
 
 						//Frame timestamps are represented as integer multiples of
 						//rationals with the obvious definition.  The number of
@@ -394,23 +394,19 @@ namespace VFB
 					else if(t == AVMEDIA_TYPE_ATTACHMENT)
 						VS("    " << i << ": "
 						          << "attachment");
-
-					//For some reason vc->codec_name is empty.
-					//This seems to work.
-					char buf[1024];
-					avcodec_string(buf, sizeof(buf) - 1, vc, false);
-					buf[sizeof(buf) - 1] = 0;
-					VV("        codec name        ", buf << "*");
-					codec = buf;
 				}
 
 				if(video_stream_index == -1)
 					throw Exceptions::VideoFileBuffer2("VideoFileBuffer2: no video stream found.");
 
 				//Get hold of the video decoding mechanism
-				video_codec = avcodec_find_decoder(video_codec_context->codec_id);
+				auto* parameters = input_format_context->streams[video_stream_index]->codecpar;
+				video_codec = avcodec_find_decoder(parameters->codec_id);
 				if(video_codec == NULL)
 					throw Exceptions::VideoFileBuffer2("VideoFileBuffer2: no decoder found");
+
+				video_codec_context = avcodec_alloc_context3(video_codec);
+				avcodec_parameters_to_context(video_codec_context, parameters);
 
 				r = avcodec_open2(video_codec_context, video_codec, 0);
 				VR(avcodec_open2);
@@ -481,17 +477,33 @@ namespace VFB
 
 			while(true)
 			{
-				av_init_packet(&packet);
-				int r = av_read_frame(input_format_context, &packet);
-				DR(av_read_frame);
-
+				int r = avcodec_receive_frame(video_codec_context, raw_image);
 				if(r == AVERROR_EOF)
 				{
 					DS("EOF");
 					return unique_ptr<VFHolderBase>();
 				}
+				else if(r < 0 && r != AVERROR(EAGAIN))
+				{
+					throw Exceptions::VideoFileBuffer::BadDecode(approx_next_timestamp, err(r));
+				}
+				else
+				{
+					break;
+				}
+
+				AVPacket* packet = av_packet_alloc();
+				r = av_read_frame(input_format_context, packet);
+
+				if(r == AVERROR_EOF)
+				{
+					avcodec_send_packet(video_codec_context, nullptr);
+					av_packet_free(&packet);
+					continue;
+				}
 				else if(r < 0)
 				{
+					av_packet_free(&packet);
 					throw Exceptions::VideoFileBuffer::BadDecode(approx_next_timestamp, err(r));
 				}
 
@@ -499,7 +511,7 @@ namespace VFB
 
 				Dv(packet.pts); //Presentation time stamp (pts) is sometimes junk in keyframes.
 				Dv(packet.dts); //decode time stamp
-				double timestamp = static_cast<double>(packet.dts) * stream_time_base;
+				double timestamp = static_cast<double>(packet->dts) * stream_time_base;
 				approx_next_timestamp = timestamp + 1. / frame_rate;
 				Dv(timestamp);
 
@@ -507,36 +519,44 @@ namespace VFB
 				Dv(packet.duration);
 				DV("duration", packet.duration * stream_time_base);
 
-				if(packet.stream_index == video_stream_index)
+				if(packet->stream_index == video_stream_index)
 				{
-					int got_picture;
-					avcodec_decode_video2(video_codec_context, raw_image, &got_picture, &packet);
-					Dv(got_picture);
-					Dv(raw_image->key_frame);
-					Dv(raw_image->pts); //presentation timestamp. Time to present frame. Seems to contain junk. Do not use.
-					Dv(raw_image->interlaced_frame);
-					Dv(raw_image->top_field_first);
-
-					if(!got_picture)
-						goto cont;
-
-					//Allocate memory for the converted image
-					Image<T> ret(size);
-
-					//Set up converted_image so it uses the data in ret as its data buffer.
-					avpicture_fill((AVPicture*)converted_image, reinterpret_cast<uint8_t*>(ret.data()), output_fmt, size.x, size.y);
-					sws_scale(img_convert_context, raw_image->data, raw_image->linesize, 0, size.y, converted_image->data, converted_image->linesize);
-
-					ready = true;
-					return unique_ptr<VFHolderBase>(new VFHolder<T>(new VideoFileFrame<T>(timestamp, std::move(ret))));
+					r = avcodec_send_packet(video_codec_context, packet);
+					if(r != AVERROR(EAGAIN) && r != AVERROR(EOF))
+					{
+						av_packet_free(&packet);
+						throw Exceptions::VideoFileBuffer::BadDecode(approx_next_timestamp, err(r));
+					}
 				}
 
-			cont:
-
-				//Free the data owned by packet, not the struct tiself
-				av_free_packet(&packet);
-				DE(endl);
+				av_packet_free(&packet);
 			}
+
+			double timestamp = static_cast<double>(raw_image->pkt_dts) * stream_time_base;
+			Dv(timestamp);
+
+			Dv(raw_image->key_frame);
+			Dv(raw_image->pts); //presentation timestamp. Time to present frame. Seems to contain junk. Do not use.
+			Dv(raw_image->interlaced_frame);
+			Dv(raw_image->top_field_first);
+
+			//Allocate memory for the converted image
+			Image<T> ret(size);
+
+			//Set up converted_image so it uses the data in ret as its data buffer.
+			uint8_t* data[4];
+			int linesize[4];
+			av_image_fill_arrays(data,
+			    linesize,
+			    reinterpret_cast<uint8_t*>(ret.data()),
+			    output_fmt,
+			    ret.size().x,
+			    ret.size().y,
+			    1);
+			sws_scale(img_convert_context, raw_image->data, raw_image->linesize, 0, size.y, data, linesize);
+
+			ready = true;
+			return unique_ptr<VFHolderBase>(new VFHolder<T>(new VideoFileFrame<T>(timestamp, std::move(ret))));
 		}
 
 		void load_next_frame()
@@ -619,11 +639,6 @@ namespace VFB
 			return frame_rate;
 		}
 
-		string codec_name() const
-		{
-			return codec;
-		}
-
 		ImageRef get_size() const
 		{
 			return size;
@@ -684,11 +699,6 @@ namespace VFB
 	double RawVideoFileBuffer::frames_per_second()
 	{
 		return p->frames_per_second();
-	}
-
-	string RawVideoFileBuffer::codec_name()
-	{
-		return p->codec_name();
 	}
 
 }
