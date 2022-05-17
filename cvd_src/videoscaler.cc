@@ -74,11 +74,11 @@ namespace internal
 			++slice_height;
 		}
 
-		Slice(height, slice_height, [&](int i, int j, int height)
-		    {
-        auto inputDataJ = AdjustDataPointers(*source_descriptor, input_data, input_linesize, j);
-        auto outputDataJ = AdjustDataPointers(*target_descriptor, output_data, output_linesize, j);
-        sws_scale(m_contexts[i].get(), inputDataJ.data(), input_linesize, 0, height, outputDataJ.data(), output_linesize); });
+		Slice(height, slice_height, [&](int i, int j, int height) {
+			auto inputDataJ = AdjustDataPointers(*source_descriptor, input_data, input_linesize, j);
+			auto outputDataJ = AdjustDataPointers(*target_descriptor, output_data, output_linesize, j);
+			sws_scale(m_contexts[i].get(), inputDataJ.data(), input_linesize, 0, height, outputDataJ.data(), output_linesize);
+		});
 	}
 
 }

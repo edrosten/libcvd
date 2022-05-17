@@ -8,6 +8,7 @@ extern "C"
 #include <libswscale/swscale.h>
 }
 
+#include <memory>
 #include <stdexcept>
 #include <string>
 
