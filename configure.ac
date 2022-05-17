@@ -1,10 +1,9 @@
-AC_INIT(CVD,2.1)
+AC_INIT([CVD],[2.1])
 AC_COPYRIGHT(Copyright foo)
 
 m4_include([m4/ax_cxx_compile_stdcxx.m4])
 
 AC_CONFIG_HEADERS
-AC_HEADER_STDC
 
 AC_PROG_AWK
 AC_PROG_CXX
@@ -630,6 +629,9 @@ then
 	DEPOBJ(videofilebuffer2)
 	DEPOBJ(videofilebuffer_exceptions)
 	DEPOBJ(videosource_videofilebuffer)
+	DEPOBJ(videoffmpeg)
+	DEPOBJ(videoreader)
+	DEPOBJ(videoscaler)
 else
 	DEPOBJ(videosource_novideofilebuffer)
 fi
@@ -738,4 +740,5 @@ echo $LIBS
 
 
 AC_CONFIG_HEADERS([cvd/config.h cvd_src/config_internal.h])
-AC_OUTPUT(Makefile)
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
