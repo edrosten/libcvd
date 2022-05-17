@@ -284,9 +284,7 @@ namespace VFB
 				if(input_format_context == NULL)
 					throw Exceptions::VideoFileBuffer2("Out of memory.");
 
-				const AVInputFormat* fmt = nullptr;
-				if(formatname != "")
-					fmt = av_find_input_format(formatname.c_str());
+				auto* fmt = (formatname != "") ? av_find_input_format(formatname.c_str()) : nullptr;
 
 				VS("av_find_input_format(" << formatname << ") = " << fmt);
 				if(fmt != nullptr)
