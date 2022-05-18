@@ -289,7 +289,7 @@ printlibs:
 
 .PHONY: test
 
-REGRESSIONS=distance_transform_test fast_corner_test load_and_save image_ref convolution flips copy
+REGRESSIONS=distance_transform_test fast_corner_test load_and_save image_ref convolution flips copy $(TESTPROGS)
 REGRESSION_OUT=$(patsubst %,tests/%.out, $(REGRESSIONS))
 
 test:$(REGRESSION_OUT)
@@ -298,6 +298,8 @@ tests/%.test: tests/%.cc
 	mkdir -p $(@D) && $(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O0 -L. -lcvd -MMD -MP -MF tests/$*.d
 
 .PRECIOUS:tests/%.out
+tests/videoreader.out: tests/videoreader.test
+	LD_LIBRARY_PATH=. ./$< @srcdir@/tests/videoreader.mp4  && touch $@
 tests/%.out: tests/%.test
 	LD_LIBRARY_PATH=. ./$<  && touch $@
 

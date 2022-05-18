@@ -650,6 +650,7 @@ ac_header_cxx_list=
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 OFLAGS
+testprogs
 progs
 dep_objects
 have_fastobscure
@@ -10401,6 +10402,21 @@ then
 fi
 
 progs=$progs
+
+
+################################################################################
+#
+# Program dependencies
+#
+
+
+
+if test "$have_ffmpeg" == yes
+then
+	testprogs="$testprogs videoreader"
+fi
+
+testprogs=$testprogs
 
 
 echo
