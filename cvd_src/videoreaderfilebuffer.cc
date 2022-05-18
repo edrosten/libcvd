@@ -40,7 +40,7 @@ bool VideoReaderFileBuffer::frame_pending()
 	return m_next_frame.first.size().x != 0;
 }
 
-void VideoReaderFileBuffer::seek_to(double t)
+void VideoReaderFileBuffer::seek_to(double /*t*/)
 {
 	throw std::runtime_error("Seek not supported");
 }
