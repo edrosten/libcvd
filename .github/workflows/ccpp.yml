@@ -14,14 +14,19 @@ jobs:
            sudo apt-get update
            sudo apt install g++-10 gcc-10 libavcodec-dev libavdevice-dev libavformat-dev libavutil-dev libswscale-dev
     - uses: actions/checkout@v2
+    - name: setup
+      run: mkdir build
     - name: configure
-      run: ./configure
+      working-directory: ./build
+      run: ../configure
       env: 
         CC: gcc-10
         CXX: g++-10 -Werror -Wno-stringop-overflow
     - name: make
+      working-directory: ./build
       run: make
     - name: make test
+      working-directory: ./build
       run: make test
   build-test-ubuntu-cmake:
     runs-on: ubuntu-18.04
