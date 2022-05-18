@@ -14,7 +14,6 @@ namespace internal
 	void Slice(int height, int slice_height, F function)
 	{
 		slice_height = std::max(1, slice_height);
-		int j = 0;
 		std::vector<std::future<void>> futures;
 		for(int i = 0, j = 0; j < height; ++i, j += slice_height)
 		{
