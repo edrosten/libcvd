@@ -10319,6 +10319,7 @@ then
 	dep_objects="$dep_objects cvd_src/videosource_videofilebuffer.o"
 	dep_objects="$dep_objects cvd_src/videoffmpeg.o"
 	dep_objects="$dep_objects cvd_src/videoreader.o"
+	dep_objects="$dep_objects cvd_src/videoreaderfilebuffer.o"
 	dep_objects="$dep_objects cvd_src/videoscaler.o"
 else
 	dep_objects="$dep_objects cvd_src/videosource_novideofilebuffer.o"

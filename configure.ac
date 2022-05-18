@@ -631,6 +631,7 @@ then
 	DEPOBJ(videosource_videofilebuffer)
 	DEPOBJ(videoffmpeg)
 	DEPOBJ(videoreader)
+	DEPOBJ(videoreaderfilebuffer)
 	DEPOBJ(videoscaler)
 else
 	DEPOBJ(videosource_novideofilebuffer)
