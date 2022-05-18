@@ -46,12 +46,16 @@ void assert_near(Rgba<uint8_t> expected, Rgba<uint8_t> actual, std::string messa
 
 int main(int argc, char* argv[])
 {
+	if(argc < 2)
+	{
+		std::cerr << "usage: " << argv[0] << " videoreader.mp4\n";
+		exit(EXIT_FAILURE);
+	}
 	VideoReader reader(argv[1], 4);
 	std::cout << "timebase: " << reader.timebase().num << "/" << reader.timebase().den << "\n";
 	for(int i = 0; i < 20; ++i)
 	{
 		auto [frame, timestamp] = reader.get_frame();
-		int64_t timestamp_ms = (1000 * timestamp * reader.timebase().num) / reader.timebase().den;
 
 		int64_t expected_timestamp_ms = 100 * i;
 		int64_t expected_timestamp = (expected_timestamp_ms * reader.timebase().den) / (1000 * reader.timebase().num);
