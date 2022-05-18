@@ -89,38 +89,35 @@ VideoReader::VideoReader(const std::string& filename, int threads)
 	m_raw_frame.reset(av_frame_alloc());
 }
 
-AVRational VideoReader::GetTimebase() const
+VideoReader::~VideoReader() = default;
+
+AVRational VideoReader::timebase() const
 {
 	return m_format_context->streams[m_stream_index]->time_base;
 }
 
-double VideoReader::TimebaseToSeconds(int64_t pts) const
+double VideoReader::timebase_to_seconds(int64_t pts) const
 {
-	auto timebase = GetTimebase();
-	return static_cast<double>(pts * timebase.num) / timebase.den;
+	auto video_timebase = timebase();
+	return static_cast<double>(pts * video_timebase.num) / video_timebase.den;
 }
 
-int VideoReader::GetWidth() const
+ImageRef VideoReader::size() const
 {
-	return m_codec_context->width;
+	return { m_codec_context->width, m_codec_context->height };
 }
 
-int VideoReader::GetHeight() const
-{
-	return m_codec_context->height;
-}
-
-AVRational VideoReader::GetFrameRate() const
+AVRational VideoReader::frame_rate() const
 {
 	return m_format_context->streams[m_stream_index]->r_frame_rate;
 }
 
-int64_t VideoReader::GetDuration() const
+int64_t VideoReader::duration() const
 {
 	return m_format_context->streams[m_stream_index]->duration;
 }
 
-std::pair<Image<Rgba<uint8_t>>, int64_t> VideoReader::ReadNextFrame()
+std::pair<Image<Rgba<uint8_t>>, int64_t> VideoReader::get_frame()
 {
 	for(;;)
 	{
@@ -172,7 +169,7 @@ std::pair<Image<Rgba<uint8_t>>, int64_t> VideoReader::ReadNextFrame()
 	    result.size().x,
 	    result.size().y,
 	    1);
-	m_scaler->Scale(m_raw_frame->data, m_raw_frame->linesize, 0, m_codec_context->height, data, linesize);
+	m_scaler->scale(m_raw_frame->data, m_raw_frame->linesize, 0, m_codec_context->height, data, linesize);
 	return { std::move(result), m_raw_frame->pts };
 }
 

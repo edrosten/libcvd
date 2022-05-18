@@ -58,7 +58,7 @@ namespace internal
 		}
 	}
 
-	void Scaler::Scale(const std::uint8_t* const* input_data,
+	void Scaler::scale(const std::uint8_t* const* input_data,
 	    const int* input_linesize,
 	    const int y,
 	    const int height,

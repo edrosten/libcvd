@@ -20,7 +20,7 @@ namespace internal
 		public:
 		Scaler(int width, int height, int source_format, int target_format, int colorspace, int threads);
 
-		void Scale(const std::uint8_t* const* input_data,
+		void scale(const std::uint8_t* const* input_data,
 		    const int* input_linesize,
 		    int y,
 		    int height,
