@@ -24,17 +24,11 @@ VideoReader::VideoReader(const std::string& filename, int threads)
 	AVDictionary* opts = nullptr;
 	AVFormatContext* formatContext = nullptr;
 	int result = avformat_open_input(&formatContext, filename.c_str(), nullptr, &opts);
-	if(result < 0)
-	{
-		throw std::runtime_error("Failed to open video file");
-	}
+	internal::CheckAVError(result);
 	m_format_context.reset(formatContext);
 
 	result = avformat_find_stream_info(m_format_context.get(), nullptr);
-	if(result < 0)
-	{
-		throw std::runtime_error("Failed to get video file streams");
-	}
+	internal::CheckAVError(result);
 	AVCodecParameters* parameters = nullptr;
 	for(unsigned int i = 0; i != m_format_context->nb_streams; ++i)
 	{
@@ -59,10 +53,7 @@ VideoReader::VideoReader(const std::string& filename, int threads)
 	avcodec_parameters_to_context(m_codec_context.get(), parameters);
 	m_codec_context->thread_count = threads;
 	result = avcodec_open2(m_codec_context.get(), codec, 0);
-	if(result < 0)
-	{
-		throw std::runtime_error("Failed to initialize decoder");
-	}
+	internal::CheckAVError(result);
 
 	int colorspace = -1;
 	switch(m_codec_context->color_primaries)
