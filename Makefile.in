@@ -295,7 +295,7 @@ REGRESSION_OUT=$(patsubst %,tests/%.out, $(REGRESSIONS))
 test:$(REGRESSION_OUT)
 .PRECIOUS:tests/%.test
 tests/%.test: tests/%.cc 
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O0 -L. -lcvd -MMD -MP -MF tests/$*.d
+	mkdir -p $(@D) && $(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O0 -L. -lcvd -MMD -MP -MF tests/$*.d
 
 .PRECIOUS:tests/%.out
 tests/%.out: tests/%.test
@@ -311,7 +311,7 @@ EXAMPLE_PROGS=$(patsubst %,examples/%, $(EXAMPLES))
 examples:$(EXAMPLE_PROGS)
 
 $(EXAMPLE_PROGS): % : %.cc
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O3 -L. -lcvd
+	mkdir -p $(@D) && $(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O3 -L. -lcvd
 
 
 clean:
