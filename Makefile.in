@@ -176,7 +176,7 @@ libcvd.a: $(OBJS)
 # Before we compile the test programs we need to augment the
 # search paths with the path to libcvd, and also add libcvd to the
 # libraries to use
-CPPFLAGS = -I. @CPPFLAGS@
+CPPFLAGS = -I. -I@srcdir@ @CPPFLAGS@
 ifneq (@osx_hacks@,yes)
     LDFLAGS = -Wl,-R. @LDFLAGS@
 endif
@@ -246,7 +246,7 @@ distclean: clean
 	rm -f .sourcefiles
 	find . -name "*.cxx" -o -name "*.cc" -o -name "*.cpp" -o -name "*.c" -o -name "*.C"  | grep -v python > .sourcefiles
 	rm -f .deps
-	bash generate_dependencies.bash "$(CXX)" "-I. $(CPPFLAGS) $(CXXFLAGS)" > .deps
+	bash generate_dependencies.bash "$(CXX)" "$(CPPFLAGS) $(CXXFLAGS)" > .deps
 
 depend: .deps
 
@@ -263,23 +263,23 @@ depend: .deps
 # -MP make a blank target for dependencies. That way if a dependency is
 #     deleted, make won't fail to build stuff 
 %.o: %.cc
-	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@ -MMD -MP -MF $*.d
+	mkdir -p $(@D) && $(CXX) $(OFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@ -MMD -MP -MF $*.d
 
 %.o: %.cpp
-	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@ -MMD -MP -MF $*.d
+	mkdir -p $(@D) && $(CXX) $(OFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@ -MMD -MP -MF $*.d
 
 %.o: %.cxx
-	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@ -MMD -MP -MF $*.d
+	mkdir -p $(@D) && $(CXX) $(OFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@ -MMD -MP -MF $*.d
 
 %.o: %.C
-	$(CXX) $(OFLAGS) -I. $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@ -MMD -MP -MF $*.d
+	mkdir -p $(@D) && $(CXX) $(OFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@ -MMD -MP -MF $*.d
 
 %.o: %.s
-	as -g -o $@ $<
+	mkdir -p $(@D) && as -g -o $@ $<
 
 
 %: %.o
-	$(CXX) -o $@ $< $(LDFLAGS) -lcvd  $(LOADLIBES)
+	mkdir -p $(@D) && $(CXX) -o $@ $< $(LDFLAGS) -lcvd  $(LOADLIBES)
 
 printlibs:
 	@echo $(LOADLIBES)
@@ -295,7 +295,7 @@ REGRESSION_OUT=$(patsubst %,tests/%.out, $(REGRESSIONS))
 test:$(REGRESSION_OUT)
 .PRECIOUS:tests/%.test
 tests/%.test: tests/%.cc 
-	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O0 -L. -lcvd -MMD -MP -MF tests/$*.d
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O0 -L. -lcvd -MMD -MP -MF tests/$*.d
 
 .PRECIOUS:tests/%.out
 tests/%.out: tests/%.test
@@ -311,7 +311,7 @@ EXAMPLE_PROGS=$(patsubst %,examples/%, $(EXAMPLES))
 examples:$(EXAMPLE_PROGS)
 
 $(EXAMPLE_PROGS): % : %.cc
-	$(CXX) -I. $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O3 -L. -lcvd
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O3 -L. -lcvd
 
 
 clean:
