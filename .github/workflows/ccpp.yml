@@ -48,7 +48,7 @@ jobs:
       working-directory: ./build
     - name: ctest
       working-directory: ./build
-      run: ctest .
+      run: ctest . || (cat ./Testing/Temporary/LastTest.log; exit 1)
   clang-format-ubuntu:
     runs-on: ubuntu-18.04
     steps:
