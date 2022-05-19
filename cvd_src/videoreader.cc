@@ -21,6 +21,15 @@ namespace
 
 VideoReader::VideoReader(const std::string& filename, int threads)
 {
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(58, 9, 100)
+	// see https://github.com/FFmpeg/FFmpeg/commit/0694d8702421e7aff1340038559c438b61bb30dd
+	av_register_all();
+#endif
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 10, 100)
+	// see https://github.com/FFmpeg/FFmpeg/commit/3f0a41367eb9180ab6d22d43ad42b9bd85a26df0
+	avcodec_register_all();
+#endif
+
 	AVDictionary* opts = nullptr;
 	AVFormatContext* formatContext = nullptr;
 	int result = avformat_open_input(&formatContext, filename.c_str(), nullptr, &opts);
