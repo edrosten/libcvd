@@ -236,8 +236,19 @@ endif()
 if(CVD_FFMPEG_FOUND)
 	set(CVD_HAVE_FFMPEG ON)
 	list(APPEND SRCS
+		cvd_src/slice.h
+		cvd_src/videoffmpeg.cc
+		cvd_src/videoreader.cc
+		cvd_src/videoreaderfilebuffer.cc
+		cvd_src/videoscaler.cc
 		cvd_src/videofilebuffer2.cc
 		cvd_src/videosource_videofilebuffer.cc)
+	list(APPEND HEADERS
+		cvd/videoffmpeg.h
+		cvd/videoreader.h
+		cvd/videoreaderfilebuffer.h
+		cvd/videoscaler.h
+	)
 else()
 	set(CVD_HAVE_FFMPEG OFF)
 	list(APPEND SRCS

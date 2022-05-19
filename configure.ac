@@ -629,6 +629,10 @@ then
 	DEPOBJ(videofilebuffer2)
 	DEPOBJ(videofilebuffer_exceptions)
 	DEPOBJ(videosource_videofilebuffer)
+	DEPOBJ(videoffmpeg)
+	DEPOBJ(videoreader)
+	DEPOBJ(videoreaderfilebuffer)
+	DEPOBJ(videoscaler)
 else
 	DEPOBJ(videosource_novideofilebuffer)
 fi
@@ -708,6 +712,20 @@ then
 fi
 
 AC_SUBST(progs, [$progs])
+
+################################################################################
+#
+# Program dependencies
+#
+
+define(DEPTEST, [APPEND(testprogs, $1)])
+
+if test "$have_ffmpeg" == yes
+then 
+	DEPTEST(videoreader_test)
+fi
+
+AC_SUBST(testprogs, [$testprogs])
 
 echo
 echo

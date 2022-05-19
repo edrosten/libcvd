@@ -650,6 +650,7 @@ ac_header_cxx_list=
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 OFLAGS
+testprogs
 progs
 dep_objects
 have_fastobscure
@@ -10317,6 +10318,10 @@ then
 	dep_objects="$dep_objects cvd_src/videofilebuffer2.o"
 	dep_objects="$dep_objects cvd_src/videofilebuffer_exceptions.o"
 	dep_objects="$dep_objects cvd_src/videosource_videofilebuffer.o"
+	dep_objects="$dep_objects cvd_src/videoffmpeg.o"
+	dep_objects="$dep_objects cvd_src/videoreader.o"
+	dep_objects="$dep_objects cvd_src/videoreaderfilebuffer.o"
+	dep_objects="$dep_objects cvd_src/videoscaler.o"
 else
 	dep_objects="$dep_objects cvd_src/videosource_novideofilebuffer.o"
 fi
@@ -10397,6 +10402,21 @@ then
 fi
 
 progs=$progs
+
+
+################################################################################
+#
+# Program dependencies
+#
+
+
+
+if test "$have_ffmpeg" == yes
+then
+	testprogs="$testprogs videoreader_test"
+fi
+
+testprogs=$testprogs
 
 
 echo
