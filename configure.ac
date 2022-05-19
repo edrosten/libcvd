@@ -722,7 +722,7 @@ define(DEPTEST, [APPEND(testprogs, $1)])
 
 if test "$have_ffmpeg" == yes
 then 
-	DEPTEST(videoreader)
+	DEPTEST(videoreader_test)
 fi
 
 AC_SUBST(testprogs, [$testprogs])

@@ -10413,7 +10413,7 @@ progs=$progs
 
 if test "$have_ffmpeg" == yes
 then
-	testprogs="$testprogs videoreader"
+	testprogs="$testprogs videoreader_test"
 fi
 
 testprogs=$testprogs
