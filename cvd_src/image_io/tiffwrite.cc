@@ -1,6 +1,7 @@
 #include "cvd/image_io.h"
 #include "cvd/internal/io/tiff.h"
 #include <algorithm>
+#include <cstdint>
 #include <iostream>
 #include <map>
 #include <tiffio.h>
@@ -34,7 +35,7 @@ class CVD::TIFF::TIFFWritePimpl
 	::TIFF* tif;
 	streamoff length;
 	long strip_size;
-	vector<uint8> bool_rowbuf;
+	vector<uint8_t> bool_rowbuf;
 
 	static tsize_t write(thandle_t vis, tdata_t data, tsize_t count);
 	static tsize_t read(thandle_t vis, tdata_t data, tsize_t count);
@@ -221,7 +222,7 @@ TIFFWritePimpl::TIFFWritePimpl(ostream& os, ImageRef s, const string& t)
 	TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 	TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, 1);
 
-	uint16 alpha[] = { EXTRASAMPLE_UNASSALPHA };
+	uint16_t alpha[] = { EXTRASAMPLE_UNASSALPHA };
 	if(t == "bool")
 	{
 		TIFFSetField(tif, TIFFTAG_FILLORDER, FILLORDER_MSB2LSB);

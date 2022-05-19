@@ -41,8 +41,8 @@ class CVD::TIFF::TIFFPimpl
 	bool use_cooked_rgba_interface;
 	bool inverted_grey;
 
-	vector<uint32> raster_data;
-	vector<uint8> bool_rowbuf;
+	vector<uint32_t> raster_data;
+	vector<uint8_t> bool_rowbuf;
 
 	static tsize_t write(thandle_t vis, tdata_t data, tsize_t count);
 	static tsize_t read(thandle_t vis, tdata_t data, tsize_t count);
@@ -142,8 +142,8 @@ void TIFFPimpl::get_raw_pixel_line(Rgba<unsigned char>* data)
 
 	if(use_cooked_rgba_interface)
 	{
-		uint32* raster = &raster_data[row * my_size.x];
-		uint32* end = raster + my_size.x;
+		uint32_t* raster = &raster_data[row * my_size.x];
+		uint32_t* end = raster + my_size.x;
 
 		for(; raster < end; raster++, data++)
 		{
@@ -258,8 +258,8 @@ TIFFPimpl::TIFFPimpl(istream& is)
 #endif
 
 	//Libtiff types
-	uint32 w = 0, h = 0;
-	uint16 bitspersample = 0, spp = 0, sampleformat = 0, photo = 0, pl_type = 0;
+	uint32_t w = 0, h = 0;
+	uint16_t bitspersample = 0, spp = 0, sampleformat = 0, photo = 0, pl_type = 0;
 
 	TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
 	TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
@@ -327,7 +327,7 @@ TIFFPimpl::TIFFPimpl(istream& is)
 
 		//Figure out the colourspace
 		if(spp == 1)
-			type = type;
+			;
 		else if(spp == 2)
 			type = "CVD::GreyAlpha<" + type + ">";
 		else if(spp == 3)
