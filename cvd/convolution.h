@@ -510,7 +510,7 @@ void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& out, double sigma, 
 	int h = I.size().y;
 	int swin = 2 * ksize;
 
-	std::vector<sum_type> buffer(w * (swin + 1));
+	std::vector<sum_type> buffer(std::max(w, ksize) * (swin + 1));
 	std::vector<sum_type> aligned_rowbuf(w);
 	std::vector<sum_type> aligned_outbuf(w);
 
@@ -519,7 +519,7 @@ void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& out, double sigma, 
 
 	std::vector<sum_type*> rows(swin + 1);
 	for(int k = 0; k < swin + 1; k++)
-		rows[k] = buffer.data() + k * w;
+		rows[k] = buffer.data() + k * std::max(w, ksize);
 
 	T* output = out.data();
 	for(int i = 0; i < h; i++)
