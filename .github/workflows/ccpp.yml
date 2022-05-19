@@ -21,7 +21,7 @@ jobs:
       run: ../configure
       env: 
         CC: gcc-10
-        CXX: g++-10 -Werror -Wno-stringop-overflow
+        CXX: g++-10 -Werror
     - name: make
       working-directory: ./build
       run: make
@@ -39,10 +39,10 @@ jobs:
       run: mkdir build
     - name: configure
       working-directory: ./build
-      run: cmake ..
+      run: cmake -DCMAKE_BUILD_TYPE=DEBUG ..
       env: 
         CC: gcc-10
-        CXX: g++-10 -Werror -Wno-stringop-overflow
+        CXX: g++-10 -Werror -fsanitize=address,undefined -D_GLIBCXX_DEBUG -DCVD_IMAGE_DEBUG
     - name: make
       run: make
       working-directory: ./build
