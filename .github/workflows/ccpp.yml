@@ -42,13 +42,13 @@ jobs:
       run: cmake -DCMAKE_BUILD_TYPE=DEBUG ..
       env: 
         CC: gcc-10
-        CXX: g++-10 -Werror -fsanitize=address,undefined -D_GLIBCXX_DEBUG -DCVD_IMAGE_DEBUG -DTIFF_DISABLE_DEPRECATED -Wno-error=stringop-overflow
+        CXX: g++-10 -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -D_GLIBCXX_DEBUG -DCVD_IMAGE_DEBUG -DTIFF_DISABLE_DEPRECATED -Wno-error=stringop-overflow
     - name: make
       run: make
       working-directory: ./build
     - name: ctest
       working-directory: ./build
-      run: ctest . || (cat ./Testing/Temporary/LastTest.log; exit 1)
+      run: ASAN_OPTIONS=fast_unwind_on_malloc=0 ctest . || (cat ./Testing/Temporary/LastTest.log; exit 1)
   clang-format-ubuntu:
     runs-on: ubuntu-18.04
     steps:
