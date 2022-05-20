@@ -45,7 +45,7 @@ class VideoReader
 	std::unique_ptr<AVFormatContext, internal::AVFormatContextCloser> m_format_context;
 	std::unique_ptr<AVCodecContext, internal::AVCodecContextCloser> m_codec_context;
 	std::unique_ptr<internal::Scaler> m_scaler;
-	std::unique_ptr<AVFrame, internal::AVFrameCloser> m_raw_frame;
+	std::unique_ptr<AVFrame, internal::AVFrameDeleter> m_raw_frame;
 	int m_stream_index = -1;
 };
 
