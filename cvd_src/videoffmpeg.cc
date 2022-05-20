@@ -25,7 +25,7 @@ namespace internal
 	{
 		if(context)
 		{
-	        av_freep(&context->extradata);
+			av_freep(&context->extradata);
 			avcodec_close(context);
 			av_free(context);
 		}

@@ -509,8 +509,8 @@ void convolveGaussian(const BasicImage<T>& I, BasicImage<T>& out, double sigma, 
 	int w = I.size().x;
 	int h = I.size().y;
 	int swin = 2 * ksize;
-	
-	if (w < ksize || h < ksize)
+
+	if(w < ksize || h < ksize)
 	{
 		out.copy_from(I);
 		return;
