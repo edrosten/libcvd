@@ -7,6 +7,8 @@
 */
 #include <cvd/videowriter.h>
 
+#include "test_utility.h"
+
 #include <cvd/image.h>
 #include <cvd/rgba.h>
 #include <cvd/videoreader.h>
@@ -23,32 +25,9 @@ using CVD::ImageRef;
 using CVD::Rgba;
 using CVD::VideoReader;
 using CVD::VideoWriter;
+using CVD::Testing::assert_equal;
+using CVD::Testing::assert_near;
 using std::uint8_t;
-
-template <typename T>
-void assert_equal(T expected, T actual, std::string message)
-{
-	if(expected != actual)
-	{
-		std::cerr << message << "; expected " << expected << ", actual " << actual << "\n";
-		exit(EXIT_FAILURE);
-	}
-}
-
-void assert_near(Rgba<uint8_t> expected, Rgba<uint8_t> actual, std::string message)
-{
-	int diff = std::max({
-	    std::abs(static_cast<int>(expected.red) - actual.red),
-	    std::abs(static_cast<int>(expected.green) - actual.green),
-	    std::abs(static_cast<int>(expected.blue) - actual.blue),
-	    std::abs(static_cast<int>(expected.alpha) - actual.alpha),
-	});
-	if(diff > 30)
-	{
-		std::cerr << message << "; expected " << expected << ", actual " << actual << "\n";
-		exit(EXIT_FAILURE);
-	}
-}
 }
 
 int main(int argc, char* argv[])
