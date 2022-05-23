@@ -1,12 +1,14 @@
 #ifndef CVD_UTILITY_H
 #define CVD_UTILITY_H
 
-#include <cstdint>
-
 #include <cvd/image.h>
 #include <cvd/internal/convert_pixel_types.h>
 #include <cvd/internal/pixel_traits.h>
+
+#include <array>
+#include <cstdint>
 #include <type_traits>
+#include <vector>
 
 namespace CVD
 { //begin namespace
@@ -260,6 +262,30 @@ double inner_product(const double* a, const double* b, size_t count);
 double sum_squared_differences(const double* a, const double* b, size_t count);
 long long sum_squared_differences(const byte* a, const byte* b, size_t count);
 
+template <typename T>
+std::array<CVD::Image<typename CVD::Pixel::Component<T>::type>, CVD::Pixel::Component<T>::count> split(const CVD::BasicImage<T>& in)
+{
+	using C = CVD::Pixel::Component<T>;
+	constexpr size_t N = C::count;
+	using P = typename C::type;
+	std::array<CVD::Image<P>, N> result;
+	for(size_t i = 0; i < N; ++i)
+	{
+		result[i].resize(in.size());
+	}
+	for(int j = 0; j < in.size().y; ++j)
+	{
+		for(int i = 0; i < in.size().x; ++i)
+		{
+			const T& pixel = in[j][i];
+			for(size_t k = 0; k < N; ++k)
+			{
+				result[k][j][i] = C::get(pixel, k);
+			}
+		}
+	}
+	return result;
+}
 }
 
 #endif

@@ -10,10 +10,30 @@
 #include <cvd/rgb8.h>
 #include <cvd/rgba.h>
 
+#include <array>
+
 namespace CVD
 {
 namespace Pixel
 {
+
+	template <class P, size_t N>
+	struct Component<std::array<P, N>>
+	{
+		typedef P type;
+		static const size_t count = N;
+
+		//This version is much faster, with -funroll-loops
+		static const P& get(const std::array<P, N>& pixel, size_t i)
+		{
+			return pixel[i];
+		}
+
+		static P& get(std::array<P, N>& pixel, size_t i)
+		{
+			return pixel[i];
+		}
+	};
 
 	template <class P>
 	struct Component<Rgb<P>>
