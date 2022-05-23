@@ -1,70 +1,38 @@
-#include <chrono>
+#include "test_utility.h"
+
 #include <cvd/image.h>
 #include <cvd/vision.h>
+
+#include <chrono>
 #include <random>
 
 using CVD::Image;
 using CVD::ImageRef;
-using CVD::SubImage;
-
-Image<int> im(int x, int y, const std::initializer_list<int>& data)
-{
-	if(ImageRef(x, y).area() != (int)data.size())
-		abort();
-
-	return SubImage<int>(const_cast<int*>(std::data(data)), ImageRef(x, y));
-}
+using CVD::Testing::assert_equal;
+using CVD::Testing::assert_image_equal;
+using CVD::Testing::init;
 
 int main()
 {
-
-	Image<int> a;
-
-	a = im(2, 2,
-	    { 1, 2,
-	        3, 4 });
-
+	Image<int> a = init({ { 1, 2 }, { 3, 4 } });
 	flipVertical(a);
-
-	if(!std::equal(a.begin(), a.end(), im(2, 2, { 3, 4, 1, 2 }).begin()))
-		throw std::logic_error("Even sized flipV failed");
+	assert_image_equal(init({ { 3, 4 }, { 1, 2 } }), a, "Even sized flipV failed");
 
 	////////////////////////////////////////////////////////////////////////////////
-	a = im(2, 3,
-	    { 1, 2,
-	        3, 4,
-	        5, 6 });
-
+	a = init({ { 1, 2 }, { 3, 4 }, { 5, 6 } });
 	flipVertical(a);
-
-	if(!std::equal(a.begin(), a.end(), im(2, 3, { 5, 6, 3, 4, 1, 2 }).begin()))
-		throw std::logic_error("Odd sized flipV failed");
+	assert_image_equal(init({ { 5, 6 }, { 3, 4 }, { 1, 2 } }), a, "Odd sized flipV failed");
 
 	////////////////////////////////////////////////////////////////////////////////
-
-	a = im(2, 3,
-	    { 1, 2,
-	        3, 4,
-	        5, 6 });
-
+	a = init({ { 1, 2 }, { 3, 4 }, { 5, 6 } });
 	Image<int> b(a.size().transpose());
 	CVD::Internal::simpleTranspose(a, b);
-
-	if(!std::equal(b.begin(), b.end(), im(2, 3, { 1, 3, 5, 2, 4, 6 }).begin()))
-		throw std::logic_error("Simple transpose failed");
+	assert_image_equal(init({ { 1, 3, 5 }, { 2, 4, 6 } }), b, "Simple transpose failed");
 
 	////////////////////////////////////////////////////////////////////////////////
-
-	a = im(2, 3,
-	    { 1, 2,
-	        3, 4,
-	        5, 6 });
-
 	b.resize(a.size().transpose());
 	CVD::Internal::recursiveTranspose(a, b, 1);
-
-	if(!std::equal(b.begin(), b.end(), im(2, 3, { 1, 3, 5, 2, 4, 6 }).begin()))
-		throw std::logic_error("Recursive transpose failed (small)");
+	assert_image_equal(init({ { 1, 3, 5 }, { 2, 4, 6 } }), b, "Recursive transpose failed (small)");
 
 	////////////////////////////////////////////////////////////////////////////////
 	const int N = 100;
@@ -96,8 +64,7 @@ int main()
 			CVD::Internal::simpleTranspose(im1, simple);
 			auto t3 = std::chrono::steady_clock::now();
 
-			if(!std::equal(simple.begin(), simple.end(), recurs.begin()))
-				throw std::logic_error("Recursive transpose failed");
+			CVD::Testing::assert_image_equal(simple, recurs);
 
 			s_recursive += std::chrono::duration<double>(t2 - t1).count();
 			s_simple += std::chrono::duration<double>(t3 - t2).count();

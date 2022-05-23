@@ -28,3 +28,12 @@ if(CVD_HAVE_FFMPEG)
 	target_link_libraries(videoreader_test PRIVATE CVD)
 	add_test(NAME videoreader_test COMMAND videoreader_test ${CMAKE_CURRENT_LIST_DIR}/videoreader_test.mp4)
 endif()
+
+if(CVD_ENABLE_OPENCV_TESTS)
+	# test only, carries no binary dependency
+	find_package(OpenCV REQUIRED)
+	find_package(Eigen3 REQUIRED)
+	add_executable(opencv_test opencv_test.cc)
+	target_link_libraries(opencv_test PRIVATE CVD Eigen3::Eigen ${OpenCV_LIBS})
+	add_test(NAME opencv_test COMMAND opencv_test)
+endif()
