@@ -5,6 +5,7 @@ enable_testing()
 option(CVD_ENABLE_TESTS "Build libCVD tests" ON)
 option(CVD_ENABLE_PROGS "Build libCVD programs" ON)
 option(CVD_ENABLE_EXAMPLES "Build libCVD examples" ON)
+option(CVD_ENABLE_OPENCV_TESTS "Build libCVD tests that rely on OpenCV" OFF)
 
 include(TestBigEndian)
 include(CheckSymbolExists)

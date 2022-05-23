@@ -33,16 +33,16 @@ jobs:
     steps:
     - run: |
            sudo apt-get update
-           sudo apt install g++-10 gcc-10 cmake libavcodec-dev libavdevice-dev libavformat-dev libavutil-dev libswscale-dev
+           sudo apt install g++-10 gcc-10 cmake libavcodec-dev libavdevice-dev libavformat-dev libavutil-dev libswscale-dev libeigen3-dev libopencv-dev libtoon-dev
     - uses: actions/checkout@v2
     - name: setup
       run: mkdir build
     - name: configure
       working-directory: ./build
-      run: cmake -DCMAKE_BUILD_TYPE=DEBUG ..
+      run: cmake -DCMAKE_BUILD_TYPE=Debug -DCVD_ENABLE_OPENCV_TESTS=ON ..
       env: 
         CC: gcc-10
-        CXX: g++-10 -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -D_GLIBCXX_DEBUG -DCVD_IMAGE_DEBUG -DTIFF_DISABLE_DEPRECATED -Wno-error=stringop-overflow
+        CXX: g++-10 -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -DCVD_IMAGE_DEBUG -DTIFF_DISABLE_DEPRECATED -Wno-error=stringop-overflow
     - name: make
       run: make
       working-directory: ./build
