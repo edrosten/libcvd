@@ -22,11 +22,6 @@ namespace internal
 		void operator()(AVFormatContext* context) const;
 	};
 
-	struct AVFrameCloser
-	{
-		void operator()(AVFrame* p) const;
-	};
-
 	struct AVFrameDeleter
 	{
 		void operator()(AVFrame* p) const;

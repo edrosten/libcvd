@@ -25,6 +25,7 @@ namespace internal
 	{
 		if(context)
 		{
+			av_freep(&context->extradata);
 			avcodec_close(context);
 			av_free(context);
 		}
@@ -34,21 +35,8 @@ namespace internal
 	{
 		if(context)
 		{
-			if(context->pb)
-			{
-				avio_close(context->pb);
-				context->pb = nullptr;
-			}
+			avformat_close_input(&context);
 			avformat_free_context(context);
-		}
-	}
-
-	void AVFrameCloser::operator()(AVFrame* frame) const
-	{
-		if(frame)
-		{
-			av_frame_unref(frame);
-			av_free(frame);
 		}
 	}
 

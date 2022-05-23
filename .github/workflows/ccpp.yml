@@ -21,7 +21,7 @@ jobs:
       run: ../configure
       env: 
         CC: gcc-10
-        CXX: g++-10 -Werror -Wno-stringop-overflow
+        CXX: g++-10 -Werror -Wno-error=stringop-overflow
     - name: make
       working-directory: ./build
       run: make
@@ -29,7 +29,7 @@ jobs:
       working-directory: ./build
       run: make test
   build-test-ubuntu-cmake:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
     - run: |
            sudo apt-get update
@@ -39,13 +39,16 @@ jobs:
       run: mkdir build
     - name: configure
       working-directory: ./build
-      run: cmake ..
+      run: cmake -DCMAKE_BUILD_TYPE=DEBUG ..
       env: 
         CC: gcc-10
-        CXX: g++-10 -Werror -Wno-stringop-overflow
+        CXX: g++-10 -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -D_GLIBCXX_DEBUG -DCVD_IMAGE_DEBUG -DTIFF_DISABLE_DEPRECATED -Wno-error=stringop-overflow
     - name: make
       run: make
       working-directory: ./build
+    - name: ctest
+      working-directory: ./build
+      run: ASAN_OPTIONS=fast_unwind_on_malloc=0 ctest . || (cat ./Testing/Temporary/LastTest.log; exit 1)
   clang-format-ubuntu:
     runs-on: ubuntu-18.04
     steps:
