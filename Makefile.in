@@ -300,6 +300,8 @@ tests/%.test: tests/%.cc
 .PRECIOUS:tests/%.out
 tests/videoreader_test.out: tests/videoreader_test.test
 	LD_LIBRARY_PATH=. ./$< @srcdir@/tests/videoreader_test.mp4 && touch $@
+tests/videowriter_test.out: tests/videowriter_test.test
+	LD_LIBRARY_PATH=. ./$< ./tests/videowriter_test.mp4 && touch $@
 tests/%.out: tests/%.test
 	LD_LIBRARY_PATH=. ./$<  && touch $@
 

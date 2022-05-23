@@ -118,7 +118,7 @@ namespace Testing
 		    std::abs(static_cast<int>(expected.blue) - actual.blue),
 		    std::abs(static_cast<int>(expected.alpha) - actual.alpha),
 		});
-		if(diff > 5)
+		if(diff > 30)
 		{
 			if(!message.empty())
 			{

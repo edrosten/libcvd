@@ -242,6 +242,7 @@ if(CVD_FFMPEG_FOUND)
 		cvd_src/videoreader.cc
 		cvd_src/videoreaderfilebuffer.cc
 		cvd_src/videoscaler.cc
+		cvd_src/videowriter.cc
 		cvd_src/videofilebuffer2.cc
 		cvd_src/videosource_videofilebuffer.cc)
 	list(APPEND HEADERS
@@ -249,6 +250,7 @@ if(CVD_FFMPEG_FOUND)
 		cvd/videoreader.h
 		cvd/videoreaderfilebuffer.h
 		cvd/videoscaler.h
+		cvd/videowriter.h
 	)
 else()
 	set(CVD_HAVE_FFMPEG OFF)
