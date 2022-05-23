@@ -43,7 +43,7 @@ void assert_near(Rgba<uint8_t> expected, Rgba<uint8_t> actual, std::string messa
 	    std::abs(static_cast<int>(expected.blue) - actual.blue),
 	    std::abs(static_cast<int>(expected.alpha) - actual.alpha),
 	});
-	if(diff > 5)
+	if(diff > 30)
 	{
 		std::cerr << message << "; expected " << expected << ", actual " << actual << "\n";
 		exit(EXIT_FAILURE);
