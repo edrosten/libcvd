@@ -1,4 +1,7 @@
+#include "test_utility.h"
+
 #include <cvd/image_ref.h>
+
 #include <iostream>
 
 using namespace std;
@@ -24,6 +27,5 @@ int main()
 	Fun<i[0]> {};
 	Fun<i.x> {};
 
-	if(foo(i) != ImageRef(16, 20))
-		return 1;
+	CVD::Testing::assert_equal(ImageRef(16, 20), foo(i));
 }

@@ -7,6 +7,8 @@
 */
 #include <cvd/videoreader.h>
 
+#include "test_utility.h"
+
 #include <cvd/rgba.h>
 
 #include <algorithm>
@@ -17,31 +19,8 @@ namespace
 {
 using CVD::Rgba;
 using CVD::VideoReader;
-
-template <typename T>
-void assert_equal(T expected, T actual, std::string message)
-{
-	if(expected != actual)
-	{
-		std::cerr << message << "; expected " << expected << ", actual " << actual << "\n";
-		exit(EXIT_FAILURE);
-	}
-}
-
-void assert_near(Rgba<uint8_t> expected, Rgba<uint8_t> actual, std::string message)
-{
-	int diff = std::max({
-	    std::abs(static_cast<int>(expected.red) - actual.red),
-	    std::abs(static_cast<int>(expected.green) - actual.green),
-	    std::abs(static_cast<int>(expected.blue) - actual.blue),
-	    std::abs(static_cast<int>(expected.alpha) - actual.alpha),
-	});
-	if(diff > 5)
-	{
-		std::cerr << message << "; expected " << expected << ", actual " << actual << "\n";
-		exit(EXIT_FAILURE);
-	}
-}
+using CVD::Testing::assert_equal;
+using CVD::Testing::assert_near;
 }
 
 int main(int argc, char* argv[])

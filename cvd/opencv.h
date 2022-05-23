@@ -50,5 +50,35 @@ void equalizeHist(const CVD::BasicImage<T>& in, CVD::BasicImage<T>& out)
 {
 	equalizeHist(toMat(in), toMat(out));
 }
+
+namespace OpenCV
+{
+	struct ContourHierarchy
+	{
+		int next_index;
+		int previous_index;
+		int first_child_index;
+		int parent_index;
+	};
+
+	namespace Internal
+	{
+		void convert_hierarchy(const std::vector<cv::Vec4i>& cv_hierarchy, std::vector<ContourHierarchy>& hierarchy)
+		{
+			hierarchy.reserve(cv_hierarchy.size());
+			std::transform(
+			    cv_hierarchy.begin(),
+			    cv_hierarchy.end(),
+			    std::back_inserter(hierarchy),
+			    [](const cv::Vec4i& p) { return ContourHierarchy { p[0], p[1], p[2], p[3] }; });
+		}
+	}
+
+	template <typename T>
+	void resize(const CVD::BasicImage<T>& in, CVD::BasicImage<T>& out, int interpolation = cv::INTER_LINEAR)
+	{
+		cv::resize(toMat(in), toMat(out), cv::Size(out.size().x, out.size().y), 0, 0, interpolation);
+	}
+}
 }
 #endif
