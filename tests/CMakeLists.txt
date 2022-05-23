@@ -27,4 +27,8 @@ if(CVD_HAVE_FFMPEG)
 	add_executable(videoreader_test videoreader_test.cc)
 	target_link_libraries(videoreader_test PRIVATE CVD)
 	add_test(NAME videoreader_test COMMAND videoreader_test ${CMAKE_CURRENT_LIST_DIR}/videoreader_test.mp4)
+
+	add_executable(videowriter_test videowriter_test.cc)
+	target_link_libraries(videowriter_test PRIVATE CVD)
+	add_test(NAME videowriter_test COMMAND videowriter_test ${CMAKE_CURRENT_BINARY_DIR}/videowriter_test.mp4)
 endif()

@@ -10322,6 +10322,7 @@ then
 	dep_objects="$dep_objects cvd_src/videoreader.o"
 	dep_objects="$dep_objects cvd_src/videoreaderfilebuffer.o"
 	dep_objects="$dep_objects cvd_src/videoscaler.o"
+	dep_objects="$dep_objects cvd_src/videowriter.o"
 else
 	dep_objects="$dep_objects cvd_src/videosource_novideofilebuffer.o"
 fi
@@ -10414,6 +10415,7 @@ progs=$progs
 if test "$have_ffmpeg" == yes
 then
 	testprogs="$testprogs videoreader_test"
+	testprogs="$testprogs videowriter_test"
 fi
 
 testprogs=$testprogs

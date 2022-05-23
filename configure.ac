@@ -633,6 +633,7 @@ then
 	DEPOBJ(videoreader)
 	DEPOBJ(videoreaderfilebuffer)
 	DEPOBJ(videoscaler)
+	DEPOBJ(videowriter)
 else
 	DEPOBJ(videosource_novideofilebuffer)
 fi
@@ -723,6 +724,7 @@ define(DEPTEST, [APPEND(testprogs, $1)])
 if test "$have_ffmpeg" == yes
 then 
 	DEPTEST(videoreader_test)
+	DEPTEST(videowriter_test)
 fi
 
 AC_SUBST(testprogs, [$testprogs])
