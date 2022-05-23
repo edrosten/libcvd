@@ -42,7 +42,7 @@ jobs:
       run: cmake -DCMAKE_BUILD_TYPE=Debug -DCVD_ENABLE_OPENCV_TESTS=ON ..
       env: 
         CC: gcc-10
-        CXX: g++-10 -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -D_GLIBCXX_DEBUG -DCVD_IMAGE_DEBUG -DTIFF_DISABLE_DEPRECATED -Wno-error=stringop-overflow
+        CXX: g++-10 -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -DCVD_IMAGE_DEBUG -DTIFF_DISABLE_DEPRECATED -Wno-error=stringop-overflow
     - name: make
       run: make
       working-directory: ./build
