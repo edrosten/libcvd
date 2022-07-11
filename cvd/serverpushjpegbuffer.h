@@ -43,7 +43,7 @@ class ServerPushJpegBuffer : public LocalVideoBuffer<C>
 	///@param i The stream to use for video.
 	///@param warnings Whether to print warnings if mis-sized frames arrive.
 	///@param eat_frames Number of frames to discard on initialization.
-	ServerPushJpegBuffer<C>(std::istream& i, bool warnings_ = 0, int eat_frames = 0)
+	ServerPushJpegBuffer(std::istream& i, bool warnings_ = 0, int eat_frames = 0)
 	    : LocalVideoBuffer<C>(VideoBufferType::Live)
 	    , is(i)
 	    , warnings(warnings_)
