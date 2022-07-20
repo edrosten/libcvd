@@ -63,7 +63,7 @@ namespace OpenCV
 
 	namespace Internal
 	{
-		void convert_hierarchy(const std::vector<cv::Vec4i>& cv_hierarchy, std::vector<ContourHierarchy>& hierarchy)
+		inline void convert_hierarchy(const std::vector<cv::Vec4i>& cv_hierarchy, std::vector<ContourHierarchy>& hierarchy)
 		{
 			hierarchy.reserve(cv_hierarchy.size());
 			std::transform(
