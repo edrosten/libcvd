@@ -22,8 +22,7 @@ namespace CVD
 ///@ingroup gVision
 double interpolate_extremum(double d1, double d2, double d3)
 {
-	assert(d2 >= d1 && d2 > d3 || d2 > d1 && d2 >= d3);
-	assert(d2 <= d1 && d2 < d3 || d2 < d1 && d2 <= d3);
+	assert(d2 >= d1 && d2 > d3 || d2 > d1 && d2 >= d3 || d2 <= d1 && d2 < d3 || d2 < d1 && d2 <= d3);
 	//Use Quadratic interpolation to find the peak, position
 	//and hence the "real" edge position.
 	return -0.5 * (d3 - d1) / (d3 + d1 - 2 * d2);
