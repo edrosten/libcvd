@@ -20,7 +20,7 @@ namespace CVD
 ///@param d3  Data point value for $x=1$
 ///@return The $x$ coordinate of the extremum.
 ///@ingroup gVision
-double interpolate_extremum(double d1, double d2, double d3)
+inline double interpolate_extremum(double d1, double d2, double d3)
 {
 	assert(d2 >= d1 && d2 > d3 || d2 > d1 && d2 >= d3 || d2 <= d1 && d2 < d3 || d2 < d1 && d2 <= d3);
 	//Use Quadratic interpolation to find the peak, position
@@ -53,7 +53,7 @@ double interpolate_extremum(double d1, double d2, double d3)
 ///@param I_1_1   Pixel $( 1,  1)$ relative to the centre (i)
 ///@return Location of the local extrema.
 ///@ingroup gVision
-TooN::Vector<2> interpolate_extremum(double I__1__1,
+inline TooN::Vector<2> interpolate_extremum(double I__1__1,
     double I__1_0,
     double I__1_1,
     double I_0__1,
@@ -89,7 +89,7 @@ TooN::Vector<2> interpolate_extremum(double I__1__1,
 ///@return Location of local extremum in image coordinates
 ///@ingroup gVision
 template <class I>
-TooN::Vector<2> interpolate_extremum(const BasicImage<I>& i, ImageRef p)
+inline TooN::Vector<2> interpolate_extremum(const BasicImage<I>& i, ImageRef p)
 {
 	CVD_IMAGE_ASSERT(p.x > 0 && p.y > 0 && p.x < i.size().x - 1 && p.y < i.size().y - 1, ImageError::AccessOutsideImage);
 
@@ -132,7 +132,7 @@ TooN::Vector<2> interpolate_extremum(const BasicImage<I>& i, ImageRef p)
 ///@param I_1_1   Pixel $( 1,  1)$ relative to the centre (i)
 ///@return pair containing Location of the local extrema and the value
 ///@ingroup gVision
-std::pair<TooN::Vector<2>, double> interpolate_extremum_value(double I__1__1,
+inline std::pair<TooN::Vector<2>, double> interpolate_extremum_value(double I__1__1,
     double I__1_0,
     double I__1_1,
     double I_0__1,
@@ -170,7 +170,7 @@ std::pair<TooN::Vector<2>, double> interpolate_extremum_value(double I__1__1,
 ///@return pair containing Location of local extremum in image coordinates and the value of the extemum
 ///@ingroup gVision
 template <class I>
-std::pair<TooN::Vector<2>, double> interpolate_extremum_value(const BasicImage<I>& i, ImageRef p)
+inline std::pair<TooN::Vector<2>, double> interpolate_extremum_value(const BasicImage<I>& i, ImageRef p)
 {
 	CVD_IMAGE_ASSERT(p.x > 0 && p.y > 0 && p.x < i.size().x - 1 && p.y < i.size().y - 1, ImageError::AccessOutsideImage);
 
