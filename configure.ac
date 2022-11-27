@@ -404,9 +404,9 @@ CHECK_FOR_OPTION(videodisplay,[
 	fi
 
 	APPEND(LIBS, [-lX11 -lXext])
-	AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
-	AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
-	AC_CHECK_LIB(GLU,gluGetString, [], [a=1])
+	#AC_CHECK_LIB(GL,glDrawPixels, [], [a=1])
+	#AC_CHECK_HEADERS(GL/glu.h, [], [a=1])
+	#AC_CHECK_LIB(GLU,gluGetString, [], [a=1])
 ])
 
 CHECK_FOR_OPTION(toon, [

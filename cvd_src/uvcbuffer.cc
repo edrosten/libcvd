@@ -68,10 +68,12 @@ namespace UVC
 		return dev_str;
 	}
 
-	void RawUVCBuffer::fill_frame(void* data)
+	void RawUVCBuffer::fill_frame(void* data, size_t bytes)
 	{
 		uvc_frame_t to;
 		to.data = data;
+		to.library_owns_data = false;
+		to.data_bytes = bytes;
 
 		uvc_frame_t* from = NULL;
 
@@ -89,9 +91,12 @@ namespace UVC
 		//If we're capturing RGB, then there might be a conversion
 		//involved (i.e. from MJPEG)
 		if(format == UVC_FRAME_FORMAT_RGB)
-			uvc_any2rgb(from, &to);
+			e = uvc_any2rgb(from, &to);
 		else
 			uvc_duplicate_frame(from, &to);
+
+		if(e != UVC_SUCCESS)
+			throw Exceptions::UVCBuffer::GetFrame(dev_str, uvc_strerror(e));
 	}
 
 	RawUVCBuffer::RawUVCBuffer(const std::string& sn_, unsigned int fmt, ImageRef size_, double frame_per_second, bool mjpeg, bool verbose)

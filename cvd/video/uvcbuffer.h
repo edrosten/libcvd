@@ -107,7 +107,7 @@ namespace UVC
 		public:
 		RawUVCBuffer(const std::string& dev, unsigned int fmt, ImageRef size, double frame_per_second, bool mjpeg, bool verbose);
 		ImageRef getSize();
-		void fill_frame(void*);
+		void fill_frame(void*,size_t);
 		double getRate();
 		virtual ~RawUVCBuffer();
 		const std::string& device_name() const;
@@ -154,7 +154,7 @@ class UVCBuffer : public VideoBuffer<T>, public UVC::RawUVCBuffer
 	{
 
 		Image<T> frame(size());
-		fill_frame(frame.data());
+		fill_frame(frame.data(), frame.datalength());
 		return new UVCFrame(0.0, std::move(frame));
 	}
 

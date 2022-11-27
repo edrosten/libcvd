@@ -318,7 +318,6 @@ namespace Internal
 		{
 		}
 
-		/// What is the row stride of the image?
 		inline size_t datalength() const
 		{
 			return data_length;
@@ -747,6 +746,14 @@ class Image : public SubImage<T>
 	~Image()
 	{
 		delete_old();
+	}
+
+	size_t datalength() const
+	{
+		if constexpr (Internal::IsDummy<T>::Is)
+			return Internal::ImageData<T>::datalength();
+		else
+			return my_size.area()*sizeof(T);
 	}
 
 	private:
