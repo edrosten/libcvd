@@ -547,7 +547,7 @@ class BasicImage : public Internal::ImageData<T>
 	{
 		CVD_IMAGE_ASSERT2(other.size() == this->size(), Exceptions::Image::IncompatibleImageSizes, "copy_from");
 		for(int y = 0; y < my_size.y; y++)
-			if constexpr(std::is_trivially_copyable_v<T>)
+			if constexpr(std::is_trivially_copyable<T>::value)
 				std::memcpy((*this)[y], other[y], sizeof(T) * my_size.x);
 			else
 				std::copy(other[y], other[y] + my_size.x, (*this)[y]);

@@ -129,7 +129,7 @@ namespace Internal
 	template <class I, class ImageTypeList, int N = 0>
 	void img_load_tuple(Image<I>& im, std::istream& i, [[maybe_unused]] int c)
 	{
-		if constexpr(N == std::tuple_size_v<ImageTypeList>)
+		if constexpr(N == std::tuple_size<ImageTypeList>::value)
 		{
 			throw Exceptions::Image_IO::UnsupportedImageType();
 		}
