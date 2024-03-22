@@ -94,6 +94,7 @@ set(HEADERS
 	cvd/colourspace_convert.h
 	cvd/colourspace_frame.h
 	cvd/connected_components.h
+	cvd/convert_image.h
 	cvd/convolution.h
 	cvd/deinterlacebuffer.h
 	cvd/deinterlaceframe.h
