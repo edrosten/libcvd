@@ -295,7 +295,7 @@ REGRESSION_OUT=$(patsubst %,tests/%.out, $(REGRESSIONS))
 test:$(REGRESSION_OUT)
 .PRECIOUS:tests/%.test
 tests/%.test: tests/%.cc 
-	mkdir -p $(@D) && $(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -O0 -L. -lcvd -MMD -MP -MF tests/$*.d
+	mkdir -p $(@D) && $(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -o $@ -L. -lcvd -MMD -MP -MF tests/$*.d
 
 .PRECIOUS:tests/%.out
 tests/videoreader_test.out: tests/videoreader_test.test
